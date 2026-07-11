@@ -2129,7 +2129,7 @@ function spCH(d){localStorage.setItem(LS_CH,JSON.stringify(d))}
 function no(p){return typeof p==="string"?{name:p,status:0,owner:"",type:"เพจหลัก"}:{name:p.name||"",status:+p.status||0,owner:p.owner||"",type:p.type||"เพจหลัก"};}
 function updateCounts(){var tc=document.getElementById("tab-channels");if(!tc)return;var fb=lpFB();var ch=lpCH();var fbTotal=Object.values(fb).reduce(function(s,a){return s+(Array.isArray(a)?a.length:0);},0);var rows=tc.querySelectorAll(".platform-row");rows.forEach(function(row){var pn=row.querySelector(".platform-name");var pc=row.querySelector(".platform-count");if(!pn||!pc)return;var name=pn.textContent.trim();var cfg=CH_MAP[name];if(!cfg)return;if(name==="Facebook Pages"){pc.textContent=fbTotal+" "+cfg.unit;}else{var items=ch[cfg.k]||[];pc.textContent=items.length+" "+cfg.unit;}});}
 function renameGraphicBtn(){if(document.querySelector("[data-graphic-renamed]"))return;var btn=Array.from(document.querySelectorAll("button")).find(function(b){return b.getAttribute("onclick")&&b.getAttribute("onclick").includes("'team'")&&b.textContent.includes("ทีมงาน");});if(btn){btn.setAttribute("data-graphic-renamed","1");btn.innerHTML="🎨 Graphic";}}
-function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!teamTab||teamTab.getAttribute("data-graphic-init"))return;teamTab.setAttribute("data-graphic-init","1");var teamPanel=document.createElement("div");teamPanel.className="gsp gsp-active";teamPanel.setAttribute("data-sub","team");while(teamTab.firstChild)teamPanel.appendChild(teamTab.firstChild);var orderPanel=document.createElement("div");orderPanel.className="gsp";orderPanel.setAttribute("data-sub","order");orderPanel.innerHTML='<div class="gsp-empty">📋 สั่งงาน<br><br>เมนูนี้กำลังพัฒนา</div>';var linksPanel=document.createElement("div");linksPanel.className="gsp";linksPanel.setAttribute("data-sub","links");linksPanel.innerHTML='<div class="gsp-empty">🔗 รวมลิงก์<br><br>เมนูนี้กำลังพัฒนา</div>';var commissionPanel=document.createElement("div");commissionPanel.className="gsp";commissionPanel.setAttribute("data-sub","commission");commissionPanel.innerHTML='<div class="gsp-empty">💰 ค่าคอมมิชชั่น<br><br>เมนูนี้กำลังพัฒนา</div>';var auditPanel=document.createElement("div");auditPanel.className="gsp";auditPanel.setAttribute("data-sub","audit");auditPanel.innerHTML='<div class="gsp-empty">📊 ยอดหักออดิต<br><br>เมนูนี้กำลังพัฒนา</div>';var subNav=document.createElement("div");subNav.className="graphic-subnav";var subs=[{k:"team",l:"👥 ทีมงาน"},{k:"order",l:"📋 สั่งงาน"},{k:"links",l:"🔗 รวมลิงก์"},{k:"commission",l:"💰 ค่าคอมมิชชั่น"},{k:"audit",l:"📊 ยอดหักออดิต"}];subs.forEach(function(s){var btn=document.createElement("button");btn.className="gsnav-btn"+(s.k==="team"?" gsnav-active":"");btn.textContent=s.l;btn.onclick=function(){teamTab.querySelectorAll(".gsnav-btn").forEach(function(b){b.classList.remove("gsnav-active");});teamTab.querySelectorAll(".gsp").forEach(function(p){p.classList.remove("gsp-active");});btn.classList.add("gsnav-active");var target=teamTab.querySelector("[data-sub=\""+s.k+"\"]");if(target)target.classList.add("gsp-active");if(s.k==="team"&&typeof lvRestorePhotos==="function")setTimeout(lvRestorePhotos,100);};subNav.appendChild(btn);});teamTab.appendChild(subNav);teamTab.appendChild(teamPanel);teamTab.appendChild(orderPanel);teamTab.appendChild(linksPanel);teamTab.appendChild(commissionPanel);teamTab.appendChild(auditPanel);}
+function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!teamTab||teamTab.getAttribute("data-graphic-init"))return;teamTab.setAttribute("data-graphic-init","1");var teamPanel=document.createElement("div");teamPanel.className="gsp gsp-active";teamPanel.setAttribute("data-sub","team");while(teamTab.firstChild)teamPanel.appendChild(teamTab.firstChild);var orderPanel=document.createElement("div");orderPanel.className="gsp";orderPanel.setAttribute("data-sub","order");orderPanel.innerHTML='<div class="gsp-empty">📋 สั่งงาน<br><br>เมนูนี้กำลังพัฒนา</div>';var linksPanel=document.createElement("div");linksPanel.className="gsp";linksPanel.setAttribute("data-sub","links");linksPanel.setAttribute('data-links-ready','1');initLinksPanel(linksPanel);var commissionPanel=document.createElement("div");commissionPanel.className="gsp";commissionPanel.setAttribute("data-sub","commission");commissionPanel.innerHTML='<div class="gsp-empty">💰 ค่าคอมมิชชั่น<br><br>เมนูนี้กำลังพัฒนา</div>';var auditPanel=document.createElement("div");auditPanel.className="gsp";auditPanel.setAttribute("data-sub","audit");auditPanel.innerHTML='<div class="gsp-empty">📊 ยอดหักออดิต<br><br>เมนูนี้กำลังพัฒนา</div>';var subNav=document.createElement("div");subNav.className="graphic-subnav";var subs=[{k:"team",l:"👥 ทีมงาน"},{k:"order",l:"📋 สั่งงาน"},{k:"links",l:"🔗 รวมลิงก์"},{k:"commission",l:"💰 ค่าคอมมิชชั่น"},{k:"audit",l:"📊 ยอดหักออดิต"}];subs.forEach(function(s){var btn=document.createElement("button");btn.className="gsnav-btn"+(s.k==="team"?" gsnav-active":"");btn.textContent=s.l;btn.onclick=function(){teamTab.querySelectorAll(".gsnav-btn").forEach(function(b){b.classList.remove("gsnav-active");});teamTab.querySelectorAll(".gsp").forEach(function(p){p.classList.remove("gsp-active");});btn.classList.add("gsnav-active");var target=teamTab.querySelector("[data-sub=\""+s.k+"\"]");if(target)target.classList.add("gsp-active");if(s.k==="team"&&typeof lvRestorePhotos==="function")setTimeout(lvRestorePhotos,100);};subNav.appendChild(btn);});teamTab.appendChild(subNav);teamTab.appendChild(teamPanel);teamTab.appendChild(orderPanel);teamTab.appendChild(linksPanel);teamTab.appendChild(commissionPanel);teamTab.appendChild(auditPanel);}
 var _mFB=null;
 function openFB(){if(!_mFB)buildFB();refreshFB();_mFB.style.display="flex";document.body.style.overflow="hidden";}
 function closeFB(){if(_mFB)_mFB.style.display="none";document.body.style.overflow="";}
@@ -3096,6 +3096,309 @@ window.gAS=function(){
   console.log('OM_V3 ready');
 })();
 </script>
+<style id="rbl-styles">
+.rbl-wrap{padding:20px 16px;max-width:1100px;margin:0 auto;}
+.rbl-topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.rbl-topbar-title{font-size:16px;font-weight:700;color:#1B4332;flex:1;}
+.rbl-btn-add{background:#1B4332;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.rbl-btn-add:hover{background:#2D6A4F;}
+.rbl-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.rbl-filter-label{font-size:11px;font-weight:700;color:#6b7280;white-space:nowrap;min-width:52px;}
+.rbl-chip{padding:4px 12px;border-radius:20px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:all .15s;white-space:nowrap;}
+.rbl-chip.rbl-active{border-color:#1B4332;background:#1B4332;color:#fff;}
+.rbl-chip:hover:not(.rbl-active){border-color:#40916C;color:#1B4332;}
+.rbl-section{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.rbl-section-hdr{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;user-select:none;background:linear-gradient(135deg,#f9fafb,#f3f4f6);border-bottom:1px solid #e5e7eb;}
+.rbl-section-hdr:hover{background:linear-gradient(135deg,#f0fdf4,#dcfce7);}
+.rbl-section-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.rbl-section-name{font-size:13px;font-weight:700;color:#1f2937;flex:1;}
+.rbl-section-count{font-size:11px;color:#6b7280;background:#e5e7eb;padding:2px 8px;border-radius:10px;font-weight:600;}
+.rbl-section-arrow{font-size:11px;color:#9ca3af;transition:transform .2s;}
+.rbl-section.rbl-collapsed .rbl-section-arrow{transform:rotate(-90deg);}
+.rbl-section.rbl-collapsed .rbl-table-wrap{display:none;}
+.rbl-table-wrap{overflow-x:auto;}
+.rbl-table{width:100%;border-collapse:collapse;font-size:13px;}
+.rbl-table th{background:#f9fafb;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;border-bottom:1.5px solid #e5e7eb;white-space:nowrap;}
+.rbl-table th:last-child{text-align:right;}
+.rbl-table td{padding:9px 12px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
+.rbl-table tr:last-child td{border-bottom:none;}
+.rbl-table tr:hover td{background:#f9fafb;}
+.rbl-type-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;}
+.rbl-name{font-weight:600;color:#1f2937;font-size:13px;}
+.rbl-desc{font-size:11px;color:#6b7280;margin-top:2px;}
+.rbl-url-link{color:#1B4332;text-decoration:none;font-size:12px;word-break:break-all;}
+.rbl-url-link:hover{text-decoration:underline;}
+.rbl-actions{display:flex;gap:5px;justify-content:flex-end;}
+.rbl-btn-icon{width:28px;height:28px;border-radius:6px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;padding:0;}
+.rbl-btn-icon:hover{border-color:#40916C;background:#f0fdf4;}
+.rbl-btn-icon.rbl-del:hover{border-color:#ef4444;background:#fff5f5;}
+.rbl-empty{padding:48px 20px;text-align:center;color:#9ca3af;font-size:14px;}
+.rbl-search{padding:7px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;width:180px;font-family:inherit;}
+.rbl-search:focus{outline:none;border-color:#40916C;}
+.rbl-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;display:flex;align-items:center;justify-content:center;}
+.rbl-modal{background:#fff;border-radius:16px;padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.rbl-modal h3{font-size:17px;font-weight:700;color:#1B4332;margin-bottom:18px;}
+.rbl-field{margin-bottom:13px;}
+.rbl-field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:4px;}
+.rbl-field input,.rbl-field select{width:100%;padding:8px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;}
+.rbl-field input:focus,.rbl-field select:focus{outline:none;border-color:#40916C;box-shadow:0 0 0 3px rgba(64,145,108,.1);}
+.rbl-modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.rbl-btn-save{background:#1B4332;color:#fff;border:none;padding:9px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;}
+.rbl-btn-save:hover{background:#2D6A4F;}
+.rbl-btn-cancel{background:#f3f4f6;color:#374151;border:none;padding:9px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;}
+.rbl-btn-cancel:hover{background:#e5e7eb;}
+</style>
+
+<script>
+(function(){
+'use strict';
+var RBL_KEY='rb_links_v1';
+var RBL_BRANDS=[
+  'ทั่วไป',
+  'โอลิมพลัส',
+  'เฮฟเว่นพลัส',
+  'เดอะลอร์ด',
+  'จูโด้',
+  'ลีฟแคร์',
+  'โซพิงก์'
+];
+var RBL_TYPES=['Google Sheets','Facebook','Line OA','TikTok','YouTube','คู่มือ/Docs','อื่นๆ'];
+var RBL_BC={
+  'ทั่วไป':'#6B7280',
+  'โอลิมพลัส':'#D97706',
+  'เฮฟเว่นพลัส':'#065F46',
+  'เดอะลอร์ด':'#1B4332',
+  'จูโด้':'#2D6A4F',
+  'ลีฟแคร์':'#40916C',
+  'โซพิงก์':'#EC4899'
+};
+var RBL_TC={
+  'Google Sheets':['✓','#dcfce7','#15803d'],
+  'Facebook':['f','#eff6ff','#1d4ed8'],
+  'Line OA':['●','#f0fdf4','#16a34a'],
+  'TikTok':['♪','#fdf4ff','#9333ea'],
+  'YouTube':['▶','#fef2f2','#dc2626'],
+  'คู่มือ/Docs':['▤','#fff7ed','#c2410c'],
+  'อื่นๆ':['◆','#f9fafb','#6b7280']
+};
+var RBL_DEF=[
+  {id:'L1',brand:'ทั่วไป',type:'Google Sheets',
+   name:'SUPERVISOR ADS × RICHBIOTECH',
+   desc:'บัญชีโฆษณา / TikTok / เพจ / Line OA',
+   url:'https://docs.google.com/spreadsheets/d/1nclIcWTmu1o4J0PqvORei11aMgPDmCSwon4VKy-OioU/edit'},
+  {id:'L2',brand:'ทั่วไป',type:'Google Sheets',
+   name:'SUPERVISOR ADS — เวอร์ชั่นคลิป',
+   desc:'ลิงก์สคริปต์ TikTok / gid=684459485',
+   url:'https://docs.google.com/spreadsheets/d/1nclIcWTmu1o4J0PqvORei11aMgPDmCSwon4VKy-OioU/edit?gid=684459485'},
+  {id:'L3',brand:'ทั่วไป',type:'Google Sheets',
+   name:'SUPERVISOR ADS — ชีตหลัก',desc:'gid=309627740',
+   url:'https://docs.google.com/spreadsheets/d/1nclIcWTmu1o4J0PqvORei11aMgPDmCSwon4VKy-OioU/edit?gid=309627740'},
+  {id:'L4',brand:'ทั่วไป',type:'Google Sheets',
+   name:'Plan Content × RICHBIOTECH',
+   desc:'แผนคอนเทนต์ / งานประจำวัน',
+   url:'https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit'},
+  {id:'L5',brand:'ทั่วไป',type:'Google Sheets',
+   name:'Plan Content — ชีต 1',desc:'gid=407546672',
+   url:'https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=407546672'},
+  {id:'L6',brand:'ทั่วไป',type:'Google Sheets',
+   name:'Plan Content — ชีต 2',desc:'gid=2094477502',
+   url:'https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=2094477502'},
+  {id:'L7',brand:'ทั่วไป',type:'Google Sheets',
+   name:'Plan Content — ชีต 3',desc:'gid=189623312',
+   url:'https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=189623312'},
+  {id:'L8',brand:'ทั่วไป',type:'Google Sheets',
+   name:'ตารางยิงแอด (Schedule)',
+   desc:'ตารางงาน Graphic & Ads ทั้งปี 2569',
+   url:'https://docs.google.com/spreadsheets/d/1kjJVW48X4-VMXWrmiPOYOdLE3WI4xjd32Jc73t1cMjE/edit'},
+  {id:'L9',brand:'โอลิมพลัส',type:'Facebook',
+   name:'โอลิมพลัส Official FB',
+   desc:'เพจ Facebook หลัก โอลิมพลัส',
+   url:'https://www.facebook.com/profile.php?id=61578497662530'},
+  {id:'L10',brand:'เฮฟเว่นพลัส',type:'Facebook',
+   name:'เฮฟเว่นพลัส Official FB',
+   desc:'เพจ Facebook หลัก Heaven Plus',
+   url:'https://www.facebook.com/profile.php?id=61578386574735'},
+  {id:'L11',brand:'จูโด้',type:'Facebook',
+   name:'จูโด้ Official FB',
+   desc:'เพจ Facebook หลัก Judo',
+   url:'https://www.facebook.com/profile.php?id=61578326607411'}
+];
+
+var _rblLinks=null,_rblBrand='ALL',_rblType='ALL',_rblQ='';
+
+function rblLoad(){
+  try{var s=localStorage.getItem(RBL_KEY);if(s)return JSON.parse(s);}catch(e){}
+  return JSON.parse(JSON.stringify(RBL_DEF));
+}
+function rblSave(){try{localStorage.setItem(RBL_KEY,JSON.stringify(_rblLinks));}catch(e){}}
+function rblGenId(){return 'L'+Date.now();}
+
+function rblFiltered(){
+  return _rblLinks.filter(function(lk){
+    if(_rblBrand!=='ALL'&&lk.brand!==_rblBrand)return false;
+    if(_rblType!=='ALL'&&lk.type!==_rblType)return false;
+    if(_rblQ){var q=_rblQ.toLowerCase();
+      if(!(lk.name||'').toLowerCase().includes(q)&&
+         !(lk.desc||'').toLowerCase().includes(q)&&
+         !(lk.url||'').toLowerCase().includes(q))return false;}
+    return true;
+  });
+}
+
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function rblTypeBadge(type){
+  var t=RBL_TC[type]||RBL_TC['อื่นๆ'];
+  return '<span class="rbl-type-badge" style="background:'+t[1]+';color:'+t[2]+'">'+escH(t[0]+' '+type)+'</span>';
+}
+
+function rblRenderSection(brand,items,root){
+  var color=RBL_BC[brand]||'#6b7280';
+  var sec=document.createElement('div');
+  sec.className='rbl-section';
+  var hdr=document.createElement('div');
+  hdr.className='rbl-section-hdr';
+  hdr.innerHTML='<div class="rbl-section-dot" style="background:'+color+'"></div>'
+    +'<div class="rbl-section-name">'+escH(brand)+'</div>'
+    +'<div class="rbl-section-count">'+items.length+' ลิงก์</div>'
+    +'<div class="rbl-section-arrow">▼</div>';
+  hdr.onclick=function(){sec.classList.toggle('rbl-collapsed');};
+  var wrap=document.createElement('div');
+  wrap.className='rbl-table-wrap';
+  var rows='';
+  items.forEach(function(lk){
+    var safeUrl=escH(lk.url||'');
+    var displayUrl=(lk.url||'').slice(0,60)+((lk.url||'').length>60?'...':'');
+    rows+='<tr>'
+      +'<td>'+rblTypeBadge(lk.type)+'</td>'
+      +'<td><div class="rbl-name">'+escH(lk.name)+'</div>'+(lk.desc?'<div class="rbl-desc">'+escH(lk.desc)+'</div>':'')+'</td>'
+      +'<td><a class="rbl-url-link" href="'+safeUrl+'" target="_blank">'+escH(displayUrl)+'</a></td>'
+      +'<td><div class="rbl-actions">'
+      +'<button class="rbl-btn-icon" title="เปิด" onclick="window.open(\''+safeUrl+'\',\'_blank\')">🔗</button>'
+      +'<button class="rbl-btn-icon" title="แก้ไข" onclick="rblEdit(\''+escH(lk.id)+'\')">&#9998;</button>'
+      +'<button class="rbl-btn-icon rbl-del" title="ลบ" onclick="rblDel(\''+escH(lk.id)+'\')">🗑️</button>'
+      +'</div></td>'
+      +'</tr>';
+  });
+  wrap.innerHTML='<table class="rbl-table"><thead><tr>'
+    +'<th>ประเภท</th>'
+    +'<th>ชื่อ / รายละเอียด</th>'
+    +'<th>URL</th>'
+    +'<th>จัดการ</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>';
+  sec.appendChild(hdr);
+  sec.appendChild(wrap);
+  root.appendChild(sec);
+}
+
+function rblRender(){
+  var root=document.getElementById('rbl-root');
+  if(!root)return;
+  var filtered=rblFiltered();
+  var groups={};
+  RBL_BRANDS.forEach(function(b){groups[b]=[];});
+  filtered.forEach(function(lk){
+    if(!groups[lk.brand])groups[lk.brand]=[];
+    groups[lk.brand].push(lk);
+  });
+  root.innerHTML='';
+  var hasAny=false;
+  RBL_BRANDS.forEach(function(b){
+    if(groups[b]&&groups[b].length){hasAny=true;rblRenderSection(b,groups[b],root);}
+  });
+  Object.keys(groups).forEach(function(b){
+    if(RBL_BRANDS.indexOf(b)<0&&groups[b]&&groups[b].length){hasAny=true;rblRenderSection(b,groups[b],root);}
+  });
+  if(!hasAny)root.innerHTML='<div class="rbl-empty">🔍 ไม่พบลิงก์</div>';
+}
+
+window.initLinksPanel=function(container){
+  _rblLinks=rblLoad();
+  var brandChips=['<button class="rbl-chip rbl-active" onclick="rblBrand(\'ALL\',this)">ทั้งหมด</button>'];
+  RBL_BRANDS.forEach(function(b){brandChips.push('<button class="rbl-chip" onclick="rblBrand(\''+escH(b)+'\',this)">'+escH(b)+'</button>');});
+  var typeChips=['<button class="rbl-chip rbl-active" onclick="rblType(\'ALL\',this)">ทั้งหมด</button>'];
+  RBL_TYPES.forEach(function(t){typeChips.push('<button class="rbl-chip" onclick="rblType(\''+escH(t)+'\',this)">'+escH(t)+'</button>');});
+
+  container.innerHTML='<div class="rbl-wrap">'
+    +'<div class="rbl-topbar">'
+    +'<div class="rbl-topbar-title">🔗 รวมลิงก์</div>'
+    +'<input class="rbl-search" type="search" id="rbl-q" placeholder="ค้นหา...">'
+    +'<button class="rbl-btn-add" onclick="rblAdd()">+ เพิ่มลิงก์</button>'
+    +'</div>'
+    +'<div class="rbl-filters" id="rbl-brand-bar"><span class="rbl-filter-label">สินค้า:</span>'+brandChips.join('')+'</div>'
+    +'<div class="rbl-filters" id="rbl-type-bar"><span class="rbl-filter-label">ประเภท:</span>'+typeChips.join('')+'</div>'
+    +'<div id="rbl-root"></div>'
+    +'</div>';
+
+  document.getElementById('rbl-q').oninput=function(){_rblQ=this.value;rblRender();};
+  rblRender();
+};
+
+window.rblBrand=function(b,btn){
+  _rblBrand=b;
+  document.getElementById('rbl-brand-bar').querySelectorAll('.rbl-chip').forEach(function(c){c.classList.remove('rbl-active');});
+  btn.classList.add('rbl-active');
+  rblRender();
+};
+window.rblType=function(t,btn){
+  _rblType=t;
+  document.getElementById('rbl-type-bar').querySelectorAll('.rbl-chip').forEach(function(c){c.classList.remove('rbl-active');});
+  btn.classList.add('rbl-active');
+  rblRender();
+};
+window.rblAdd=function(){rblModal(null);};
+window.rblEdit=function(id){
+  var lk=_rblLinks.find(function(l){return l.id===id;});
+  if(lk)rblModal(lk);
+};
+window.rblDel=function(id){
+  if(!confirm('ลบลิงก์นี้?'))return;
+  _rblLinks=_rblLinks.filter(function(l){return l.id!==id;});
+  rblSave();rblRender();
+};
+
+function rblModal(lk){
+  var isEdit=!!lk;
+  var bg=document.createElement('div');
+  bg.className='rbl-modal-bg';
+  bg.onclick=function(e){if(e.target===bg)bg.remove();};
+  var bOpts=RBL_BRANDS.map(function(b){return '<option'+(lk&&lk.brand===b?' selected':'')+'>'+escH(b)+'</option>';}).join('');
+  var tOpts=RBL_TYPES.map(function(t){return '<option'+(lk&&lk.type===t?' selected':'')+'>'+escH(t)+'</option>';}).join('');
+  bg.innerHTML='<div class="rbl-modal">'
+    +'<h3>'+(isEdit?'&#9998; แก้ไขลิงก์':'&#43; เพิ่มลิงก์ใหม่')+'</h3>'
+    +'<div class="rbl-field"><label>ชื่อลิงก์ *</label><input id="rbl-fn" value="'+escH(lk?lk.name:'')+'"></div>'
+    +'<div class="rbl-field"><label>URL *</label><input id="rbl-fu" type="url" value="'+escH(lk?lk.url:'')+'"></div>'
+    +'<div class="rbl-field"><label>คำอธิบาย</label><input id="rbl-fd" value="'+escH(lk&&lk.desc?lk.desc:'')+'"></div>'
+    +'<div class="rbl-field"><label>สินค้า</label><select id="rbl-fb">'+bOpts+'</select></div>'
+    +'<div class="rbl-field"><label>ประเภท</label><select id="rbl-ft">'+tOpts+'</select></div>'
+    +'<div class="rbl-modal-btns">'
+    +'<button class="rbl-btn-cancel" onclick="this.closest(\'.rbl-modal-bg\').remove()">ยกเลิก</button>'
+    +'<button class="rbl-btn-save" onclick="rblSaveMod(\''+(isEdit?escH(lk.id):'')+'\')">บันทึก</button>'
+    +'</div></div>';
+  document.body.appendChild(bg);
+  setTimeout(function(){var el=document.getElementById('rbl-fn');if(el)el.focus();},80);
+}
+
+window.rblSaveMod=function(id){
+  var name=(document.getElementById('rbl-fn').value||'').trim();
+  var url=(document.getElementById('rbl-fu').value||'').trim();
+  var desc=(document.getElementById('rbl-fd').value||'').trim();
+  var brand=document.getElementById('rbl-fb').value;
+  var type=document.getElementById('rbl-ft').value;
+  if(!name||!url){alert('กรุณากรอก ชื่อ และ URL');return;}
+  if(id){
+    var lk=_rblLinks.find(function(l){return l.id===id;});
+    if(lk){lk.name=name;lk.url=url;lk.desc=desc;lk.brand=brand;lk.type=type;}
+  }else{
+    _rblLinks.push({id:rblGenId(),name:name,url:url,desc:desc,brand:brand,type:type});
+  }
+  rblSave();
+  document.querySelector('.rbl-modal-bg').remove();
+  rblRender();
+};
+})();
+</script>
+
 <script>
 (function(){
   var MF_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
