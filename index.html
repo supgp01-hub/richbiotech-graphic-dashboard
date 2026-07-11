@@ -1,0 +1,3099 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RICHBIOTECH — Graphic & Ads Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pine:    #1B4332;
+    --moss:    #2D6A4F;
+    --basil:   #40916C;
+    --seaweed: #52B788;
+    --emerald: #74C69D;
+    --green:   #95D5B2;
+    --mint:    #B7E4C7;
+    --foam:    #D8F3DC;
+    --offwhite:#F0FFF4;
+    --white:   #FFFFFF;
+    --text:    #1B4332;
+    --subtext: #40916C;
+    --gray:    #6B7C72;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Bai Jamjuree', 'Noto Sans Thai', sans-serif;
+    background: var(--offwhite);
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(135deg, var(--pine) 0%, var(--moss) 60%, var(--basil) 100%);
+    padding: 28px 40px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(27,67,50,.35);
+  }
+  .header-left h1 {
+    font-size: 26px; font-weight: 700; color: var(--white); letter-spacing: .5px;
+  }
+  .header-left p {
+    font-size: 13px; color: var(--mint); margin-top: 4px;
+  }
+  .header-badge {
+    background: var(--basil); border-radius: 8px; padding: 8px 18px;
+    font-size: 13px; color: var(--foam); border: 1px solid var(--seaweed);
+  }
+  .header-badge span { font-weight: 700; color: var(--white); }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    background: var(--pine);
+    display: flex; gap: 2px; padding: 0 40px;
+    overflow-x: auto;
+  }
+  nav button {
+    background: none; border: none; cursor: pointer;
+    color: var(--mint); font-size: 13px; font-weight: 500;
+    padding: 13px 22px; white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+  }
+  nav button:hover { color: var(--white); }
+  nav button.active {
+    color: var(--white); border-bottom-color: var(--seaweed);
+    background: rgba(255,255,255,.06);
+  }
+
+  /* ─── CONTENT ─── */
+  main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-size: 18px; font-weight: 700; color: var(--pine);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::before {
+    content: ''; display: inline-block;
+    width: 5px; height: 22px; background: var(--basil); border-radius: 3px;
+  }
+
+  /* ─── STAT CARDS ─── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px; margin-bottom: 36px;
+  }
+  .stat-card {
+    background: var(--white); border-radius: 14px;
+    padding: 20px 18px; border: 1.5px solid var(--foam);
+    box-shadow: 0 2px 8px rgba(27,67,50,.07);
+    transition: box-shadow .2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 18px rgba(27,67,50,.14); }
+  .stat-card .label { font-size: 12px; color: var(--gray); font-weight: 500; margin-bottom: 6px; }
+  .stat-card .value { font-size: 32px; font-weight: 800; color: var(--pine); }
+  .stat-card .sub   { font-size: 11px; color: var(--subtext); margin-top: 4px; }
+  .stat-card.accent { background: var(--pine); }
+  .stat-card.accent .label { color: var(--mint); }
+  .stat-card.accent .value { color: var(--white); }
+  .stat-card.accent .sub   { color: var(--seaweed); }
+
+  /* ─── CLICKABLE CARDS ─── */
+  .clickable {
+    cursor: pointer;
+    position: relative;
+    transition: transform .18s, box-shadow .18s, border-color .18s !important;
+  }
+  .clickable:hover { transform: translateY(-4px) !important; border-color: var(--seaweed) !important; }
+  .clickable:active { transform: scale(.97) !important; }
+  .click-hint {
+    position: absolute; bottom: 10px; right: 12px;
+    font-size: 11px; color: var(--seaweed); font-weight: 600;
+    opacity: 0; transition: opacity .2s;
+  }
+  .clickable:hover .click-hint { opacity: 1; }
+  .stat-card.clickable .click-hint { color: var(--emerald); }
+  .stat-card.accent.clickable .click-hint { color: var(--mint); }
+
+  /* ─── RIPPLE ─── */
+  @keyframes ripple {
+    0%   { transform: scale(0); opacity: .5; }
+    100% { transform: scale(4); opacity: 0; }
+  }
+  .ripple-el {
+    position: absolute; border-radius: 50%;
+    width: 60px; height: 60px; margin: -30px;
+    background: var(--seaweed); pointer-events: none;
+    animation: ripple .5s linear;
+  }
+
+  /* ─── BRAND CARDS ─── */
+  .brands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .brand-card {
+    background: var(--white); border-radius: 14px;
+    border: 1.5px solid var(--foam);
+    box-shadow: 0 2px 8px rgba(27,67,50,.07);
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .brand-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(27,67,50,.14); }
+  .brand-header {
+    padding: 14px 18px;
+    background: linear-gradient(120deg, var(--pine), var(--moss));
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand-header h3 { font-size: 15px; font-weight: 700; color: var(--white); }
+  .brand-header .brand-en { font-size: 11px; color: var(--mint); }
+  .brand-body { padding: 16px 18px; }
+  .brand-contact { font-size: 12px; color: var(--gray); margin-bottom: 12px; line-height: 1.7; }
+  .brand-contact strong { color: var(--pine); }
+  .channels-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .channel-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .ch-fb    { background: #E7F0FF; color: #1877F2; }
+  .ch-line  { background: #E8F8EC; color: #06C755; }
+  .ch-tiktok{ background: #F0E8FF; color: #010101; }
+  .ch-shopee{ background: #FFF0E8; color: #EE4D2D; }
+  .ch-lazada{ background: #FFF0F0; color: #0F146D; }
+  .count-badge {
+    font-size: 10px; font-weight: 700; background: rgba(0,0,0,.1);
+    border-radius: 10px; padding: 1px 5px;
+  }
+
+  /* ─── TEAM CARDS ─── */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .team-card {
+    background: var(--white); border-radius: 14px;
+    border: 1.5px solid var(--foam);
+    padding: 18px; text-align: center;
+    box-shadow: 0 2px 8px rgba(27,67,50,.07);
+    transition: transform .2s;
+  }
+  .team-card:hover { transform: translateY(-3px); }
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: var(--white);
+    margin: 0 auto 10px; border: 3px solid var(--foam);
+  }
+  .team-card h4 { font-size: 16px; font-weight: 700; color: var(--pine); }
+  .team-card .nick { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
+  .role-tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    background: var(--foam); color: var(--pine); margin: 2px;
+  }
+
+  /* ─── SCHEDULE TABLE ─── */
+  .schedule-section { margin-bottom: 36px; }
+  .month-label {
+    background: var(--pine); color: var(--white);
+    font-size: 13px; font-weight: 700; padding: 8px 18px;
+    border-radius: 8px 8px 0 0; display: inline-block; margin-bottom: 0;
+  }
+  .schedule-table-wrap {
+    overflow-x: auto;
+    border-radius: 0 8px 8px 8px;
+    border: 1.5px solid var(--foam);
+    box-shadow: 0 2px 8px rgba(27,67,50,.07);
+    margin-bottom: 20px;
+  }
+  .schedule-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--white); font-size: 12px;
+  }
+  .schedule-table th {
+    background: var(--moss); color: var(--white);
+    padding: 8px 10px; text-align: center; font-weight: 600;
+    white-space: nowrap;
+  }
+  .schedule-table td {
+    padding: 7px 10px; text-align: center;
+    border-bottom: 1px solid var(--foam); color: var(--text);
+  }
+  .schedule-table tr:last-child td { border-bottom: none; }
+  .schedule-table .pos-cell {
+    font-weight: 600; color: var(--pine); text-align: left;
+    background: var(--offwhite); padding-left: 14px;
+  }
+  .schedule-table .name-cell {
+    font-weight: 600; color: var(--basil);
+  }
+  .schedule-table tr:nth-child(even) { background: #F9FFFB; }
+
+  /* member color dots */
+  .m-nun   { color: #1B4332; font-weight: 700; }
+  .m-dom   { color: #2D6A4F; font-weight: 700; }
+  .m-mos   { color: #40916C; font-weight: 700; }
+  .m-jam   { color: #52B788; font-weight: 700; }
+  .m-ter   { color: #0D7377; font-weight: 700; }
+  .m-ball  { color: #7B2D8B; font-weight: 700; }
+  .m-link  { color: #A45628; font-weight: 700; }
+  .m-view  { color: #1565C0; font-weight: 700; }
+  .m-mind  { color: #AD1457; font-weight: 700; }
+  .m-nuey  { color: #E65100; font-weight: 700; }
+
+  /* ─── CHANNELS CHART ─── */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 700px) { .chart-grid { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: var(--white); border-radius: 14px;
+    border: 1.5px solid var(--foam);
+    padding: 24px; box-shadow: 0 2px 8px rgba(27,67,50,.07);
+  }
+  .chart-card h3 { font-size: 15px; font-weight: 700; color: var(--pine); margin-bottom: 18px; }
+  .bar-row { margin-bottom: 12px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); margin-bottom: 4px; }
+  .bar-track { background: var(--foam); border-radius: 20px; height: 10px; }
+  .bar-fill  { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--moss), var(--seaweed)); }
+  .platform-list { display: flex; flex-direction: column; gap: 8px; }
+  .platform-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 8px; background: var(--offwhite);
+  }
+  .platform-icon { font-size: 18px; width: 28px; text-align: center; }
+  .platform-name { font-size: 13px; font-weight: 600; color: var(--pine); flex: 1; }
+  .platform-count { font-size: 13px; font-weight: 700; color: var(--basil); }
+
+  /* ─── LINKS ─── */
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
+  .link-card {
+    background: var(--white); border-radius: 12px;
+    border: 1.5px solid var(--foam);
+    padding: 16px 18px; display: flex; align-items: center; gap: 12px;
+    text-decoration: none; color: inherit;
+    box-shadow: 0 2px 8px rgba(27,67,50,.07);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .link-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(27,67,50,.13); }
+  .link-icon { font-size: 22px; }
+  .link-info h4 { font-size: 13px; font-weight: 700; color: var(--pine); }
+  .link-info p  { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center; padding: 20px;
+    font-size: 12px; color: var(--gray);
+    border-top: 1px solid var(--foam); margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <h1>🌿 RICHBIOTECH — Graphic &amp; Ads Dashboard</h1>
+    <p>ระบบติดตามงานทีม Graphic &amp; Ads · อัปเดต มิถุนายน 2569</p>
+  </div>
+  <div class="header-badge">อัปเดตล่าสุด: <span>27 มิ.ย. 2569</span></div>
+</header>
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="active" onclick="showTab('overview',this)">📊 ภาพรวม</button>
+  <button onclick="showTab('brands',this)">🏷️ แบรนด์สินค้า</button>
+  <button onclick="showTab('team',this)">👥 ทีมงาน</button>
+  <button onclick="showTab('schedule',this)">📅 ตารางวันหยุดทีม</button>
+  <button onclick="showTab('channels',this)">📡 ช่องทาง Social</button>
+  <button onclick="showTab('links',this)">🔗 ลิงก์สำคัญ</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB: OVERVIEW                                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="stats-grid">
+    <div class="stat-card accent clickable" onclick="goTab('brands',this)" title="ดูแบรนด์สินค้าทั้งหมด" style="overflow:hidden">
+      <div class="label">แบรนด์สินค้า</div>
+      <div class="value">10</div>
+      <div class="sub">แบรนด์ทั้งหมด</div>
+      <div class="click-hint">ดูแบรนด์ →</div>
+    </div>
+    <div class="stat-card clickable" onclick="goTab('channels',this)" title="ดูช่องทาง Social" style="overflow:hidden">
+      <div class="label">เพจ Facebook</div>
+      <div class="value">91</div>
+      <div class="sub">เพจที่ดูแลอยู่</div>
+      <div class="click-hint">ดูช่องทาง →</div>
+    </div>
+    <div class="stat-card clickable" onclick="goTab('channels',this)" title="ดูช่องทาง Social" style="overflow:hidden">
+      <div class="label">Line OA</div>
+      <div class="value">15</div>
+      <div class="sub">ช่อง Official</div>
+      <div class="click-hint">ดูช่องทาง →</div>
+    </div>
+    <div class="stat-card accent clickable" onclick="goTab('team',this)" title="ดูทีมงาน" style="overflow:hidden">
+      <div class="label">สมาชิกทีม</div>
+      <div class="value">10</div>
+      <div class="sub">Graphic &amp; Ads</div>
+      <div class="click-hint">ดูทีม →</div>
+    </div>
+    <div class="stat-card clickable" onclick="goTab('channels',this)" title="ดูช่องทาง Social" style="overflow:hidden">
+      <div class="label">TikTok</div>
+      <div class="value">30+</div>
+      <div class="sub">บัญชีที่ใช้งาน</div>
+      <div class="click-hint">ดูช่องทาง →</div>
+    </div>
+    <div class="stat-card clickable" onclick="goTab('channels',this)" title="ดูช่องทางทั้งหมด" style="overflow:hidden">
+      <div class="label">ช่องทางโฆษณา</div>
+      <div class="value">5</div>
+      <div class="sub">FB / Line / TikTok / Shopee / Lazada</div>
+      <div class="click-hint">ดูช่องทาง →</div>
+    </div>
+    <div class="stat-card clickable" onclick="goTab('schedule',this)" title="ดูตารางวันหยุดทีม" style="overflow:hidden">
+      <div class="label">ตำแหน่งงาน</div>
+      <div class="value">4</div>
+      <div class="sub">Graphic ยิงแอด 1-3, Ads Opt</div>
+      <div class="click-hint">ดูตาราง →</div>
+    </div>
+    <div class="stat-card accent clickable" onclick="goTab('channels',this)" title="ดูช่องทาง E-Commerce" style="overflow:hidden">
+      <div class="label">Shopee / Lazada</div>
+      <div class="value">4</div>
+      <div class="sub">Shop ทั้งหมด</div>
+      <div class="click-hint">ดูช่องทาง →</div>
+    </div>
+  </div>
+
+  <div class="section-title">สรุปแบรนด์และช่องทาง <span style="font-size:12px;font-weight:400;color:var(--subtext);margin-left:6px">คลิกที่การ์ดเพื่อดูรายละเอียด</span></div>
+  <div class="brands-grid">
+    <!-- quick brand overview row -->
+    <div class="brand-card clickable" onclick="goTab('brands',this)" style="overflow:hidden">
+      <div class="bran
+d-header">
+        <div><h3>โอลิมพลัส</h3><div class="brand-en">OLYMPLUS</div></div>
+        <div style="font-size:28px">💊</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-8354 / 099-609-0902<br>
+          💬 Line: <strong>@olp888</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">f FB <span class="count-badge">26</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">4</span></span>
+          <span class="channel-tag ch-shopee">Shopee <span class="count-badge">1</span></span>
+        </div>
+        <div class="click-hint">รายละเอียด →</div>
+      </div>
+    </div>
+
+    <div class="brand-card clickable" onclick="goTab('brands',this)" style="overflow:hidden">
+      <div class="brand-header">
+        <div><h3>เฮฟเว่นพลัส</h3><div class="brand-en">HEAVEN PLUS</div></div>
+        <div style="font-size:28px">⭐</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-8540 / 088-941-6969<br>
+          💬 Line: <strong>@hv88</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">f FB <span class="count-badge">11</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">2</span></span>
+          <span class="channel-tag ch-shopee">Shopee <span class="count-badge">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card clickable" onclick="goTab('brands',this)" style="overflow:hidden">
+      <div class="brand-header">
+        <div><h3>เดอะลอร์ด</h3><div class="brand-en">THE LORD</div></div>
+        <div style="font-size:28px">🛡️</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7507<br>
+          💬 Line: <strong>@lord168</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">f FB <span class="count-badge">10</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">1</span></span>
+        </div>
+        <div class="click-hint">รายละเอียด →</div>
+      </div>
+    </div>
+
+    <div class="brand-card clickable" onclick="goTab('brands',this)" style="overflow:hidden">
+      <div class="brand-header">
+        <div><h3>จูโด้</h3><div class="brand-en">JUDO</div></div>
+        <div style="font-size:28px">🥋</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7121<br>
+          💬 Line: <strong>@JUDO88</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">f FB <span class="count-badge">12</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">2</span></span>
+        </div>
+        <div class="click-hint">รายละเอียด →</div>
+      </div>
+    </div>
+
+    <div class="brand-card clickable" onclick="goTab('brands',this)" style="overflow:hidden">
+      <div class="brand-header">
+        <div><h3>ลีฟแคร์</h3><div class="brand-en">LIV CARE</div></div>
+        <div style="font-size:28px">🍃</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7009<br>
+          💬 Line: <strong>@livc</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">f FB <span class="count-badge">14</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">2</span></span>
+        </div>
+        <div class="click-hint">รายละเอียด →</div>
+      </div>
+    </div>
+
+    <div class="brand-card clickable" onclick="goTab('brands',this)" style="overflow:hidden">
+      <div class="brand-header">
+        <div><h3>โซพิงค์</h3><div class="brand-en">SO PINK</div></div>
+        <div style="font-size:28px">🌸</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-124-3086<br>
+          💬 Line: <strong>@sopink</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">f FB <span class="count-badge">2</span></span>
+        </div>
+        <div class="click-hint">รายละเอียด →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB: BRANDS                                            -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-brands" class="tab-panel">
+  <div class="section-title">แบรนด์สินค้าทั้งหมด</div>
+  <div class="brands-grid">
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>โอลิมพลัส</h3><div class="brand-en">OLYMPLUS</div></div>
+        <div style="font-size:28px">💊</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-8354 / 099-609-0902<br>
+          💬 Line: <strong>@olp888</strong><br>
+          🔗 OA: Line official Olymplus / Olymplus+
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">26</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">4</span></span>
+          <span class="channel-tag ch-shopee">Shopee <span class="count-badge">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>เฮฟเว่นพลัส</h3><div class="brand-en">HEAVEN PLUS</div></div>
+        <div style="font-size:28px">⭐</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-8540 / 088-941-6969<br>
+          💬 Line: <strong>@hv88</strong><br>
+          🔗 OA: Line official Heaven Plus+
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">11</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">2</span></span>
+          <span class="channel-tag ch-shopee">Shopee <span class="count-badge">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>เดอะลอร์ด</h3><div class="brand-en">THE LORD</div></div>
+        <div style="font-size:28px">🛡️</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7507<br>
+          💬 Line: <strong>@lord168</strong><br>
+          🔗 OA: Line official The Lord
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">10</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>จูโด้</h3><div class="brand-en">JUDO</div></div>
+        <div style="font-size:28px">🥋</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7121<br>
+          💬 Line: <strong>@JUDO88</strong><br>
+          🔗 OA: Line official JuDo / JuDo - Thailand
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">12</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">2</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>ลีฟแคร์</h3><div class="brand-en">LIV CARE</div></div>
+        <div style="font-size:28px">🍃</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7009<br>
+          💬 Line: <strong>@livc</strong><br>
+          🔗 OA: Line official Liv Care / Liv Care Thailand
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">14</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">2</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>โซพิงค์</h3><div class="brand-en">SO PINK</div></div>
+        <div style="font-size:28px">🌸</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-124-3086<br>
+          💬 Line: <strong>@sopink</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">2</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>วูล์ฟ</h3><div class="brand-en">WOLF+</div></div>
+        <div style="font-size:28px">🐺</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-7221<br>
+          💬 Line: <strong>@wp69</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>ขุนแผน</h3><div class="brand-en">KHUN PHAEN</div></div>
+        <div style="font-size:28px">⚔️</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-124-3032<br>
+          💬 Line: <strong>@pan69</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">6</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>เมนพลัส &amp; วันพลัส</h3><div class="brand-en">Men Plus &amp; One Plus (สบู่เจล)</div></div>
+        <div style="font-size:28px">🧴</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-114-8544<br>
+          💬 Line: <strong>@mp88</strong><br>
+          🔗 OA: เมนพลัส&amp;วันพลัส (TH)
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">7</span></span>
+          <span class="channel-tag ch-line">LINE OA <span class="count-badge">1</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-card">
+      <div class="brand-header">
+        <div><h3>ไอชัวร์พลัส</h3><div class="brand-en">I SURE PLUS</div></div>
+        <div style="font-size:28px">💉</div>
+      </div>
+      <div class="brand-body">
+        <div class="brand-contact">
+          📞 02-124-3278<br>
+          💬 Line: <strong>@143ovplc</strong>
+        </div>
+        <div class="channels-row">
+          <span class="channel-tag ch-fb">FB <span class="count-badge">2</span></span>
+          <span class="channel-tag ch-lazada">Lazada <span class="count-badge">2</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB: TEAM                                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-team" class="tab-panel">
+  <div class="section-title">ทีม Graphic &amp; Ads RICHBIOTECH</div>
+
+<style>
+/* ═══════════════════════════════════════════
+   ARCH ORG CHART
+═══════════════════════════════════════════ */
+.oc-wrap   { overflow-x:auto; padding:8px 0 32px; }
+.oc-tree   { display:flex; flex-direction:column; align-items:center; min-width:960px; }
+
+/* ── vertical connector ── */
+.oc-vline  { width:2px; height:44px; background:var(--seaweed); margin:0 auto; flex-shrink:0; }
+
+/* ── Level rows ── */
+.oc-row    { display:flex; justify-content:center; align-items:flex-start; gap:14px; position:relative; }
+
+/* ── horizontal bar above L3 row ──
+   Spans from center-of-first-child to center-of-last-child
+   Card width L3 = 100px, gap = 14px, 8 cards
+   left = 50px, right = 50px
+*/
+.oc-l3-row { display:flex; justify-content:center; align-items:flex-start; gap:14px; position:relative; padding-top:44px; }
+.oc-l3-row::before {
+  content:''; position:absolute; top:0;
+  left:50px; right:50px;
+  height:2px; background:var(--seaweed);
+}
+.oc-l3-row > .oc-node { position:relative; }
+.oc-l3-row > .oc-node::before {
+  content:''; position:absolute;
+  top:-44px; left:50%; transform:translateX(-50%);
+  width:2px; height:44px; background:var(--seaweed);
+}
+
+/* ── ARCH CARD ── */
+.oc-node   { display:flex; flex-direction:column; align-items:center; cursor:pointer; }
+.oc-node:hover .oc-arch-body { transform:translateY(-6px); box-shadow:0 16px 36px rgba(27,67,50,.22); }
+
+.oc-arch   { display:flex; flex-direction:column; align-items:center; position:relative; }
+.oc-arch-photo {
+  border-radius:50%; border:3px solid #fff;
+  overflow:hidden; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  z-index:2; flex-shrink:0;
+  cursor:pointer;
+}
+.oc-arch-photo .ph-icon { font-size:1.6em; }
+.oc-arch-photo .ph-cam  {
+  position:absolute; inset:0; border-radius:50%;
+  background:rgba(0,0,0,.48);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1em; opacity:0; transition:opacity .2s;
+}
+.oc-arch-photo:hover .ph-cam { opacity:1; }
+.oc-arch-photo input[type=file] { display:none; }
+.oc-arch-photo img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:50%; }
+
+.oc-arch-body {
+  display:flex; flex-direction:column; align-items:center;
+  text-align:center;
+  box-shadow:0 6px 18px rgba(27,67,50,.13);
+  transition:transform .2s, box-shadow .2s;
+  position:relative; z-index:1;
+}
+.oc-arch-name { font-weight:800; line-height:1.2; }
+.oc-arch-role { text-transform:uppercase; letter-spacing:1.1px; opacity:.75; }
+
+/* ── Level 1 — Supervisor ── */
+.lv-sup .oc-arch-photo {
+  width:96px; height:96px;
+  border-color:rgba(255,255,255,.5);
+  background:var(--moss); margin-bottom:-30px;
+}
+.lv-sup .oc-arch-body {
+  width:150px;
+  border-radius:75px 75px 18px 18px;
+  padding:38px 14px 18px;
+  background:linear-gradient(160deg,var(--moss),var(--pine));
+}
+.lv-sup .oc-arch-name { color:#fff; font-size:16px; }
+.lv-sup .oc-arch-role { color:var(--mint); font-size:9.5px; margin-top:4px; }
+
+/* ── Level 2 — Specialist ── */
+.lv-spec .oc-arch-photo {
+  width:80px; height:80px;
+  border-color:rgba(255,255,255,.45);
+  background:var(--basil); margin-bottom:-26px;
+}
+.lv-spec .oc-arch-body {
+  width:128px;
+  border-radius:64px 64px 14px 14px;
+  padding:32px 12px 14px;
+  background:linear-gradient(160deg,var(--basil),var(--moss));
+}
+.lv-spec .oc-arch-name { color:#fff; font-size:14px; }
+.lv-spec .oc-arch-role { color:var(--mint); font-size:9px; margin-top:3px; }
+
+/* ── Level 3 — GA ── */
+.lv-ga .oc-arch-photo {
+  width:64px; height:64px;
+  border-color:#fff;
+  background:var(--foam); margin-bottom:-22px;
+}
+.lv-ga .oc-arch-body {
+  width:100px;
+  border-radius:50px 50px 12px 12px;
+  padding:26px 8px 12px;
+  background:linear-g
+radient(160deg,#d6ebd0,#c4dfc0);
+}
+.lv-ga .oc-arch-name { color:var(--pine); font-size:12px; }
+.lv-ga .oc-arch-role { color:var(--basil); font-size:8.5px; margin-top:3px; }
+
+/* ── Level 3 — AO ── */
+.lv-ao .oc-arch-photo {
+  width:64px; height:64px;
+  border-color:#fff;
+  background:#d4f0e4; margin-bottom:-22px;
+}
+.lv-ao .oc-arch-body {
+  width:100px;
+  border-radius:50px 50px 12px 12px;
+  padding:26px 8px 12px;
+  background:linear-gradient(160deg,#cce8da,#b8d9cc);
+}
+.lv-ao .oc-arch-name { color:var(--pine); font-size:12px; }
+.lv-ao .oc-arch-role { color:var(--moss); font-size:8.5px; margin-top:3px; }
+
+/* group separator in L3 */
+.oc-l3-sep { width:1px; align-self:stretch; background:var(--mint); margin:44px 4px 0; border-radius:1px; }
+</style>
+
+<!-- ═══ PHOTO MODAL ═══ -->
+<div id="oc-modal" onclick="closeModal(event)">
+  <div class="oc-modal-box">
+    <div class="oc-modal-photo" id="modal-photo"><span id="modal-icon">👤</span></div>
+    <div class="oc-modal-name"  id="modal-name">—</div>
+    <div class="oc-modal-nick"  id="modal-nick">—</div>
+    <div class="oc-modal-badge" id="modal-badge">—</div>
+    <div class="oc-modal-actions">
+      <button class="oc-modal-btn btn-upload" onclick="triggerModalUpload()">📷 อัปโหลดรูป</button>
+      <button class="oc-modal-btn btn-close"  onclick="closeModal()">✕ ปิด</button>
+    </div>
+    <input type="file" id="modal-file" accept="image/*" style="display:none" onchange="applyModalPhoto(this)">
+  </div>
+</div>
+
+<style>
+#oc-modal { display:none; position:fixed; inset:0; z-index:9999; background:rgba(10,30,20,.75); backdrop-filter:blur(8px); align-items:center; justify-content:center; }
+#oc-modal.open { display:flex; }
+.oc-modal-box { background:#fff; border-radius:24px; padding:32px 28px 24px; min-width:280px; max-width:340px; width:90%; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.35); position:relative; animation:modalIn .25s cubic-bezier(.34,1.56,.64,1); }
+@keyframes modalIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+.oc-modal-photo { width:120px; height:120px; border-radius:50%; margin:0 auto 16px; border:4px solid var(--seaweed); overflow:hidden; background:var(--foam); display:flex; align-items:center; justify-content:center; font-size:40px; }
+.oc-modal-photo img { width:100%; height:100%; object-fit:cover; }
+.oc-modal-name  { font-size:22px; font-weight:800; color:var(--pine); }
+.oc-modal-nick  { font-size:13px; color:var(--gray); margin-bottom:10px; }
+.oc-modal-badge { display:inline-block; font-size:12px; font-weight:700; padding:5px 16px; border-radius:20px; background:var(--foam); color:var(--pine); border:1.5px solid var(--mint); margin-bottom:20px; }
+.oc-modal-actions { display:flex; gap:10px; justify-content:center; }
+.oc-modal-btn { flex:1; padding:10px; border-radius:12px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:filter .15s; }
+.oc-modal-btn:hover { filter:brightness(1.08); }
+.btn-upload { background:var(--pine); color:#fff; }
+.btn-close  { background:var(--foam); color:var(--pine); }
+</style>
+
+<!-- ═══ ORG CHART ═══ -->
+<div class="oc-wrap"><div class="oc-tree">
+
+  <!-- L1: Supervisor -->
+  <div class="oc-row">
+    <div class="oc-node lv-sup" data-pid="viw" onclick="openModal(this,'วิว','VIEW','Supervisor')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)">
+          <span class="ph-icon">👤</span><div class="ph-cam">📷</div>
+          <input type="file" accept="image/*" onchange="loadPhoto(this)">
+        </div>
+        <div class="oc-arch-body">
+          <div class="oc-arch-name">วิว</div>
+          <div class="oc-arch-role">Supervisor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="oc-vline"></div>
+
+  <!-- L2: Specialist -->
+  <div class="oc-row">
+    <div class="oc-node lv-spec" data-pid="mos" onclick="openModal(this,'มอส','MOS','Specialist')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)">
+          <span class="ph-icon">👤</span><div class="ph-cam">📷</div>
+          <input type="file" accept="image/*" onchange="loadPhoto(this)">
+        </div>
+        <div class="oc-arch-body">
+          <div class="oc-arch-name">มอส</div>
+          <div class="oc-arch-role">Specialist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="oc-vline"></div>
+
+  <!-- L3: 6 GA + 2 AO -->
+  <div class="oc-l3-row">
+    <div class="oc-node lv-ga" data-pid="ter" onclick="openModal(this,'เตอร์','TER','Graphic &amp; Ads')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">เตอร์</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
+      </div>
+    </div>
+    <div class="oc-node lv-ga" data-pid="nun" onclick="openModal(this,'นุ่น','NUNE','Graphic &amp; Ads')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">นุ่น</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
+      </div>
+    </div>
+    <div class="oc-node lv-ga" data-pid="jam" onclick="openModal(this,'แจ๋ม','JAM','Graphic &amp; Ads')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">แจ๋ม</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
+      </div>
+    </div>
+    <div class="oc-node lv-ga" data-pid="dom" onclick="openModal(this,'ดอม','DOM','Graphic &amp; Ads')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">ดอม</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
+      </div>
+    </div>
+    <div class="oc-node lv-ga" data-pid="bal" onclick="openModal(this,'บอล','BALL','Graphic &amp; Ads')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">บอล</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
+      </div>
+    </div>
+    <div class="oc-node lv-ga" data-pid="lnk" onclick="openModal(this,'ลิ้งค์','LINK','Graphic &amp; Ads')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">ลิ้งค์</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
+      </div>
+    </div>
+    <div class="oc-l3-sep"></div>
+    <div class="oc-node lv-ao" data-pid="nuy" onclick="openModal(this,'นุ้ย','NUEY','Ads Optimizer')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">นุ้ย</div><div class="oc-arch-role">Ads Optimizer</div></div>
+      </div>
+    </div>
+    <div class="oc-node lv-ao" data-pid="mnd" onclick="openModal(this,'มายด์','MIND','Ads Optimizer')">
+      <div class="oc-arch">
+        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
+        <div class="oc-arch-body"><div class="oc-arch-name">มายด์</div><div class="oc-arch-role">Ads Optimizer</div></div>
+      </div>
+    </div>
+  </div>
+
+</div></div><!-- /oc-tree /oc-wrap -->
+
+<p style="text-align:center;margin-top:20px;font-size:12px;color:var(--gray)">
+  👆 คลิกการ์ดชื่อเพื่อดูรูปใหญ่ &nbsp;|&nbsp; คลิก 📷 เพื่ออัปโหลด &amp; ปรับรูป
+</p>
+
+<!-- ═══ PHOTO EDITOR MODAL ═══ -->
+<style>
+#edit-modal { display:none; position:fixed; inset:0; z-index:10001;
+  background:rgba(5,20,12,.82); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center; }
+#edit-modal.open { display:flex; }
+.edit-box {
+  background:#fff; border-radius:24px; padding:26px 24px 22px;
+  width:320px; max-width:94vw; text-align:center;
+  box-shadow:0 32px 72px rgba(0,0,0,.45);
+  animation: modalIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+.edit-title { font-size:16px; font-weight:800; color:var(--pine); margin-bottom:14px; }
+#edit-canvas {
+  display:block; margin:0 auto 14px;
+  border-radius:50%; cursor:grab; touch-action:none;
+  border:3px solid var(--seaweed);
+  box-shadow:0 4px 20px rgba(27,67,50,.2);
+}
+#edit-canvas:active { cursor:grabbing; }
+.edit-ctrl { text-align:left; margin-bottom:10px; }
+.edit-ctrl-row {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:12px; font-weight:700; color:var(--basil); margin-bottom:5px;
+}
+.edit-ctrl-row span { font-weight:800; color:var(--pine); }
+/* styled range */
+input[type=range] {
+  -webkit-appearance:none; width:100%; height:6px;
+  border-radius:6px; outline:none; cursor:pointer;
+  background:linear-gradient(to right,var(--basil) 0%,var(--basil) 50%,var(--foam) 50%,var(--foam) 100%);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+  background:var(--pine); border:3px solid #fff;
+  box-shadow:0 2px 6px rgba(27,67,50,.35); cursor:pointer;
+}
+.edit-hint { font-size:11px; color:var(--gray); margin:8px 0 16px; }
+.edit-actions { display:flex; gap:10px; }
+.edit-actions button {
+  flex:1; padding:11px; border:none; border-radius:13px;
+  font-size:13px; font-weight:800; cursor:pointer; transition:filter .15s;
+}
+.edit-actions button:hover { filter:brightness(1.1); }
+.btn-save   { background:var(--pine);  color:#fff; }
+.btn-cancel { background:var(--foam);  color:var(--pine); }
+.btn-reset  { background:var(--mint);  color:var(--pine); flex:0.6 !important; }
+</style>
+
+<div id="edit-modal">
+  <div class="edit-box">
+    <div class="edit-title">✂️ ปรับรูปก่อนบันทึก</div>
+    <canvas id="edit-canvas" width="260" height="260"
+      onmousedown="edDragStart(event)" onmousemove="edDragMove(event)"
+      onmouseup="edDragEnd()" onmouseleave="edDragEnd()"
+      ontouchstart="edDragStart(event)" ontouchmove="edDragMove(event)"
+      ontouchend="edDragEnd()"></canvas>
+
+    <div class="edit-ctrl">
+      <div class="edit-ctrl-row">🔄 หมุน <span id="rot-val">0°</span></div>
+      <input type="range" id="rot-slider" min="-180" max="180" value="0" oninput="edUpdateRot(this)">
+    </div>
+    <div class="edit-ctrl">
+      <div class="edit-ctrl-row">🔍 ขนาด <span id="scale-val">100%</span></div>
+      <input type="range" id="scale-slider" min="30" max="300" value="100" oninput="edUpdateScale(this)">
+    </div>
+
+    <p class="edit-hint">👆 ลากรูปภายในวงกลมเพื่อเลื่อนตำแหน่ง</p>
+
+    <div class="edit-actions">
+      <button class="btn-reset"  onclick="edReset()">↺ รีเซ็ต</button>
+      <button class="btn-save"   onclick="edSave()">✓ บันทึก</button>
+      <button class="btn-cancel" onclick="edCancel()">✕ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   SHARED STATE
+══════════════════════════════════════════ */
+let _currentCard = null;
+
+/* ══════════════════════════════════════════
+   PHOTO EDITOR
+══════════════════════════════════════════ */
+const ED = {
+  img: null, fitScale: 1, zoom: 1,
+  rotation: 0, ox: 0, oy: 0,
+  drag: false, lx: 0, ly: 0,
+  onSave: null
+};
+const ED_SIZE = 260;          // canvas px
+const ED_R    = 122;          // circle radius
+
+function edOpen(file, onSave) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      ED.img = img;
+      /* cover fit */
+      ED.fitScale = Math.max((ED_R*2)/img.width, (ED_R*2)/img.height);
+      ED.zoom = 1; ED.rotation = 0; ED.ox = 0; ED.oy = 0;
+      ED.onSave = onSave;
+      /* reset controls */
+      const rs = document.getElementById('rot-slider');
+      const ss = document.getElementById('scale-slider');
+      if (rs) { rs.value = 0; document.getElementById('rot-val').textContent = '0°'; }
+      if (ss) { ss.value = 100; document.getElementById('scale-val').textContent = '100%'; }
+      edUpdateSliderBg(rs, -180, 180);
+      edUpdateSliderBg(ss,  30,  300);
+      document.getElementById('edit-modal').classList.add('open');
+      edRender();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function edRender() {
+  const canvas = document.getElementById('edit-canvas');
+  if (!canvas || !ED.img) return;
+  const ctx = canvas.getContext('2d');
+  const sz = ED_SIZE, cx = sz/2, cy = sz/2;
+  ctx.clearRect(0, 0, sz, sz);
+
+  /* checkerboard */
+  for (let x=0;x<sz;x+=12) for(let y=0;y<sz;y+=12) {
+    ctx.fillStyle = (Math.floor(x/12)+Math.floor(y/12))%2===0 ? '#e8f5e9' : '#d1eedd';
+    ctx.fillRect(x,y,12,12);
+  }
+
+  /* circular clip + image */
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, ED_R, 0, Math.PI*2); ctx.clip();
+  const s = ED.fitScale * ED.zoom;
+  ctx.translate(cx + ED.ox, cy + ED.oy);
+  ctx.rotate(ED.rotation * Math.PI/180);
+  ctx.scale(s, s);
+  ctx.drawImage(ED.img, -ED.img.width/2, -ED.img.height/2);
+  ctx.restore();
+
+  /* border */
+  ctx.beginPath(); ctx.arc(cx, cy, ED_R, 0, Math.PI*2);
+  ctx.strokeStyle = '#40916C'; ctx.lineWidth = 3; ctx.stroke();
+
+  /* crosshair guide */
+  ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx-ED_R,cy); ctx.lineTo(cx+ED_R,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy-ED_R); ctx.lineTo(cx,cy+ED_R); ctx.stroke();
+}
+
+function edUpdateRot(el) {
+  ED.rotation = parseInt(el.value);
+  document.getElementById('rot-val').textContent = ED.rotation + '°';
+  edUpdateSliderBg(el, -180, 180);
+  edRender();
+}
+function edUpdateScale(el) {
+  ED.zoom = parseInt(el.value)/100;
+  document.getElementById('scale-val').textContent = Math.round(ED.zoom*100)+'%';
+  edUpdateSliderBg(el, 30, 300);
+  edRender();
+}
+function edUpdateSliderBg(el, min, max) {
+  if (!el) return;
+  const pct = ((el.value - min)/(max - min)*100).toFixed(1);
+  el.style.background = `linear-gradient(to right,var(--basil) 0%,var(--basil) ${pct}%,var(--foam) ${pct}%,var(--foam) 100%)`;
+}
+function edReset() {
+  ED.zoom=1; ED.rotation=0; ED.ox=0; ED.oy=0;
+  const rs = document.getElementById('rot-slider');
+  const ss = document.getElementById('scale-slider');
+  rs.value=0; ss.value=100;
+  document.getElementById('rot-val').textContent='0°';
+  document.getElementById('scale-val').textContent='100%';
+  edUpdateSliderBg(rs,-180,180); edUpdateSliderBg(ss,30,300);
+  edRender();
+}
+
+/* drag */
+function edGetXY(e) {
+  const r = document.getElementById('edit-canvas').getBoundingClientRect();
+  if (e.touches) return {x:e.touches[0].clientX-r.left, y:e.touches[0].clientY-r.top};
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
+}
+function edDragStart(e) { e.preventDefault(); ED.drag=true; const p=edGetXY(e); ED.lx=p.x; ED.ly=p.y; }
+function edDragMove(e)  { if(!ED.drag) return; e.preventDefault();
+  const p=edGetXY(e); ED.ox+=p.x-ED.lx; ED.oy+=p.y-ED.ly; ED.lx=p.x; ED.ly=p.y; edRender(); }
+function edDragEnd()    { ED.drag=false; }
+
+/* save → export 300x300 */
+function edSave() {
+  const out = document.createElement('canvas');
+  out.width=300; out.height=300;
+  const ctx=out.getContext('2d');
+  ctx.beginPath(); ctx.arc(150,150,150,0,Math.PI*2); ctx.clip();
+  const ratio = 300/ED_SIZE;
+  const s = ED.fitScale * ED.zoom * ratio;
+  ctx.translate(150+ED.ox*ratio, 150+ED.oy*ratio);
+  ctx.rotate(ED.rotation*Math.PI/180);
+  ctx.scale(s,s);
+  ctx.drawImage(ED.img,-ED.img.width/2,-ED.img.height/2);
+  const url = out.toDataURL('image/jpeg',.92);
+  ED.onSave(url);
+  document.getElementById('edit-modal').classList.remove('open');
+}
+function edCancel() { document.getElementById('edit-modal').classList.remove('open'); }
+
+/* ══════════════════════════════════════════
+   UPLOAD HANDLERS  (route through editor)
+══════════════════════════════════════════ */
+function triggerUpload(slot) { slot.querySelector('input[type=file]').click(); }
+
+function checkPhotoPassword(cb) {
+  var pw = prompt('🔒 ใส่รหัสผ่านเพื่อบันทึกรูปภาพ:');
+  if (pw === 'suprich01') { cb(); }
+  else if (pw !== null) { alert('❌ รหัสผ่านไม่ถูกต้อง'); }
+}
+
+function loadPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const slot = input.closest('.oc-arch-photo');
+  checkPhotoPassword(function(){
+    edOpen(file, (url) => {
+      applyPhotoToSlot(slot, url);
+      savePhotoToData(slot, url);
+      if (_currentCard && _currentCard.contains(slot)) {
+        const mBox = document.getElementById('modal-photo');
+        if (mBox) mBox.innerHTML = `<img src="${url}">`;
+      }
+    });
+  });
+  input.value = '';
+}
+
+function applyPhotoToSlot(slot, url) {
+  let img = slot.querySelector('img');
+  if (!img) { img=document.createElement('img'); slot.appendChild(img); }
+  img.src = url;
+  const icon = slot.querySelector('.ph-icon');
+  if (icon) icon.style.opacity='0';
+}
+
+function savePhotoToData(slot, url) {
+  var node = slot.closest('[data-pid]');
+  if (!node) return;
+  var pid = node.getAttribute('data-pid');
+  if (!LV_DATA.__photos) LV_DATA.__photos = {};
+  LV_DATA.__photos[pid] = url;
+  lvSaveLS();
+}
+
+function lvRestorePhotos() {
+  var photos = LV_DATA && LV_DATA.__photos ? LV_DATA.__photos : null;
+  if (!photos) {
+    /* fallback: read directly from localStorage if lvInit hasn't loaded yet */
+    try {
+      var ls = localStorage.getItem(LV_LS || 'lv_dash_v5');
+      if (ls) { var o=JSON.parse(ls); photos=o.d&&o.d.__photos?o.d.__photos:null; }
+    } catch(e) {}
+  }
+  if (!photos) return;
+  var nodes = document.querySelectorAll('[data-pid]');
+  for (var i=0; i<nodes.length; i++) {
+    var pid = nodes[i].getAttribute('data-pid');
+    var url = photos[pid];
+    if (url) {
+      var slot = nodes[i].querySelector('.oc-arch-photo');
+      if (slot) applyPhotoToSlot(slot, url);
+    }
+  }
+}
+
+/* ══════════════════════════════════════════
+   PERSON MODAL
+══════════════════════════════════════════ */
+function openModal(wrapper, name, nick, badge) {
+  _currentCard = wrapper;
+  const slot = wrapper.querySelector('.oc-arch-photo');
+  const img  = slot ? slot.querySelector('img') : null;
+  const mBox = document.getElementById('modal-photo');
+  mBox.innerHTML = img ? `<img src="${img.src}">` : `<span style="font-size:40px">👤</span>`;
+  document.getElementById('modal-name').textContent = name;
+  document.getElementById('modal-nick').textContent = nick;
+  document.getElementById('modal-badge').innerHTML  = badge;
+  document.getElementById('oc-modal').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target===document.getElementById('oc-modal') || e.currentTarget.classList.contains('btn-close'))
+    document.getElementById('oc-modal').classList.remove('open');
+}
+function triggerModalUpload() { document.getElementById('modal-file').click(); }
+function applyModalPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  checkPhotoPassword(function(){
+    edOpen(file, (url) => {
+      const mBox = document.getElementById('modal-photo');
+      if (mBox) mBox.innerHTML = `<img src="${url}">`;
+      if (_currentCard) {
+        const slot = _currentCard.querySelector('.oc-arch-photo');
+        applyPhotoToSlot(slot, url);
+        savePhotoToData(slot, url);
+      }
+    });
+  });
+  input.value = '';
+}
+
+/* ══════════════════════════════════════════
+   BRIDGE LINE
+══════════════════════════════════════════ */
+function drawBridge() {
+  const groups  = document.querySelectorAll('#tab-team .oc-group');
+  if (groups.length < 2) return;
+  const bridge  = document.getElementById('oc-bridge');
+  if (!bridge) return;
+  const r1 = groups[0].getBoundingClientRect();
+  const r2 = groups[1].getBoundingClientRect();
+  const tr = bridge.parentElement.getBoundingClientRect();
+  const x1 = r1.left+r1.width/2-tr.left;
+  const x2 = r2.left+r2.width/2-tr.left;
+  bridge.style.position='absolute'; bridge.style.top='-2px';
+  bridge.style.left=Math.min(x1,x2)+'px';
+  bridge.style.width=Math.abs(x2-x1)+'px';
+  bridge.parentElement.style.position='relative';
+}
+window.addEventListener('load', drawBridge);
+window.addEventListener('resize', drawBridge);
+
+/* init slider backgrounds */
+window.addEventListener('load', () => {
+  edUpdateSliderBg(document.getElementById('rot-slider'),  -180, 180);
+  edUpdateSliderBg(document.getElementById('scale-slider'),  30, 300);
+});
+</script>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB: SCHEDULE — LEAVE CALENDAR v3                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<style>
+/* ─── Calendar Layout ─── */
+.lv-wrap{max-width:100%;padding-bottom:20px}
+.lv-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px}
+.lv-nav-btn{width:34px;height:34px;border-radius:50%;border:none;background:var(--pine);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lv-nav-btn:hover{background:var(--moss)}
+.lv-month-lbl{font-size:20px;font-weight:800;color:var(--pine);min-width:200px;text-align:center}
+.lv-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:11px;font-weight:700}
+.lv-leg{display:flex;align-items:center;gap:4px}
+.lv-leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.lv-cal{border:1.5px solid var(--foam);border-radius:14px;overflow:hidden;background:#fff}
+.lv-cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);background:var(--pine)}
+.lv-cal-hdr div{text-align:center;padding:8px 2px;font-size:12px;font-weight:800;color:#fff}
+.lv-cal-hdr div:first-child{color:#FCA5A5}
+.lv-cal-body{display:grid;grid-template-columns:repeat(7,1fr)}
+.lv-day{min-height:90px;border-right:1px solid var(--foam);border-bottom:1px solid var(--foam);padding:5px 4px;cursor:pointer;transition:background .12s;vertical-align:top}
+.lv-day:hover{background:var(--offwhite)}
+.lv-day:nth-child(7n){border-right:none}
+.lv-day-empty{min-height:90px;background:#FAFAFA;border-right:1px solid var(--foam);border-bottom:1px solid var(--foam)}
+.lv-day-empty:nth-child(7n){border-right:none}
+.lv-day-num{font-size:13px;font-weight:800;color:var(--pine);margin-bottom:3px;line-height:1}
+.lv-day-sun .lv-day-num{color:#DC2626}
+.lv-day-today{background:var(--offwhite)}
+.lv-day-today .lv-day-num{background:var(--pine);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+.lv-chips{display:flex;flex-direction:column;gap:2px}
+.lv-chip.lv-hol{background:#B7E4C7;color:#1B4332}
+.lv-day-mtg{background:#F5F3FF!important}
+.lv-chip-mtg{font-size:10px;font-weight:700;padding:2px 5px;border-radius:5px;background:#7C3AED;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.4;display:block}
+.lv-chip.lv-vac{background:#BFDBFE;color:#1E40AF}
+.lv-chip.lv-sick{background:#FCA5A5;color:#991B1B}
+.lv-chip.lv-per{background:#FDE68A;color:#92400E}
+/* ─── Summary ─── */
+.lv-sum-wrap{margin-top:18px}
+.lv-sum-title{font-size:13px;font-weight:800;color:var(--pine);margin-bottom:10px}
+.lv-sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.lv-sum-card{background:#fff;border:1.5px solid var(--foam);border-radius:11px;padding:9px 11px}
+.lv-sum-name{font-weight:800;color:var(--pine);font-size:12px;margin-bottom:4px}
+.lv-sum-pos{font-size:9px;font-weight:400;color:#6B7C72}
+.lv-bar{height:5px;border-radius:5px;background:var(--foam);margin:4px 0 5px;overflow:hidden}
+.lv-bar-fill{height:100%;border-radius:5px;background:var(--seaweed);transition:width .3s}
+.lv-srow{display:flex;justify-content:space-between;font-size:10px;color:#4B5563;margin-top:2px}
+.lv-sval{font-weight:700}
+.lv-over{color:#DC2626}
+.lv-ok{color:#059669}
+/* cycle markers */
+.lv-day-other{opacity:.35;cursor:pointer}
+.lv-day-other .lv-day-num{color:#6B7C72}
+.lv-day-cycle-end{background:#FFFBEB}
+.lv-day-cycle-start{background:#F0FFF4;border-left:3px solid var(--seaweed)!important}
+.lv-cycle-badge{font-size:8px;font-weight:800;padding:1px 3px;border-radius:3px;vertical-align:middle;margin-left:2px;white-space:nowrap}
+.lv-cb-end{background:#FEF3C7;color:#B45309}
+.lv-cb-start{background:#D8F3DC;color:#1B4332}
+/* chip with note */
+.lv-chip{font-size:10px;font-weight:700;padding:2px 5px;border-radius:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;line-height:1.4;cursor:pointer}
+.lv-chip-note{font-weight:400;font-size:9px;opacity:.8}
+/* ─── Modal ─── */
+#lv-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,20,12,.7);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding-top:60px;overflow-y:auto}
+#lv-modal.open{display:flex}
+.lv-mbox{background:#fff;border-radius:20px;padding:22px 20px;width:380px;max-width:96vw;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:modalIn .22s ease;margin-bottom:40px}
+.lv-mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.lv-mtitle{font-size:15px;font-weight:800;color:var(--pine)}
+.lv-mclose{width:28px;height:28px;border-radius:50%;border:none;background:var(--foam);color:var(--pine);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+/* entry list */
+.lv-elist{margin-bottom:12px;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
+.lv-no-entry{font-size:12px;color:#9CA3AF;text-align:center;padding:10px}
+.lv-erow{border:1.5px solid var(--foam);border-radius:10px;padding:8px 10px;display:grid;gap:5px}
+.lv-erow-top{display:flex;justify-content:space-between;align-items:center}
+.lv-ename{font-size:12px;font-weight:800;color:var(--pine)}
+.lv-epos{font-size:10px;color:#6B7C72;font-weight:400}
+.lv-edel{border:none;background:#FEE2E2;color:#DC2626;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;font-weight:700}
+.lv-esel{width:100%;padding:5px 6px;border:1.5px solid var(--foam);border-radius:7px;font-size:11px;color:var(--pine);font-weight:600;outline:none}
+.lv-esel:focus{border-color:var(--seaweed)}
+.lv-enote{width:100%;padding:5px 6px;border:1.5px solid var(--foam);border-radius:7px;font-size:11px;color:#374151;outline:none;box-sizing:border-box}
+.lv-enote:focus{border-color:var(--seaweed)}
+.lv-esave{width:100%;padding:6px;border:none;background:var(--pine);color:#fff;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;margin-top:3px}
+.lv-esave:hover{background:var(--moss)}
+.lv-etime{font-size:9px;color:#9CA3AF;margin-top:3px;text-align:right}
+/* add form */
+.lv-add-divider{border:none;border-top:1.5px solid var(--foam);margin:10px 0}
+.lv-add-title{font-size:12px;font-weight:800;color:var(--pine);margin-bottom:8px}
+.lv-form-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.lv-fsel{width:100%;padding:7px 8px;border:1.5px solid var(--foam);border-radius:9px;font-size:12px;color:var(--pine);font-weight:600;outline:none}
+.lv-fsel:focus{border-color:var(--seaweed)}
+.lv-fnote{width:100%;padding:7px 8px;border:1.5px solid var(--foam);border-radius:9px;font-size:12px;color:#374151;outline:none;box-sizing:border-box;margin-bottom:6px}
+.lv-fnote:focus{border-color:var(--seaweed)}
+.lv-ferr{font-size:11px;color:#DC2626;font-weight:700;min-height:16px;margin-bottom:6px;line-height:1.3}
+.lv-factions{display:flex;gap:8px}
+.lv-factions button{flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}
+.lv-fbtn-save{background:var(--pine);color:#fff}
+.lv-fbtn-save:disabled{background:#9CA3AF;cursor:not-allowed}
+.lv-fbtn-cancel{background:var(--foam);color:var(--pine)}
+</style>
+
+<div id="tab-schedule" class="tab-panel">
+  <div class="section-title">📅 ตารางวันหยุดทีม Graphic &amp; Ads</div>
+  <div class="lv-wrap">
+    <!-- Nav -->
+    <div class="lv-nav">
+      <button class="lv-nav-btn" onclick="lvPrevMonth()">&#9664;</button>
+      <span class="lv-month-lbl" id="lv-month-lbl"></span>
+      <button class="lv-nav-btn" onclick="lvNextMonth()">&#9654;</button>
+    </div>
+    <!-- Legend -->
+    <div class="lv-legend">
+      <div class="lv-leg"><div class="lv-leg-dot" style="background:#B7E4C7"></div>🌴 วันหยุดรอบ</div>
+      <div class="lv-leg"><div class="lv-leg-dot" style="background:#BFDBFE"></div>☀️ พักร้อน</div>
+      <div class="lv-leg"><div class="lv-leg-dot" style="background:#FCA5A5"></div>🤒 ลาป่วย</div>
+      <div class="lv-leg"><div class="lv-leg-dot" style="background:#FDE68A"></div>📋 ลากิจ</div>
+    </div>
+    <!-- Calendar -->
+    <div class="lv-cal">
+      <div class="lv-cal-hdr">
+        <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+      </div>
+      <div class="lv-cal-body" id="lv-cal-body"></div>
+    </div>
+    <!-- Summary -->
+    <div class="lv-sum-wrap"><div id="lv-sum-inner"></div></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="lv-modal" onclick="if(event.target===this)lvCloseModal()">
+    <div class="lv-mbox">
+      <div class="lv
+-mhead">
+        <div class="lv-mtitle" id="lv-mtitle"></div>
+        <div style="font-size:10px;color:var(--basil);font-weight:700;margin-top:2px" id="lv-mcycle"></div>
+        <button class="lv-mclose" onclick="lvCloseModal()">✕</button>
+      </div>
+      <!-- Entry list -->
+      <div class="lv-elist" id="lv-elist"></div>
+      <hr class="lv-add-divider">
+      <!-- Add form -->
+      <div class="lv-add-title">➕ เพิ่มการลา</div>
+      <div class="lv-form-row">
+        <select class="lv-fsel" id="lv-f-emp" onchange="lvCheckAdd()">
+          <option value="">— เลือกพนักงาน —</option>
+        </select>
+        <select class="lv-fsel" id="lv-f-type" onchange="lvCheckAdd()">
+          <option value="hol">🌴 วันหยุดรอบ</option>
+          <option value="vac">☀️ พักร้อน</option>
+          <option value="sick">🤒 ลาป่วย</option>
+          <option value="per">📋 ลากิจ</option>
+        </select>
+      </div>
+      <input class="lv-fnote" id="lv-f-note" type="text" placeholder="หมายเหตุ (ถ้ามี)">
+      <div class="lv-ferr" id="lv-f-err"></div>
+      <div class="lv-factions">
+        <button class="lv-fbtn-cancel" onclick="lvCloseModal()">ยกเลิก</button>
+        <button class="lv-fbtn-save" id="lv-f-save" onclick="lvAddEntry()">✓ บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+/* ════════════════════════════════════════
+   LEAVE CALENDAR v4
+════════════════════════════════════════ */
+var LV_EMPS=[
+  {id:'wiw',name:'วิว',   pos:'Supervisor',   group:'sup',max:4},
+  {id:'mos',name:'มอส',   pos:'Specialist',   group:'spec',max:6},
+  {id:'ter',name:'เตอร์', pos:'Graphic & Ads',group:'ga', max:4},
+  {id:'nun',name:'นุ่น',  pos:'Graphic & Ads',group:'ga', max:4},
+  {id:'jam',name:'แจ๋ม',  pos:'Graphic & Ads',group:'ga', max:4},
+  {id:'dom',name:'ดอม',   pos:'Graphic & Ads',group:'ga', max:4},
+  {id:'bol',name:'บอล',   pos:'Graphic & Ads',group:'ga', max:4},
+  {id:'lnk',name:'ลิ้งค์',pos:'Graphic & Ads',group:'ga', max:4},
+  {id:'nui',name:'นุ้ย',  pos:'Ads Optimizer',group:'ao', max:4},
+  {id:'mnd',name:'มายด์', pos:'Ads Optimizer',group:'ao', max:4}
+];
+var LV_ANNUAL=6;
+var LV_TH_M=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+var LV_TYPE_LABEL={hol:'🌴 วันหยุดรอบ',vac:'☀️ พักร้อน',sick:'🤒 ลาป่วย',per:'📋 ลากิจ'};
+var LV_TYPE_ICON={hol:'🌴',vac:'☀️',sick:'🤒',per:'📋'};
+var LV_LS='lv_dash_v5';
+var LV_DATA={};
+var LV_UID=1;
+var LV_CUR={y:2026,m:6};
+var LV_SEL={y:0,m:0,d:0};
+
+/* ── Helpers ── */
+function lvFindEmp(id){for(var i=0;i<LV_EMPS.length;i++)if(LV_EMPS[i].id===id)return LV_EMPS[i];return null;}
+function lvDim(y,m){return new Date(y,m,0).getDate();}
+function lvDK(y,m,d){return y+'-'+m+'-'+d;}
+function lvGetDay(y,m,d){return(LV_DATA[lvDK(y,m,d)]||[]).slice();}
+function lvSaveDay(y,m,d,arr){if(!arr||!arr.length)delete LV_DATA[lvDK(y,m,d)];else LV_DATA[lvDK(y,m,d)]=arr;lvSaveLS();}
+function lvSaveLS(){
+  try{localStorage.setItem(LV_LS,JSON.stringify({d:LV_DATA,u:LV_UID}));}catch(e){}
+  var ctrl=new AbortController();
+  var t=setTimeout(function(){ctrl.abort();},8000);
+  try{fetch('/api/data',{method:'POST',signal:ctrl.signal,
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({d:LV_DATA,u:LV_UID})})
+    .then(function(){clearTimeout(t);})
+    .catch(function(){clearTimeout(t);});}catch(e){}
+}
+function lvLoadLS(){try{var r=localStorage.getItem(LV_LS);if(r){var o=JSON.parse(r);LV_DATA=o.d||{};LV_UID=o.u||1;}}catch(e){}}
+function lvEscHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── Cycle Helpers ── */
+function lvCycleStart(endY,endM){
+  var pm=endM-1,py=endY;if(pm<1){pm=12;py--;}return{y:py,m:pm,d:26};
+}
+function lvGetCycle(y,m,d){
+  /* which cycle does this day belong to? Returns {endY,endM} */
+  if(d<=25)return{endY:y,endM:m};
+  var nm=m+1,ny=y;if(nm>12){nm=1;ny++;}return{endY:ny,endM:nm};
+}
+
+/* ── Count Functions ── */
+function lvCountHolCycle(empId,endY,endM,excUid){
+  var cs=lvCycleStart(endY,endM);
+  var n=0;
+  var cur=new Date(cs.y,cs.m-1,cs.d);
+  var end=new Date(endY,endM-1,25);
+  while(cur<=end){
+    var ey=cur.getFullYear(),em=cur.getMonth()+1,ed=cur.getDate();
+    var es=lvGetDay(ey,em,ed);
+    for(var i=0;i<es.length;i++)if(es[i].empId===empId&&es[i].type==='hol'&&es[i].uid!==excUid)n++;
+    cur.setDate(cur.getDate()+1);
+  }
+  return n;
+}
+function lvCountVacYear(empId,y,excUid){
+  var n=0;
+  for(var m=1;m<=12;m++){var dl=lvDim(y,m);for(var d=1;d<=dl;d++){var es=lvGetDay(y,m,d);for(var i=0;i<es.length;i++)if(es[i].empId===empId&&es[i].type==='vac'&&es[i].uid!==excUid)n++;}}
+  return n;
+}
+function lvCountType(empId,y,m,t){
+  var n=0,dl=lvDim(y,m);
+  for(var d=1;d<=dl;d++){var es=lvGetDay(y,m,d);for(var i=0;i<es.length;i++)if(es[i].empId===empId&&es[i].type===t)n++;}
+  return n;
+}
+
+/* ── Consecutive Run ── */
+function lvHasTypes(empId,y,m,d,types,excUid){
+  var es=lvGetDay(y,m,d);
+  for(var i=0;i<es.length;i++)if(es[i].empId===empId&&types.indexOf(es[i].type)>=0&&es[i].uid!==excUid)return true;
+  return false;
+}
+function lvConsecRun(empId,y,m,d,types,excUid){
+  var run=1,cur,cy,cm,cd;
+  cur=new Date(y,m-1,d);
+  for(var s=0;s<15;s++){cur.setDate(cur.getDate()-1);cy=cur.getFullYear();cm=cur.getMonth()+1;cd=cur.getDate();if(!lvHasTypes(empId,cy,cm,cd,types,excUid))break;run++;}
+  cur=new Date(y,m-1,d);
+  for(var s=0;s<15;s++){cur.setDate(cur.getDate()+1);cy=cur.getFullYear();cm=cur.getMonth()+1;cd=cur.getDate();if(!lvHasTypes(empId,cy,cm,cd,types,excUid))break;run++;}
+  return run;
+}
+
+/* ── Validation ── */
+function lvRuleErr(empId,y,m,d,excUid){
+  var emp=lvFindEmp(empId);if(!emp)return null;
+  if(emp.group==='sup'||emp.group==='spec')return null;
+  var es=lvGetDay(y,m,d),gaC=0,aoC=0;
+  for(var i=0;i<es.length;i++){
+    if(es[i].uid===excUid)continue;
+    var ee=lvFindEmp(es[i].empId);
+    if(ee&&ee.group==='ga')gaC++;
+    if(ee&&ee.group==='ao')aoC++;
+  }
+  if(emp.group==='ga'&&gaC>=2)return 'Graphic & Ads ลาครบ 2 คนแล้วในวันนี้';
+  if(emp.group==='ao'&&aoC>=1)return 'Ads Optimizer มีคนลาอยู่แล้ว ลาซ้ำไม่ได้';
+  return null;
+}
+function lvQuotaErr(empId,y,m,d,type,excUid){
+  var emp=lvFindEmp(empId);if(!emp)return null;
+  if(type==='hol'){
+    var cyc=lvGetCycle(y,m,d);
+    var used=lvCountHolCycle(empId,cyc.endY,cyc.endM,excUid);
+    if(used>=emp.max)return 'วันหยุดรอบเต็ม ('+used+'/'+emp.max+' วัน/รอบ)';
+    var holRun=lvConsecRun(empId,y,m,d,['hol'],excUid);
+    if(holRun>3)return 'วันหยุดรอบต่อกันได้ไม่เกิน 3 วัน (นับได้ '+holRun+' วัน)';
+  }
+  if(type==='hol'||type==='vac'){
+    var comRun=lvConsecRun(empId,y,m,d,['hol','vac'],excUid);
+    if(comRun>6)return 'หยุดรวม (รอบ+พักร้อน) ต่อกันไม่เกิน 6 วัน (นับได้ '+comRun+' วัน)';
+  }
+  if(type==='vac'){
+    var usedY=lvCountVacYear(empId,y,excUid);
+    if(usedY>=LV_ANNUAL)return 'พักร้อนครบ '+usedY+'/'+LV_ANNUAL+' วัน/ปีแล้ว';
+  }
+  return null;
+}
+function lvValidate(empId,y,m,d,type,excUid){
+  return lvRuleErr(empId,y,m,d,excUid)||lvQuotaErr(empId,y,m,d,type,excUid)||null;
+}
+
+/* ── Render ── */
+function lvRender(){lvRenderLabel();lvRenderCal();lvRenderSum();}
+function lvRenderLabel(){
+  var el=document.getElementById('lv-month-lbl');
+  if(el)el.textContent=LV_TH_M[LV_CUR.m]+' '+(LV_CUR.y+543);
+}
+function lvRenderCal(){
+  var body=document.getElementById('lv-cal-body');if(!body)return;
+  var y=LV_CUR.y,m=LV_CUR.m,dl=lvDim(y,m);
+  var fd=new Date(y,m-1,1).getDay();
+  var now=new Date(),ty=now.getFullYear(),tm=now.getMonth()+1,td=now.getDate();
+  var h='';
+  /* leading days from prev month */
+  var pm=m-1,py=y; if(pm<1){pm=12;py--;}
+  var pdl=lvDim(py,pm);
+  for(var i=0;i<fd;i++){
+    var pd=pdl-fd+1+i;
+    h+='<div class="lv-day lv-day-other" onclick="lvGoMonth(-1)">';
+    h+='<div class="lv-day-num">'+pd+'</div><div class="lv-chips"></div></div>';
+  }
+  for(var d=1;d<=dl;d++){
+    var dow=new Date(y,m-1,d).getDay();
+    var cls='lv-day';
+    if(dow===0)cls+=' lv-day-sun';
+    if(y===ty&&m===tm&&d===td)cls+=' lv-day-today';
+    if(d===25)cls+=' lv-day-cycle-end';
+    if(d===26)cls+=' lv-day-cycle-start';
+    if(d===16)cls+=' lv-day-mtg';
+    var entries=lvGetDay(y,m,d);
+    h+='<div class="'+cls+'" onclick="lvOpenDay('+y+','+m+','+d+')">';
+    h+='<div class="lv-day-num">'+d;
+    if(d===25)h+='<span class="lv-cycle-badge lv-cb-end">สิ้นรอบ</span>';
+    if(d===26)h+='<span class="lv-cycle-badge lv-cb-start">เริ่มรอบ</span>';
+    h+='</div><div class="lv-chips">';
+    if(d===16)h+='<div class="lv-chip-mtg">📋 ประชุมทีม 10:00น.</div>';
+    for(var ei=0;ei<entries.length;ei++){
+      var e=entries[ei];
+      var emp=lvFindEmp(e.empId);
+      var nm=emp?emp.name:'?';
+      var ico=LV_TYPE_ICON[e.type]||'';
+      var noteStr=e.note?(' <span class="lv-chip-note">'+lvEscHtml(e.note.substring(0,10))+'</span>'):'';
+      var tip=lvEscHtml(nm+': '+LV_TYPE_LABEL[e.type]+(e.note?' — '+e.note:''));
+      h+='<div class="lv-chip lv-'+e.type+'" title="'+tip+'">'+ico+' '+lvEscHtml(nm)+noteStr+'</div>';
+    }
+    h+='</div></div>';
+  }
+  /* trailing days from next month */
+  var trail=(7-(fd+dl)%7)%7;
+  for(var i=1;i<=trail;i++){
+    h+='<div class="lv-day lv-day-other" onclick="lvGoMonth(1)">';
+    h+='<div class="lv-day-num">'+i+'</div><div class="lv-chips"></div></div>';
+  }
+  body.innerHTML=h;
+}
+function lvRenderSum(){
+  var el=document.getElementById('lv-sum-inner');if(!el)return;
+  var y=LV_CUR.y,m=LV_CUR.m;
+  var cs=lvCycleStart(y,m);
+  var cycLabel='รอบ 26 '+LV_TH_M[cs.m]+' — 25 '+LV_TH_M[m]+' '+(y+543);
+  var h='<div class="lv-sum-title">📊 '+cycLabel+'</div><div class="lv-sum-grid">';
+  for(var ei=0;ei<LV_EMPS.length;ei++){
+    var emp=LV_EMPS[ei];
+    var hol=lvCountHolCycle(emp.id,y,m,undefined);
+    var vac=lvCountVacYear(emp.id,y,undefined);
+    var per=lvCountType(emp.id,y,m,'per');
+    var sick=lvCountType(emp.id,y,m,'sick');
+    var pct=Math.min(100,Math.round(hol/emp.max*100));
+    var hcls=hol>emp.max?'lv-over':'lv-ok';
+    var vcls=vac>LV_ANNUAL?'lv-over':'lv-ok';
+    h+='<div class="lv-sum-card">';
+    h+='<div class="lv-sum-name">'+emp.name+' <span class="lv-sum-pos">'+emp.pos+'</span></div>';
+    h+='<div class="lv-bar"><div class="lv-bar-fill" style="width:'+pct+'%;background:'+(hol>emp.max?'#DC2626':'var(--seaweed)')+'"></div></div>';
+    h+='<div class="lv-srow"><span>🌴 วันหยุดรอบ</span><span class="lv-sval '+hcls+'">'+hol+'/'+emp.max+'</span></div>';
+    h+='<div class="lv-srow"><span>☀️ พักร้อน(ปี)</span><span class="lv-sval '+vcls+'">'+vac+'/'+LV_ANNUAL+'</span></div>';
+    if(per)h+='<div class="lv-srow"><span>📋 ลากิจ</span><span class="lv-sval">'+per+'</span></div>';
+    if(sick)h+='<div class="lv-srow"><span>🤒 ลาป่วย</span><span class="lv-sval">'+sick+'</span></div>';
+    h+='</div>';
+  }
+  h+='</div>';el.innerHTML=h;
+}
+
+/* ── Modal ── */
+function lvOpenDay(y,m,d){
+  LV_SEL={y:y,m:m,d:d};
+  var dow=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  var dayName=dow[new Date(y,m-1,d).getDay()];
+  document.getElementById('lv-mtitle').textContent='📅 วัน'+dayName+' '+d+' '+LV_TH_M[m]+' '+(y+543);
+  /* cycle info */
+  var cyc=lvGetCycle(y,m,d);
+  var cs=lvCycleStart(cyc.endY,cyc.endM);
+  document.getElementById('lv-mcycle').textContent='รอบ: 26 '+LV_TH_M[cs.m]+' — 25 '+LV_TH_M[cyc.endM];
+  lvRefreshEList();
+  lvPopulateEmpSel();
+  document.getElementById('lv-f-note').value='';
+  document.getElementById('lv-f-err').textContent='';
+  var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=false;
+  document.getElementById('lv-modal').classList.add('open');
+}
+function lvPopulateEmpSel(){
+  var sel=document.getElementById('lv-f-emp');
+  var h='<option value="">— เลือกพนักงาน —</option>';
+  var grps=[
+    {label:'Supervisor / Specialist',ids:['wiw','mos']},
+    {label:'Graphic & Ads',ids:['ter','nun','jam','dom','bol','lnk']},
+    {label:'Ads Optimizer',ids:['nui','mnd']}
+  ];
+  for(var gi=0;gi<grps.length;gi++){
+    h+='<optgroup label="'+grps[gi].label+'">';
+    for(var ii=0;ii<grps[gi].ids.length;ii++){
+      var emp=lvFindEmp(grps[gi].ids[ii]);
+      if(emp)h+='<option value="'+emp.id+'">'+emp.name+'</option>';
+    }
+    h+='</optgroup>';
+  }
+  sel.innerHTML=h;
+}
+function lvRefreshEList(){
+  var el=document.getElementById('lv-elist');if(!el)return;
+  var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
+  var entries=lvGetDay(y,m,d);
+  if(!entries.length){el.innerHTML='<div class="lv-no-entry">ยังไม่มีการลาในวันนี้</div>';return;}
+  var h='',types=['hol','vac','sick','per'];
+  for(var i=0;i<entries.length;i++){
+    var e=entries[i];
+    var emp=lvFindEmp(e.empId);
+    var nm=emp?emp.name:'?';
+    var pos=emp?emp.pos:'';
+    var uid=e.uid;
+    h+='<div class="lv-erow">';
+    h+='<div class="lv-erow-top">';
+    h+='<div><span class="lv-ename">'+nm+'</span> <span class="lv-epos">'+pos+'</span></div>';
+    h+='<button class="lv-edel" onclick="lvDelEntry('+uid+')">&#128465; ลบ</button>';
+    h+='</div>';
+    /* type badge + dropdown */
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px">';
+    h+='<span class="lv-chip lv-'+e.type+'" style="flex-shrink:0">'+LV_TYPE_ICON[e.type]+' '+LV_TYPE_LABEL[e.type]+'</span>';
+    h+='<select class="lv-esel" data-uid="'+uid+'" onchange="lvESelChange(this)">';
+    for(var ti=0;ti<types.length;ti++){
+      var isSel=(e.type===types[ti])?' selected':'';
+      h+='<option value="'+types[ti]+'"'+isSel+'>'+LV_TYPE_LABEL[types[ti]]+'</option>';
+    }
+    h+='</select></div>';
+    /* note */
+    h+='<input class="lv-enote" data-uid="'+uid+'" value="'+lvEscHtml(e.note||'')+'" placeholder="หมายเหตุ (คลิกเพื่อแก้ไข)" onchange="lvENoteChange(this)">';
+    h+='<button class="lv-esave" onclick="lvSaveRow('+uid+')">&#10003; บันทึกการเปลี่ยนแปลง</button>';
+    var tsStr='';
+    if(e.updatedAt)tsStr='✏️ แก้ไขล่าสุด: '+lvFmtTime(e.updatedAt);
+    else if(e.createdAt)tsStr='🕐 บันทึก: '+lvFmtTime(e.createdAt);
+    if(tsStr)h+='<div class="lv-etime">'+tsStr+'</div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+function lvFmtTime(ts){
+  if(!ts)return'';
+  var d=new Date(ts);
+  var TH_S=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var h=d.getHours(),mi=d.getMinutes();
+  return d.getDate()+' '+TH_S[d.getMonth()+1]+' '+(d.getFullYear()+543)+' '+h+':'+(mi<10?'0':'')+mi+'น.';
+}
+function lvESelChange(sel){lvSaveEntryField(parseInt(sel.getAttribute('data-uid')),'type',sel.value);}
+function lvENoteChange(inp){lvSaveEntryField(parseInt(inp.getAttribute('data-uid')),'note',inp.value);}
+function lvSaveEntryField(uid,field,val){
+  var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
+  var es=lvGetDay(y,m,d);
+  for(var i=0;i<es.length;i++)if(es[i].uid===uid){es[i][field]=val;break;}
+  lvSaveDay(y,m,d,es);
+}
+function lvSaveRow(uid){
+  var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
+  var es=lvGetDay(y,m,d),entry=null;
+  for(var i=0;i<es.length;i++)if(es[i].uid===uid){entry=es[i];break;}
+  if(!entry)return;
+  var err=lvValidate(entry.empId,y,m,d,entry.type,uid);
+  if(err){alert('⚠️ '+err);return;}
+  entry.updatedAt=Date.
+now();
+  lvSaveDay(y,m,d,es);
+  lvRenderCal();lvRenderSum();lvRefreshEList();
+}
+function lvDelEntry(uid){
+  var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
+  var es=lvGetDay(y,m,d).filter(function(e){return e.uid!==uid;});
+  lvSaveDay(y,m,d,es);
+  lvRenderCal();lvRenderSum();lvRefreshEList();
+}
+
+/* ── Add Entry ── */
+function lvCheckAdd(){
+  var empId=document.getElementById('lv-f-emp').value;
+  var type=document.getElementById('lv-f-type').value;
+  var errEl=document.getElementById('lv-f-err');
+  var sb=document.getElementById('lv-f-save');
+  if(!empId){errEl.textContent='';if(sb)sb.disabled=false;return;}
+  var err=lvValidate(empId,LV_SEL.y,LV_SEL.m,LV_SEL.d,type,undefined);
+  if(err){errEl.textContent='🚫 '+err;if(sb)sb.disabled=true;}
+  else{errEl.textContent='';if(sb)sb.disabled=false;}
+}
+function lvAddEntry(){
+  var empId=document.getElementById('lv-f-emp').value;
+  var type=document.getElementById('lv-f-type').value;
+  var note=document.getElementById('lv-f-note').value.trim();
+  var errEl=document.getElementById('lv-f-err');
+  if(!empId){errEl.textContent='🚫 กรุณาเลือกพนักงาน';return;}
+  var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
+  var es=lvGetDay(y,m,d);
+  for(var i=0;i<es.length;i++)if(es[i].empId===empId){errEl.textContent='🚫 '+lvFindEmp(empId).name+' มีการลาในวันนี้แล้ว';return;}
+  var err=lvValidate(empId,y,m,d,type,undefined);
+  if(err){errEl.textContent='🚫 '+err;var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=true;return;}
+  es.push({uid:LV_UID++,empId:empId,type:type,note:note,createdAt:Date.now(),updatedAt:null});
+  lvSaveDay(y,m,d,es);
+  lvRenderCal();lvRenderSum();
+  document.getElementById('lv-f-emp').value='';
+  document.getElementById('lv-f-note').value='';
+  errEl.textContent='';
+  var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=false;
+  lvRefreshEList();
+}
+function lvCloseModal(){var el=document.getElementById('lv-modal');if(el)el.classList.remove('open');}
+
+/* ── Nav ── */
+function lvPrevMonth(){LV_CUR.m--;if(LV_CUR.m<1){LV_CUR.m=12;LV_CUR.y--;}lvRender();}
+function lvNextMonth(){LV_CUR.m++;if(LV_CUR.m>12){LV_CUR.m=1;LV_CUR.y++;}lvRender();}
+function lvGoMonth(delta){if(delta<0)lvPrevMonth();else lvNextMonth();}
+
+/* ── Init ── */
+function lvFetchServer(cb){
+  var ctrl=new AbortController();
+  var t=setTimeout(function(){ctrl.abort();},5000);
+  fetch('/api/data',{signal:ctrl.signal})
+    .then(function(r){clearTimeout(t);return r.ok?r.json():null;})
+    .then(function(o){if(o&&o.d){
+      var keys=Object.keys(o.d);
+      var hasData=keys.length>0;
+      if(hasData){
+        var oldPhotos=LV_DATA&&LV_DATA.__photos?LV_DATA.__photos:null;
+        LV_DATA=o.d;LV_UID=o.u||LV_UID;
+        if(!LV_DATA.__photos&&oldPhotos){
+          LV_DATA.__photos=oldPhotos;
+          lvSaveLS(); /* push merged photos to server */
+        }
+        try{localStorage.setItem(LV_LS,JSON.stringify({d:LV_DATA,u:LV_UID}));}catch(e){}
+        if(cb)cb();
+      }
+    }}).catch(function(){clearTimeout(t);});
+}
+function lvInit(){
+  var now=new Date();LV_CUR={y:now.getFullYear(),m:now.getMonth()+1};
+  lvLoadLS();lvRender();lvRestorePhotos();
+  lvFetchServer(function(){lvRender();lvRestorePhotos();});
+  setInterval(function(){
+    if(document.querySelector('#lv-modal-wrap[style*="flex"]'))return;
+    lvFetchServer(function(){lvRender();lvRestorePhotos();});
+  },60000);
+}
+</script>
+
+<!-- TAB: CHANNELS                                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-channels" class="tab-panel">
+  <div class="section-title">ช่องทาง Social Media &amp; โฆษณา</div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📊 เพจ Facebook แยกตามแบรนด์</h3>
+      <div class="bar-row"><div class="bar-label"><span>โอลิมพลัส</span><span>26</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>ลีฟแคร์</span><span>14</span></div><div class="bar-track"><div class="bar-fill" style="width:54%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>จูโด้</span><span>12</span></div><div class="bar-track"><div class="bar-fill" style="width:46%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>เฮฟเว่นพลัส</span><span>11</span></div><div class="bar-track"><div class="bar-fill" style="width:42%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>เดอะลอร์ด</span><span>10</span></div><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>สบู่เจล (Men+One)</span><span>7</span></div><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>ขุนแผน</span><span>6</span></div><div class="bar-track"><div class="bar-fill" style="width:23%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>โซพิงค์</span><span>2</span></div><div class="bar-track"><div class="bar-fill" style="width:8%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>ไอชัวร์</span><span>2</span></div><div class="bar-track"><div class="bar-fill" style="width:8%"></div></div></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>📡 ช่องทางทั้งหมด</h3>
+      <div class="platform-list">
+        <div class="platform-row">
+          <div class="platform-icon">📘</div>
+          <div class="platform-name">Facebook Pages</div>
+          <div class="platform-count">91 เพจ</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">💚</div>
+          <div class="platform-name">Line Official Account</div>
+          <div class="platform-count">15 ช่อง</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🎵</div>
+          <div class="platform-name">TikTok Accounts</div>
+          <div class="platform-count">30+ บัญชี</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🛍️</div>
+          <div class="platform-name">Shopee Shop</div>
+          <div class="platform-count">2 ร้าน</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🏪</div>
+          <div class="platform-name">Lazada Shop</div>
+          <div class="platform-count">2 ร้าน</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>📋 รูปแบบโฆษณา</h3>
+      <div class="platform-list">
+        <div class="platform-row">
+          <div class="platform-icon">💬</div>
+          <div class="platform-name">ยิงแบบ สนทนา</div>
+          <div class="platform-count" style="color:#1B4332">หลัก</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🛒</div>
+          <div class="platform-name">ยิงแบบ การซื้อ</div>
+          <div class="platform-count" style="color:#1B4332">หลัก</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🏷️</div>
+          <div class="platform-name">ยิงแบบ ประมูล</div>
+          <div class="platform-count" style="color:#40916C">รอง</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🔄</div>
+          <div class="platform-name">Re-target</div>
+          <div class="platform-count" style="color:#40916C">รอง</div>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">📐</div>
+          <div class="platform-name">ขนาดคลิป 4:5</div>
+          <div class="platform-count" style="color:#1B4332">มาตรฐาน</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>🔗 Facebook Official Pages (แต่ละแบรนด์)</h3>
+      <div class="platform-list">
+        <div class="platform-row">
+          <div class="platform-icon">💊</div>
+          <div class="platform-name">โอลิมพลัส Official</div>
+          <a href="https://www.facebook.com/profile.php?id=61578497662530" target="_blank" style="font-size:11px;color:#40916C">ดูเพจ →</a>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">⭐</div>
+          <div class="platform-name">เฮฟเว่นพลัส Official</div>
+          <a href="https://www.facebook.com/profile.php?id=61578386574735" target="_blank" style="font-size:11px;color:#40916C">ดูเพจ →</a>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🛡️</div>
+          <div class="platform-name">เดอะลอร์ด Official</div>
+          <a href="https://www.facebook.com/profile.php?id=61578260911091" target="_blank" style="font-size:11px;color:#40916C">ดูเพจ →</a>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">⚔️</div>
+          <div class="platform-name">ขุนแผน Official</div>
+          <a href="https://www.facebook.com/profile.php?id=61578650005408" target="_blank" style="font-size:11px;color:#40916C">ดูเพจ →</a>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🍃</div>
+          <div class="platform-name">ลีฟแคร์ Official</div>
+          <a href="https://www.facebook.com/profile.php?id=61578110138288" target="_blank" style="font-size:11px;color:#40916C">ดูเพจ →</a>
+        </div>
+        <div class="platform-row">
+          <div class="platform-icon">🥋</div>
+          <div class="platform-name">จูโด้ Official</div>
+          <a href="https://www.facebook.com/profile.php?id=61578326607411" target="_blank" style="font-size:11px;color:#40916C">ดูเพจ →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB: LINKS                                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-links" class="tab-panel">
+  <div class="section-title">ลิงก์ Google Sheets สำคัญ</div>
+  <div class="links-grid">
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1nclIcWTmu1o4J0PqvORei11aMgPDmCSwon4VKy-OioU/edit" target="_blank">
+      <div class="link-icon">📊</div>
+      <div class="link-info">
+        <h4>SUPERVISOR ADS × RICHBIOTECH</h4>
+        <p>บัญชีโฆษณา / TikTok / เพจ / Line OA</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1nclIcWTmu1o4J0PqvORei11aMgPDmCSwon4VKy-OioU/edit?gid=309627740" target="_blank">
+      <div class="link-icon">📋</div>
+      <div class="link-info">
+        <h4>SUPERVISOR ADS — ชีตหลัก</h4>
+        <p>gid=309627740</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1nclIcWTmu1o4J0PqvORei11aMgPDmCSwon4VKy-OioU/edit?gid=825715807" target="_blank">
+      <div class="link-icon">📋</div>
+      <div class="link-info">
+        <h4>SUPERVISOR ADS — ชีต 2</h4>
+        <p>gid=825715807</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit" target="_blank">
+      <div class="link-icon">🗂️</div>
+      <div class="link-info">
+        <h4>Plan Content × RICHBIOTECH</h4>
+        <p>แผนคอนเทนต์ / งานประจำวัน / ลิสต์คลิป</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=407546672" target="_blank">
+      <div class="link-icon">🗂️</div>
+      <div class="link-info">
+        <h4>Plan Content — ชีต 1</h4>
+        <p>gid=407546672</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=2094477502" target="_blank">
+      <div class="link-icon">🗂️</div>
+      <div class="link-info">
+        <h4>Plan Content — ชีต 2</h4>
+        <p>gid=2094477502</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=189623312" target="_blank">
+      <div class="link-icon">🗂️</div>
+      <div class="link-info">
+        <h4>Plan Content — ชีต 3</h4>
+        <p>gid=189623312</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1ifc3FcepghXRyC5JxGtoCNQw_qM8yjzjiWDZLnyGHqs/edit?gid=1014445864" target="_blank">
+      <div class="link-icon">🗂️</div>
+      <div class="link-info">
+        <h4>Plan Content — ชีต 4</h4>
+        <p>gid=1014445864</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://docs.google.com/spreadsheets/d/1kjJVW48X4-VMXWrmiPOYOdLE3WI4xjd32Jc73t1cMjE/edit" target="_blank">
+      <div class="link-icon">📅</div>
+      <div class="link-info">
+        <h4>ตารางยิงแอด (Schedule)</h4>
+        <p>ตารางงาน Graphic &amp; Ads ทั้งปี 2569</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://www.facebook.com/profile.php?id=61578497662530" target="_blank">
+      <div class="link-icon">💊</div>
+      <div class="link-info">
+        <h4>โอลิมพลัส Official FB</h4>
+        <p>เพจ Facebook หลักของ Olymplus</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://www.facebook.com/profile.php?id=61578386574735" target="_blank">
+      <div class="link-icon">⭐</div>
+      <div class="link-info">
+        <h4>เฮฟเว่นพลัส Official FB</h4>
+        <p>เพจ Facebook หลักของ Heaven Plus</p>
+      </div>
+    </a>
+    <a class="link-card" href="https://www.facebook.com/profile.php?id=61578326607411" target="_blank">
+      <div class="link-icon">🥋</div>
+      <div class="link-info">
+        <h4>จูโด้ Official FB</h4>
+        <p>เพจ Facebook หลักของ Judo</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  RICHBIOTECH — Graphic &amp; Ads Dashboard · สร้างโดย Claude AI · มิถุนายน 2569
+</footer>
+
+<script>
+/* ─── Switch tab via nav button ─── */
+function showTab(name, btn) {
+  if (name === 'schedule') { setTimeout(function(){ if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit(); else lvRender(); }, 10); }
+  if (name === 'team') { setTimeout(lvRestorePhotos, 30); }
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  try{localStorage.setItem('rb_tab',name);}catch(e){}
+}
+
+/* ─── Navigate from overview cards ─── */
+function goTab(name, el) {
+  /* ripple */
+  const r = document.createElement('span');
+  r.className = 'ripple-el';
+  const rect = el.getBoundingClientRect();
+  r.style.left = (event.clientX - rect.left) + 'px';
+  r.style.top  = (event.clientY - rect.top)  + 'px';
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+
+  /* switch tab */
+  const tabMap = {
+    brands:   'แบรนด์สินค้า',
+    team:     'ทีมงาน',
+    schedule: 'ตารางวันหยุดทีม',
+    channels: 'ช่องทาง Social',
+    links:    'ลิงก์สำคัญ'
+  };
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('nav button').forEach(function(b){
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf("'"+name+"'")>=0)b.classList.add('active');
+  });
+  try{localStorage.setItem('rb_tab',name);}catch(e){}
+}
+
+/* ─── Restore last active tab on load ─── */
+(function(){
+  if(typeof lvLoadLS==='function')lvLoadLS(); /* ensure LV_DATA loaded for photos */
+  var t=localStorage.getItem('rb_tab');
+  if(t&&document.getElementById('tab-'+t)){
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+    document.getElementById('tab-'+t).classList.add('active');
+    document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active');});
+    document.querySelectorAll('nav button').forEach(function(b){
+      if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf("'"+t+"'")>=0)b.classList.add('active');
+    });
+    if(t==='schedule'){if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit();else lvRender();}
+  }
+})();
+</script>
+<style>.page-main{display:flex;align-items:center;gap:6px;margin-bottom:4px}.page-name{font-size:13px;font-weight:500;flex:1;color:#111827}.page-del-btn{background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0}.page-del-btn:hover{color:#dc2626}.page-meta{display:flex;gap:5px;flex-wrap:wrap;padding-left:4px}.page-type{padding:2px 8px;border:1px solid;border-radius:10px;font-size:11px;cursor:pointer;font-weight:600;outline:none}.page-type.pt-main{background:#ede9fe;color:#5b21b6;border-color:#c4b5fd}.page-type.pt-backup{background:#fce7f3;color:#9d174d;border-color:#f9a8d4}.page-status{padding:2px 8px;border:1px solid;border-radius:10px;font-size:11px;cursor:pointer;font-weight:500;outline:none}.page-status.st-none{background:#f3f4f6;color:#6b7280;border-color:#e5e7eb}.page-status.st-shared{background:#fef3c7;color:#92400e;border-color:#fcd34d}.page-status.st-ads{background:#d1fae5;color:#065f46;border-color:#6ee7b7}.page-owner{padding:2px 8px;border:1px solid #e5e7eb;border-radius:10px;font-size:11px;cursor:pointer;background:white;color:#374151;outline:none}.pages-empty{color:#9ca3af;font-size:12px;padding:4px 0;font-style:italic}.page-add-selects{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:5px}.page-input{flex:1;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;min-width:0;outline:none}.page-input:focus{border-color:#1d4ed8}.page-add-type{padding:2px 6px;border:1px solid;border-radius:10px;font-size:11px;cursor:pointer;font-weight:600;outline:none}.page-add-status{padding:2px 6px;border:1px solid;border-radius:10px;font-size:11px;cursor:pointer;font-weight:500;outline:none}.page-add-owner{padding:2px 6px;border:1px solid #e5e7eb;border-radius:10px;font-size:11px;cursor:pointer;background:white;color:#374151;outline:none}.page-add-btn{background:#1d4ed8;color:white;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap;font-weight:500;flex-shrink:0}.page-add-btn:hover{background:#1e40af}.fbm-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}.fbm-box{background:#fff;border-radius:16px;width:100%;max-width:880px;box-shadow:0 24px 64px rgba(0,0,0,.35);margin:auto;overflow:hidden}.fbm-hdr{display:flex;align-items:center;padding:18px 24px;background:#1B4332;gap:12px}.fbm-ti{font-size:17px;font-weight:700;color:white;flex:1}.fbm-cl{background:rgba(255,255,255,.18);border:none;border-radius:8px;padding:6px 14px;cursor:pointer;color:white;font-size:13px}.fbm-cl:hover{background:rgba(255,255,255,.3)}.fbm-body{padding:16px 20px;max-height:76vh;overflow-y:auto}.fbm-row{border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;overflow:hidden}.fbm-rhdr{display:flex;align-items:center;padding:11px 14px;background:#f8fafc;cursor:pointer;gap:8px;user-select:none}.fbm-rhdr:hover{background:#f0f7f2}.fbm-ar{color:#6b7280;font-size:11px;width:14px;text-align:center}.fbm-nth{font-weight:700;font-size:14px;color:#1B4332}.fbm-nen{color:#9ca3af;font-size:11px;margin-left:4px}.fbm-cnt{background:#1d4ed8;color:white;border-radius:10px;padding:1px 8px;font-size:11px}.fbm-rbody{padding:10px 14px;border-top:1px solid #f3f4f6;display:none}.fbm-pi{padding:6px 0;border-bottom:1px solid #f9fafb}.fbm-pi:last-of-type{border-bottom:none}.fbm-af{margin-top:10px;padding-top:8px;border-top:1px dashed #e5e7eb}.fb-open-btn{display:flex;flex-direction:column;gap:3px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;border:none;border-radius:12px;padding:14px 20px;cursor:pointer;font-size:16px;font-weight:700;width:100%;text-align:left;margin-bottom:16px}.fb-open-btn:hover{background:linear-gradient(135deg,#1e40af,#1d4ed8)}.fb-btn-sub{font-size:12px;font-weight:400;opacity:.8}
+.graphic-subnav{display:flex;background:#f0f9f4;border-bottom:2px solid #d1fae5;padding:0 16px;}
+.gsnav-btn{padding:10px 20px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#6b7280;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;white-space:nowrap;}
+.gsnav-btn.gsnav-active{color:#1B4332;border-bottom-color:#1B4332;}
+.gsnav-btn:hover{color:#1B4332;background:rgba(27,67,50,.06);}
+.gsp{display:none;}
+.gsp.gsp-active{display:block;}
+.gsp-empty{padding:60px 20px;text-align:center;color:#9ca3af;font-size:14px;font-style:italic;}
+</style><script>
+(function(){var t=localStorage.getItem("rb_tab");if(t==="team"){setTimeout(function(){if(typeof lvRestorePhotos==="function")lvRestorePhotos();},100);}})();
+(function(){
+var LS_FB="rb_brand_pages_v1";
+var BR=[{k:"OLYMPLUS",th:"โอลิมพลัส"},{k:"HEAVEN PLUS",th:"เฮฟเว่นพลัส"},{k:"THE LORD",th:"เดอะลอร์ด"},{k:"JUDO",th:"จูโด้"},{k:"LIV CARE",th:"ลีฟแคร์"},{k:"SO PINK",th:"โซพิงค์"},{k:"WOLF+",th:"วูลฟ์+"},{k:"KHUN PHAEN",th:"ขุนแผน"},{k:"MENPLUS_ONEPLUS",th:"เมนพลัส/วันพลัส"},{k:"I SURE PLUS",th:"ไอชัวร์พลัส"}];
+var OW=["เตอร์","นุ่น","แจ๋ม","มอส","ดอม","บอล"];
+var ST=["ยังไม่ได้แจ้ง","แจ้งรอบแรก (แชร์เพจ)","แจ้งรอบ 2 (ยิงแอด)"];
+var SC=["st-none","st-shared","st-ads"];
+var TY=["เพจหลัก","สำรอง"];
+var LS_CH="rb_channel_data_v1";
+var CH_MAP={"Facebook Pages":{k:"FB",unit:"เพจ"},"Line Official Account":{k:"LINE",icon:"💚",unit:"ช่อง"},"TikTok Accounts":{k:"TIKTOK",icon:"🎵",unit:"บัญชี"},"Shopee Shop":{k:"SHOPEE",icon:"🛒",unit:"ร้าน"},"Lazada Shop":{k:"LAZADA",icon:"🏦",unit:"ร้าน"}};
+function lpFB(){try{return JSON.parse(localStorage.getItem(LS_FB)||"{}")}catch(e){return{}}}
+function spFB(d){localStorage.setItem(LS_FB,JSON.stringify(d))}
+function lpCH(){try{return JSON.parse(localStorage.getItem(LS_CH)||"{}")}catch(e){return{}}}
+function spCH(d){localStorage.setItem(LS_CH,JSON.stringify(d))}
+function no(p){return typeof p==="string"?{name:p,status:0,owner:"",type:"เพจหลัก"}:{name:p.name||"",status:+p.status||0,owner:p.owner||"",type:p.type||"เพจหลัก"};}
+function updateCounts(){var tc=document.getElementById("tab-channels");if(!tc)return;var fb=lpFB();var ch=lpCH();var fbTotal=Object.values(fb).reduce(function(s,a){return s+(Array.isArray(a)?a.length:0);},0);var rows=tc.querySelectorAll(".platform-row");rows.forEach(function(row){var pn=row.querySelector(".platform-name");var pc=row.querySelector(".platform-count");if(!pn||!pc)return;var name=pn.textContent.trim();var cfg=CH_MAP[name];if(!cfg)return;if(name==="Facebook Pages"){pc.textContent=fbTotal+" "+cfg.unit;}else{var items=ch[cfg.k]||[];pc.textContent=items.length+" "+cfg.unit;}});}
+function renameGraphicBtn(){if(document.querySelector("[data-graphic-renamed]"))return;var btn=Array.from(document.querySelectorAll("button")).find(function(b){return b.getAttribute("onclick")&&b.getAttribute("onclick").includes("'team'")&&b.textContent.includes("ทีมงาน");});if(btn){btn.setAttribute("data-graphic-renamed","1");btn.innerHTML="🎨 Graphic";}}
+function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!teamTab||teamTab.getAttribute("data-graphic-init"))return;teamTab.setAttribute("data-graphic-init","1");var teamPanel=document.createElement("div");teamPanel.className="gsp gsp-active";teamPanel.setAttribute("data-sub","team");while(teamTab.firstChild)teamPanel.appendChild(teamTab.firstChild);var orderPanel=document.createElement("div");orderPanel.className="gsp";orderPanel.setAttribute("data-sub","order");orderPanel.innerHTML='<div class="gsp-empty">📋 สั่งงาน<br><br>เมนูนี้กำลังพัฒนา</div>';var linksPanel=document.createElement("div");linksPanel.className="gsp";linksPanel.setAttribute("data-sub","links");linksPanel.innerHTML='<div class="gsp-empty">🔗 รวมลิงก์<br><br>เมนูนี้กำลังพัฒนา</div>';var commissionPanel=document.createElement("div");commissionPanel.className="gsp";commissionPanel.setAttribute("data-sub","commission");commissionPanel.innerHTML='<div class="gsp-empty">💰 ค่าคอมมิชชั่น<br><br>เมนูนี้กำลังพัฒนา</div>';var auditPanel=document.createElement("div");auditPanel.className="gsp";auditPanel.setAttribute("data-sub","audit");auditPanel.innerHTML='<div class="gsp-empty">📊 ยอดหักออดิต<br><br>เมนูนี้กำลังพัฒนา</div>';var subNav=document.createElement("div");subNav.className="graphic-subnav";var subs=[{k:"team",l:"👥 ทีมงาน"},{k:"order",l:"📋 สั่งงาน"},{k:"links",l:"🔗 รวมลิงก์"},{k:"commission",l:"💰 ค่าคอมมิชชั่น"},{k:"audit",l:"📊 ยอดหักออดิต"}];subs.forEach(function(s){var btn=document.createElement("button");btn.className="gsnav-btn"+(s.k==="team"?" gsnav-active":"");btn.textContent=s.l;btn.onclick=function(){teamTab.querySelectorAll(".gsnav-btn").forEach(function(b){b.classList.remove("gsnav-active");});teamTab.querySelectorAll(".gsp").forEach(function(p){p.classList.remove("gsp-active");});btn.classList.add("gsnav-active");var target=teamTab.querySelector("[data-sub=\""+s.k+"\"]");if(target)target.classList.add("gsp-active");if(s.k==="team"&&typeof lvRestorePhotos==="function")setTimeout(lvRestorePhotos,100);};subNav.appendChild(btn);});teamTab.appendChild(subNav);teamTab.appendChild(teamPanel);teamTab.appendChild(orderPanel);teamTab.appendChild(linksPanel);teamTab.appendChild(commissionPanel);teamTab.appendChild(auditPanel);}
+var _mFB=null;
+function openFB(){if(!_mFB)buildFB();refreshFB();_mFB.style.display="flex";document.body.style.overflow="hidden";}
+function closeFB(){if(_mFB)_mFB.style.display="none";document.body.style.overflow="";}
+function buildFB(){_mFB=document.createElement("div");_mFB.className="fbm-ov";_mFB.style.display="none";_mFB.addEventListener("click",function(e){if(e.target===_mFB)closeFB();});var box=document.createElement("div");box.className="fbm-box";var hdr=document.createElement("div");hdr.className="fbm-hdr";var ti=document.createElement("div");ti.className="fbm-ti";ti.textContent="📘 Facebook Pages — จัดการเพจแต่ละแบรนด์";var cl=document.createElement("button");cl.className="fbm-cl";cl.textContent="✕ ปิด";cl.onclick=closeFB;hdr.appendChild(ti);hdr.appendChild(cl);var bd=document.createElement("div");bd.id="fbm-body";bd.style.cssText="padding:12px 16px;max-height:80vh;overflow-y:auto;";box.appendChild(hdr);box.appendChild(bd);_mFB.appendChild(box);document.body.appendChild(_mFB);}
+function refreshFB(){var bd=document.getElementById("fbm-body");if(!bd)return;bd.innerHTML="";var dat=lpFB();BR.forEach(function(br){var pages=(dat[br.k]||[]).map(no);var ct=pages.length;var rh=document.createElement("div");rh.className="fbm-rhdr";var nth=document.createElement("span");nth.className="fbm-nth";nth.textContent=br.th;var nen=document.createElement("span");nen.className="fbm-nen";nen.textContent=br.k;var cnt=document.createElement("span");cnt.className="fbm-cnt";cnt.textContent=ct+" เพจ";var arr=document.createElement("span");arr.style.cssText="margin-left:auto;color:#6b7280;";arr.textContent="▶";rh.appendChild(nth);rh.appendChild(nen);rh.appendChild(cnt);rh.appendChild(arr);var rb=document.createElement("div");rb.className="fbm-rbody";rh.addEventListener("click",function(){var v=rb.style.display==="block";rb.style.display=v?"none":"block";arr.textContent=v?"▶":"▼";});renderFBBrand(br.k,rb,pages);var w=document.createElement("div");w.style.cssText="border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;overflow:hidden;";w.appendChild(rh);w.appendChild(rb);bd.appendChild(w);});updateCounts();}
+function renderFBBrand(bk,el,pages){el.innerHTML="";if(pages.length===0){var emp=document.createElement("div");emp.className="pages-empty";emp.textContent="ยังไม่มีเพจ";el.appendChild(emp);}else{pages.forEach(function(p,i){var pi=document.createElement("div");pi.className="fbm-pi";var mr=document.createElement("div");mr.className="page-main";var nm=document.createElement("span");nm.className="page-name";nm.textContent=p.name;var db=document.createElement("button");db.className="page-del-btn";db.textContent="✕";db.setAttribute("data-idx",i);db.setAttribute("data-bk",bk);db.onclick=function(){delFBPg(bk,+this.getAttribute("data-idx"));};mr.appendChild(nm);mr.appendChild(db);var meta=document.createElement("div");meta.className="page-meta";var ts=document.createElement("select");ts.className="page-type "+(p.type==="เพจหลัก"?"pt-main":"pt-backup");TY.forEach(function(ty){var o=document.createElement("option");o.value=ty;o.textContent=ty;if(ty===p.type)o.selected=true;ts.appendChild(o);});ts.setAttribute("data-idx",i);ts.setAttribute("data-bk",bk);ts.onchange=function(){this.className="page-type "+(this.value==="เพจหลัก"?"pt-main":"pt-backup");updFBPg(bk,+this.getAttribute("data-idx"),"type",this.value);};var ss=document.createElement("select");ss.className="page-status "+SC[p.status];ST.forEach(function(st,si){var o=document.createElement("option");o.value=si;o.textContent=st;if(si===p.status)o.selected=true;ss.appendChild(o);});ss.setAttribute("data-idx",i);ss.setAttribute("data-bk",bk);ss.onchange=function(){var v=+this.value;this.className="page-status "+SC[v];updFBPg(bk,+this.getAttribute("data-idx"),"status",v);};var os=document.createElement("select");os.className="page-owner";var oe=document.createElement("option");oe.value="";oe.textContent="— เจ้าของ —";os.appendChild(oe);OW.forEach(function(ow){var o=document.createElement("option");o.value=ow;o.textContent=ow;if(ow===p.owner)o.selected=true;os.appendChild(o);});os.setAttribute("data-idx",i);os.setAttribute("data-bk",bk);os.onchange=function(){updFBPg(bk,+this.getAttribute("data-idx"),"owner",this.value);};meta.appendChild(ts);meta.appendChild(ss);meta.appendChild(os);pi.appendChild(mr);pi.appendChild(meta);el.appendChild(pi);});}var af=document.createElement("div");af.className="fbm-af";var inp=document.createElement("input");inp.type="text";inp.placeholder="ชื่อเพจใหม่...";inp.style.cssText="border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;font-size:13px;width:calc(100% - 80px);margin-right:6px;";var ab=document.createElement("button");ab.textContent="+ เพิ่ม";ab.style.cssText="background:#1B4332;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;";ab.onclick=function(){var v=inp.value.trim();if(!v)return;addFBPg(bk,v);inp.value="";};af.appendChild(inp);af.appendChild(ab);el.appendChild(af);}
+function addFBPg(bk,name){var d=lpFB();if(!d[bk])d[bk]=[];d[bk].push({name:name,status:0,owner:"",type:"เพจหลัก"});spFB(d);refreshFB();}
+function delFBPg(bk,idx){var d=lpFB();if(d[bk])d[bk].splice(idx,1);spFB(d);refreshFB();}
+function updFBPg(bk,idx,field,val){var d=lpFB();if(d[bk]&&d[bk][idx]){var p=no(d[bk][idx]);p[field]=val;d[bk][idx]=p;spFB(d);}}
+var _mCH=null,_curCH=null;
+function openCH(k,label,icon,unit){_curCH={k:k,label:label,icon:icon,unit:unit};if(!_mCH)buildCH();refreshCH();_mCH.style.display="flex";document.body.style.overflow="hidden";}
+function closeCH(){if(_mCH)_mCH.style.display="none";document.body.style.overflow="";}
+function buildCH(){_mCH=document.createElement("div");_mCH.className="fbm-ov";_mCH.style.display="none";_mCH.addEventListener("click",function(e){if(e.target===_mCH)closeCH();});var box=document.createElement("div");box.className="fbm-box";var hdr=document.createElement("div");hdr.id="chm-hdr";hdr.className="fbm-hdr";var ti=document.createElement("div");ti.id="chm-ti";ti.className="fbm-ti";var cl=document.createElement("button");cl.className="fbm-cl";cl.textContent="✕ ปิด";cl.onclick=closeCH;hdr.appendChild(ti);hdr.appendChild(cl);var bd=document.createElement("div");bd.id="chm-body";bd.style.cssText="padding:16px;max-height:80vh;overflow-y:auto;";box.appendChild(hdr);box.appendChild(bd);_mCH.appendChild(box);document.body.appendChild(_mCH);}
+function mkPwCell(val){var wrap=document.createElement("div");wrap.style.cssText="display:flex;align-items:center;gap:4px;";var sp=document.createElement("span");sp.textContent="••••••";sp.style.cssText="font-size:12px;color:#6b7280;font-family:monospace;";var eye=document.createElement("button");eye.textContent="👁";eye.style.cssText="background:none;border:none;cursor:pointer;font-size:12px;padding:0;";var visible=false;eye.onclick=function(){visible=!visible;sp.textContent=visible?val:"••••••";};wrap.appendChild(sp);wrap.appendChild(eye);return wrap;}
+function refreshCH(){if(!_curCH)return;var ti=document.getElementById("chm-ti");if(ti)ti.textContent=_curCH.icon+" "+_curCH.label+" — จัดการ"+_curCH.unit;var bd=document.getElementById("chm-body");if(!bd)return;bd.innerHTML="";var d=lpCH();var items=d[_curCH.k]||[];if(_curCH.k==="TIKTOK"){renderTikTok(bd,items);}else{renderGenericCH(bd,items);}updateCounts();}
+function renderTikTok(bd,items){function mkStatus(val,idx){var sel=document.createElement("select");sel.style.cssText="padding:3px 8px;border-radius:10px;font-size:12px;font-weight:600;border:none;cursor:pointer;outline:none;";var opts=[{v:"active",l:"✅ ใช้งาน",bg:"#d1fae5",col:"#065f46"},{v:"inactive",l:"❌ ปิดใช้งาน",bg:"#fee2e2",col:"#991b1b"}];opts.forEach(function(op){var o=document.createElement("option");o.value=op.v;o.textContent=op.l;if(op.v===val)o.selected=true;sel.appendChild(o);});function applyStyle(){var v=sel.value;var op=opts.find(function(x){return x.v===v;})||opts[0];sel.style.background=op.bg;sel.style.color=op.col;}applyStyle();sel.setAttribute("data-idx",idx);sel.onchange=function(){updCHItem("TIKTOK",+this.getAttribute("data-idx"),"status",this.value);applyStyle();};return sel;}var wrap=document.createElement("div");wrap.style.cssText="overflow-x:auto;margin-bottom:16px;border-radius:12px;border:1px solid #e5e7eb;";var tbl=document.createElement("table");tbl.style.cssText="width:100%;border-collapse:collapse;font-size:13px;";var thead=document.createElement("thead");var hdrs=["#","ชื่อบัญชี","E-mail","Password E-mail","Password TikTok","สถานะ",""];var tr=document.createElement("tr");tr.style.cssText="background:#f8fafc;";hdrs.forEach(function(h){var th=document.createElement("th");th.textContent=h;th.style.cssText="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#374151;border-bottom:2px solid #e5e7eb;white-space:nowrap;";tr.appendChild(th);});thead.appendChild(tr);tbl.appendChild(thead);var tbody=document.createElement("tbody");if(items.length===0){var etr=document.createElement("tr");var etd=document.createElement("td");etd.colSpan=7;etd.textContent="ยังไม่มีบัญชี กด + เพิ่ม ด้านล่าง";etd.style.cssText="padding:20px;text-align:center;color:#9ca3af;font-style:italic;";etr.appendChild(etd);tbody.appendChild(etr);}else{items.forEach(function(item,i){var tr=document.createElement("tr");tr.style.cssText="border-bottom:1px solid #f3f4f6;"+(i%2===0?"background:white;":"background:#fafafa;");var td0=document.createElement("td");td0.textContent=i+1;td0.style.cssText="padding:10px 12px;color:#9ca3af;font-size:12px;width:32px;";var td1=document.createElement("td");td1.style.cssText="padding:10px 12px;font-weight:600;color:#111827;min-width:120px;";td1.textContent=item.name||"";var td2=document.createElement("td");td2.style.cssText="padding:10px 12px;color:#374151;min-width:140px;";td2.textContent=item.email||"—";var td3=document.createElement("td");td3.style.cssText="padding:10px 12px;min-width:120px;";if(item.passEmail){td3.appendChild(mkPwCell(item.passEmail));}else{td3.textContent="—";td3.style.color="#9ca3af";}var td4=document.createElement("td");td4.style.cssText="padding:10px 12px;min-width:120px;";if(item.passTikTok){td4.appendChild(mkPwCell(item.passTikTok));}else{td4.textContent="—";td4.style.color="#9ca3af";}var td5=document.createElement("td");td5.style.cssText="padding:10px 12px;white-space:nowrap;";td5.appendChild(mkStatus(item.status||"active",i));var td6=document.createElement("td");td6.style.cssText="padding:10px 12px;text-align:center;";var db=document.createElement("button");db.className="page-del-btn";db.textContent="✕";db.setAttribute("data-idx",i);db.onclick=function(){delCHItem("TIKTOK",+this.getAttribute("data-idx"));};td6.appendChild(db);tr.appendChild(td0);tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);tr.appendChild(td4);tr.appendChild(td5);tr.appendChild(td6);tbody.appendChild(tr);});}tbl.appendChild(tbody);wrap.appendChild(tbl);bd.appendChild(wrap);var af=document.createElement("div");af.style.cssText="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:16px;";var ft=document.createElement("div");ft.style.cssText="font-size:13px;font-weight:700;color:#374151;margin-bottom:12px;";ft.textContent="+ เพิ่มบัญชีใหม่";af.appendChild(ft);var fg=document.createElement("div");fg.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:10px;";function mkInput(ph,id){var inp=document.createElement("input");inp.type="text";inp.placeholder=ph;inp.id="ttk-"+id;inp.style.cssText="border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;width:100%;box-sizing:border-box;";return inp;}var iName=mkInput("ชื่อบัญชี *","name");var iEmail=mkInput("E-mail","email");var iPE=mkInput("Password E-mail","pe");var iPT=mkInput("Password TikTok","pt");var iStat=document.createElement("select");iStat.id="ttk-stat";iStat.style.cssText="border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;width:100%;box-sizing:border-box;background:white;";[{v:"active",l:"✅ ใช้งาน"},{v:"inactive",l:"❌ ปิดใช้งาน"}].forEach(function(op){var o=document.createElement("option");o.value=op.v;o.textContent=op.l;iStat.appendChild(o);});var addBtn=document.createElement("button");addBtn.textContent="+ เพิ่ม";addBtn.style.cssText="background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 20px;font-size:13px;cursor:pointer;font-weight:700;width:100%;";addBtn.onclick=function(){var n=iName.value.trim();if(!n)return;addCHItem("TIKTOK",{name:n,email:iEmail.value.trim(),passEmail:iPE.value.trim(),passTikTok:iPT.value.trim(),status:iStat.value});iName.value="";iEmail.value="";iPE.value="";iPT.value="";iStat.value="active";};fg.appendChild(iName);fg.appendChild(iEmail);fg.appendChild(iPE);fg.appendChild(iPT);fg.appendChild(iStat);fg.appendChild(addBtn);af.appendChild(fg);bd.appendChild(af);}
+function renderGenericCH(bd,items){if(items.length===0){var emp=document.createElement("p");emp.className="pages-empty";emp.textContent="ยังไม่มีข้อมูล กด + เพิ่ม เพื่อเริ่มต้น";bd.appendChild(emp);}else{items.forEach(function(item,i){var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f3f4f6;flex-wrap:wrap;";var nm=document.createElement("span");nm.style.cssText="font-size:13px;font-weight:600;color:#111827;flex:1;min-width:120px;";nm.textContent=item.name;var os=document.createElement("select");os.className="page-owner";var oe=document.createElement("option");oe.value="";oe.textContent="— เจ้าของ —";os.appendChild(oe);OW.forEach(function(ow){var o=document.createElement("option");o.value=ow;o.textContent=ow;if(ow===item.owner)o.selected=true;os.appendChild(o);});os.setAttribute("data-idx",i);os.onchange=function(){updCHItem(_curCH.k,+this.getAttribute("data-idx"),"owner",this.value);};var db=document.createElement("button");db.className="page-del-btn";db.textContent="✕";db.setAttribute("data-idx",i);db.onclick=function(){delCHItem(_curCH.k,+this.getAttribute("data-idx"));};row.appendChild(nm);row.appendChild(os);row.appendChild(db);if(item.note){var nb=document.createElement("span");nb.style.cssText="font-size:11px;color:#9ca3af;flex-basis:100%;padding-left:2px;margin-top:-4px;";nb.textContent="📝 "+item.note;row.appendChild(nb);}bd.appendChild(row);});}var af=document.createElement("div");af.style.cssText="margin-top:14px;padding-top:12px;border-top:1px dashed #e5e7eb;display:flex;gap:8px;flex-wrap:wrap;";var ni=document.createElement("input");ni.type="text";ni.placeholder="ชื่อ / บัญชี...";ni.style.cssText="border:1px solid #d1d5db;border-radius:8px;padding:7px 10px;font-size:13px;flex:1;min-width:140px;";var noi=document.createElement("input");noi.type="text";noi.placeholder="หมายเหตุ (ไม่บังคับ)";noi.style.cssText="border:1px solid #d1d5db;border-radius:8px;padding:7px 10px;font-size:13px;flex:1;min-width:120px;";var oi=document.createElement("select");oi.className="page-owner";oi.style.fontSize="13px";var oo=document.createElement("option");oo.value="";oo.textContent="— เจ้าของ —";oi.appendChild(oo);OW.forEach(function(ow){var o=document.createElement("option");o.value=ow;o.textContent=ow;oi.appendChild(o);});var ab=document.createElement("button");ab.textContent="+ เพิ่ม";ab.style.cssText="background:#1B4332;color:white;border:none;border-radius:8px;padding:7px 16px;font-size:13px;cursor:pointer;white-space:nowrap;";ab.onclick=function(){var n=ni.value.trim();if(!n)return;addCHItem(_curCH.k,{name:n,owner:oi.value,note:noi.value.trim()});ni.value="";noi.value="";oi.value="";};af.appendChild(ni);af.appendChild(oi);af.appendChild(noi);af.appendChild(ab);bd.appendChild(af);}
+function addCHItem(k,item){var d=lpCH();if(!d[k])d[k]=[];d[k].push(item);spCH(d);refreshCH();}
+function delCHItem(k,idx){var d=lpCH();if(d[k])d[k].splice(idx,1);spCH(d);refreshCH();}
+function updCHItem(k,idx,field,val){var d=lpCH();if(d[k]&&d[k][idx]){d[k][idx][field]=val;spCH(d);}}
+function hookSocial(){var tc=document.getElementById("tab-channels");if(!tc)return;var old=tc.querySelector(".fb-open-btn");if(old)old.remove();var rows=tc.querySelectorAll(".platform-row");rows.forEach(function(row){if(row.getAttribute("data-ch-hooked"))return;var pn=row.querySelector(".platform-name");if(!pn)return;var name=pn.textContent.trim();var handler=null;if(name==="Facebook Pages"){handler=openFB;}else if(CH_MAP[name]){var cfg=CH_MAP[name];handler=(function(k,lbl,ic,un){return function(){openCH(k,lbl,ic,un);};})(cfg.k,name,cfg.icon,cfg.unit);}if(handler){row.setAttribute("data-ch-hooked","1");row.style.cursor="pointer";row.addEventListener("click",handler);row.style.borderLeft="3px solid #1d4ed8";row.style.paddingLeft="10px";row.style.borderRadius="8px";row.style.transition="background 0.15s";row.addEventListener("mouseenter",function(){this.style.background="#eff6ff";});row.addEventListener("mouseleave",function(){this.style.background="";}); }});updateCounts();}
+var _origST=window.showTab;
+window.showTab=function(tab){try{if(typeof _origST==="function")_origST.apply(this,arguments);}catch(e){}if(tab==="channels")setTimeout(hookSocial,60);if(tab==="team")setTimeout(function(){renameGraphicBtn();initGraphicTab();},80);};
+renameGraphicBtn();
+if(localStorage.getItem("rb_tab")==="channels")setTimeout(hookSocial,200);
+if(localStorage.getItem("rb_tab")==="team")setTimeout(function(){renameGraphicBtn();initGraphicTab();},300);
+})();
+</script><script>
+(function(){
+
+var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
+// ===== FIREBASE REALTIME SYNC =====
+var FB_DB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
+var _fbSse=null; // SSE connection for live updates
+function fbGet(path,cb){
+  fetch(FB_DB+path+'.json').then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e,null);});
+}
+function fbSet(path,data){
+  fetch(FB_DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(e){console.warn('FB write err',e);});
+}
+function fbSyncStart(){
+  // SSE for live order updates
+  if(typeof EventSource==='undefined')return;
+  if(_fbSse){_fbSse.close();}
+  _fbSse=new EventSource(FB_DB+'/orders.json?accept=text%2Fevent-stream');
+  _fbSse.onmessage=function(e){
+    try{
+      var ev=JSON.parse(e.data);
+      if(ev&&ev.data&&ev.data!=='null'){
+        var remote=Array.isArray(ev.data)?ev.data:Object.values(ev.data);
+        if(remote.length>0){localStorage.setItem(LS_ORD,JSON.stringify(remote));}
+        var p=document.querySelector('.gsp.gsp-active[data-sub="order"]');
+        if(p&&p.getAttribute('data-order-init')){renderOrderStats();renderOrders();}
+      }
+    }catch(ex){}
+  };
+  _fbSse.onerror=function(){_fbSse.close();_fbSse=null;};
+}
+function fbLoadOrders(cb){
+  fbGet('/orders',function(err,data){
+    if(!err&&data){
+      var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);
+      arr=arr.filter(function(x){return x&&x.id;});
+      if(arr.length>0){
+        localStorage.setItem(LS_ORD,JSON.stringify(arr));
+      } else {
+        // Firebase empty — push local data up (migration)
+        var local=lpORD();
+        if(local.length>0){fbSet('/orders',local);}
+      }
+    } else {
+      // Error or null — push local data to Firebase
+      var local=lpORD();
+      if(local.length>0){fbSet('/orders',local);}
+    }
+    if(cb)cb();
+  });
+}
+// ===== END FIREBASE SYNC =====
+var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL","LINK"];window.MB_GR=MB_GR;
+var MB_ALL=["วิว","มอส","ดอม","เตอร์","นุ่น","แจ๋ม","บอล","นุ้ย","มายด์"];
+var OT=["กราฟิก","รูปภาพ","ยิงแอด","เทสส่วนตัว","คัดคลิป","Rlees","สร้างเพจ"];window.OT=OT;
+var ST=[
+  {k:"pending",l:"รอมอบหมาย",col:"#6b7280",bg:"#f3f4f6"},
+  {k:"inprogress",l:"กำลังดำเนินการ",col:"#1d4ed8",bg:"#dbeafe"},
+  {k:"review",l:"รอตรวจ",col:"#d97706",bg:"#fef3c7"},
+  {k:"revision",l:"ต้องแก้ไข",col:"#dc2626",bg:"#fee2e2"},
+  {k:"done",l:"เสร็จสมบูรณ์",col:"#065f46",bg:"#d1fae5"}
+];
+var LT_MAP={
+  'วันหยุดรอบ':{icon:'🌴',col:'#065f46',bg:'#d1fae5'},
+  'พักร้อน'  :{icon:'☀️',col:'#1d4ed8',bg:'#dbeafe'},
+  'ลากิจ'    :{icon:'📋',col:'#92400e',bg:'#fef3c7'},
+  'ลาป่วย'   :{icon:'🤒',col:'#991b1b',bg:'#fee2e2'}
+};
+var LV_EMP_MAP={wiw:'วิว',mos:'มอส',ter:'เตอร์',nun:'นุ่น',jam:'แจ๋ม',dom:'ดอม',bol:'บอล',lnk:'ลิ้งค์',nui:'นุ้ย',mnd:'มายด์'};
+var LV_TYPE_MAP={hol:{name:'วันหยุดรอบ',icon:'🌴',col:'#065f46',bg:'#d1fae5'},vac:{name:'พักร้อน',icon:'☀️',col:'#1d4ed8',bg:'#dbeafe'},sick:{name:'ลาป่วย',icon:'🤒',col:'#991b1b',bg:'#fee2e2'},per:{name:'ลากิจ',icon:'📋',col:'#92400e',bg:'#fef3c7'}};
+
+function curUser(){return localStorage.getItem('rb_cur_user')||'ไม่ระบุ';}
+function lpORD(){try{return JSON.parse(localStorage.getItem(LS_ORD)||'[]');}catch(e){return[];}}
+function spORD(d){localStorage.setItem(LS_ORD,JSON.stringify(d));fbSet('/orders',d);}
+function lpTL(){try{return JSON.parse(localStorage.getItem(LS_TL)||'[]');}catch(e){return[];}}
+function spTL(d){localStorage.setItem(LS_TL,JSON.stringify(d));}
+
+// ── FORMAT TIMESTAMP — Thai full date+time ──
+function fmtTs(ts){
+  var d=new Date(ts);
+  var days=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+  var months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]+' '+(d.getFullYear()+543)+'  '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' น.';
+}
+function ago(ts){var s=Math.floor((Date.now()-ts)/1000);if(s<60)return s+'วิที่แล้ว';var m=Math.floor(s/60);if(m<60)return m+' นาทีที่แล้ว';var h=Math.floor(m/60);if(h<24)return h+' ชม.ที่แล้ว';return Math.floor(h/24)+' วันที่แล้ว';}
+
+// ── DETECT LEAVE CHANGES — parse old vs new with ID mapping ──
+function parseLeaveChange(oldStr,newStr){
+  var result={det:'อัปเดตข้อมูลการลา',emp:'',type:''};
+  try{
+    var oldD=JSON.parse(oldStr||'{}');var newD=JSON.parse(newStr||'{}');
+    if(typeof oldD!=='object'||typeof newD!=='object')return result;
+    var allKeys=[];
+    Object.keys(newD).concat(Object.keys(oldD)).forEach(function(k){if(allKeys.indexOf(k)<0)allKeys.push(k);});
+    allKeys.some(function(dk){
+      var ov=JSON.stringify(oldD[dk]||[]),nv=JSON.stringify(newD[dk]||[]);
+      if(ov===nv)return false;
+      var oldArr=Array.isArray(oldD[dk])?oldD[dk]:[];
+      var newArr=Array.isArray(newD[dk])?newD[dk]:[];
+      var entry=null,action='แก้ไข';
+      if(newArr.length>oldArr.length){action='เพิ่ม';entry=newArr[newArr.length-1];}
+      else if(newArr.length<oldArr.length){action='ลบ';entry=oldArr[oldArr.length-1];}
+      else{entry=newArr[0];}
+      if(entry){
+        // map id → name (wiw→วิว), map code → display (hol→วันหยุดรอบ)
+        var empId=entry.emp||entry.employee||entry.id||'';
+        var empName=LV_EMP_MAP[empId]||empId||'';
+        var typeCode=entry.type||entry.t||'';
+        var typeObj=LV_TYPE_MAP[typeCode]||{name:typeCode,icon:'📅'};
+        var dkFmt=dk;
+        try{var p=dk.split('-');if(p.length===3)dkFmt=parseInt(p[2])+'/'+parseInt(p[1])+'/'+(parseInt(p[0])+543);}catch(e){}
+        result.emp=empName;
+        result.type=typeObj.name;
+        // Message: "วิว 🌴 ลงวันหยุดรอบ วันที่ 9/7/2569" หรือ "ลบ: แจ๋ม 🤒 ลาป่วย วันที่ 10/7/2569"
+        var msg=(action==='เพิ่ม'?'':action+': ')+empName+' '+typeObj.icon+' '+(action==='ลบ'?'ยกเลิก':'ลง')+typeObj.name+(dkFmt?' วันที่ '+dkFmt:'');
+        result.det=msg;
+      }
+      return true;
+    });
+  }catch(e){}
+  return result;
+}
+
+// ── TIMELINE CORE ──
+var _inLog=false;
+function logTL(sec,act,det,extra){
+  if(_inLog)return;_inLog=true;
+  try{
+    var tl=lpTL();
+    var e={ts:Date.now(),sec:sec,act:act,det:det||'',user:curUser()};
+    if(extra){if(extra.type)e.leaveType=extra.type;if(extra.emp)e.leaveEmp=extra.emp;}
+    tl.unshift(e);
+    if(tl.length>300)tl=tl.slice(0,300);
+    spTL(tl);
+    var list=document.getElementById('rb-tl-list');
+    if(list)renderTLList();
+  }finally{_inLog=false;}
+}
+
+// ── INTERCEPT setItem — detect detailed changes ──
+(function(){
+  var orig=Storage.prototype.setItem;
+  Storage.prototype.setItem=function(k,v){
+    var oldV=this.getItem(k);
+    orig.call(this,k,v);
+    if(_inLog||k===LS_TL||k==='rb_cur_user')return;
+    if(k==='rb_brand_pages_v1'){
+      // detect page name changes
+      var det='อัปเดตข้อมูลเพจ';
+      try{var nd=JSON.parse(v||'[]');if(nd.length)det='อัปเดต '+nd.length+' เพจ';}catch(e){}
+      logTL('📘 Facebook Pages','แก้ไข',det);
+    }
+    else if(k==='rb_channel_data_v1'){
+      var det='อัปเดตข้อมูลช่องทาง';
+      try{var nd=JSON.parse(v||'{}');var ch=Object.keys(nd).filter(function(c){return nd[c];}).join(', ');if(ch)det='อัปเดต: '+ch;}catch(e){}
+      logTL('📲 ช่องทาง Social','แก้ไข',det);
+    }
+    // leave calendar handled via button hook below
+    else if(k.startsWith('rb_photos_')){
+      var emp=k.replace('rb_photos_','');
+      logTL('📸 รูปทีมงาน','อัปเดต','อัปโหลดรูปของ '+emp);
+    }
+  };
+})();
+
+window.addEventListener('storage',function(e){
+  if(e.key===LS_ORD){var p=document.querySelector('.gsp[data-sub="order"]');if(p&&p.getAttribute('data-order-init')){renderOrderStats();renderOrders();}}
+  if(e.key===LS_TL){var list=document.getElementById('rb-tl-list');if(list)renderTLList();}
+});
+
+function genId(){var o=lpORD();var m=o.reduce(function(x,r){var n=parseInt((r.id||'').replace('GR',''))||0;return n>x?n:x;},0);return 'GR'+('000'+(m+1)).slice(-3);}
+function dlSt(dl){if(!dl)return null;var n=new Date();n.setHours(0,0,0,0);var d=new Date(dl);d.setHours(0,0,0,0);var df=Math.ceil((d-n)/86400000);return df<0?'over':df<=3?'soon':'ok';}
+function fmtD(dl){if(!dl)return'—';var p=dl.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+var _OF={status:'',type:'',search:'',dl:'',assignee:'',date:'',activeCard:'all'};
+var _OM=null;
+
+function initOrderPanel(){
+  var panel=document.querySelector('.gsp[data-sub="order"]');
+  if(!panel)return;
+  if(panel.getAttribute('data-order-init')){renderOrderStats();renderOrders();return;}
+  panel.setAttribute('data-order-init','1');
+  panel.innerHTML='';panel.style.cssText='background:#f8fafc;min-height:400px;';
+  var wrap=document.createElement('div');wrap.style.cssText='padding:20px;';
+  var sr=document.createElement('div');sr.id='ord-stats';sr.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;';wrap.appendChild(sr);
+  /* ── Tab nav: งานทั้งหมด / ทีมงาน ── */
+  var TEAM_MBR=['MOS','DOM','TER','JAM','NUNE','BALL','LINK'];
+  var _activeOrdTab='all';var _activeTeam='';window._ordViewMode='all';
+  var tabNav=document.createElement('div');tabNav.style.cssText='display:flex;gap:0;background:white;border:1px solid #e5e7eb;border-radius:12px 12px 0 0;border-bottom:none;padding:0 4px;';
+  var chipRow=document.createElement('div');chipRow.id='ord-chip-row';chipRow.style.cssText='display:none;flex-wrap:wrap;gap:6px;padding:10px 16px;background:white;border:1px solid #e5e7eb;border-top:none;border-bottom:none;';
+  function setOrdTab(k){
+    _activeOrdTab=k;window._ordViewMode=k;
+    tabNav.querySelectorAll('.ord-tab-btn').forEach(function(b){
+      var active=b.getAttribute('data-k')===k;
+      b.style.borderBottom=active?'2px solid #1B4332':'2px solid transparent';
+      b.style.color=active?'#1B4332':'#6b7280';
+      b.style.fontWeight=active?'700':'500';
+    });
+    if(k==='team'){chipRow.style.display='flex';renderOrders();}
+    else{chipRow.style.display='none';_activeTeam='';_OF.assignee='';renderOrders();}
+  }
+  [['all','งานทั้งหมด'],['team','ทีมงาน']].forEach(function(t){
+    var btn=document.createElement('button');btn.className='ord-tab-btn';btn.setAttribute('data-k',t[0]);btn.textContent=t[1];
+    btn.style.cssText='background:none;border:none;border-bottom:2px solid transparent;padding:11px 20px;font-size:13px;cursor:pointer;color:#6b7280;font-weight:500;transition:all .15s;white-space:nowrap;';
+    btn.onclick=function(){setOrdTab(t[0]);};
+    tabNav.appendChild(btn);
+  });
+  TEAM_MBR.forEach(function(m){
+    var chip=document.createElement('button');chip.textContent=m;chip.setAttribute('data-m',m);
+    chip.style.cssText='border:1.5px solid #d1d5db;border-radius:20px;padding:5px 16px;font-size:12px;font-weight:600;cursor:pointer;background:white;color:#374151;transition:all .15s;';
+    chip.onclick=function(){
+      if(_activeTeam===m){_activeTeam='';_OF.assignee='';}
+      else{_activeTeam=m;_OF.assignee=m;}
+      chipRow.querySelectorAll('button').forEach(function(c){
+        var sel=c.getAttribute('data-m')===_activeTeam&&_activeTeam!=='';
+        c.style.background=sel?'#1B4332':'white';c.style.color=sel?'white':'#374151';c.style.borderColor=sel?'#1B4332':'#d1d5db';
+      });
+      renderOrders();
+    };
+    chipRow.appendChild(chip);
+  });
+  wrap.appendChild(tabNav);wrap.appendChild(chipRow);
+  var fb=document.createElement('div');fb.style.cssText='background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
+  var si=document.createElement('input');si.id='ord-search';si.type='text';si.placeholder='🔍 ค้นหาเลขงาน / ชื่องาน...';si.style.cssText='flex:1;min-width:160px;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;';si.oninput=function(){_OF.search=this.value;renderOrders();};
+  var sts=document.createElement('div');sts.style.cssText='display:flex;align-items:center;gap:6px;border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;background:white;';
+  var dtLbl=document.createElement('span');dtLbl.textContent='📅';dtLbl.style.cssText='font-size:14px;line-height:1;';
+  var dtI=document.createElement('input');dtI.id='ord-fst';dtI.type='date';dtI.style.cssText='border:none;outline:none;font-size:13px;background:transparent;color:#374151;';
+  var dtClr=document.createElement('button');dtClr.textContent='✕';dtClr.style.cssText='border:none;background:none;cursor:pointer;color:#9ca3af;font-size:12px;padding:0;display:none;';
+  dtI.oninput=function(){_OF.date=this.value;dtClr.style.display=this.value?'':'none';renderOrders();};
+  dtClr.onclick=function(){dtI.value='';_OF.date='';dtClr.style.display='none';renderOrders();};
+  sts.appendChild(dtLbl);sts.appendChild(dtI);sts.appendChild(dtClr);
+  var tys=document.createElement('select');tys.style.cssText='border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;background:white;';
+  [['','ประเภททั้งหมด']].concat(OT.map(function(t){return[t,t];})).forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];tys.appendChild(o);});
+  tys.onchange=function(){_OF.type=this.value;renderOrders();};
+  var ab=document.createElement('button');ab.textContent='+ เพิ่มงานใหม่';ab.style.cssText='background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;';ab.onclick=function(){window.openOM(null);};
+  [si,sts,tys,ab].forEach(function(el){fb.appendChild(el);});
+  wrap.appendChild(fb);
+
+  var tw=document.createElement('div');tw.id='ord-tw';tw.style.cssText='background:white;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;';wrap.appendChild(tw);
+  panel.appendChild(wrap);
+  // Load from Firebase first, then render
+  fbLoadOrders(function(){renderOrderStats();renderOrders();fbSyncStart();});
+}
+
+function renderOrderStats(){
+  var sr=document.getElementById('ord-stats');if(!sr)return;sr.innerHTML='';
+  var orders=lpORD();
+  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
+  orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
+  [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'รอมอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
+    var isAct=_OF.activeCard===card.k;
+    var el=document.createElement('div');el.style.cssText='background:'+card.bg+';border-radius:10px;padding:10px 14px;cursor:pointer;flex:1;min-width:80px;text-align:center;transition:all .15s;box-sizing:border-box;'+(isAct?'outline:3px solid '+card.col+';box-shadow:0 6px 16px rgba(0,0,0,.18);transform:translateY(-3px);':'outline:3px solid transparent;');
+    el.onmouseenter=function(){this.style.opacity='.8';};el.onmouseleave=function(){this.style.opacity='1';};
+    var n=document.createElement('div');n.textContent=card.n;n.style.cssText='font-size:24px;font-weight:800;color:'+card.col+';line-height:1;';
+    var l=document.createElement('div');l.textContent=card.l;l.style.cssText='font-size:10px;color:'+card.col+';margin-top:3px;white-space:nowrap;';
+    el.appendChild(n);el.appendChild(l);
+    el.onclick=(function(card){return function(){_OF.dl='';_OF.status='';_OF.date='';_OF.activeCard=card.k;var fdt=document.getElementById('ord-fst');if(fdt)fdt.value='';var dtClrBtn=fdt?fdt.parentNode.querySelector('button'):null;if(dtClrBtn)dtClrBtn.style.display='none';if(card.k==='soon'||card.k==='over'){_OF.dl=card.k;}else if(card.k!=='all'){_OF.status=card.k;}renderOrderStats();renderOrders();};})(card);
+    sr.appendChild(el);
+  });
+}
+
+function renderOrders(){
+  var wrap=document.getElementById('ord-tw');if(!wrap)return;
+  var orders=lpORD();
+  var f=orders.filter(function(o){
+    if(_OF.status&&o.status!==_OF.status)return false;
+    if(_OF.type&&o.type!==_OF.type)return false;
+    if(_OF.search){var q=_OF.search.toLowerCase();if(!(o.id||'').toLowerCase().includes(q)&&!(o.title||'').toLowerCase().includes(q))return false;}
+    if(_OF.dl==='soon'&&dlSt(o.deadline)!=='soon')return false;
+    if(_OF.dl==='over'&&dlSt(o.deadline)!=='over')return false;
+    if(_OF.date&&(o.deadline||'')!==_OF.date)return false;
+    if(_OF.assignee&&(o.assignee||'')!==_OF.assignee)return false;
+    return true;
+  });
+  wrap.innerHTML='';
+  if(f.length===0){var em=document.createElement('div');em.textContent='ไม่พบรายการงาน';em.style.cssText='padding:40px;text-align:center;color:#9ca3af;font-size:14px;font-style:italic;';wrap.appendChild(em);return;}
+  var tbl=document.createElement('table');tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;';
+  var thead=document.createElement('thead');var htr=document.createElement('tr');htr.style.background='#f8fafc';
+  ['เลขงาน','ชื่องาน','ประเภท','DEADLINE','สถานะ','ผู้รับผิดชอบ','ACTION'].forEach(function(h,i){
+    var th=document.createElement('th');th.textContent=h;th.style.cssText='padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb;white-space:nowrap;'+(i===6?'text-align:center;':'');
+    htr.appendChild(th);
+  });
+  thead.appendChild(htr);tbl.appendChild(thead);
+  var tbody=document.createElement('tbody');
+  f.forEach(function(o,i){
+    var tr=document.createElement('tr');var bg=i%2===0?'white':'#fafafa';tr.style.cssText='border-bottom:1px solid #f3f4f6;background:'+bg+';';
+    tr.onmouseenter=function(){this.style.background='#f0fdf4';};tr.onmouseleave=function(){this.style.background=bg;};
+    var st=ST.find(function(s){return s.k===o.status;})||ST[0];
+    var ds=dlSt(o.deadline);
+    var dlc=ds==='over'?'#dc2626':ds==='soon'?'#d97706':'#374151';
+    var dlbadge=ds==='over'?'<span style="font-size:10px;background:#fee2e2;color:#dc2626;padding:1px 5px;border-radius:4px;margin-left:4px;">เกิน</span>':ds==='soon'?'<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">ใกล้</span>':'';
+    [{html:'<span style="font-family:monospace;font-weight:700;color:#1B4332;">'+esc(o.id)+'</span>'},
+     {html:'<div style="font-weight:600;color:#111827;">'+esc(o.title)+'</div>'+(o.note?'<div style="font-size:11px;color:#9ca3af;margin-top:2px;">'+esc(o.note)+'</div>':'')},
+     {html:'<span style="background:#f3f4f6;padding:2px 8px;border-radius:6px;font-size:11px;">'+esc(o.type||'—')+'</span>'},
+     {html:'<span style="color:'+dlc+';font-weight:600;">'+fmtD(o.deadline)+'</span>'+dlbadge}
+    ].forEach(function(c){var td=document.createElement('td');td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
+    var stTd=document.createElement('td');stTd.style.cssText='padding:8px 14px;vertical-align:middle;';
+    var stSel=document.createElement('select');stSel.style.cssText='background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;border:none;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;';
+    ST.forEach(function(s){var opt=document.createElement('option');opt.value=s.k;opt.textContent=s.l;opt.style.background=s.bg;opt.style.color=s.col;opt.style.fontWeight='600';if(s.k===o.status)opt.selected=true;stSel.appendChild(opt);});
+    stSel.onchange=(function(ordId,sel){return function(){var newStObj=ST.find(function(s){return s.k===sel.value;})||ST[0];sel.style.background=newStObj.bg;sel.style.color=newStObj.col;var orders=lpORD();var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+newStObj.l);orders[idx].status=sel.value;orders[idx].updatedAt=Date.now();spORD(orders);renderOrderStats();}};})(o.id,stSel);
+    stTd.appendChild(stSel);tr.appendChild(stTd);
+    var asTd=document.createElement('td');asTd.style.cssText='padding:10px 14px;vertical-align:middle;';
+    var asSel=document.createElement('select');asSel.style.cssText='border:1px solid #e5e7eb;border-radius:6px;padding:4px 8px;font-size:12px;background:white;cursor:pointer;';
+    [['','— ระบุ —']].concat(MB_GR.map(function(m){return[m,m];})).forEach(function(op){var opt=document.createElement('option');opt.value=op[0];opt.textContent=op[1];if(op[0]===o.assignee)opt.selected=true;asSel.appendChild(opt);});
+    asSel.onchange=(function(ordId,sel){return function(){var orders=lpORD();var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].assignee=sel.value;orders[idx].updatedAt=Date.now();spORD(orders);logTL('📋 สั่งงาน','เปลี่ยนผู้รับผิดชอบ',ordId+' → '+(sel.value||'ไม่ระบุ'));}};})(o.id,asSel);
+    asTd.appendChild(asSel);tr.appendChild(asTd);
+    var atd=document.createElement('td');atd.style.cssText='padding:10px 14px;text-align:center;white-space:nowrap;';
+    var eb=document.createElement('button');eb.title='แก้ไข';eb.textContent='✏️';eb.style.cssText='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;cursor:pointer;font-size:13px;padding:4px 8px;margin-right:4px;';
+    eb.onclick=(function(id){return function(){window.openOM(id);};})(o.id);
+    var db=document.createElement('button');db.title='ลบ';db.textContent='🗑️';db.style.cssText='background:#fef2f2;border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-size:13px;padding:4px 8px;';
+    db.onclick=(function(id,ttl){return function(){if(confirm('ลบงาน '+id+': "'+ttl+'"?')){delOrder(id);}};})(o.id,o.title);
+    atd.appendChild(eb);if(window._ordViewMode!=='team'){atd.appendChild(db);}tr.appendChild(atd);tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);wrap.appendChild(tbl);
+}
+
+function openOM(id){return window.openOM(id);}
+function buildOM(){
+  _OM=document.createElement('div');_OM.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+  _OM.onclick=function(e){if(e.target===_OM)closeOM();};
+  var box=document.createElement('div');box.style.cssText='background:white;border-radius:16px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.3);';
+  var hdr=document.createElement('div');hdr.style.cssText='background:#1B4332;padding:18px 24px;display:flex;align-items:center;';
+  var ti=document.createElement('div');ti.id='om-hd';ti.style.cssText='font-size:16px;font-weight:700;color:white;flex:1;';
+  var cl=document.createElement('button');cl.textContent='✕ ปิด';cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 14px;color:white;cursor:pointer;font-size:13px;';cl.onclick=closeOM;
+  hdr.appendChild(ti);hdr.appendChild(cl);
+  var body=document.createElement('div');body.style.cssText='padding:20px 24px;max-height:80vh;overflow-y:auto;';
+  var idRow=document.createElement('div');idRow.style.cssText='background:#f0fdf4;border-radius:8px;padding:8px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:13px;';
+  var idLbl=document.createElement('span');idLbl.textContent='เลขงาน:';idLbl.style.fontWeight='600';
+  var idVal=document.createElement('span');idVal.id='om-id';idVal.style.cssText='font-family:monospace;font-weight:700;color:#1B4332;font-size:15px;';
+  idRow.appendChild(idLbl);idRow.appendChild(idVal);body.appendChild(idRow);
+  function mkF(lbl,el){var w=document.createElement('div');w.style.marginBottom='12px';var lb=document.createElement('label');lb.textContent=lbl;lb.style.cssText='display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:4px;';w.appendChild(lb);w.appendChild(el);return w;}
+  function mkI(id,ph){var el=document.createElement('input');el.id=id;el.type='text';el.placeholder=ph||'';el.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;';return el;}
+  function mkS(id,opts){var el=document.createElement('select');el.id=id;el.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;background:white;box-sizing:border-box;';opts.forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];el.appendChild(o);});return el;}
+  var dlI=document.createElement('input');dlI.id='om-dl';dlI.type='date';dlI.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;';
+  var noteTA=document.createElement('textarea');noteTA.id='om-note';noteTA.placeholder='หมายเหตุ...';noteTA.rows=2;noteTA.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;resize:vertical;';
+  var g1=document.createElement('div');g1.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+  g1.appendChild(mkF('ประเภทงาน',mkS('om-type',OT.map(function(t){return[t,t];}))));
+  g1.appendChild(mkF('Deadline',dlI));
+  var g2=document.createElement('div');g2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+  g2.appendChild(mkF('สถานะ',mkS('om-st',ST.map(function(s){return[s.k,s.l];}))));
+  g2.appendChild(mkF('ผู้รับผิดชอบ',mkS('om-mb',[['','— ไม่ระบุ —']].concat(MB_GR.map(function(m){return[m,m];})))));
+  body.appendChild(mkF('ชื่องาน *',mkI('om-name','ชื่องาน *')));body.appendChild(g1);body.appendChild(g2);body.appendChild(mkF('หมายเหตุ',noteTA));
+  var sBtn=document.createElement('button');sBtn.textContent='💾 บันทึกงาน';sBtn.style.cssText='width:100%;background:#1B4332;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;';
+  sBtn.onclick=saveOrder;body.appendChild(sBtn);
+  box.appendChild(hdr);box.appendChild(body);_OM.appendChild(box);document.body.appendChild(_OM);
+}
+function closeOM(){if(_OM)_OM.style.display='none';document.body.style.overflow='';}
+function saveOrder(){
+  var id=document.getElementById('om-id').textContent;
+  var title=(document.getElementById('om-name').value||'').trim();
+  if(!title){alert('กรุณากรอกชื่องาน');return;}
+  var orders=lpORD();var idx=orders.findIndex(function(o){return o.id===id;});
+  var now=Date.now();
+  var entry={id:id,title:title,type:document.getElementById('om-type').value,deadline:document.getElementById('om-dl').value,status:document.getElementById('om-st').value,assignee:document.getElementById('om-mb').value,note:document.getElementById('om-note').value,updatedAt:now};
+  if(idx>=0){var old=orders[idx];entry.createdAt=old.createdAt||now;var stLabel=(ST.find(function(s){return s.k===entry.status;})||{l:entry.status}).l;logTL('📋 สั่งงาน',old.status!==entry.status?'อัปเดตสถานะ':'แก้ไขงาน',id+' "'+title+'"'+(old.status!==entry.status?' → '+stLabel:''));orders[idx]=entry;}
+  else{entry.createdAt=now;logTL('📋 สั่งงาน','เพิ่มงานใหม่',id+' "'+title+'"');orders.unshift(entry);}
+  spORD(orders);closeOM();renderOrderStats();renderOrders();
+}
+function delOrder(id){
+  var orders=lpORD();var o=orders.find(function(x){return x.id===id;});
+  spORD(orders.filter(function(x){return x.id!==id;}));
+  logTL('📋 สั่งงาน','ลบงาน',id+(o?' "'+o.title+'"':''));
+  renderOrderStats();renderOrders();
+}
+
+// ── TIMELINE MODAL ──
+var _TLM=null;
+function buildTLModal(){
+  _TLM=document.createElement('div');_TLM.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+  _TLM.onclick=function(e){if(e.target===_TLM)closeTLM();};
+  var box=document.createElement('div');box.style.cssText='background:white;border-radius:16px;width:100%;max-width:620px;overflow:hidden;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,.25);';
+  var hdr=document.createElement('div');hdr.style.cssText='background:#1B4332;padding:16px 20px;display:flex;align-items:center;gap:10px;';
+  var ti=document.createElement('div');ti.id='rb-tl-title';ti.textContent='🕐 ประวัติการแก้ไขทั้งหมด';ti.style.cssText='font-size:16px;font-weight:700;color:white;flex:1;';
+  var cl=document.createElement('button');cl.textContent='✕';cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 12px;color:white;cursor:pointer;font-size:14px;';cl.onclick=closeTLM;
+  hdr.appendChild(ti);hdr.appendChild(cl);
+  var list=document.createElement('div');list.id='rb-tl-list';list.style.cssText='padding:12px 20px;max-height:75vh;overflow-y:auto;';
+  box.appendChild(hdr);box.appendChild(list);_TLM.appendChild(box);document.body.appendChild(_TLM);
+}
+function renderTLList(filterSec){
+  var list=document.getElementById('rb-tl-list');if(!list)return;
+  var tl=lpTL();
+  if(filterSec){tl=tl.filter(function(e){return e.sec===filterSec;});}
+  var ti=document.getElementById('rb-tl-title');
+  if(ti)ti.textContent=filterSec?'🕐 ประวัติ: '+filterSec:'🕐 ประวัติการแก้ไขทั้งหมด';
+  list.innerHTML='';
+  if(!tl.length){var em=document.createElement('div');em.textContent='ยังไม่มีประวัติการแก้ไข';em.style.cssText='text-align:center;color:#9ca3af;padding:48px;font-size:14px;font-style:italic;';list.appendChild(em);return;}
+  tl.forEach(function(e){
+    var row=document.createElement('div');row.style.cssText='padding:12px 0;border-bottom:1px solid #f3f4f6;';
+    // Top row: icon + section + timestamp
+    var top=document.createElement('div');top.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+    var icon=document.createElement('span');icon.textContent=Array.from(e.sec||'')[0]||'📝';icon.style.cssText='font-size:18px;flex-shrink:0;';
+    var sec=document.createElement('span');sec.textContent=e.sec||'';sec.style.cssText='font-size:13px;font-weight:700;color:#111827;flex:1;';
+    var ts=document.createElement('span');ts.title=ago(e.ts);ts.textContent=fmtTs(e.ts);ts.style.cssText='font-size:11px;color:#6b7280;white-space:nowrap;flex-shrink:0;';
+    top.appendChild(icon);top.appendChild(sec);top.appendChild(ts);
+    // Detail row
+    var det=document.createElement('div');det.style.cssText='display:flex;align-items:flex-start;gap:8px;padding-left:26px;flex-wrap:wrap;';
+    var actDet=document.createElement('div');actDet.style.cssText='flex:1;min-width:0;';
+    var actSpan=document.createElement('span');actSpan.style.cssText='font-size:12px;font-weight:600;color:#374151;';actSpan.textContent=(e.act||'')+': ';
+    var detSpan=document.createElement('span');detSpan.style.cssText='font-size:12px;color:#6b7280;word-break:break-word;';detSpan.textContent=e.det||'';
+    actDet.appendChild(actSpan);actDet.appendChild(detSpan);
+    // Leave type badge
+    var badges=document.createElement('div');badges.style.cssText='display:flex;gap:6px;flex-wrap:wrap;align-items:center;';
+    if(e.leaveType&&LT_MAP[e.leaveType]){
+      var lt=LT_MAP[e.leaveType];
+      var ltb=document.createElement('span');ltb.textContent=lt.icon+' '+e.leaveType;ltb.style.cssText='background:'+lt.bg+';color:'+lt.col+';padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;';
+      badges.appendChild(ltb);
+    }
+    // User badge — แสดงเฉพาะเมื่อมีชื่อจริง
+    // user badge removed
+    det.appendChild(actDet);det.appendChild(badges);
+    row.appendChild(top);row.appendChild(det);list.appendChild(row);
+  });
+}
+function openTLM(){if(!_TLM)buildTLModal();_TLM.style.display='flex';var sec=typeof window.gAS==='function'?window.gAS():null;renderTLList(sec);document.body.style.overflow='hidden';}
+function closeTLM(){if(_TLM)_TLM.style.display='none';document.body.style.overflow='';}
+
+// ── FLOATING UI: TL button + User selector ──
+function addFloatingUI(){
+  if(document.getElementById('rb-tl-btn'))return;
+
+  // TL button
+  var btn=document.createElement('button');btn.id='rb-tl-btn';
+  btn.innerHTML='🕐<br><span style="font-size:10px;display:block;margin-top:1px;line-height:1.2;">ประวัติ</span>';
+  btn.style.cssText='position:fixed;bottom:24px;right:24px;background:#1B4332;color:white;border:none;border-radius:14px;padding:10px 14px;cursor:pointer;font-size:20px;z-index:9000;box-shadow:0 4px 20px rgba(0,0,0,.3);text-align:center;min-width:52px;transition:all .15s;';
+  btn.onmouseenter=function(){this.style.background='#14532d';this.style.transform='scale(1.07)';};
+  btn.onmouseleave=function(){this.style.background='#1B4332';this.style.transform='scale(1)';};
+  btn.onclick=openTLM;document.body.appendChild(btn);
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.gsnav-btn'))return;
+  setTimeout(function(){var p=document.querySelector('.gsp.gsp-active[data-sub="order"]');if(!p)return;if(!p.getAttribute('data-order-init'))initOrderPanel();else{renderOrderStats();renderOrders();}},60);
+},true);
+
+setTimeout(addFloatingUI,500);
+setTimeout(function(){var p=document.querySelector('.gsp.gsp-active[data-sub="order"]');if(p)initOrderPanel();},700);
+
+
+// ── HOOK ปุ่มบันทึกของ leave calendar (v4.3) ──
+function hookLeaveBtns(){
+  if(document._lvTLHooked)return;
+  document._lvTLHooked=true;
+  // helper: หา emp+type จาก lv-erow container
+  function erowInfo(el){
+    var row=el.closest('.lv-erow,.lv-elist');
+    if(!row)return{empId:'',typeCode:''};
+    var nm=(row.querySelector('.lv-ename')||{}).textContent||'';nm=nm.trim();
+    var empId=Object.keys(LV_EMP_MAP).find(function(k){return LV_EMP_MAP[k]===nm;})||nm;
+    var sel=row.querySelector('.lv-esel select,select');
+    var typeCode=sel?sel.value:'';
+    return{empId:empId,typeCode:typeCode,empName:nm};
+  }
+  // helper: log leave event
+  function logLeave(action,empId,typeCode,empNameFallback){
+    var empName=LV_EMP_MAP[empId]||empNameFallback||empId;
+    var typeObj=LV_TYPE_MAP[typeCode]||{name:typeCode,icon:'📅'};
+    setTimeout(function(){
+      var det=empName+' '+typeObj.icon+' '+(action==='ลบการลา'?'ยกเลิก':'ลง')+typeObj.name;
+      try{
+        var mhdr=document.querySelector('.lv-modal h2,.lv-modal-hd,.lv-day-hd,#lv-mtitle');
+        if(mhdr){
+          var htxt=mhdr.textContent||'';
+          var dm=htxt.match(/(\d{1,2})/);var dd=dm?dm[1]:'';
+          var MF=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+          var mi=-1;MF.forEach(function(m,i){if(m&&htxt.includes(m))mi=i;});
+          var ym=htxt.match(/25[0-9]{2}/);var yr=ym?ym[0]:'';
+          if(dd&&mi>0)det+=' วันที่ '+dd+'/'+(mi<10?'0'+mi:''+mi)+(yr?'/'+yr:'');
+        }
+      }catch(ex){}
+      logTL('📅 ตารางวันหยุด',action,det,{type:typeObj.name,emp:empName});
+    },200);
+  }
+  document.addEventListener('click',function(e){
+    // ADD: ปุ่ม #lv-f-save
+    var addBtn=e.target.closest('#lv-f-save');
+    if(addBtn){
+      var es=document.getElementById('lv-f-emp');
+      var ts=document.getElementById('lv-f-type');
+      var empId=es?es.value:'';var typeCode=ts?ts.value:'hol';
+      if(empId)logLeave('เพิ่มการลา',empId,typeCode,'');
+      return;
+    }
+    // DELETE: .lv-edel div
+    var delEl=e.target.closest('.lv-edel');
+    if(delEl){
+      var inf=erowInfo(delEl);
+      if(inf.empId||inf.empName)logLeave('ลบการลา',inf.empId,inf.typeCode,inf.empName);
+      return;
+    }
+    // EDIT SAVE: .lv-esave div/button
+    var saveEl=e.target.closest('.lv-esave');
+    if(saveEl){
+      var inf2=erowInfo(saveEl);
+      if(inf2.empId||inf2.empName)logLeave('แก้ไขการลา',inf2.empId,inf2.typeCode,inf2.empName);
+      return;
+    }
+    // fallback: button text ที่เกี่ยวกับบันทึก
+    var btn=e.target.closest('button');
+    if(!btn)return;
+    var btxt=(btn.textContent||'').trim();
+    if(btxt.includes('บันทึกการเปลี่ยนแปลง')||btxt.includes('บันทึกการแก้ไข')){
+      var inf3=erowInfo(btn);
+      if(inf3.empId||inf3.empName)logLeave('แก้ไขการลา',inf3.empId,inf3.typeCode,inf3.empName);
+    }
+  },true);
+}
+setTimeout(hookLeaveBtns,800);
+// Expose order functions globally for cross-IIFE access
+window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
+window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
+window.logTL=logTL;window._OF=_OF;
+})();
+</script><script>
+/* ── Section detector ── */
+window.gAS=function(){
+  var p=document.querySelector('.tab-panel.active');if(!p)return null;
+  var g=p.querySelector('.gsp.gsp-active');if(g){var s=g.getAttribute('data-sub');
+    if(s==='order')return '📋 สั่งงาน';
+    if(s==='team')return '📸 รูปทีมงาน';
+    if(s==='pages')return '📘 Facebook Pages';}
+  if(p.id==='tab-schedule')return '📅 ตารางวันหยุด';
+  if(p.id==='tab-team')return '📸 รูปทีมงาน';
+  if(p.id==='tab-channels')return '📲 ช่องทาง Social';
+  return null;
+};</script>
+<script>
+/* ── ORDERS MODAL v3 — tabbed modal ── */
+(function(){
+
+  var _OM2=null, _omImages=[], _omBriefImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omViewMode=false, _omUpdateFooter=null;
+  function ge(id){return (_OM2&&_OM2.querySelector('[id="'+id+'"]'))||document.getElementById(id);}
+
+  function compressImg(file,cb){
+    var r=new FileReader();
+    r.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var MAX=1080,w=img.width,h=img.height;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+        var c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        cb({name:file.name,data:c.toDataURL('image/jpeg',0.83)});
+      };
+      img.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  }
+
+  function handleImgUpload(files,gallery){
+    Array.from(files).forEach(function(f){
+      if(!f.type.startsWith('image/'))return;
+      compressImg(f,function(img){
+        if(gallery==='brief'){_omBriefImages.push(img);refreshBriefGallery();}
+        else{_omImages.push(img);refreshGallery();}
+      });
+    });
+  }
+
+  function makeGalleryCard(arr,i,refreshFn){
+    var img=arr[i];
+    var card=document.createElement('div');
+    card.style.cssText='position:relative;width:82px;height:82px;flex-shrink:0;';
+    var th=document.createElement('img');th.src=img.data;th.title=img.name;
+    th.style.cssText='width:82px;height:82px;object-fit:cover;border-radius:8px;border:2px solid #d1d5db;cursor:pointer;display:block;';
+    th.onclick=function(){viewImg(img);};
+    var xb=document.createElement('button');xb.textContent='x';xb.type='button';
+    xb.style.cssText='position:absolute;top:2px;right:2px;background:rgba(220,38,38,.9);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;padding:0;line-height:18px;font-weight:700;';
+    xb.onclick=function(e){e.stopPropagation();arr.splice(i,1);refreshFn();};
+    var dl=document.createElement('a');dl.href=img.data;dl.download=img.name;
+    dl.style.cssText='position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.65);color:white;border-radius:50%;width:18px;height:18px;font-size:11px;text-decoration:none;display:flex;align-items:center;justify-content:center;';
+    dl.innerHTML='&#8595;';dl.title='dl';
+    card.appendChild(th);card.appendChild(xb);card.appendChild(dl);return card;
+  }
+
+  function refreshGallery(){
+    var g=document.getElementById('om-img-gallery');if(!g)return;g.innerHTML='';
+    _omImages.forEach(function(img,i){g.appendChild(makeGalleryCard(_omImages,i,refreshGallery));});
+  }
+  function refreshBriefGallery(){
+    var g=document.getElementById('om-brief-gallery');if(!g)return;g.innerHTML='';
+    _omBriefImages.forEach(function(img,i){g.appendChild(makeGalleryCard(_omBriefImages,i,refreshBriefGallery));});
+  }
+
+  function viewImg(img){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;overflow:auto;padding:20px;';
+    ov.onclick=function(e){if(e.target===ov)document.body.removeChild(ov);};
+    var bar=document.createElement('div');bar.style.cssText='display:flex;gap:8px;align-items:center;flex-shrink:0;';
+    var nm=document.createElement('span');nm.textContent=img.name;
+    nm.style.cssText='color:white;font-size:13px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    var dlA=document.createElement('a');dlA.href=img.data;dlA.download=img.name;
+    dlA.textContent='download';
+    dlA.style.cssText='background:#40916C;color:white;padding:6px 14px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;';
+    var cls=document.createElement('button');cls.textContent='close';cls.type='button';
+    cls.style.cssText='background:rgba(255,255,255,.18);color:white;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;';
+    cls.onclick=function(){document.body.removeChild(ov);};
+    bar.appendChild(nm);bar.appendChild(dlA);bar.appendChild(cls);
+    var imgEl=document.createElement('img');imgEl.src=img.data;
+    imgEl.style.cssText='width:1080px;height:1080px;object-fit:contain;background:#111;border-radius:6px;max-width:90vw;max-height:78vh;';
+    var hint=document.createElement('div');hint.textContent='1080 x 1080 px';
+    hint.style.cssText='color:rgba(255,255,255,.35);font-size:11px;flex-shrink:0;';
+    ov.appendChild(bar);ov.appendChild(imgEl);ov.appendChild(hint);document.body.appendChild(ov);
+  }
+
+  function mkF(lbl,el){
+    var w=document.createElement('div');w.style.marginBottom='11px';
+    var lb=document.createElement('label');lb.textContent=lbl;
+    lb.style.cssText='display:block;font-size:11px;font-weight:700;color:#374151;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;';
+    w.appendChild(lb);w.appendChild(el);return w;
+  }
+  function mkI(id,ph){
+    var el=document.createElement('input');el.id=id;el.type='text';el.placeholder=ph||'';
+    el.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;box-sizing:border-box;';
+    el.autocomplete='off';
+    return el;
+  }
+  function mkLink(id){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;align-items:stretch;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;';
+    var el=document.createElement('input');el.id=id;el.type='text';el.placeholder='https://';
+    el.style.cssText='flex:1;border:none;padding:8px 11px;font-size:13px;outline:none;min-width:0;';
+    var ob=document.createElement('button');ob.type='button';ob.innerHTML='&#x2197;';ob.setAttribute('data-link-btn','1');
+    ob.style.cssText='background:#f9fafb;border:none;border-left:1px solid #e5e7eb;padding:0 10px;cursor:pointer;color:#6b7280;font-size:14px;';
+    ob.onclick=function(){var u=el.value.trim();if(u)window.open(u,'_blank');};
+    wrap.appendChild(el);wrap.appendChild(ob);return wrap;
+  }
+  function mkS(id,opts){
+    var el=document.createElement('select');el.id=id;
+    el.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;background:white;box-sizing:border-box;';
+    opts.forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];el.appendChild(o);});
+    return el;
+  }
+  function mkTA(id,ph,rows){
+    var el=document.createElement('textarea');el.id=id;el.placeholder=ph||'';el.rows=rows||3;
+    el.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;resize:vertical;box-sizing:border-box;';
+    return el;
+  }
+  function mkDiv(lbl){
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:8px;margin:12px 0 10px;';
+    var l1=document.createElement('div');l1.style.cssText='flex:1;height:1px;background:#e5e7eb;';
+    var sp=document.createElement('span');sp.textContent=lbl;
+    sp.style.cssText='font-size:10px;font-weight:700;color:#9ca3af;white-space:nowrap;letter-spacing:.6px;text-transform:uppercase;';
+    d.appendChild(l1);d.appendChild(sp);d.appendChild(l1.cloneNode());return d;
+  }
+
+  function buildOM2(){
+    if(_OM2)return;
+    _OM2=document.createElement('div');
+    _OM2.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    _OM2.onclick=function(e){if(e.target===_OM2)closeOM2();};
+    var box=document.createElement('div');
+    box.style.cssText='background:white;border-radius:16px;width:100%;max-width:660px;display:flex;flex-direction:column;max-height:90vh;box-shadow:0 24px 64px rgba(0,0,0,.35);overflow:hidden;';
+    var hdr=document.createElement('div');
+    hdr.style.cssText='background:#1B4332;padding:14px 20px;display:flex;align-items:center;flex-shrink:0;';
+    var ti=document.createElement('span');ti.id='om-hd';
+    ti.style.cssText='font-size:15px;font-weight:700;color:white;flex:1;';
+    var cl=document.createElement('button');cl.type='button';
+    cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 14px;color:white;cursor:pointer;font-size:13px;';
+    cl.textContent='✕ ปิด';cl.onclick=closeOM2;
+    hdr.appendChild(ti);hdr.appendChild(cl);
+    var idRow=document.createElement('div');
+    idRow.style.cssText='background:#f0fdf4;padding:6px 20px;font-size:13px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid #e5e7eb;';
+    var idLbl=document.createElement('span');idLbl.textContent='เลขงาน:';idLbl.style.fontWeight='700';
+    var idVal=document.createElement('span');idVal.id='om-id';
+    idVal.style.cssText='font-family:monospace;font-weight:700;color:#1B4332;font-size:15px;';
+    idRow.appendChild(idLbl);idRow.appendChild(idVal);
+    var TABS=[{k:'info',lbl:'ประเภทงาน'},{k:'links',lbl:'ตรวจออดิต'},{k:'imgs',lbl:'ส่งงานภาพ'}];
+    var tabBar=document.createElement('div');
+    tabBar.style.cssText='display:flex;background:#f9fafb;border-bottom:2px solid #e5e7eb;flex-shrink:0;overflow-x:auto;';
+    var tabBtns={};var tabPanels={};
+    function switchTab(k){
+      TABS.forEach(function(t){
+        var on=t.k===k;
+        tabBtns[t.k].style.cssText='padding:10px 18px;border:none;background:'+(on?'white':'transparent')+';color:'+(on?'#1B4332':'#6b7280')+';font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;border-bottom:'+(on?'2px solid #1B4332':'2px solid transparent')+';flex-shrink:0;';
+        tabPanels[t.k].style.display=on?'block':'none';
+      });
+      if(_omUpdateFooter)_omUpdateFooter(k);
+    }
+    TABS.forEach(function(t){
+      var b=document.createElement('button');b.type='button';b.textContent=t.lbl;
+      tabBtns[t.k]=b;b.onclick=function(){switchTab(t.k);};tabBar.appendChild(b);
+    });
+    _switchTab=switchTab;
+    var body=document.createElement('div');
+    body.style.cssText='overflow-y:auto;flex:1;min-height:0;';
+    var p1=document.createElement('div');p1.style.cssText='padding:18px 20px;';
+    p1.appendChild(mkF('ชื่องาน *',mkI('om-name','ชื่องาน *')));
+    var PRODS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
+    var prodSel=mkS('om-prod',[['','-- เลือกสินค้า --']].concat(PRODS.map(function(p){return[p,p];})));
+    p1.appendChild(mkF('สินค้า',prodSel));
+    var g1=document.createElement('div');g1.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    var dlI=document.createElement('input');dlI.id='om-dl';dlI.type='date';dlI.autocomplete='off';
+    dlI.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;box-sizing:border-box;';
+    var OT_=typeof OT!=='undefined'?OT:['กราฟิก','รูปภาพ','ยิงแอด','เทสส่วนตัว','คัดคลิป','Rlees','สร้างเพจ'];
+    var typeSel=mkS('om-type',[['','-- เลือกประเภทงาน --']].concat(OT_.map(function(x){return[x,x];})));
+    typeSel.addEventListener('change',function(){
+      if(this.value&&!dlI.value){
+        var tm=new Date();tm.setDate(tm.getDate()+1);
+        var y=tm.getFullYear(),m=String(tm.getMonth()+1).padStart(2,'0'),d=String(tm.getDate()).padStart(2,'0');
+        dlI.value=y+'-'+m+'-'+d;
+        dlI.style.borderColor='#d1d5db';
+      }
+    });
+    g1.appendChild(mkF('ประเภทงาน',typeSel));
+    g1.appendChild(mkF('Deadline',dlI));
+    p1.appendChild(g1);
+    var g2=document.createElement('div');g2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    var ST_=typeof ST!=='undefined'?ST:[{k:'pending',l:'รอมอบหมาย'},{k:'inprogress',l:'กำลังทำ'},{k:'review',l:'รอ Review'},{k:'revision',l:'แก้ไข'},{k:'done',l:'เสร็จแล้ว'}];
+    var MB_=typeof MB_GR!=='undefined'?MB_GR:[];
+    g2.appendChild(mkF('สถานะ',mkS('om-st',[['','-- เลือกสถานะ --']].concat(ST_.map(function(s){return[s.k,s.l];})))));
+    g2.appendChild(mkF('ผู้รับผิดชอบ',mkS('om-mb',[['','— ไม่ระบุ —']].concat(MB_.map(function(m){return[m,m];})))));
+    p1.appendChild(g2);
+    p1.appendChild(mkF('หมายเหตุ',mkTA('om-note','หมายเหตุ...',3)));
+    var divLnk=document.createElement('div');divLnk.style.cssText='border-top:1px solid #e5e7eb;margin:14px 0 8px;padding-top:10px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:0.05em;';divLnk.textContent='ลิงก์งาน';p1.appendChild(divLnk);
+    var glp=document.createElement('div');glp.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    glp.appendChild(mkF('ลิงก์ไฟล์ดิบ (Creative)',mkLink('om-raw')));
+    glp.appendChild(mkF('ลิงก์สคริป',mkLink('om-sheet')));
+    p1.appendChild(glp);
+    p1.appendChild(mkF('Insert / Review',mkLink('om-review')));
+    var divBrf=document.createElement('div');divBrf.style.cssText='border-top:1px solid #e5e7eb;margin:14px 0 8px;padding-top:10px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:0.05em;';divBrf.textContent='บรีฟงาน';p1.appendChild(divBrf);
+    p1.appendChild(mkF('บรีฟงาน / สไตล์ที่ต้องการ',mkTA('om-brief','อธิบายบรีฟงาน สไตล์ที่ต้องการ...',4)));
+    var divSub=document.createElement('div');divSub.style.cssText='border-top:1px solid #e5e7eb;margin:14px 0 8px;padding-top:10px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:0.05em;';divSub.textContent='อัพลิงก์ส่งงาน';p1.appendChild(divSub);
+    var subLnkInp=mkLink('om-submitlink');
+    subLnkInp.querySelector('input').addEventListener('input',function(){
+      var v=this.value;
+      var disp=document.getElementById('om-submitlink-disp');if(disp){disp.href=v||'#';disp.style.display=v?'inline-flex':'none';}
+      var dispVal=document.getElementById('om-submitlink-val');if(dispVal)dispVal.textContent=v;
+      var box=document.getElementById('om-submitlink-box');if(box)box.style.display=v?'flex':'none';
+    });
+    p1.appendChild(mkF('ลิงก์ส่งงาน',subLnkInp));
+    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.textContent='+ แนบรูปอ้างอิง';
+    bImgBtn.style.cssText='background:#f0fdf4;border:1.5px dashed #40916C;color:#1B4332;border-radius:8px;padding:7px 16px;font-size:13px;cursor:pointer;font-weight:600;margin-top:10px;margin-bottom:8px;';
+    var bImgInp=document.createElement('input');bImgInp.type='file';bImgInp.accept='image/*';bImgInp.multiple=true;bImgInp.style.display='none';
+    bImgBtn.onclick=function(){bImgInp.click();};
+    bImgInp.onchange=function(){handleImgUpload(this.files,'brief');this.value='';};
+    var bGal=document.createElement('div');bGal.id='om-brief-gallery';bGal.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+    p1.appendChild(bImgBtn);p1.appendChild(bImgInp);p1.appendChild(bGal);
+    tabPanels['info']=p1;_omInfoPanel=p1;body.appendChild(p1);
+    function mkStatus(id){
+      var s=document.createElement('select');
+      s.id=id;
+      s.style.cssText='width:100%;padding:7px 10px;border-radius:6px;border:1.5px solid #d1d5db;font-size:14px;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s;background:#fff;color:#374151;';
+      s.innerHTML='<option value="">-- เลือกสถานะ --</option><option value="อัพแล้วเรียบร้อย">อัพแล้วเรียบร้อย</option><option value="ยังไม่ได้อัพ">ยังไม่ได้อัพ</option>';
+      function applyStyle(){
+        if(s.value==='อัพแล้วเรียบร้อย'){s.style.background='#d1fae5';s.style.color='#065f46';s.style.borderColor='#10b981';}
+        else if(s.value==='ยังไม่ได้อัพ'){s.style.background='#fee2e2';s.style.color='#991b1b';s.style.borderColor='#ef4444';}
+        else{s.style.background='#fff';s.style.color='#374151';s.style.borderColor='#d1d5db';}
+      }
+      s.addEventListener('change',applyStyle);
+      s._applyStyle=applyStyle;
+      return s;
+    }
+        var p2=document.createElement('div');p2.style.cssText='padding:18px 20px;display:none;';
+    var glFb=document.createElement('div');glFb.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    glFb.appendChild(mkF('ชื่อเฟสบุ๊ค',mkI('om-fbname','ชื่อเพจเฟสบุ๊ค...')));
+    glFb.appendChild(mkF('ชื่อเพจ',mkI('om-pagename','ชื่อเพจ...')));
+    p2.appendChild(glFb);
+    var glUp=document.createElement('div');glUp.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    glUp.appendChild(mkF('อัพลิสเฟสบุ๊ค',mkStatus('om-fbuplist')));
+    glUp.appendChild(mkF('อัพลิสคอนเทนต์',mkStatus('om-contentuplist')));
+    p2.appendChild(glUp);
+    var gl2=document.createElement('div');gl2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    gl2.appendChild(mkF('แคมเปญ Ver 1.',mkI('om-camp1','แคมเปญ Ver 1...')));
+    gl2.appendChild(mkF('Link Ver 1.',mkLink('om-uplink')));
+    p2.appendChild(gl2);
+    var gl3=document.createElement('div');gl3.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
+    gl3.appendChild(mkF('แคมเปญ Ver 2.',mkI('om-camp2','แคมเปญ Ver 2...')));
+    gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
+    p2.appendChild(gl3);
+    tabPanels['links']=p2;body.appendChild(p2);p2.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=true;el.style.opacity='0.65';el.style.cursor='not-allowed';el.style.background='#f9fafb';});
+    var p4=document.createElement('div');p4.style.cssText='padding:18px 20px;display:none;';
+    var subLinkBox=document.createElement('div');subLinkBox.id='om-submitlink-box';subLinkBox.style.cssText='margin-bottom:14px;padding:10px 14px;border-radius:10px;background:#f0fdf4;border:1.5px solid #40916C;display:none;align-items:center;gap:10px;';
+    var subLinkIcon=document.createElement('span');subLinkIcon.textContent='🔗';subLinkIcon.style.cssText='font-size:18px;flex-shrink:0;';
+    var subLinkText=document.createElement('div');subLinkText.style.cssText='flex:1;min-width:0;';
+    var subLinkLabel=document.createElement('div');subLinkLabel.style.cssText='font-size:11px;font-weight:700;color:#1B4332;margin-bottom:2px;';subLinkLabel.textContent='ลิงก์ส่งงาน';
+    var subLinkVal=document.createElement('div');subLinkVal.id='om-submitlink-val';subLinkVal.style.cssText='font-size:12px;color:#374151;word-break:break-all;';
+    subLinkText.appendChild(subLinkLabel);subLinkText.appendChild(subLinkVal);
+    var subLinkBtn=document.createElement('a');subLinkBtn.id='om-submitlink-disp';subLinkBtn.target='_blank';subLinkBtn.href='#';subLinkBtn.style.cssText='display:none;align-items:center;gap:4px;background:#1B4332;color:white;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;';subLinkBtn.textContent='เปิดลิงก์ ↗';
+    subLinkBox.appendChild(subLinkIcon);subLinkBox.appendChild(subLinkText);subLinkBox.appendChild(subLinkBtn);
+    p4.appendChild(subLinkBox);
+    var mImgBtn=document.createElement('button');mImgBtn.type='button';mImgBtn.textContent='+ อัพโหลดรูปภาพ';
+    mImgBtn.style.cssText='background:#f0fdf4;border:1.5px dashed #40916C;color:#1B4332;border-radius:8px;padding:8px 18px;font-size:13px;cursor:pointer;font-weight:600;margin-bottom:8px;';
+    var mImgInp=document.createElement('input');mImgInp.type='file';mImgInp.accept='image/*';mImgInp.multiple=true;mImgInp.style.display='none';
+    mImgBtn.onclick=function(){mImgInp.click();};
+    mImgInp.onchange=function(){handleImgUpload(this.files,'main');this.value='';};
+    var mGal=document.createElement('div');mGal.id='om-img-gallery';mGal.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+    p4.appendChild(mImgBtn);p4.appendChild(mImgInp);p4.appendChild(mGal);
+    tabPanels['imgs']=p4;body.appendChild(p4);
+    var foot=document.createElement('div');
+    foot.style.cssText='padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;';
+    var sBtn=document.createElement('button');sBtn.type='button';sBtn.textContent='💾 บันทึกงาน';_omSaveBtn=sBtn;
+    sBtn.style.cssText='width:100%;background:#1B4332;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;';
+    sBtn.onclick=saveOM2;
+    foot.appendChild(sBtn);
+    var auditRow=document.createElement('div');auditRow.id='om-audit-btns';auditRow.style.cssText='display:none;gap:10px;width:100%;';
+    var cBtn=document.createElement('button');cBtn.type='button';cBtn.textContent='✅ เสร็จสมบูรณ์';
+    cBtn.style.cssText='flex:1;background:#15803d;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;';
+    cBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='done';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์');}closeOM2();if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();};
+    var rBtn=document.createElement('button');rBtn.type='button';rBtn.textContent='⚠️ ต้องแก้ไข';
+    rBtn.style.cssText='flex:1;background:#dc2626;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;';
+    rBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='revision';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข');}closeOM2();if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();};
+    auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
+    foot.appendChild(auditRow);
+    _omUpdateFooter=function(tabKey){var isAudit=tabKey==='links';if(!_omViewMode){_omSaveBtn.style.display='';auditRow.style.display='none';}else if(isAudit){_omSaveBtn.style.display='none';auditRow.style.display='flex';}else{_omSaveBtn.style.display='';auditRow.style.display='none';}};
+    box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
+    _OM2.appendChild(box);document.body.appendChild(_OM2);
+    switchTab('info');
+  }
+
+  function openOM2(id){
+    buildOM2();
+    var orders=typeof lpORD==='function'?lpORD():[];
+    var o=id?orders.find(function(x){return x.id===id;}):null;
+    _omImages=(o&&o.images)?JSON.parse(JSON.stringify(o.images)):[];
+    _omBriefImages=(o&&o.briefImages)?JSON.parse(JSON.stringify(o.briefImages)):[];
+    var _isView=window._ordViewMode==='team';ge('om-hd').textContent=_isView&&id?'📋 สรุปงาน '+id:id?'✏️ แก้ไขงาน '+id:'📋 เพิ่มงานใหม่';
+    ge('om-id').textContent=id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));
+    ge('om-name').value=o?o.title:'';
+    ge('om-prod').value=o?(o.product||''):'';
+    var OT_=typeof OT!=='undefined'?OT:[];
+    ge('om-type').value=o?(o.type||''):'';
+    ge('om-dl').value=o?o.deadline:'';
+    ge('om-st').value=o?(o.status||''):'';
+    ge('om-mb').value=o?(o.assignee||''):'';
+    ge('om-note').value=o?(o.note||''):'';
+    ge('om-raw').value=o?(o.rawLink||''):'';
+    ge('om-sheet').value=o?(o.sheetLink||''):'';
+    ge('om-review').value=o?(o.reviewLink||''):'';
+    ge('om-fbname').value=o?(o.fbName||''):'';
+    ge('om-pagename').value=o?(o.pageName||''):'';
+    ge('om-fbuplist').value=o?(o.fbUpList||''):'';
+    if(ge('om-fbuplist')._applyStyle)ge('om-fbuplist')._applyStyle();
+    ge('om-contentuplist').value=o?(o.contentUpList||''):'';
+    if(ge('om-contentuplist')._applyStyle)ge('om-contentuplist')._applyStyle();
+    ge('om-camp1').value=o?(o.camp1||''):'';
+    ge('om-camp2').value=o?(o.camp2||''):'';
+    ge('om-uplink').value=o?(o.upLink||''):'';
+    ge('om-ad').value=o?(o.adLink||''):'';
+    var _slv=o?(o.submitLink||''):''; ge('om-submitlink').value=_slv;
+    var _slb=ge('om-submitlink-box');if(_slb)_slb.style.display=_slv?'flex':'none';
+    var _sld=ge('om-submitlink-disp');if(_sld){_sld.href=_slv||'#';_sld.style.display=_slv?'inline-flex':'none';}
+    var _slval=ge('om-submitlink-val');if(_slval)_slval.textContent=_slv;
+    ge('om-brief').value=o?(o.brief||''):'';
+    refreshGallery();refreshBriefGallery();
+    _omViewMode=_isView;
+    if(_switchTab)_switchTab('info');
+    if(_omInfoPanel){_omInfoPanel.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=_isView;el.style.opacity=_isView?'0.7':'';el.style.cursor=_isView?'default':'';el.style.background=_isView&&el.tagName!=='TEXTAREA'?'#f9fafb':'';});_omInfoPanel.querySelectorAll('button').forEach(function(b){if(b.getAttribute('data-link-btn')){b.disabled=false;b.style.opacity='';b.style.cursor='pointer';}else{b.disabled=_isView;b.style.opacity=_isView?'0.4':'';b.style.cursor=_isView?'not-allowed':'';}});}
+    if(_omSaveBtn){
+      _omSaveBtn.parentElement.style.display='';
+      if(_isView){
+        _omSaveBtn.textContent='✅ รอตรวจ';
+        _omSaveBtn.style.background='#d97706';
+        _omSaveBtn.onclick=function(){
+          var ordId=ge('om-id').textContent;
+          var orders=typeof lpORD==='function'?lpORD():[];
+          var idx=orders.findIndex(function(x){return x.id===ordId;});
+          if(idx>=0){orders[idx].status='review';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → รอตรวจ');}
+          closeOM2();
+          if(window._OF){window._OF.status='review';window._OF.dl='';window._OF.activeCard='review';}
+          if(typeof renderOrderStats==='function')renderOrderStats();
+          if(typeof renderOrders==='function')renderOrders();
+        };
+      } else {
+        _omSaveBtn.textContent='💾 บันทึกงาน';
+        _omSaveBtn.style.background='#1B4332';
+        _omSaveBtn.onclick=saveOM2;
+      }
+    }
+    _OM2.style.display='flex';document.body.style.overflow='hidden';
+  }
+
+  function closeOM2(){if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
+
+  function saveOM2(){
+    var id=ge('om-id').textContent;
+    var title=(ge('om-name').value||'').trim();
+    /* ── Validation ── */
+    var valid=true;
+    function markField(elId,ok){
+      var el=ge(elId);
+      if(!el)return;
+      el.style.borderColor=ok?'#d1d5db':'#ef4444';
+      el.style.borderWidth=ok?'1px':'2px';
+    }
+    markField('om-name', !!title);if(!title)valid=false;
+    var dlVal=ge('om-dl').value;
+    markField('om-dl', !!dlVal);if(!dlVal)valid=false;
+    var typeVal=ge('om-type').value;
+    markField('om-type', !!typeVal);if(!typeVal)valid=false;
+    var stVal=ge('om-st').value;
+    markField('om-st', !!stVal);if(!stVal)valid=false;
+    if(!valid)return;
+    var now=Date.now();
+    var orders=typeof lpORD==='function'?lpORD():[];
+    var idx=orders.findIndex(function(x){return x.id===id;});
+    var entry={
+      id:id,
+      title:title,
+      product:ge('om-prod').value||'',
+      type:ge('om-type').value||'',
+      deadline:ge('om-dl').value||'',
+      status:stVal,
+      assignee:ge('om-mb').value||'',
+      note:ge('om-note').value||'',
+      rawLink:ge('om-raw').value||'',
+      sheetLink:ge('om-sheet').value||'',
+      reviewLink:ge('om-review').value||'',
+      fbName:ge('om-fbname').value||'',
+      pageName:ge('om-pagename').value||'',
+      fbUpList:ge('om-fbuplist').value||'',
+      contentUpList:ge('om-contentuplist').value||'',
+      camp1:ge('om-camp1').value||'',
+      camp2:ge('om-camp2').value||'',
+      upLink:ge('om-uplink').value||'',
+      adLink:ge('om-ad').value||'',
+      submitLink:ge('om-submitlink').value||'',
+      brief:ge('om-brief').value||'',
+      images:JSON.parse(JSON.stringify(_omImages)),
+      briefImages:JSON.parse(JSON.stringify(_omBriefImages)),
+      createdAt:idx>=0?orders[idx].createdAt:now,
+      updatedAt:now
+    };
+    if(idx>=0){orders[idx]=entry;}else{orders.push(entry);}
+    if(typeof spORD==='function')spORD(orders);
+    if(typeof logTL==='function'){var isNew=(idx<0);logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',isNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"');}
+    if(typeof renderOrderStats==='function')renderOrderStats();
+    if(typeof renderOrders==='function')renderOrders();
+    closeOM2();
+  }
+  try{
+    Object.defineProperty(window,'openOM',{get:function(){return openOM2;},set:function(){},configurable:false,enumerable:true});
+    Object.defineProperty(window,'closeOM',{get:function(){return closeOM2;},set:function(){},configurable:false,enumerable:true});
+    Object.defineProperty(window,'saveOrder',{get:function(){return saveOM2;},set:function(){},configurable:false,enumerable:true});
+  }catch(e){window.openOM=openOM2;window.closeOM=closeOM2;window.saveOrder=saveOM2;}
+  console.log('OM_V3 ready');
+})();
+</script>
+</body></html>
