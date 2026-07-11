@@ -305,9 +305,9 @@
 <header>
   <div class="header-left">
     <h1>🌿 RICHBIOTECH — Graphic &amp; Ads Dashboard</h1>
-    <p>ระบบติดตามงานทีม Graphic &amp; Ads · อัปเดต มิถุนายน 2569</p>
+    <p>ระบบติดตามงานทีม Graphic &amp; Ads · อัปเดต <span id="hdr-month-year">มิถุนายน 2569</span></p>
   </div>
-  <div class="header-badge">อัปเดตล่าสุด: <span>27 มิ.ย. 2569</span></div>
+  <div class="header-badge">อัปเดตล่าสุด: <span id="hdr-last-updated">27 มิ.ย. 2569</span></div>
 </header>
 
 <!-- NAV -->
@@ -3094,6 +3094,24 @@ window.gAS=function(){
     Object.defineProperty(window,'saveOrder',{get:function(){return saveOM2;},set:function(){},configurable:false,enumerable:true});
   }catch(e){window.openOM=openOM2;window.closeOM=closeOM2;window.saveOrder=saveOM2;}
   console.log('OM_V3 ready');
+})();
+</script>
+<script>
+(function(){
+  var MF_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  var MF_ABR=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  function updateHdr(){
+    var now=new Date();
+    var d=now.getDate();
+    var m=now.getMonth();
+    var byear=now.getFullYear()+543;
+    var elM=document.getElementById('hdr-month-year');
+    if(elM)elM.textContent=MF_FULL[m]+' '+byear;
+    var elD=document.getElementById('hdr-last-updated');
+    if(elD)elD.textContent=d+' '+MF_ABR[m]+' '+byear;
+  }
+  updateHdr();
+  setInterval(updateHdr,60000);
 })();
 </script>
 </body></html>
