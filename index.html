@@ -3231,8 +3231,8 @@ window.ctRender=function(){
       +'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+ctEsc(r.shotDate||'-')+'</td>'
       +'<td class="ct-td-result" title="'+ctEsc(r.result)+'">'+ctEsc(r.result||'-')+'</td>'
       +'<td><div class="ct-actions-cell">'
-        +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(''+ctEsc(r.id)+'')">&#9998;</button>'
-        +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(''+ctEsc(r.id)+'')">&#128465;</button>'
+        +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+ctEsc(r.id)+'&#39;)">&#9998;</button>'
+        +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+ctEsc(r.id)+'&#39;)">&#128465;</button>'
       +'</div></td>'
     +'</tr>';
   }).join('');
@@ -3265,8 +3265,8 @@ function ctModalHtml(r,isEdit){
         +'<textarea id="ctm-result" placeholder="บันทึกผลลัพธ์หรือหมายเหตุ...">'+ctEsc(r.result||'')+'</textarea></div>'
     +'</div>'
     +'<div class="ct-modal-btns">'
-      +'<button class="ct-btn ct-btn-secondary" onclick="this.closest('.ct-modal-bg').remove()">ยกเลิก</button>'
-      +'<button class="ct-btn ct-btn-primary" onclick="ctSaveMod(''+ctEsc(isEdit?r.id:'')+'')">&#128190; บันทึก</button>'
+      +'<button class="ct-btn ct-btn-secondary" onclick="this.closest(\'.ct-modal-bg\').remove()">ยกเลิก</button>'
+      +'<button class="ct-btn ct-btn-primary" onclick="ctSaveMod(&#39;'+ctEsc(isEdit?r.id:'')+'&#39;)">&#128190; บันทึก</button>'
     +'</div>'
   +'</div>';
 }
@@ -3307,8 +3307,7 @@ window.ctSaveMod=function(id){
 
 function ctParseCSV(text){
   var sep=text.indexOf('	')>=0?'	':',';
-  var lines=text.split(/?
-/);
+  var lines=text.replace(/\r/g,"").split("\n");
   var result=[];
   for(var i=0;i<lines.length;i++){
     if(!lines[i].trim())continue;
@@ -3333,7 +3332,7 @@ function ctGuessRelease(v){var lv=(v||'').toLowerCase();if(lv.indexOf('released'
 function ctGuessShot(v){var lv=(v||'').toLowerCase();if(lv==='yes'||lv==='1'||lv==='y'||(lv.indexOf('ยิง')>=0&&lv.indexOf('ไม่')<0&&lv.indexOf('ยัง')<0))return 'yes';if(lv==='no'||lv==='0'||lv==='n'||lv.indexOf('ยัง')>=0)return 'no';return '';}
 
 window.ctImportModal=function(){
-  var bg=document.createElement('div');bg.className='ct-modal-bg';
+  var bg=document.createElement('div');bg.className='ct-modal-bg';bg.setAttribute('data-import-modal','1');
   bg.innerHTML='<div class="ct-modal">'
     +'<div class="ct-modal-title">&#128229; นำเข้าจาก Google Sheets</div>'
     +'<div class="ct-field"><label>วิธีนำเข้า:</label>'
@@ -3342,7 +3341,7 @@ window.ctImportModal=function(){
     +'</div>'
     +'<div style="margin-top:10px;"><label><input type="checkbox" id="ct-import-replace"> ล้างข้อมูลเดิมและแทนที่ทั้งหมด</label></div>'
     +'<div class="ct-modal-btns">'
-      +'<button class="ct-btn ct-btn-secondary" onclick="this.closest('.ct-modal-bg').remove()">ยกเลิก</button>'
+      +'<button class="ct-btn ct-btn-secondary" onclick="this.closest(\'[data-import-modal]\').remove()">ยกเลิก</button>'
       +'<button class="ct-btn ct-btn-import" onclick="ctDoImport()">&#128229; นำเข้า</button>'
     +'</div>'
   +'</div>';
@@ -3376,9 +3375,7 @@ window.ctExport=function(){
   if(!_ctData||!_ctData.length){alert('ไม่มีข้อมูล');return;}
   var hdr='ลำดับ,สคริป,ชื่อแท็บ,ลิงก์คลิป,ชื่อตอน,ท่อนสุก,ปล่อย,ยิงแล้ว,วันที่ยิง,ผลลัพธ์';
   var body=_ctData.map(function(r,i){return [i+1,r.script,r.tabName,r.clipLink,r.episode,r.ready,r.release,r.shot,r.shotDate,r.result].map(function(v){var s=String(v==null?'':v);return s.indexOf(',')>=0||s.indexOf('"')>=0?'"'+s.replace(/"/g,'""')+'"':s;}).join(',');});
-  var csv=hdr+'
-'+body.join('
-');
+  var csv=[hdr].concat(body).join(String.fromCharCode(10));
   var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='olympplus_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 };
@@ -3444,8 +3441,4 @@ window.initLinksPanel=function(container){
     var m=now.getMonth();
     var byear=now.getFullYear()+543;
     var elM=document.getElementById('hdr-month-year');
-    if(elM)elM.textContent=MF_FULL[m]+' '+byear;
-    var elD=document.getElementById('hdr-last-updated');
-    if(elD)elD.textContent=d+' '+MF_ABR[m]+' '+byear;
-  }
-  updat
+    if(elM)elM.textContent=MF_FULL[
