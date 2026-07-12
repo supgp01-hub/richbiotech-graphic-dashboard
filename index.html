@@ -3205,7 +3205,7 @@ function ctFiltered(){
   if(!_ctData)return [];
   var q=_ctQ.toLowerCase().trim();
   return _ctData.filter(function(r){
-    if(_ctBrand!=='ALL'&&(r.brand||'')!==_ctBrand)return false;
+    if(_ctBrand==='UNASSIGNED'){if(r.brand&&r.brand!=='')return false;}else if(_ctBrand!=='ALL'&&(r.brand||'')!==_ctBrand)return false;
     if(_ctFilter==='posted'&&r.shot!=='yes')return false;
     if(_ctFilter==='not_posted'&&r.shot==='yes')return false;
     if(_ctFilter==='released'&&r.release!=='released')return false;
@@ -3254,7 +3254,7 @@ window.ctRender=function(){
   }
   // update brand chip counts
   CT_BRANDS.forEach(function(b){var safe=b.replace(/[^a-zA-Z0-9]/g,'_');var el=document.getElementById('ct-bc-'+safe);if(el){var cnt=_ctData.filter(function(r){return (r.brand||'')===b;}).length;el.textContent='('+cnt+')';}});
-  var allCnt=document.getElementById('ct-bc-ALL');if(allCnt)allCnt.textContent='('+_ctData.length+')';
+  var allCnt=document.getElementById('ct-bc-ALL');if(allCnt)allCnt.textContent='('+_ctData.length+')';  var unasgnEl=document.getElementById('ct-bc-UNASSIGNED');if(unasgnEl){unasgnEl.textContent='('+_ctData.filter(function(r){return !r.brand||r.brand==='';}).length+')';}  
   function mkSelReady(id,v){
     var cls=v==='ready'?'ct-sel-ready':v==='not'?'ct-sel-not-ready':'ct-sel-hold';
     return '<select class="ct-sel-inline '+cls+'" onchange="ctInlineUpdate(&#39;'+id+'&#39;,&#39;ready&#39;,this.value);this.className=\'ct-sel-inline \'+(this.value===\'ready\'?\'ct-sel-ready\':(this.value===\'not\'?\'ct-sel-not-ready\':\'ct-sel-hold\'))">'
@@ -3554,6 +3554,7 @@ window.initLinksPanel=function(container){
             var safe=b.replace(/[^a-zA-Z0-9]/g,'_');
             chips+='<button class="ct-bchip" data-b="'+ctEsc(b)+'" onclick="ctSetBrand(\''+ctEsc(b)+'\',this)" style="--bc:'+col+';">'+ctEsc(b)+' <small id="ct-bc-'+safe+'"></small></button>';
           });
+          chips+='<button class="ct-bchip" data-b="UNASSIGNED" onclick="ctSetBrand(\'UNASSIGNED\',this)" style="--bc:#9ca3af;">&#9203; รอเลือกสินค้า <small id="ct-bc-UNASSIGNED"></small></button>';
           return chips;
         }())
       +'</div>'
