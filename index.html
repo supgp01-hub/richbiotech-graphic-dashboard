@@ -3242,7 +3242,7 @@ window.ctRender=function(){
   var statPosted=document.getElementById('ct-stat-posted');
   var statReleased=document.getElementById('ct-stat-released');
   if(!root)return;
-  if(!_ctData)_ctData=ctLoad();
+  _ctData=ctLoad();
   var rows=ctFiltered();
   if(countEl)countEl.textContent=rows.length;
   if(statTotal)statTotal.textContent=_ctData.length;
@@ -3597,3 +3597,4 @@ window.initLinksPanel=function(container){
 </script>
 </body>
 </html>
+            
