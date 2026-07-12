@@ -3138,6 +3138,17 @@ window.gAS=function(){
 .ct-table tr.ct-row-posted td{background:#f0fff4;}
 .ct-td-num{text-align:center;color:#9ca3af;font-weight:600;font-size:12px;}
 .ct-td-script{font-weight:600;color:#1B4332;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ct-td-script a{color:#1D4ED8;text-decoration:none;font-size:12px;font-weight:600;}
+.ct-td-script a:hover{text-decoration:underline;}
+.ct-sel-inline{border:1.5px solid transparent;font-size:12px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:12px;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:20px;transition:border-color .15s;}
+.ct-sel-inline:hover{border-color:currentColor;}
+.ct-sel-ready{background:#dcfce7;color:#166534;}
+.ct-sel-not-ready{background:#fee2e2;color:#991b1b;}
+.ct-sel-hold{background:#f3f4f6;color:#6b7280;}
+.ct-sel-released{background:#d1fae5;color:#065f46;}
+.ct-sel-pending{background:#fef3c7;color:#92400e;}
+.ct-sel-shot-yes{background:#ede9fe;color:#5b21b6;}
+.ct-sel-shot-no{background:#f3f4f6;color:#6b7280;}
 .ct-td-tab{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#374151;}
 .ct-td-link a{color:#1D4ED8;text-decoration:none;font-size:12px;}
 .ct-td-link a:hover{text-decoration:underline;}
@@ -3243,26 +3254,55 @@ window.ctRender=function(){
   // update brand chip counts
   CT_BRANDS.forEach(function(b){var safe=b.replace(/[^a-zA-Z0-9]/g,'_');var el=document.getElementById('ct-bc-'+safe);if(el){var cnt=_ctData.filter(function(r){return (r.brand||'')===b;}).length;el.textContent='('+cnt+')';}});
   var allCnt=document.getElementById('ct-bc-ALL');if(allCnt)allCnt.textContent='('+_ctData.length+')';
+  function mkSelReady(id,v){
+    var cls=v==='ready'?'ct-sel-ready':v==='not'?'ct-sel-not-ready':'ct-sel-hold';
+    return '<select class="ct-sel-inline '+cls+'" onchange="ctInlineUpdate(&#39;'+id+'&#39;,&#39;ready&#39;,this.value);this.className=\'ct-sel-inline \'+(this.value===\'ready\'?\'ct-sel-ready\':(this.value===\'not\'?\'ct-sel-not-ready\':\'ct-sel-hold\'))">'
+      +'<option value=""'+((!v||v==='')?' selected':'')+'>-</option>'
+      +'<option value="not"'+(v==='not'?' selected':'')+'>&#10008; ยังไม่สุก</option>'
+      +'<option value="ready"'+(v==='ready'?' selected':'')+'>&#10004; สุกแล้ว</option>'
+    +'</select>';
+  }
+  function mkSelRelease(id,v){
+    var cls=v==='released'?'ct-sel-released':v==='pending'?'ct-sel-pending':'ct-sel-hold';
+    return '<select class="ct-sel-inline '+cls+'" onchange="ctInlineUpdate(&#39;'+id+'&#39;,&#39;release&#39;,this.value);this.className=\'ct-sel-inline \'+(this.value===\'released\'?\'ct-sel-released\':(this.value===\'pending\'?\'ct-sel-pending\':\'ct-sel-hold\'))">'
+      +'<option value=""'+((!v||v==='')?' selected':'')+'>-</option>'
+      +'<option value="hold"'+(v==='hold'?' selected':'')+'>&#9208; ไม่ปล่อย</option>'
+      +'<option value="pending"'+(v==='pending'?' selected':'')+'>&#128336; รอ</option>'
+      +'<option value="released"'+(v==='released'?' selected':'')+'>&#9989; ปล่อยแล้ว</option>'
+    +'</select>';
+  }
+  function mkSelShot(id,v){
+    var cls=v==='yes'?'ct-sel-shot-yes':'ct-sel-shot-no';
+    return '<select class="ct-sel-inline '+cls+'" onchange="ctInlineUpdate(&#39;'+id+'&#39;,&#39;shot&#39;,this.value);this.className=\'ct-sel-inline \'+(this.value===\'yes\'?\'ct-sel-shot-yes\':\'ct-sel-shot-no\')">'
+      +'<option value=""'+(v!=='yes'?' selected':'')+'>&#11036; ยังไม่ยิง</option>'
+      +'<option value="yes"'+(v==='yes'?' selected':'')+'>&#128228; ยิงแล้ว</option>'
+    +'</select>';
+  }
   function mkRow(r,num){
     var safeLink=r.clipLink&&r.clipLink.indexOf('http')===0?ctEsc(r.clipLink):'';
     var linkCell=safeLink?'<a href="'+safeLink+'" target="_blank" rel="noopener">&#128279; เปิดลิงก์</a>':'-';
+    var isScriptLink=r.script&&r.script.indexOf('http')===0;
+    var scriptCell=isScriptLink
+      ?'<a href="'+ctEsc(r.script)+'" target="_blank" rel="noopener" title="'+ctEsc(r.script)+'">&#128196; เปิดสคริป</a>'
+      :'<span title="'+ctEsc(r.script||'')+'">'+ctEsc(r.script||'-')+'</span>';
     var rowCls=r.shot==='yes'?' class="ct-row-posted"':'';
+    var id=ctEsc(r.id);
     return '<tr'+rowCls+'>'
-      +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+ctEsc(r.id)+'" onchange="ctChkChange()"></td>'
+      +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
-      +'<td class="ct-td-script" title="'+ctEsc(r.script)+'">'+ctEsc(r.script||'-')+'</td>'
+      +'<td class="ct-td-script">'+scriptCell+'</td>'
       +'<td class="ct-td-tab" title="'+ctEsc(r.tabName)+'">'+ctEsc(r.tabName||'-')+'</td>'
       +'<td class="ct-td-link">'+linkCell+'</td>'
       +'<td class="ct-td-ep" title="'+ctEsc(r.episode)+'">'+ctEsc(r.episode||'-')+'</td>'
-      +'<td>'+ctBadgeReady(r.ready)+'</td>'
-      +'<td>'+ctBadgeRelease(r.release)+'</td>'
-      +'<td>'+ctBadgeShot(r.shot)+'</td>'
+      +'<td>'+mkSelReady(id,r.ready)+'</td>'
+      +'<td>'+mkSelRelease(id,r.release)+'</td>'
+      +'<td>'+mkSelShot(id,r.shot)+'</td>'
       +'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+ctEsc(r.shotDate||'-')+'</td>'
       +'<td class="ct-td-result" title="'+ctEsc(r.result)+'">'+ctEsc(r.result||'-')+'</td>'
       +'<td><div class="ct-actions-cell">'
-        +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+ctEsc(r.id)+'&#39;)">&#9998;</button>'
-        +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+ctEsc(r.id)+'&#39;)">&#128465;</button>'
+        +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
+        +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+id+'&#39;)">&#128465;</button>'
       +'</div></td>'
     +'</tr>';
   }
@@ -3347,6 +3387,14 @@ window.ctClearSel=function(){
   document.querySelectorAll('.ct-row-sel').forEach(function(c){c.checked=false;});
   var a=document.getElementById('ct-chk-all');if(a){a.checked=false;a.indeterminate=false;}
   ctChkChange();
+};
+window.ctInlineUpdate=function(id,field,val){
+  var r=(_ctData||[]).find(function(x){return x.id===id;});
+  if(!r)return;
+  r[field]=val;
+  r.updatedAt=new Date().toISOString();
+  ctSave();
+  window.ctRender();
 };
 window.ctBulkSetBrand=function(){
   var sel=Array.from(document.querySelectorAll('.ct-row-sel:checked')).map(function(c){return c.getAttribute('data-id');});
