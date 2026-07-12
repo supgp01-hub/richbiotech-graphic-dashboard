@@ -3317,6 +3317,7 @@ function ctModalHtml(r,isEdit){
 
 window.ctModal=function(row){
   var r=row||{};
+  if(!row&&_ctBrand&&_ctBrand!=='ALL'){r={brand:_ctBrand};}
   var bg=document.createElement('div');
   bg.className='ct-modal-bg';
   bg.innerHTML=ctModalHtml(r,!!row);
@@ -3521,10 +3522,4 @@ window.initLinksPanel=function(container){
   var el;
   el=container.querySelector('#ct-search');if(el)el.oninput=function(){_ctQ=this.value;window.ctRender();};
   el=container.querySelector('#ct-filter');if(el)el.onchange=function(){_ctFilter=this.value;window.ctRender();};
-  _ctBrand='ALL';
-  window.ctRender();
-};
-})();
-</script>
-</body>
-</html>
+  _ctBrand='AL
