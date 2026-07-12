@@ -3293,7 +3293,7 @@ window.ctRender=function(){
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
       +'<td class="ct-td-script">'+scriptCell+'</td>'
-      +'<td class="ct-td-tab" title="'+ctEsc(r.tabName)+'">'+ctEsc(r.tabName||'-')+'</td>'
+
       +'<td class="ct-td-link">'+linkCell+'</td>'
       +'<td class="ct-td-ep" title="'+ctEsc(r.episode)+'">'+ctEsc(r.episode||'-')+'</td>'
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
@@ -3336,8 +3336,7 @@ function ctModalHtml(r,isEdit){
         +sel('ctm-brand',r.brand||'',[{v:'',l:'- เลือกสินค้า -'}].concat(CT_BRANDS.map(function(b){return {v:b,l:b};})))+'</div>'
       +'<div class="ct-field ct-field-full"><label>สคริป / หัวเรื่อง *</label>'
         +'<input type="text" id="ctm-script" value="'+ctEsc(r.script||'')+'" placeholder="ชื่อสคริปหรือหัวข้อ"></div>'
-      +'<div class="ct-field ct-field-full"><label>ชื่อแท็บ (Facebook / TikTok)</label>'
-        +'<input type="text" id="ctm-tab" value="'+ctEsc(r.tabName||'')+'" placeholder="ชื่อที่ใช้โพสต์"></div>'
+
       +'<div class="ct-field ct-field-full"><label>ลิงก์คลิป (URL)</label>'
         +'<input type="url" id="ctm-link" value="'+ctEsc(r.clipLink||'')+'" placeholder="https://..."></div>'
       +'<div class="ct-field"><label>ชื่อตอน / ที่</label>'
@@ -3574,7 +3573,7 @@ window.initLinksPanel=function(container){
           +'<th class="ct-th-num">#</th>'
           +'<th>สินค้า</th>'
           +'<th>สคริป</th>'
-          +'<th>ชื่อแท็บ</th>'
+          
           +'<th>ลิงก์คลิป</th>'
           +'<th>ชื่อตอน/ที่</th>'
           +'<th>Hook</th>'
