@@ -3119,6 +3119,14 @@ window.gAS=function(){
 .ct-table{width:100%;border-collapse:collapse;font-size:13px;min-width:980px;}
 .ct-table th{background:#f0f7f2;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#2D6A4F;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #95D5B2;white-space:nowrap;}
 .ct-table th.ct-th-num{width:48px;text-align:center;}
+.ct-th-chk{width:36px;text-align:center;padding:0 4px;}
+.ct-td-chk{text-align:center;vertical-align:middle;padding:6px 4px;}
+.ct-row-chk{width:15px;height:15px;cursor:pointer;accent-color:#40916C;}
+.ct-bulk-bar{display:none;align-items:center;gap:10px;padding:9px 16px;background:#fee2e2;border-radius:8px;margin-bottom:12px;border:1px solid #fca5a5;}
+.ct-bulk-bar.ct-bulk-on{display:flex;}
+.ct-bulk-lbl{font-size:13px;font-weight:600;color:#dc2626;flex:1;}
+.ct-btn-danger{background:#dc2626!important;color:#fff!important;border-color:#dc2626!important;}
+.ct-btn-danger:hover{background:#b91c1c!important;}
 .ct-table th.ct-th-act{text-align:right;}
 .ct-table td{padding:10px 12px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
 .ct-table tr:last-child td{border-bottom:none;}
@@ -3225,7 +3233,7 @@ window.ctRender=function(){
   if(statPosted)statPosted.textContent=_ctData.filter(function(r){return r.shot==='yes';}).length;
   if(statReleased)statReleased.textContent=_ctData.filter(function(r){return r.release==='released';}).length;
   if(!rows.length){
-    root.innerHTML='<tr class="ct-empty-row"><td colspan="12">ยังไม่มีข้อมูล &mdash; กด &ldquo;+ เพิ่มรายการ&rdquo; หรือ &ldquo;&#128229; นำเข้า CSV&rdquo;</td></tr>';
+    root.innerHTML='<tr class="ct-empty-row"><td colspan="13">ยังไม่มีข้อมูล &mdash; กด &ldquo;+ เพิ่มรายการ&rdquo; หรือ &ldquo;&#128229; นำเข้า CSV&rdquo;</td></tr>';
     return;
   }
   // update brand chip counts
@@ -3236,6 +3244,7 @@ window.ctRender=function(){
     var linkCell=safeLink?'<a href="'+safeLink+'" target="_blank" rel="noopener">&#128279; เปิดลิงก์</a>':'-';
     var rowCls=r.shot==='yes'?' class="ct-row-posted"':'';
     return '<tr'+rowCls+'>'
+      +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+ctEsc(r.id)+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
       +'<td class="ct-td-script" title="'+ctEsc(r.script)+'">'+ctEsc(r.script||'-')+'</td>'
@@ -3254,7 +3263,7 @@ window.ctRender=function(){
     +'</tr>';
   }
   if(_ctBrand!=='ALL'){
-    root.innerHTML=rows.map(function(r,i){return mkRow(r,i+1);}).join('');
+    root.innerHTML=rows.map(function(r,i){return mkRow(r,i+1);}).join('');ctChkChange();
   } else {
     var grouped={};var order=[];
     rows.forEach(function(r){var b=r.brand||'ไม่ระบุสินค้า';if(!grouped[b]){grouped[b]=[];order.push(b);}grouped[b].push(r);});
@@ -3264,10 +3273,10 @@ window.ctRender=function(){
     sortedOrder.forEach(function(b){
       var col=CT_BCOLOR[b]||'#6b7280';
       var grpRows=grouped[b];
-      html+='<tr><td colspan="12" style="background:'+col+'18;border-left:4px solid '+col+';color:'+col+';font-weight:700;padding:8px 14px;font-size:13px;">'+ctEsc(b)+' <span style="font-weight:400;opacity:.75;">('+grpRows.length+' รายการ)</span></td></tr>';
+      html+='<tr><td colspan="13" style="background:'+col+'18;border-left:4px solid '+col+';color:'+col+';font-weight:700;padding:8px 14px;font-size:13px;">'+ctEsc(b)+' <span style="font-weight:400;opacity:.75;">('+grpRows.length+' รายการ)</span></td></tr>';
       grpRows.forEach(function(r){rowNum++;html+=mkRow(r,rowNum);});
     });
-    root.innerHTML=html;
+    root.innerHTML=html;ctChkChange();
   }
 };
 
@@ -3314,6 +3323,33 @@ window.ctModal=function(row){
   document.body.appendChild(bg);
   bg.addEventListener('click',function(e){if(e.target===bg)bg.remove();});
   var inp=document.getElementById('ctm-script');if(inp)inp.focus();
+};
+window.ctToggleAll=function(chk){
+  document.querySelectorAll('.ct-row-sel').forEach(function(c){c.checked=chk.checked;});
+  ctChkChange();
+};
+window.ctChkChange=function(){
+  var sel=document.querySelectorAll('.ct-row-sel:checked');
+  var all=document.querySelectorAll('.ct-row-sel');
+  var bar=document.getElementById('ct-bulk-bar');
+  var cnt=document.getElementById('ct-sel-count');
+  var allChk=document.getElementById('ct-chk-all');
+  if(bar){bar.className='ct-bulk-bar'+(sel.length>0?' ct-bulk-on':'');}
+  if(cnt){cnt.textContent=sel.length+' รายการที่เลือก';}
+  if(allChk){allChk.checked=sel.length>0&&sel.length===all.length;allChk.indeterminate=sel.length>0&&sel.length<all.length;}
+};
+window.ctClearSel=function(){
+  document.querySelectorAll('.ct-row-sel').forEach(function(c){c.checked=false;});
+  var a=document.getElementById('ct-chk-all');if(a){a.checked=false;a.indeterminate=false;}
+  ctChkChange();
+};
+window.ctBulkDelete=function(){
+  var sel=Array.from(document.querySelectorAll('.ct-row-sel:checked')).map(function(c){return c.getAttribute('data-id');});
+  if(!sel.length)return;
+  if(!confirm('ลบ '+sel.length+' รายการที่เลือก? ไม่สามารถกู้คืนได้'))return;
+  _ctData=(_ctData||[]).filter(function(r){return sel.indexOf(r.id)<0;});
+  ctSave();
+  window.ctRender();
 };
 window.ctSetBrand=function(b,btn){
   _ctBrand=b;
@@ -3457,8 +3493,14 @@ window.initLinksPanel=function(container){
           return chips;
         }())
       +'</div>'
+      +'<div id="ct-bulk-bar" class="ct-bulk-bar">'
+        +'<span class="ct-bulk-lbl" id="ct-sel-count">0 รายการที่เลือก</span>'
+        +'<button class="ct-btn ct-btn-danger" onclick="ctBulkDelete()">&#128465; ลบที่เลือก</button>'
+        +'<button class="ct-btn ct-btn-secondary" onclick="ctClearSel()">&#10005; ยกเลิก</button>'
+      +'</div>'
       +'<div class="ct-table-container">'
         +'<table class="ct-table"><thead><tr>'
+          +'<th class="ct-th-chk"><input type="checkbox" id="ct-chk-all" class="ct-row-chk" onclick="ctToggleAll(this)"></th>'
           +'<th class="ct-th-num">#</th>'
           +'<th>สินค้า</th>'
           +'<th>สคริป</th>'
