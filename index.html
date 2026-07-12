@@ -3157,13 +3157,20 @@ window.gAS=function(){
 .ct-import-area{width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px;font-size:12px;font-family:monospace;min-height:130px;resize:vertical;box-sizing:border-box;outline:none;}
 .ct-import-area:focus{border-color:#4338CA;}
 .ct-import-hint{font-size:12px;color:#6b7280;margin-top:8px;line-height:1.5;}
+.ct-bchip{padding:5px 12px;border-radius:20px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;font-weight:600;color:#374151;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.ct-bchip small{font-size:10px;font-weight:400;opacity:.7;}
+.ct-bchip:hover{border-color:var(--bc,#40916C);color:var(--bc,#1B4332);background:color-mix(in srgb,var(--bc,#40916C) 10%,white);}
+.ct-bchip-active{border-color:var(--bc,#1B4332)!important;background:var(--bc,#1B4332)!important;color:#fff!important;}
+.ct-bchip-active small{opacity:.85;}
 </style>
 
 <script>
 (function(){
 'use strict';
 var CT_KEY='rb_olympplus_v1';
-var _ctData=null,_ctQ='',_ctFilter='all';
+var CT_BRANDS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
+var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','I Sure Plus':'#7c3aed','Olymplus':'#d97706','Olymplus MAX':'#b45309','JUDO':'#dc2626','Dragon Blood':'#991b1b','ขุนแผน':'#6d28d9','Heaven PLUS+':'#0891b2','THE LORD':'#1d4ed8','WOLF+':'#374151','เจ้าขุน':'#92400e'};
+var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
 function ctLoad(){try{var s=localStorage.getItem(CT_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function ctSave(){try{localStorage.setItem(CT_KEY,JSON.stringify(_ctData));}catch(e){}}
@@ -3174,11 +3181,12 @@ function ctFiltered(){
   if(!_ctData)return [];
   var q=_ctQ.toLowerCase().trim();
   return _ctData.filter(function(r){
+    if(_ctBrand!=='ALL'&&(r.brand||'')!==_ctBrand)return false;
     if(_ctFilter==='posted'&&r.shot!=='yes')return false;
     if(_ctFilter==='not_posted'&&r.shot==='yes')return false;
     if(_ctFilter==='released'&&r.release!=='released')return false;
     if(!q)return true;
-    return (r.script||'').toLowerCase().indexOf(q)>=0||(r.tabName||'').toLowerCase().indexOf(q)>=0||(r.episode||'').toLowerCase().indexOf(q)>=0||(r.result||'').toLowerCase().indexOf(q)>=0;
+    return (r.script||'').toLowerCase().indexOf(q)>=0||(r.tabName||'').toLowerCase().indexOf(q)>=0||(r.episode||'').toLowerCase().indexOf(q)>=0||(r.result||'').toLowerCase().indexOf(q)>=0||(r.brand||'').toLowerCase().indexOf(q)>=0;
   });
 }
 
@@ -3197,6 +3205,11 @@ function ctBadgeShot(v){
   if(v==='yes')return '<span class="ct-badge ct-badge-yes">&#128228; ยิงแล้ว</span>';
   return '<span class="ct-badge ct-badge-no">&#11036; ยังไม่ยิง</span>';
 }
+function ctBadgeBrand(v){
+  if(!v)return '<span class="ct-badge ct-badge-hold">-</span>';
+  var col=CT_BCOLOR[v]||'#6b7280';
+  return '<span class="ct-badge" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'60;">'+ctEsc(v)+'</span>';
+}
 
 window.ctRender=function(){
   var root=document.getElementById('ct-tbody');
@@ -3212,15 +3225,19 @@ window.ctRender=function(){
   if(statPosted)statPosted.textContent=_ctData.filter(function(r){return r.shot==='yes';}).length;
   if(statReleased)statReleased.textContent=_ctData.filter(function(r){return r.release==='released';}).length;
   if(!rows.length){
-    root.innerHTML='<tr class="ct-empty-row"><td colspan="11">ยังไม่มีข้อมูล &mdash; กด &ldquo;+ เพิ่มรายการ&rdquo; หรือ &ldquo;&#128229; นำเข้า CSV&rdquo;</td></tr>';
+    root.innerHTML='<tr class="ct-empty-row"><td colspan="12">ยังไม่มีข้อมูล &mdash; กด &ldquo;+ เพิ่มรายการ&rdquo; หรือ &ldquo;&#128229; นำเข้า CSV&rdquo;</td></tr>';
     return;
   }
-  root.innerHTML=rows.map(function(r,i){
+  // update brand chip counts
+  CT_BRANDS.forEach(function(b){var safe=b.replace(/[^a-zA-Z0-9]/g,'_');var el=document.getElementById('ct-bc-'+safe);if(el){var cnt=_ctData.filter(function(r){return (r.brand||'')===b;}).length;el.textContent='('+cnt+')';}});
+  var allCnt=document.getElementById('ct-bc-ALL');if(allCnt)allCnt.textContent='('+_ctData.length+')';
+  function mkRow(r,num){
     var safeLink=r.clipLink&&r.clipLink.indexOf('http')===0?ctEsc(r.clipLink):'';
     var linkCell=safeLink?'<a href="'+safeLink+'" target="_blank" rel="noopener">&#128279; เปิดลิงก์</a>':'-';
     var rowCls=r.shot==='yes'?' class="ct-row-posted"':'';
     return '<tr'+rowCls+'>'
-      +'<td class="ct-td-num">'+(i+1)+'</td>'
+      +'<td class="ct-td-num">'+num+'</td>'
+      +'<td>'+ctBadgeBrand(r.brand)+'</td>'
       +'<td class="ct-td-script" title="'+ctEsc(r.script)+'">'+ctEsc(r.script||'-')+'</td>'
       +'<td class="ct-td-tab" title="'+ctEsc(r.tabName)+'">'+ctEsc(r.tabName||'-')+'</td>'
       +'<td class="ct-td-link">'+linkCell+'</td>'
@@ -3235,7 +3252,23 @@ window.ctRender=function(){
         +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+ctEsc(r.id)+'&#39;)">&#128465;</button>'
       +'</div></td>'
     +'</tr>';
-  }).join('');
+  }
+  if(_ctBrand!=='ALL'){
+    root.innerHTML=rows.map(function(r,i){return mkRow(r,i+1);}).join('');
+  } else {
+    var grouped={};var order=[];
+    rows.forEach(function(r){var b=r.brand||'ไม่ระบุสินค้า';if(!grouped[b]){grouped[b]=[];order.push(b);}grouped[b].push(r);});
+    var sortedOrder=CT_BRANDS.filter(function(b){return grouped[b]&&grouped[b].length;});
+    order.forEach(function(b){if(CT_BRANDS.indexOf(b)<0&&grouped[b])sortedOrder.push(b);});
+    var html='';var rowNum=0;
+    sortedOrder.forEach(function(b){
+      var col=CT_BCOLOR[b]||'#6b7280';
+      var grpRows=grouped[b];
+      html+='<tr><td colspan="12" style="background:'+col+'18;border-left:4px solid '+col+';color:'+col+';font-weight:700;padding:8px 14px;font-size:13px;">'+ctEsc(b)+' <span style="font-weight:400;opacity:.75;">('+grpRows.length+' รายการ)</span></td></tr>';
+      grpRows.forEach(function(r){rowNum++;html+=mkRow(r,rowNum);});
+    });
+    root.innerHTML=html;
+  }
 };
 
 function ctModalHtml(r,isEdit){
@@ -3245,6 +3278,8 @@ function ctModalHtml(r,isEdit){
   return '<div class="ct-modal">'
     +'<div class="ct-modal-title">'+(isEdit?'&#9998; แก้ไขรายการ':'&#10133; เพิ่มรายการใหม่')+'</div>'
     +'<div class="ct-modal-grid">'
+      +'<div class="ct-field ct-field-full"><label>&#127991; สินค้า / แบรนด์</label>'
+        +sel('ctm-brand',r.brand||'',[{v:'',l:'- เลือกสินค้า -'}].concat(CT_BRANDS.map(function(b){return {v:b,l:b};})))+'</div>'
       +'<div class="ct-field ct-field-full"><label>สคริป / หัวเรื่อง *</label>'
         +'<input type="text" id="ctm-script" value="'+ctEsc(r.script||'')+'" placeholder="ชื่อสคริปหรือหัวข้อ"></div>'
       +'<div class="ct-field ct-field-full"><label>ชื่อแท็บ (Facebook / TikTok)</label>'
@@ -3280,6 +3315,12 @@ window.ctModal=function(row){
   bg.addEventListener('click',function(e){if(e.target===bg)bg.remove();});
   var inp=document.getElementById('ctm-script');if(inp)inp.focus();
 };
+window.ctSetBrand=function(b,btn){
+  _ctBrand=b;
+  document.querySelectorAll('.ct-bchip').forEach(function(el){el.classList.remove('ct-bchip-active');});
+  if(btn)btn.classList.add('ct-bchip-active');
+  window.ctRender();
+};
 window.ctEdit=function(id){var r=(_ctData||[]).find(function(x){return x.id===id;});if(r)window.ctModal(r);};
 window.ctDel=function(id){if(!confirm('ลบรายการนี้?'))return;_ctData=(_ctData||[]).filter(function(x){return x.id!==id;});ctSave();window.ctRender();};
 window.ctSaveMod=function(id){
@@ -3287,6 +3328,7 @@ window.ctSaveMod=function(id){
   if(!script){alert('กรุณากรอกสคริป/หัวเรื่อง');return;}
   var entry={
     id:id||ctGenId(),
+    brand:(document.getElementById('ctm-brand')||{}).value||'',
     script:script,
     tabName:((document.getElementById('ctm-tab')||{}).value||'').trim(),
     clipLink:((document.getElementById('ctm-link')||{}).value||'').trim(),
@@ -3362,7 +3404,7 @@ window.ctDoImport=function(){
   for(var i=startIdx;i<rows.length;i++){
     var c=rows[i];
     if(!c||c.length<2||!c[1]||!c[1].trim())continue;
-    _ctData.push({id:ctGenId(),script:(c[1]||'').trim(),tabName:(c[2]||'').trim(),clipLink:(c[3]||'').trim(),episode:(c[4]||'').trim(),ready:ctGuessReady(c[5]),release:ctGuessRelease(c[6]),shot:ctGuessShot(c[7]),shotDate:(c[8]||'').trim(),result:(c[9]||'').trim(),updatedAt:new Date().toISOString()});
+    _ctData.push({id:ctGenId(),brand:(c[10]||'').trim(),script:(c[1]||'').trim(),tabName:(c[2]||'').trim(),clipLink:(c[3]||'').trim(),episode:(c[4]||'').trim(),ready:ctGuessReady(c[5]),release:ctGuessRelease(c[6]),shot:ctGuessShot(c[7]),shotDate:(c[8]||'').trim(),result:(c[9]||'').trim(),updatedAt:new Date().toISOString()});
     imported++;
   }
   ctSave();
@@ -3373,8 +3415,8 @@ window.ctDoImport=function(){
 
 window.ctExport=function(){
   if(!_ctData||!_ctData.length){alert('ไม่มีข้อมูล');return;}
-  var hdr='ลำดับ,สคริป,ชื่อแท็บ,ลิงก์คลิป,ชื่อตอน,ท่อนสุก,ปล่อย,ยิงแล้ว,วันที่ยิง,ผลลัพธ์';
-  var body=_ctData.map(function(r,i){return [i+1,r.script,r.tabName,r.clipLink,r.episode,r.ready,r.release,r.shot,r.shotDate,r.result].map(function(v){var s=String(v==null?'':v);return s.indexOf(',')>=0||s.indexOf('"')>=0?'"'+s.replace(/"/g,'""')+'"':s;}).join(',');});
+  var hdr='ลำดับ,สินค้า,สคริป,ชื่อแท็บ,ลิงก์คลิป,ชื่อตอน,ท่อนสุก,ปล่อย,ยิงแล้ว,วันที่ยิง,ผลลัพธ์';
+  var body=_ctData.map(function(r,i){return [i+1,r.brand,r.script,r.tabName,r.clipLink,r.episode,r.ready,r.release,r.shot,r.shotDate,r.result].map(function(v){var s=String(v==null?'':v);return s.indexOf(',')>=0||s.indexOf('"')>=0?'"'+s.replace(/"/g,'""')+'"':s;}).join(',');});
   var csv=[hdr].concat(body).join(String.fromCharCode(10));
   var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='olympplus_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
@@ -3404,9 +3446,21 @@ window.initLinksPanel=function(container){
         +'<div class="ct-stat-box"><span class="ct-stat-num" id="ct-stat-posted">0</span><span class="ct-stat-lbl">ยิงแล้ว</span></div>'
         +'<div class="ct-stat-box"><span class="ct-stat-num" id="ct-stat-released">0</span><span class="ct-stat-lbl">ปล่อยแล้ว</span></div>'
       +'</div>'
+      +'<div id="ct-brand-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">'
+        +(function(){
+          var chips='<button class="ct-bchip ct-bchip-active" data-b="ALL" onclick="ctSetBrand(\'ALL\',this)">&#127968; ทั้งหมด <small id="ct-bc-ALL"></small></button>';
+          CT_BRANDS.forEach(function(b){
+            var col=CT_BCOLOR[b]||'#6b7280';
+            var safe=b.replace(/[^a-zA-Z0-9]/g,'_');
+            chips+='<button class="ct-bchip" data-b="'+ctEsc(b)+'" onclick="ctSetBrand(\''+ctEsc(b)+'\',this)" style="--bc:'+col+';">'+ctEsc(b)+' <small id="ct-bc-'+safe+'"></small></button>';
+          });
+          return chips;
+        }())
+      +'</div>'
       +'<div class="ct-table-container">'
         +'<table class="ct-table"><thead><tr>'
           +'<th class="ct-th-num">#</th>'
+          +'<th>สินค้า</th>'
           +'<th>สคริป</th>'
           +'<th>ชื่อแท็บ</th>'
           +'<th>ลิงก์คลิป</th>'
@@ -3425,20 +3479,10 @@ window.initLinksPanel=function(container){
   var el;
   el=container.querySelector('#ct-search');if(el)el.oninput=function(){_ctQ=this.value;window.ctRender();};
   el=container.querySelector('#ct-filter');if(el)el.onchange=function(){_ctFilter=this.value;window.ctRender();};
+  _ctBrand='ALL';
   window.ctRender();
 };
 })();
 </script>
-
-
-<script>
-(function(){
-  var MF_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  var MF_ABR=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  function updateHdr(){
-    var now=new Date();
-    var d=now.getDate();
-    var m=now.getMonth();
-    var byear=now.getFullYear()+543;
-    var elM=document.getElementById('hdr-month-year');
-    if(elM)elM.textContent=MF_FULL[
+</body>
+</html>
