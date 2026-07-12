@@ -3122,9 +3122,13 @@ window.gAS=function(){
 .ct-th-chk{width:36px;text-align:center;padding:0 4px;}
 .ct-td-chk{text-align:center;vertical-align:middle;padding:6px 4px;}
 .ct-row-chk{width:15px;height:15px;cursor:pointer;accent-color:#40916C;}
-.ct-bulk-bar{display:none;align-items:center;gap:10px;padding:9px 16px;background:#fee2e2;border-radius:8px;margin-bottom:12px;border:1px solid #fca5a5;}
+.ct-bulk-bar{display:none;align-items:center;gap:10px;padding:9px 16px;background:#f0f9ff;border-radius:8px;margin-bottom:12px;border:1px solid #7dd3fc;flex-wrap:wrap;}
+.ct-bulk-sep{width:1px;height:22px;background:#cbd5e1;margin:0 2px;}
 .ct-bulk-bar.ct-bulk-on{display:flex;}
-.ct-bulk-lbl{font-size:13px;font-weight:600;color:#dc2626;flex:1;}
+.ct-bulk-lbl{font-size:13px;font-weight:600;color:#0369a1;flex:1;}
+.ct-bulk-brand-sel{border:1.5px solid #7dd3fc;border-radius:6px;padding:5px 8px;font-size:12px;color:#1e40af;background:#fff;cursor:pointer;outline:none;}
+.ct-btn-assign{background:#1d4ed8!important;color:#fff!important;border-color:#1d4ed8!important;}
+.ct-btn-assign:hover{background:#1e40af!important;}
 .ct-btn-danger{background:#dc2626!important;color:#fff!important;border-color:#dc2626!important;}
 .ct-btn-danger:hover{background:#b91c1c!important;}
 .ct-table th.ct-th-act{text-align:right;}
@@ -3344,6 +3348,16 @@ window.ctClearSel=function(){
   var a=document.getElementById('ct-chk-all');if(a){a.checked=false;a.indeterminate=false;}
   ctChkChange();
 };
+window.ctBulkSetBrand=function(){
+  var sel=Array.from(document.querySelectorAll('.ct-row-sel:checked')).map(function(c){return c.getAttribute('data-id');});
+  if(!sel.length)return;
+  var brandEl=document.getElementById('ct-bulk-brand-sel');
+  var brand=brandEl?brandEl.value:'';
+  if(!brand){alert('กรุณาเลือกสินค้าก่อน');return;}
+  (_ctData||[]).forEach(function(r){if(sel.indexOf(r.id)>=0)r.brand=brand;});
+  ctSave();
+  window.ctRender();
+};
 window.ctBulkDelete=function(){
   var sel=Array.from(document.querySelectorAll('.ct-row-sel:checked')).map(function(c){return c.getAttribute('data-id');});
   if(!sel.length)return;
@@ -3496,6 +3510,11 @@ window.initLinksPanel=function(container){
       +'</div>'
       +'<div id="ct-bulk-bar" class="ct-bulk-bar">'
         +'<span class="ct-bulk-lbl" id="ct-sel-count">0 รายการที่เลือก</span>'
+        +'<select id="ct-bulk-brand-sel" class="ct-bulk-brand-sel"><option value="">-- เลือกสินค้า --</option>'
+        +CT_BRANDS.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join('')
+        +'</select>'
+        +'<button class="ct-btn ct-btn-assign" onclick="ctBulkSetBrand()">&#10003; กำหนดสินค้า</button>'
+        +'<span class="ct-bulk-sep"></span>'
         +'<button class="ct-btn ct-btn-danger" onclick="ctBulkDelete()">&#128465; ลบที่เลือก</button>'
         +'<button class="ct-btn ct-btn-secondary" onclick="ctClearSel()">&#10005; ยกเลิก</button>'
       +'</div>'
