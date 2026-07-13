@@ -3295,7 +3295,7 @@ window.ctRender=function(){
     var rowStyle=r.release==='original'?' style="background:#fef08a"':'';
     var rowCls=r.shot==='yes'?' class="ct-row-posted"':'';
     var id=ctEsc(r.id);
-    return '<tr'+rowCl+rowStyle+'>''
+    return '<tr'+rowCls+rowStyle+'>'
       +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
