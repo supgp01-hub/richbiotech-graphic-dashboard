@@ -3292,8 +3292,8 @@ window.ctRender=function(){
     var scriptCell=isScriptLink
       ?'<a href="'+ctEsc(r.script)+'" target="_blank" rel="noopener" title="'+ctEsc(r.script)+'">&#128196; เปิดสคริป</a>'
       :'<span title="'+ctEsc(r.script||'')+'">'+ctEsc(r.script||'-')+'</span>';
-    var var rowStyle=r.release==='original'?' style="background:#fef08a"':'';
-    rowCls=r.shot==='yes'?' class="ct-row-posted"':'';
+    var rowStyle=r.release==='original'?' style="background:#fef08a"':'';
+    var rowCls=r.shot==='yes'?' class="ct-row-posted"':'';
     var id=ctEsc(r.id);
     return '<tr'+rowCl+rowStyle+'>''
       +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
