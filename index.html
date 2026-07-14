@@ -3012,7 +3012,7 @@ window.gAS=function(){
     if(_omSaveBtn){
       _omSaveBtn.parentElement.style.display='';
       if(_isView){
-        _omSaveBtn.textContent='✅ รอตรวจ';
+        _omSaveBtn.textContent='✅ ส่งงาน';
         _omSaveBtn.style.background='#d97706';
         _omSaveBtn.onclick=function(){
           var ordId=ge('om-id').textContent;
@@ -3025,7 +3025,7 @@ window.gAS=function(){
           if(typeof renderOrders==='function')renderOrders();
         };
       } else {
-        _omSaveBtn.textContent='💾 บันทึกงาน';
+        _omSaveBtn.textContent='💾 ส่งงาน';
         _omSaveBtn.style.background='#1B4332';
         _omSaveBtn.onclick=saveOM2;
       }
