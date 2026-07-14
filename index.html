@@ -3012,15 +3012,20 @@ window.gAS=function(){
     if(_omSaveBtn){
       _omSaveBtn.parentElement.style.display='';
       if(_isView){
-        _omSaveBtn.textContent='✅ กำลังดำเนินการ';
+        var _cid=ge('om-id').textContent;
+        var _ords=typeof lpORD==='function'?lpORD():[];
+        var _cjob=_ords.find(function(x){return x.id===_cid;});
+        var _cst=_cjob?_cjob.status:'';
+        var _nst=_cst==='inprogress'?'review':'inprogress';
+        _omSaveBtn.textContent=_cst==='inprogress'?'✅ ส่งงาน':'✅ กำลังดำเนินการ';
         _omSaveBtn.style.background='#d97706';
         _omSaveBtn.onclick=function(){
           var ordId=ge('om-id').textContent;
           var orders=typeof lpORD==='function'?lpORD():[];
           var idx=orders.findIndex(function(x){return x.id===ordId;});
-          if(idx>=0){orders[idx].status='inprogress';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → รอตรวจ');}
+          if(idx>=0){orders[idx].status=_nst;orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → รอตรวจ');}
           closeOM2();
-          if(window._OF){window._OF.status='inprogress';window._OF.dl='';window._OF.activeCard='inprogress';}
+          if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
           if(typeof renderOrderStats==='function')renderOrderStats();
           if(typeof renderOrders==='function')renderOrders();
         };
