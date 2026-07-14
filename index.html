@@ -2281,7 +2281,7 @@ function parseLeaveChange(oldStr,newStr){
 }
 
 // ── TIMELINE CORE ──
-var _inLog=false;
+var _inLog=false;var _tlCurSec=null;
 function logTL(sec,act,det,extra){
   if(_inLog)return;_inLog=true;
   try{
@@ -2292,7 +2292,7 @@ function logTL(sec,act,det,extra){
     if(tl.length>300)tl=tl.slice(0,300);
     spTL(tl);
     var list=document.getElementById('rb-tl-list');
-    if(list)renderTLList();
+    if(list)renderTLList(_tlCurSec);
   }finally{_inLog=false;}
 }
 
@@ -2572,8 +2572,8 @@ function renderTLList(filterSec){
     row.appendChild(top);row.appendChild(det);list.appendChild(row);
   });
 }
-function openTLM(){if(!_TLM)buildTLModal();_TLM.style.display='flex';var sec=typeof window.gAS==='function'?window.gAS():null;renderTLList(sec);document.body.style.overflow='hidden';}
-function closeTLM(){if(_TLM)_TLM.style.display='none';document.body.style.overflow='';}
+function openTLM(){if(!_TLM)buildTLModal();_TLM.style.display='flex';var sec=typeof window.gAS==='function'?window.gAS():null;_tlCurSec=sec;renderTLList(sec);document.body.style.overflow='hidden';}
+function closeTLM(){_tlCurSec=null;if(_TLM)_TLM.style.display='none';document.body.style.overflow='';}
 
 // ── FLOATING UI: TL button + User selector ──
 function addFloatingUI(){
