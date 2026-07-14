@@ -2500,6 +2500,7 @@ function buildOM(){
   g2.appendChild(mkF('สถานะ',mkS('om-st',ST.map(function(s){return[s.k,s.l];}))));
   g2.appendChild(mkF('ผู้รับผิดชอบ',mkS('om-mb',[['','— ไม่ระบุ —']].concat(MB_GR.map(function(m){return[m,m];})))));
   var _ni=mkI('om-name','ชื่องาน *');_ni.setAttribute('list','om-name-list');body.appendChild(mkF('ชื่องาน *',_ni));if(!document.getElementById('om-name-list')){var _dl=document.createElement('datalist');_dl.id='om-name-list';document.body.appendChild(_dl);}body.appendChild(g1);body.appendChild(g2);body.appendChild(mkF('หมายเหตุ',noteTA));
+    _ni.oninput=function(){var nm=this.value;var brand=document.getElementById('om-prod')?document.getElementById('om-prod').value:'';var match=null;for(var i=0;i<CT_EMBED.length;i++){var r=CT_EMBED[i];if(r.name===nm&&(!brand||r.brand===brand)){match=r;break;}}if(match){var rawEl=document.getElementById('om-raw');var sheetEl=document.getElementById('om-sheet');if(rawEl&&match.link)rawEl.value=match.link;if(sheetEl&&match.script)sheetEl.value=match.script;}};
   var sBtn=document.createElement('button');sBtn.textContent='💾 บันทึกงาน';sBtn.style.cssText='width:100%;background:#1B4332;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;';
   sBtn.onclick=saveOrder;body.appendChild(sBtn);
   box.appendChild(hdr);box.appendChild(body);_OM.appendChild(box);document.body.appendChild(_OM);
