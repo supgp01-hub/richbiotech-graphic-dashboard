@@ -3012,6 +3012,7 @@ window.gAS=function(){
     if(_omSaveBtn){
       _omSaveBtn.parentElement.style.display='';
       if(_isView){
+        _omSaveBtn.style.display='';var _od=document.getElementById('_ob_d');if(_od)_od.remove();var _or=document.getElementById('_ob_r');if(_or)_or.remove();
         var _cid=ge('om-id').textContent;
         var _ords=typeof lpORD==='function'?lpORD():[];
         var _cjob=_ords.find(function(x){return x.id===_cid;});
@@ -3030,11 +3031,22 @@ window.gAS=function(){
           if(typeof renderOrders==='function')renderOrders();
         };
       } else {
-        _omSaveBtn.textContent='💾 ส่งงาน';
-        _omSaveBtn.style.background='#1B4332';
-        _omSaveBtn.onclick=saveOM2;
-      }
-    }
+        _omSaveBtn.style.display='none';
+        var _od=document.getElementById('_ob_d');if(_od)_od.remove();
+        var _or=document.getElementById('_ob_r');if(_or)_or.remove();
+        var _bD=document.createElement('button');
+        _bD.id='_ob_d';
+        _bD.textContent=String.fromCharCode(9989,32,3648,3626,3619,3655,3592,3626,3617,3610,3641,3619,3603,3660);
+        _bD.style.cssText='background:#16a34a;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:8px;font-weight:600;';
+        _bD.onclick=function(){ge('om-st').value='done';saveOM2();};
+        var _bR=document.createElement('button');
+        _bR.id='_ob_r';
+        _bR.textContent=String.fromCharCode(9888,65039,32,3605,3657,3629,3591,3649,3585,3657,3652,3586);
+        _bR.style.cssText='background:#dc2626;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;';
+        _bR.onclick=function(){ge('om-st').value='revision';saveOM2();};
+        _omSaveBtn.insertAdjacentElement('afterend',_bR);
+        _omSaveBtn.insertAdjacentElement('afterend',_bD);
+      }    }
     _OM2.style.display='flex';document.body.style.overflow='hidden';
   }
 
@@ -3056,7 +3068,7 @@ window.gAS=function(){
     markField('om-dl', !!dlVal);if(!dlVal)valid=false;
     var typeVal=ge('om-type').value;
     markField('om-type', !!typeVal);if(!typeVal)valid=false;
-    var stVal='review';
+    var stVal=ge('om-st').value;
     markField('om-st', !!stVal);if(!stVal)valid=false;
     if(!valid)return;
     var now=Date.now();
@@ -3094,7 +3106,7 @@ window.gAS=function(){
     if(typeof logTL==='function'){var isNew=(idx<0);logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',isNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"');}
     if(typeof renderOrderStats==='function')renderOrderStats();
     if(typeof renderOrders==='function')renderOrders();
-    if(window._OF){window._OF.status='review';window._OF.dl='';window._OF.activeCard='review';}
+    if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}
     closeOM2();
   }
   try{
