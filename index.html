@@ -3309,7 +3309,7 @@ window.ctRender=function(){
       +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
-            +'<td class="ct-td-script">'+scriptCell+'</td>'
+      +(_ctBrand!=='ALL'&&PROD_EMP[r.brand]?PROD_EMP[r.brand].split(' ').map(function(n){return '<td style="padding:4px 8px;text-align:center;min-width:70px;"><div style="padding:2px 8px;border-radius:10px;background:#d1fae5;color:#065f46;font-size:11px;font-weight:700;">'+n+'</div></td>';}).join(''):'<td style="padding:4px 6px;text-align:center;">'+(PROD_EMP[r.brand]||'-')+'</td>')      +'<td class="ct-td-script">'+scriptCell+'</td>'
 
       +'<td class="ct-td-link">'+linkCell+'</td>'
       +'<td class="ct-td-ep" title="'+ctEsc(r.episode)+'">'+ctEsc(r.episode||'-')+'</td>'
@@ -3436,7 +3436,8 @@ window.ctSetBrand=function(b,btn){
   document.querySelectorAll('.ct-bchip').forEach(function(el){el.classList.remove('ct-bchip-active');});
   if(btn)btn.classList.add('ct-bchip-active');
   var eb=document.getElementById('ct-emp-bar');if(eb)eb.innerHTML=b!=='ALL'&&PROD_EMP[b]?'<span style="display:inline-flex;align-items:center;gap:6px;background:#D1FAE5;color:#065F46;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:600;">'+PROD_EMP[b]+'</span>':'';
-  };
+  Array.from(document.querySelectorAll('th.ct-emp-extra')).forEach(function(el){el.remove();});var eth=document.getElementById('ct-emp-th');if(eth){if(b!=='ALL'&&PROD_EMP[b]){var names=PROD_EMP[b].split(' ');eth.textContent=names[0];eth.style.cssText='min-width:70px;text-align:center;';var lastTh=eth;for(var i=1;i<names.length;i++){var nt=document.createElement('th');nt.className='ct-emp-extra';nt.style.cssText='min-width:70px;text-align:center;';nt.textContent=names[i];lastTh.insertAdjacentElement('afterend',nt);lastTh=nt;}}else{eth.textContent='พนักงาน';}}
+};
 window.ctEdit=function(id){var r=(_ctData||[]).find(function(x){return x.id===id;});if(r)window.ctModal(r);};
 window.ctDel=function(id){var job=(_ctData||[]).find(function(x){return x.id===id;});var nm=job?job.name:id;var ov=document.getElementById('ct-del-ov');if(!ov){ov=document.createElement('div');ov.id='ct-del-ov';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';ov.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);"><div style="font-size:2em;margin-bottom:12px;">🗑️</div><p style="font-size:.9em;color:#666;margin-bottom:8px;">ᇽሱሕᇩሚላልሂላሚሊᇩሚላ</p><p id="ct-del-nm" style="font-weight:700;font-size:1.1em;color:#1B4332;margin-bottom:20px;word-break:break-all;"></p><div style="display:flex;gap:12px;justify-content:center;"><button id="ct-del-cancel" style="padding:8px 24px;border:1px solid #ccc;background:#fff;border-radius:8px;cursor:pointer;font-size:.95em;">ሊᇩረልሜᇩ</button><button id="ct-del-ok" style="padding:8px 24px;background:#DC2626;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.95em;">ልሂ</button></div></div>';document.body.appendChild(ov);}document.getElementById('ct-del-nm').textContent=nm;ov.style.display='flex';document.getElementById('ct-del-cancel').onclick=function(){ov.style.display='none';};document.getElementById('ct-del-ok').onclick=function(){ov.style.display='none';_ctData=(_ctData||[]).filter(function(x){return x.id!==id;});ctSave();window.ctRender();};};
 window.ctSaveMod=function(id){
@@ -3590,7 +3591,7 @@ window.initLinksPanel=function(container){
           +'<th class="ct-th-chk"><input type="checkbox" id="ct-chk-all" class="ct-row-chk" onclick="ctToggleAll(this)"></th>'
           +'<th class="ct-th-num">#</th>'
           +'<th>สินค้า</th>'
-          
+          +'<th id="ct-emp-th" style="min-width:70px;text-align:center;">พนักงาน</th>'
           +'<th>สคริป</th>'
           
           +'<th>ลิงก์คลิป</th>'
