@@ -3316,8 +3316,6 @@ window.ctRender=function(){
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
       +'<td>'+mkSelRelease(id,r.release)+'</td>'
       +'<td>'+mkSelShot(id,r.shot)+'</td>'
-      
-      +'<td class="ct-td-result" title="'+ctEsc(r.result)+'">'+ctEsc(r.result||'-')+'</td>'
       +'<td><div class="ct-actions-cell">'
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
         +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+id+'&#39;)">&#128465;</button>'
@@ -3601,7 +3599,6 @@ window.initLinksPanel=function(container){
           +'<th>Hook</th>'
           +'<th>VDO</th>'
           +'<th>ยิงแล้ว</th>'
-          +'<th>ผลลัพธ์</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
         +'<tbody id="ct-tbody"></tbody>'
