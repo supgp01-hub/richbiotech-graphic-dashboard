@@ -3310,7 +3310,7 @@ function ctBadgeBrand(v){
 }
 
 window.ctRender=function(){
-  var root=document.getElementById('ct-tbody');
+  var root=document.getElementById('ct-tbody');window._ctDLMap={};try{var _ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');_ords.forEach(function(o){if(o.title&&o.deadline)window._ctDLMap[o.title]=o.deadline;});}catch(e){}
   var countEl=document.getElementById('ct-count');
   var statTotal=document.getElementById('ct-stat-total');
   var statPosted=document.getElementById('ct-stat-posted');
@@ -3323,7 +3323,7 @@ window.ctRender=function(){
   if(statPosted)statPosted.textContent=_ctData.filter(function(r){return r.shot==='yes';}).length;
   if(statReleased)statReleased.textContent=_ctData.filter(function(r){return r.release==='released';}).length;
   if(!rows.length){
-    root.innerHTML='<tr class="ct-empty-row"><td colspan="13">ยังไม่มีข้อมูล &mdash; กด &ldquo;+ เพิ่มรายการ&rdquo; หรือ &ldquo;&#128229; นำเข้า CSV&rdquo;</td></tr>';
+    root.innerHTML='<tr class="ct-empty-row"><td colspan="14">ยังไม่มีข้อมูล &mdash; กด &ldquo;+ เพิ่มรายการ&rdquo; หรือ &ldquo;&#128229; นำเข้า CSV&rdquo;</td></tr>';
     return;
   }
   // update brand chip counts
@@ -3379,6 +3379,7 @@ window.ctRender=function(){
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
         +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+id+'&#39;)">&#128465;</button>'
       +'</div></td>'
+    +(window._ctDLMap&&window._ctDLMap[r.name]?(function(){var dl=window._ctDLMap[r.name];var d=new Date(dl);var now=new Date();var dy=d.getDate();var mn=d.getMonth()+1;var diff=Math.ceil((d-now)/86400000);var clr=diff<0?'#ef4444':diff<=3?'#f97316':'#10b981';return '<td style="text-align:center;font-size:11px;white-space:nowrap;font-weight:bold;color:'+clr+';">'+dy+'/'+(mn<10?'0'+mn:mn)+'</td>';}()):'<td style="text-align:center;color:#ccc;font-size:11px;">-</td>')
     +'</tr>';
   }
   if(_ctBrand!=='ALL'){
@@ -3392,7 +3393,7 @@ window.ctRender=function(){
     sortedOrder.forEach(function(b){
       var col=CT_BCOLOR[b]||'#6b7280';
       var grpRows=grouped[b];
-      html+='<tr><td colspan="13" style="background:'+col+'18;border-left:4px solid '+col+';color:'+col+';font-weight:700;padding:8px 14px;font-size:13px;">'+ctEsc(b)+' <span style="font-weight:400;opacity:.75;">('+grpRows.length+' รายการ)</span></td></tr>';
+      html+='<tr><td colspan="14" style="background:'+col+'18;border-left:4px solid '+col+';color:'+col+';font-weight:700;padding:8px 14px;font-size:13px;">'+ctEsc(b)+' <span style="font-weight:400;opacity:.75;">('+grpRows.length+' รายการ)</span></td></tr>';
       grpRows.forEach(function(r){rowNum++;html+=mkRow(r,rowNum);});
     });
     root.innerHTML=html;ctChkChange();
@@ -3658,6 +3659,7 @@ window.initLinksPanel=function(container){
           +'<th>Hook</th>'
           +'<th>VDO</th>'
           +'<th>ยิงแล้ว</th>'
+          +'<th style="min-width:55px;text-align:center;">วันส่ง</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
         +'<tbody id="ct-tbody"></tbody>'
