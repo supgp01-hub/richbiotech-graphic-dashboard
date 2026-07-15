@@ -3316,7 +3316,7 @@ window.ctRender=function(){
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
       +'<td>'+mkSelRelease(id,r.release)+'</td>'
       +'<td>'+mkSelShot(id,r.shot)+'</td>'
-      +(_ctBrand!=='ALL'?'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+(PROD_EMP[_ctBrand]||'-')+'</td>':'')
+      
       +'<td class="ct-td-result" title="'+ctEsc(r.result)+'">'+ctEsc(r.result||'-')+'</td>'
       +'<td><div class="ct-actions-cell">'
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
@@ -3435,6 +3435,7 @@ window.ctSetBrand=function(b,btn){
   _ctBrand=b;
   document.querySelectorAll('.ct-bchip').forEach(function(el){el.classList.remove('ct-bchip-active');});
   if(btn)btn.classList.add('ct-bchip-active');
+  var eb=document.getElementById('ct-emp-bar');if(eb)eb.innerHTML=b!=='ALL'&&PROD_EMP[b]?'<span style="display:inline-flex;align-items:center;gap:6px;background:#D1FAE5;color:#065F46;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:600;">'+PROD_EMP[b]+'</span>':'';
   window.ctRender();
 };
 window.ctEdit=function(id){var r=(_ctData||[]).find(function(x){return x.id===id;});if(r)window.ctModal(r);};
@@ -3574,6 +3575,7 @@ window.initLinksPanel=function(container){
           return chips;
         }())
       +'</div>'
+      +'<div id="ct-emp-bar" style="padding:2px 0 8px 0;min-height:22px;transition:all 0.2s;"></div>'
       +'<div id="ct-bulk-bar" class="ct-bulk-bar">'
         +'<span class="ct-bulk-lbl" id="ct-sel-count">0 รายการที่เลือก</span>'
         +'<select id="ct-bulk-brand-sel" class="ct-bulk-brand-sel"><option value="">-- เลือกสินค้า --</option>'
@@ -3596,7 +3598,7 @@ window.initLinksPanel=function(container){
           +'<th>Hook</th>'
           +'<th>VDO</th>'
           +'<th>ยิงแล้ว</th>'
-          +''+(_ctBrand!=='ALL'?'<th>พนักงาน</th>':'')+
+          +
           +'<th>ผลลัพธ์</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
