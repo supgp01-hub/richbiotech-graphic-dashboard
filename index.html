@@ -2512,7 +2512,7 @@ window.gsOrdModal=function(oId){
   var ex=document.getElementById('gs-ord-modal');if(ex)ex.remove();
   var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');
   var ord=oId?ords.filter(function(o){return o.id===oId;})[0]:null;
-  var brands=Array.from(document.querySelectorAll('.ct-bchip')).map(function(el){return el.textContent.trim();}).filter(function(b){var c=b.charCodeAt(0);return (c>=65&&c<=122)||(c>=3584&&c<=3703);});
+  var brands=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
   var mbs=['MOS','DOM','TER','NUNE','JAM','BALL','LINK','VIW'];
   var now=new Date();
   var td=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+now.getDate()).slice(-2);
