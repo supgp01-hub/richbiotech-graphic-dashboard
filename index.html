@@ -3316,7 +3316,7 @@ window.ctRender=function(){
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
       +'<td>'+mkSelRelease(id,r.release)+'</td>'
       +'<td>'+mkSelShot(id,r.shot)+'</td>'
-      +(ctBrand?'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+(PROD_EMP[ctBrand]||'-')+'</td>':'')
+      +(_ctBrand!=='ALL'?'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+(PROD_EMP[_ctBrand]||'-')+'</td>':'')
       +'<td class="ct-td-result" title="'+ctEsc(r.result)+'">'+ctEsc(r.result||'-')+'</td>'
       +'<td><div class="ct-actions-cell">'
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
@@ -3596,7 +3596,7 @@ window.initLinksPanel=function(container){
           +'<th>Hook</th>'
           +'<th>VDO</th>'
           +'<th>ยิงแล้ว</th>'
-          +''+(ctBrand?'<th>พนักงาน</th>':'')+
+          +''+(_ctBrand!=='ALL'?'<th>พนักงาน</th>':'')+
           +'<th>ผลลัพธ์</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
