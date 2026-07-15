@@ -3309,6 +3309,7 @@ window.ctRender=function(){
       +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
+      +'<td style="white-space:nowrap;font-size:12px;">'+(PROD_EMP[r.brand]||'-')+'</td>'
       +'<td class="ct-td-script">'+scriptCell+'</td>'
 
       +'<td class="ct-td-link">'+linkCell+'</td>'
@@ -3575,7 +3576,7 @@ window.initLinksPanel=function(container){
           return chips;
         }())
       +'</div>'
-      +'<div id="ct-emp-bar" style="padding:2px 0 8px 0;min-height:22px;transition:all 0.2s;"></div>'
+      +'<div id="ct-emp-bar" style="padding:2px 0 8px 0;min-height:22px;transition:all 0.2s;display:none;"></div>'
       +'<div id="ct-bulk-bar" class="ct-bulk-bar">'
         +'<span class="ct-bulk-lbl" id="ct-sel-count">0 รายการที่เลือก</span>'
         +'<select id="ct-bulk-brand-sel" class="ct-bulk-brand-sel"><option value="">-- เลือกสินค้า --</option>'
@@ -3591,6 +3592,7 @@ window.initLinksPanel=function(container){
           +'<th class="ct-th-chk"><input type="checkbox" id="ct-chk-all" class="ct-row-chk" onclick="ctToggleAll(this)"></th>'
           +'<th class="ct-th-num">#</th>'
           +'<th>สินค้า</th>'
+          +'<th>พนักงาน</th>'
           +'<th>สคริป</th>'
           
           +'<th>ลิงก์คลิป</th>'
