@@ -3309,7 +3309,7 @@ window.ctRender=function(){
       +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
-      +'<td style="white-space:nowrap;font-size:12px;">'+(PROD_EMP[r.brand]||'-')+'</td>'
+      +'<td style="padding:4px 6px;">'+(PROD_EMP[r.brand]?PROD_EMP[r.brand].split(' ').map(function(n){return '<div style="padding:2px 8px;margin:2px 0;border-radius:10px;background:#d1fae5;color:#065f46;font-size:11px;font-weight:700;display:inline-block;">'+n+'</div>';}).join('<br>'):'-')+'</td>'
       +'<td class="ct-td-script">'+scriptCell+'</td>'
 
       +'<td class="ct-td-link">'+linkCell+'</td>'
