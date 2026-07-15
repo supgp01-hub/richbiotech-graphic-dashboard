@@ -3208,6 +3208,7 @@ var CT_EMBED = [{"id":"sh1783833929qr","brand":"Olymplus","script":"https://docs
 var CT_KEY='rb_olympplus_v1';
 var CT_BRANDS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
 var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','I Sure Plus':'#7c3aed','Olymplus':'#d97706','Olymplus MAX':'#b45309','JUDO':'#dc2626','Dragon Blood':'#991b1b','ขุนแผน':'#6d28d9','Heaven PLUS+':'#0891b2','THE LORD':'#1d4ed8','WOLF+':'#374151','เจ้าขุน':'#92400e'};
+var PROD_EMP={'Liv CARE':'NUNE, JAM','So Pink':'TER, NUNE','I Sure Plus':'LINK','Olympplus':'MOS, DOM','Olympplus MAX':'MOS, DOM','JUDO':'NUNE, JAM','Dragon Blood':'MOS, DOM, BALL','ขุนแผน':'MOS, DOM, BALL','Heaven PLUS+':'MOS, DOM','THE LORD':'TER, JAM','WOLF+':'TER, NUNE, BALL','เจ้าขุน':'BALL, LINK'};
 var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
 function ctLoad(){var raw=localStorage.getItem('rb_olympplus_v1');if(raw)return JSON.parse(raw);return typeof CT_EMBED!=='undefined'?CT_EMBED:[]}
@@ -3315,7 +3316,7 @@ window.ctRender=function(){
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
       +'<td>'+mkSelRelease(id,r.release)+'</td>'
       +'<td>'+mkSelShot(id,r.shot)+'</td>'
-      +'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+ctEsc(r.shotDate||'-')+'</td>'
+      +(ctBrand?'<td style="white-space:nowrap;color:#374151;font-size:12px;">'+(PROD_EMP[ctBrand]||'-')+'</td>':'')
       +'<td class="ct-td-result" title="'+ctEsc(r.result)+'">'+ctEsc(r.result||'-')+'</td>'
       +'<td><div class="ct-actions-cell">'
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
@@ -3595,7 +3596,7 @@ window.initLinksPanel=function(container){
           +'<th>Hook</th>'
           +'<th>VDO</th>'
           +'<th>ยิงแล้ว</th>'
-          +'<th>วันที่ยิง</th>'
+          +''+(ctBrand?'<th>พนักงาน</th>':'')+
           +'<th>ผลลัพธ์</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
