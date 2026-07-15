@@ -2358,7 +2358,7 @@ function initOrderPanel(){
     });
     if(k==='team'){chipRow.style.display='flex';renderOrders();}
     else{chipRow.style.display='none';_activeTeam='';_OF.assignee='';renderOrders();}
-  }
+  ab.style.display=(k==='team')?'none':'';}
   [['all','งานทั้งหมด'],['team','ทีมงาน']].forEach(function(t){
     var btn=document.createElement('button');btn.className='ord-tab-btn';btn.setAttribute('data-k',t[0]);btn.textContent=t[1];
     btn.style.cssText='background:none;border:none;border-bottom:2px solid transparent;padding:11px 20px;font-size:13px;cursor:pointer;color:#6b7280;font-weight:500;transition:all .15s;white-space:nowrap;';
@@ -2392,7 +2392,7 @@ function initOrderPanel(){
   var tys=document.createElement('select');tys.style.cssText='border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;background:white;';
   [['','ประเภททั้งหมด']].concat(OT.map(function(t){return[t,t];})).forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];tys.appendChild(o);});
   tys.onchange=function(){_OF.type=this.value;renderOrders();};
-  var ab=document.createElement('button');ab.textContent='+ เพิ่มงานใหม่';ab.style.cssText='background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;';if(k==='team')ab.style.display='none';ab.onclick=function(){window.openOM(null);};
+  var ab=document.createElement('button');ab.textContent='+ เพิ่มงานใหม่';ab.style.cssText='background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;';ab);};
   [si,sts,tys,ab].forEach(function(el){fb.appendChild(el);});
   wrap.appendChild(fb);
 
