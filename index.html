@@ -2392,7 +2392,7 @@ function initOrderPanel(){
   var tys=document.createElement('select');tys.style.cssText='border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;background:white;';
   [['','ประเภททั้งหมด']].concat(OT.map(function(t){return[t,t];})).forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];tys.appendChild(o);});
   tys.onchange=function(){_OF.type=this.value;renderOrders();};
-  var ab=document.createElement('button');ab.textContent='+ เพิ่มงานใหม่';ab.style.cssText='background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;';}window._rbInitOP=initOrderPanel;;
+  var ab=document.createElement('button');ab.textContent='+ เพิ่มงานใหม่';ab.style.cssText='background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;';
   [si,sts,tys,ab].forEach(function(el){fb.appendChild(el);});
   wrap.appendChild(fb);
 
@@ -2402,6 +2402,7 @@ function initOrderPanel(){
   fbLoadOrders(function(){renderOrderStats();renderOrders();fbSyncStart();});
 }
 
+window._rbInitOP=initOrderPanel;
 function renderOrderStats(){
   var sr=document.getElementById('ord-stats');if(!sr)return;sr.innerHTML='';
   var orders=lpORD();
