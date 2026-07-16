@@ -2993,6 +2993,7 @@ window.gAS=function(){
     gl3.appendChild(mkF('แคมเปญ Ver 2.',mkI('om-camp2','แคมเปญ Ver 2...')));
     gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
     p2.appendChild(gl3);
+    p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));
     tabPanels['links']=p2;body.appendChild(p2);
     var p4=document.createElement('div');p4.style.cssText='padding:18px 20px;display:none;';
     var subLinkBox=document.createElement('div');subLinkBox.id='om-submitlink-box';subLinkBox.style.cssText='margin-bottom:14px;padding:10px 14px;border-radius:10px;background:#f0fdf4;border:1.5px solid #40916C;display:none;align-items:center;gap:10px;';
@@ -3061,7 +3062,7 @@ window.gAS=function(){
     ge('om-camp1').value=o?(o.camp1||''):'';
     ge('om-camp2').value=o?(o.camp2||''):'';
     ge('om-uplink').value=o?(o.upLink||''):'';
-    ge('om-ad').value=o?(o.adLink||''):'';
+    ge('om-ad').value=o?(o.adLink||''):'';ge('om-audit-note').value=o?(o.auditNote||''):'';
     var _slv=o?(o.submitLink||''):''; ge('om-submitlink').value=_slv;
     var _slb=ge('om-submitlink-box');if(_slb)_slb.style.display=_slv?'flex':'none';
     var _sld=ge('om-submitlink-disp');if(_sld){_sld.href=_slv||'#';_sld.style.display=_slv?'inline-flex':'none';}
@@ -3143,6 +3144,7 @@ window.gAS=function(){
       camp2:ge('om-camp2').value||'',
       upLink:ge('om-uplink').value||'',
       adLink:ge('om-ad').value||'',
+      auditNote:ge('om-audit-note')?ge('om-audit-note').value:'',
       submitLink:ge('om-submitlink').value||'',
       brief:ge('om-brief').value||'',
       images:JSON.parse(JSON.stringify(_omImages)),
