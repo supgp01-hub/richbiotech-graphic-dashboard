@@ -3029,6 +3029,7 @@ window.gAS=function(){
     rBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='revision';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข');}closeOM2();if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();};
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
+    var resendBtn=document.createElement('button');resendBtn.id='om-resend-btn';resendBtn.style.cssText='display:none;padding:8px 20px;background:#D97706;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;margin-left:8px;';resendBtn.textContent='🔁 ส่งตรวจอีกครั้ง';resendBtn.onclick=function(){var cid=ge('om-id')?ge('om-id').textContent.trim():'';if(!cid)return;var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');var ix=ords.findIndex(function(o){return o.id===cid;});if(ix>=0){ords[ix].status='review';ords[ix].updatedAt=new Date().toISOString();}localStorage.setItem('rb_orders_v1',JSON.stringify(ords));closeOM();renderOrders&&renderOrders();};foot.appendChild(resendBtn);
     _omUpdateFooter=function(tabKey){var isAudit=(tabKey==='links'||tabKey==='imgs');if(!_omViewMode){_omSaveBtn.style.display='';auditRow.style.display='none';}else if(isAudit){_omSaveBtn.style.display='none';auditRow.style.display='flex';}else{_omSaveBtn.style.display='';auditRow.style.display='none';}};
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
     _OM2.appendChild(box);document.body.appendChild(_OM2);
@@ -3048,7 +3049,7 @@ window.gAS=function(){
     var OT_=typeof OT!=='undefined'?OT:[];
     ge('om-type').value=o?(o.type||''):'';
     ge('om-dl').value=o?o.deadline:'';
-    ge('om-st').value=o?(o.status||''):'';
+    ge('om-st').value=o?(o.status||''):'';var rb=ge('om-resend-btn');if(rb)rb.style.display=o&&o.status==='revision'?'inline-flex':'none';
     ge('om-mb').value=o?(o.assignee||''):'';
     ge('om-note').value=o?(o.note||''):'';
     ge('om-raw').value=o?(o.rawLink||''):'';
