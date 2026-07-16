@@ -2127,7 +2127,78 @@ function spCH(d){localStorage.setItem(LS_CH,JSON.stringify(d))}
 function no(p){return typeof p==="string"?{name:p,status:0,owner:"",type:"เพจหลัก"}:{name:p.name||"",status:+p.status||0,owner:p.owner||"",type:p.type||"เพจหลัก"};}
 function updateCounts(){var tc=document.getElementById("tab-channels");if(!tc)return;var fb=lpFB();var ch=lpCH();var fbTotal=Object.values(fb).reduce(function(s,a){return s+(Array.isArray(a)?a.length:0);},0);var rows=tc.querySelectorAll(".platform-row");rows.forEach(function(row){var pn=row.querySelector(".platform-name");var pc=row.querySelector(".platform-count");if(!pn||!pc)return;var name=pn.textContent.trim();var cfg=CH_MAP[name];if(!cfg)return;if(name==="Facebook Pages"){pc.textContent=fbTotal+" "+cfg.unit;}else{var items=ch[cfg.k]||[];pc.textContent=items.length+" "+cfg.unit;}});}
 function renameGraphicBtn(){if(document.querySelector("[data-graphic-renamed]"))return;var btn=Array.from(document.querySelectorAll("button")).find(function(b){return b.getAttribute("onclick")&&b.getAttribute("onclick").includes("'team'")&&b.textContent.includes("ทีมงาน");});if(btn){btn.setAttribute("data-graphic-renamed","1");btn.innerHTML="🎨 Graphic";}}
-function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!teamTab||teamTab.getAttribute("data-graphic-init"))return;teamTab.setAttribute("data-graphic-init","1");var teamPanel=document.createElement("div");teamPanel.className="gsp gsp-active";teamPanel.setAttribute("data-sub","team");while(teamTab.firstChild)teamPanel.appendChild(teamTab.firstChild);var orderPanel=document.createElement("div");orderPanel.className="gsp";orderPanel.setAttribute("data-sub","order");orderPanel.innerHTML='<div class="gsp-empty">📋 สั่งงาน<br><br>เมนูนี้กำลังพัฒนา</div>';var linksPanel=document.createElement("div");linksPanel.className="gsp";linksPanel.setAttribute("data-sub","links");linksPanel.setAttribute('data-links-ready','1');initLinksPanel(linksPanel);var commissionPanel=document.createElement("div");commissionPanel.className="gsp";commissionPanel.setAttribute("data-sub","commission");commissionPanel.innerHTML='<div class="gsp-empty">💰 ค่าคอมมิชชั่น<br><br>เมนูนี้กำลังพัฒนา</div>';var auditPanel=document.createElement("div");auditPanel.className="gsp";auditPanel.setAttribute("data-sub","audit");auditPanel.innerHTML='<div class="gsp-empty">📊 ยอดหักออดิต<br><br>เมนูนี้กำลังพัฒนา</div>';var fblistPanel=document.createElement("div");fblistPanel.className="gsp";fblistPanel.setAttribute("data-sub","fblist");fblistPanel.innerHTML='<div class="gsp-empty">📘 List Facebook<br><br>เมนูนี้กำลังพัฒนา</div>';var subNav=document.createElement("div");subNav.className="graphic-subnav";var subs=[{k:"team",l:"👥 ทีมงาน"},{k:"order",l:"📋 สั่งงาน"},{k:"links",l:"🔗 รวมลิงก์"},{k:"commission",l:"💰 ค่าคอมมิชชั่น"},{k:"audit",l:"📊 ยอดหักออดิต"},{k:"fblist",l:"📘 List Facebook"}];subs.forEach(function(s){var btn=document.createElement("button");btn.className="gsnav-btn"+(s.k==="team"?" gsnav-active":"");btn.textContent=s.l;btn.onclick=function(){teamTab.querySelectorAll(".gsnav-btn").forEach(function(b){b.classList.remove("gsnav-active");});teamTab.querySelectorAll(".gsp").forEach(function(p){p.classList.remove("gsp-active");});btn.classList.add("gsnav-active");var target=teamTab.querySelector("[data-sub=\""+s.k+"\"]");if(target)target.classList.add("gsp-active");if(s.k==="team"&&typeof lvRestorePhotos==="function")setTimeout(lvRestorePhotos,100);if(s.k==="links")setTimeout(function(){if(typeof window.ctRender==="function")window.ctRender();},50);if(s.k==="order"){var _p=document.querySelector('[data-sub="order"]');if(_p&&!_p.getAttribute('data-order-init'))window._rbInitOP&&window._rbInitOP();else if(_p){renderOrderStats&&renderOrderStats();renderOrders&&renderOrders();}}};subNav.appendChild(btn);});teamTab.appendChild(subNav);teamTab.appendChild(teamPanel);teamTab.appendChild(orderPanel);teamTab.appendChild(linksPanel);teamTab.appendChild(commissionPanel);teamTab.appendChild(auditPanel);teamTab.appendChild(fblistPanel);}
+function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!teamTab||teamTab.getAttribute("data-graphic-init"))return;teamTab.setAttribute("data-graphic-init","1");var teamPanel=document.createElement("div");teamPanel.className="gsp gsp-active";teamPanel.setAttribute("data-sub","team");while(teamTab.firstChild)teamPanel.appendChild(teamTab.firstChild);var orderPanel=document.createElement("div");orderPanel.className="gsp";orderPanel.setAttribute("data-sub","order");orderPanel.innerHTML='<div class="gsp-empty">📋 สั่งงาน<br><br>เมนูนี้กำลังพัฒนา</div>';var linksPanel=document.createElement("div");linksPanel.className="gsp";linksPanel.setAttribute("data-sub","links");linksPanel.setAttribute('data-links-ready','1');initLinksPanel(linksPanel);var commissionPanel=document.createElement("div");commissionPanel.className="gsp";commissionPanel.setAttribute("data-sub","commission");commissionPanel.innerHTML='<div class="gsp-empty">💰 ค่าคอมมิชชั่น<br><br>เมนูนี้กำลังพัฒนา</div>';var auditPanel=document.createElement("div");auditPanel.className="gsp";auditPanel.setAttribute("data-sub","audit");auditPanel.innerHTML='<div class="gsp-empty">📊 ยอดหักออดิต<br><br>เมนูนี้กำลังพัฒนา</div>';var fblistPanel=document.createElement("div");fblistPanel.className="gsp";fblistPanel.setAttribute("data-sub","fblist");fblistPanel.innerHTML='<div id="fbl-root" style="padding:12px;min-height:80px"></div>';var subNav=document.createElement("div");subNav.className="graphic-subnav";var subs=[{k:"team",l:"👥 ทีมงาน"},{k:"order",l:"📋 สั่งงาน"},{k:"links",l:"🔗 รวมลิงก์"},{k:"commission",l:"💰 ค่าคอมมิชชั่น"},{k:"audit",l:"📊 ยอดหักออดิต"},{k:"fblist",l:"📘 List Facebook"}];subs.forEach(function(s){var btn=document.createElement("button");btn.className="gsnav-btn"+(s.k==="team"?" gsnav-active":"");btn.textContent=s.l;btn.onclick=function(){teamTab.querySelectorAll(".gsnav-btn").forEach(function(b){b.classList.remove("gsnav-active");});teamTab.querySelectorAll(".gsp").forEach(function(p){p.classList.remove("gsp-active");});btn.classList.add("gsnav-active");var target=teamTab.querySelector("[data-sub=\""+s.k+"\"]");if(target)target.classList.add("gsp-active");if(s.k==="team"&&typeof lvRestorePhotos==="function")setTimeout(lvRestorePhotos,100);if(s.k==="links")setTimeout(function(){if(typeof window.ctRender==="function")window.ctRender();},50);if(s.k==="order"){var _p=document.querySelector('[data-sub="order"]');if(_p&&!_p.getAttribute('data-order-init'))window._rbInitOP&&window._rbInitOP();else if(_p){renderOrderStats&&renderOrderStats();renderOrders&&renderOrders();}}};subNav.appendChild(btn);});teamTab.appendChild(subNav);teamTab.appendChild(teamPanel);teamTab.appendChild(orderPanel);teamTab.appendChild(linksPanel);teamTab.appendChild(commissionPanel);teamTab.appendChild(auditPanel);teamTab.appendChild(fblistPanel);
+teamTab.addEventListener('click',function(e){var b=e.target.closest('.gsnav-btn');if(!b||b.textContent.indexOf('List Facebook')===-1)return;if(!window._fblDone)window._initFbList();});
+window._initFbList=function(){
+  window._fblDone=true;
+  var root=document.getElementById('fbl-root');
+  if(!root)return;
+  root.innerHTML='<p style="text-align:center;padding:30px;color:#888">⏳ กำลังโหลดข้อมูลเพจ...</p>';
+  fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345')
+    .then(function(r){return r.text();})
+    .then(function(csv){window._renderFbList(root,window._parseFbCsv(csv));})
+    .catch(function(){root.innerHTML='<p style="text-align:center;padding:20px;color:#e00">❌ โหลดข้อมูลไม่สำเร็จ</p>';});
+};
+window._parseFbCsv=function(csv){
+  var lines=csv.split('\n').filter(function(l){return l.trim();});
+  return lines.slice(1).map(function(line){
+    var cols=[],inQ=false,cur='';
+    for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=c;}
+    cols.push(cur.trim());
+    return{name:cols[0]||'',prod:cols[1]||'',st:cols[2]||'',own:cols[3]||''};
+  }).filter(function(r){return r.name&&r.prod;});
+};
+window._renderFbList=function(root,data){
+  var SC={'ใช้งาน':'#16a34a','ว่าง':'#d97706','โดนระงับถาวร':'#dc2626','เพจโดนปิดใช้งาน':'#dc2626'};
+  var SB={'ใช้งาน':'#f0fdf4','ว่าง':'#fefce8','โดนระงับถาวร':'#fef2f2','เพจโดนปิดใช้งาน':'#fef2f2'};
+  var prods=[],owns=[];
+  data.forEach(function(r){if(prods.indexOf(r.prod)===-1)prods.push(r.prod);if(r.own&&owns.indexOf(r.own)===-1)owns.push(r.own);});
+  prods.sort();owns.sort();
+  var total=data.length,act=data.filter(function(r){return r.st==='ใช้งาน';}).length,idle=data.filter(function(r){return r.st==='ว่าง';}).length,ban=total-act-idle;
+  var h='<div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+  [['ทั้งหมด',total,'#1B4332','#f0fdf4'],['ใช้งาน',act,'#16a34a','#f0fdf4'],['ว่าง',idle,'#d97706','#fefce8'],['ระงับ/ปิด',ban,'#dc2626','#fef2f2']].forEach(function(c){
+    h+='<div style="flex:1;min-width:70px;background:'+c[3]+';border-radius:8px;padding:8px 10px;text-align:center"><div style="font-size:20px;font-weight:700;color:'+c[2]+'">'+c[1]+'</div><div style="font-size:11px;color:#555">'+c[0]+'</div></div>';
+  });
+  h+='</div><input id="fbl-q" placeholder="🔍 ค้นหาชื่อเพจ..." style="width:100%;padding:7px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+  ['ALL','ใช้งาน','ว่าง','ระงับ/ปิด'].forEach(function(s){h+='<button class="fblsb" data-s="'+s+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(s==='ALL'?'#1B4332':'#fff')+';color:'+(s==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+s+'</button>';});
+  h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px"><span style="font-size:11px;color:#888">พนักงาน:</span>';
+  ['ALL'].concat(owns).forEach(function(o){h+='<button class="fblob" data-o="'+o+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(o==='ALL'?'#1B4332':'#fff')+';color:'+(o==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+o+'</button>';});
+  h+='</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
+  ['ALL'].concat(prods).forEach(function(p){var cnt=p==='ALL'?data.length:data.filter(function(r){return r.prod===p;}).length;h+='<button class="fblpb" data-p="'+p+'" style="padding:5px 12px;border:'+(p==='ALL'?'none':'1px solid #d1d5db')+';border-radius:20px;background:'+(p==='ALL'?'#1B4332':'#fff')+';color:'+(p==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px;font-weight:'+(p==='ALL'?'700':'400')+'">'+p+'<span style="color:'+(p==='ALL'?'#a7f3d0':'#aaa')+';margin-left:4px;font-size:11px">('+cnt+')</span></button>';});
+  h+='</div><div style="overflow-y:auto;max-height:400px;border-radius:10px;border:1px solid #e5e7eb"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead style="position:sticky;top:0;background:#1B4332;color:#fff"><tr><th style="padding:10px 12px;text-align:left">ชื่อเพจ</th><th style="padding:10px 12px;text-align:center;min-width:95px">สินค้า</th><th style="padding:10px 12px;text-align:center;min-width:80px">สถานะ</th><th style="padding:10px 12px;text-align:center;min-width:65px">เจ้าของ</th></tr></thead><tbody id="fbl-body"></tbody></table></div><div id="fbl-cnt" style="font-size:11px;color:#888;text-align:right;margin-top:4px"></div>';
+  root.innerHTML=h;
+  var fP='ALL',fO='ALL',fS='ALL',q='';
+  function rdr(){
+    var tbody=document.getElementById('fbl-body');if(!tbody)return;
+    var qv=q.toLowerCase();
+    var filtered=data.filter(function(r){
+      if(fP!=='ALL'&&r.prod!==fP)return false;
+      if(fO!=='ALL'&&r.own!==fO)return false;
+      if(fS==='ใช้งาน'&&r.st!=='ใช้งาน')return false;
+      if(fS==='ว่าง'&&r.st!=='ว่าง')return false;
+      if(fS==='ระงับ/ปิด'&&(r.st==='ใช้งาน'||r.st==='ว่าง'))return false;
+      if(qv&&r.name.toLowerCase().indexOf(qv)===-1)return false;
+      return true;
+    });
+    filtered.sort(function(a,b){if(a.prod<b.prod)return -1;if(a.prod>b.prod)return 1;var so={'ใช้งาน':0,'ว่าง':1};return(so[a.st]||2)-(so[b.st]||2);});
+    var html='',prevP='';
+    filtered.forEach(function(r,i){
+      var sc=SC[r.st]||'#9ca3af';var sb2=SB[r.st]||'#f9fafb';
+      if(fP==='ALL'&&r.prod!==prevP){var pc=filtered.filter(function(x){return x.prod===r.prod;}).length;html+='<tr style="background:#e8f5e9"><td colspan="4" style="padding:7px 12px;font-weight:700;color:#1B4332;font-size:12px">📦 '+r.prod+' ('+pc+')</td></tr>';prevP=r.prod;}
+      html+='<tr style="background:'+(i%2===0?'#fff':'#f9fafb')+';border-bottom:1px solid #f0f0f0"><td style="padding:7px 12px">'+r.name+'</td><td style="padding:7px 12px;text-align:center;color:#555">'+r.prod+'</td><td style="padding:7px 12px;text-align:center"><span style="padding:2px 9px;border-radius:12px;background:'+sb2+';color:'+sc+';font-size:11px;font-weight:600">'+r.st+'</span></td><td style="padding:7px 12px;text-align:center;font-weight:700;color:#1B4332">'+r.own+'</td></tr>';
+    });
+    if(!filtered.length)html='<tr><td colspan="4" style="padding:20px;text-align:center;color:#aaa">ไม่พบข้อมูล</td></tr>';
+    tbody.innerHTML=html;
+    var cntEl=document.getElementById('fbl-cnt');if(cntEl)cntEl.textContent='แสดง '+filtered.length+' จาก '+data.length+' เพจ';
+  }
+  rdr();
+  setTimeout(function(){
+    var si=document.getElementById('fbl-q');if(si)si.addEventListener('input',function(){q=this.value;rdr();});
+    function bind(sel,attr){root.querySelectorAll(sel).forEach(function(b){b.addEventListener('click',function(){if(attr==='s')fS=b.getAttribute('data-s');if(attr==='o')fO=b.getAttribute('data-o');if(attr==='p')fP=b.getAttribute('data-p');root.querySelectorAll(sel).forEach(function(x){var act2=x===b;x.style.background=act2?'#1B4332':'#fff';x.style.color=act2?'#fff':'#374151';x.style.border=act2?'none':'1px solid #d1d5db';});rdr();});});}
+    bind('.fblsb','s');bind('.fblob','o');bind('.fblpb','p');
+  },50);
+};
+}
 var _mFB=null;
 function openFB(){if(!_mFB)buildFB();refreshFB();_mFB.style.display="flex";document.body.style.overflow="hidden";}
 function closeFB(){if(_mFB)_mFB.style.display="none";document.body.style.overflow="";}
