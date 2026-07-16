@@ -3148,6 +3148,8 @@ window.gAS=function(){
       images:JSON.parse(JSON.stringify(_omImages)),
       briefImages:JSON.parse(JSON.stringify(_omBriefImages)),
       createdAt:idx>=0?orders[idx].createdAt:now,
+      hook:ge('om-hook')?ge('om-hook').value:'',
+      hook2:ge('om-hook2')?ge('om-hook2').value:'',
       updatedAt:now
     };
     if(idx>=0){orders[idx]=entry;}else{orders.push(entry);}
