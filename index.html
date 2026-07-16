@@ -2213,7 +2213,7 @@ var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL","LINK"];window.MB_GR=MB_GR;
 var MB_ALL=["วิว","มอส","ดอม","เตอร์","นุ่น","แจ๋ม","บอล","นุ้ย","มายด์"];
 var OT=["กราฟิก","รูปภาพ","ยิงแอด","เทสส่วนตัว","คัดคลิป","Rlees","สร้างเพจ"];window.OT=OT;
 var ST=[
-  {k:"pending",l:"รอมอบหมาย",col:"#6b7280",bg:"#f3f4f6"},
+  {k:"pending",l:"มอบหมาย",col:"#6b7280",bg:"#f3f4f6"},
   {k:"inprogress",l:"กำลังดำเนินการ",col:"#1d4ed8",bg:"#dbeafe"},
   {k:"review",l:"รอตรวจ",col:"#d97706",bg:"#fef3c7"},
   {k:"revision",l:"ต้องแก้ไข",col:"#dc2626",bg:"#fee2e2"},
@@ -2409,7 +2409,7 @@ function renderOrderStats(){
   var orders=lpORD();
   var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
   orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
-  [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'รอมอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
+  [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'มอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
     var isAct=_OF.activeCard===card.k;
     var el=document.createElement('div');el.style.cssText='background:'+card.bg+';border-radius:10px;padding:10px 14px;cursor:pointer;flex:1;min-width:80px;text-align:center;transition:all .15s;box-sizing:border-box;'+(isAct?'outline:3px solid '+card.col+';box-shadow:0 6px 16px rgba(0,0,0,.18);transform:translateY(-3px);':'outline:3px solid transparent;');
     el.onmouseenter=function(){this.style.opacity='.8';};el.onmouseleave=function(){this.style.opacity='1';};
@@ -2930,7 +2930,7 @@ window.gAS=function(){
     g1.appendChild(mkF('Deadline',dlI));
     p1.appendChild(g1);
     var g2=document.createElement('div');g2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
-    var ST_=typeof ST!=='undefined'?ST:[{k:'pending',l:'รอมอบหมาย'},{k:'inprogress',l:'กำลังทำ'},{k:'review',l:'รอ Review'},{k:'revision',l:'แก้ไข'},{k:'done',l:'เสร็จแล้ว'}];
+    var ST_=typeof ST!=='undefined'?ST:[{k:'pending',l:'มอบหมาย'},{k:'inprogress',l:'กำลังทำ'},{k:'review',l:'รอ Review'},{k:'revision',l:'แก้ไข'},{k:'done',l:'เสร็จแล้ว'}];
     var MB_=typeof MB_GR!=='undefined'?MB_GR:[];
     g2.appendChild(mkF('สถานะ',mkS('om-st',[['','-- เลือกสถานะ --']].concat(ST_.map(function(s){return[s.k,s.l];})))));
     g2.appendChild(mkF('ผู้รับผิดชอบ',mkS('om-mb',[['','— ไม่ระบุ —']].concat(MB_.map(function(m){return[m,m];})))));
@@ -2993,7 +2993,7 @@ window.gAS=function(){
     gl3.appendChild(mkF('แคมเปญ Ver 2.',mkI('om-camp2','แคมเปญ Ver 2...')));
     gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
     p2.appendChild(gl3);
-    tabPanels['links']=p2;body.appendChild(p2);p2.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=true;el.style.opacity='0.65';el.style.cursor='not-allowed';el.style.background='#f9fafb';});
+    tabPanels['links']=p2;body.appendChild(p2);
     var p4=document.createElement('div');p4.style.cssText='padding:18px 20px;display:none;';
     var subLinkBox=document.createElement('div');subLinkBox.id='om-submitlink-box';subLinkBox.style.cssText='margin-bottom:14px;padding:10px 14px;border-radius:10px;background:#f0fdf4;border:1.5px solid #40916C;display:none;align-items:center;gap:10px;';
     var subLinkIcon=document.createElement('span');subLinkIcon.textContent='🔗';subLinkIcon.style.cssText='font-size:18px;flex-shrink:0;';
@@ -3117,7 +3117,7 @@ window.gAS=function(){
     markField('om-dl', !!dlVal);if(!dlVal)valid=false;
     var typeVal=ge('om-type').value;
     markField('om-type', !!typeVal);if(!typeVal)valid=false;
-    var stVal='review';
+    var stVal=(ge('om-st')&&ge('om-st').value)||'pending';
     markField('om-st', !!stVal);if(!stVal)valid=false;
     if(!valid)return;
     var now=Date.now();
