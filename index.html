@@ -3029,7 +3029,7 @@ window.gAS=function(){
     rBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='revision';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข');}closeOM2();if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();};
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
-    _omUpdateFooter=function(tabKey){var isAudit=tabKey==='links';if(!_omViewMode){_omSaveBtn.style.display='';auditRow.style.display='none';}else if(isAudit){_omSaveBtn.style.display='none';auditRow.style.display='flex';}else{_omSaveBtn.style.display='';auditRow.style.display='none';}};
+    _omUpdateFooter=function(tabKey){var isAudit=(tabKey==='links'||tabKey==='imgs');if(!_omViewMode){_omSaveBtn.style.display='';auditRow.style.display='none';}else if(isAudit){_omSaveBtn.style.display='none';auditRow.style.display='flex';}else{_omSaveBtn.style.display='';auditRow.style.display='none';}};
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
     _OM2.appendChild(box);document.body.appendChild(_OM2);
     switchTab('info');
