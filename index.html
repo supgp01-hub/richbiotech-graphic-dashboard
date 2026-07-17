@@ -1474,15 +1474,12 @@ function lvGetDay(y,m,d){return(LV_DATA[lvDK(y,m,d)]||[]).slice();}
 function lvSaveDay(y,m,d,arr){if(!arr||!arr.length)delete LV_DATA[lvDK(y,m,d)];else LV_DATA[lvDK(y,m,d)]=arr;lvSaveLS();}
 function lvSaveLS(){
   try{localStorage.setItem(LV_LS,JSON.stringify({d:LV_DATA,u:LV_UID}));}catch(e){}
-  var ctrl=new AbortController();
-  var t=setTimeout(function(){ctrl.abort();},8000);
-  try{fetch('/api/data',{method:'POST',signal:ctrl.signal,
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({d:LV_DATA,u:LV_UID})})
-    .then(function(){clearTimeout(t);})
-    .catch(function(){clearTimeout(t);});}catch(e){}
+  try{fbSet('/lv_data',{d:LV_DATA,t:Date.now()});}catch(e){}
 }
-function lvLoadLS(){try{var r=localStorage.getItem(LV_LS);if(r){var o=JSON.parse(r);LV_DATA=o.d||{};LV_UID=o.u||1;}}catch(e){}}
+function lvLoadLS(){try{var r=localStorage.getItem(LV_LS);if(r){var o=JSON.parse(r);LV_DATA=o.d||{};LV_UID=o.u||LV_UID;}}catch(e){}
+  fbGet('/lv_data',function(err,remote){if(!err&&remote&&remote.d){LV_DATA=remote.d;try{localStorage.setItem(LV_LS,JSON.stringify({d:LV_DATA,u:LV_UID}));}catch(ex){}setTimeout(function(){lvRender();},50);}});
+  if(!window._lvPoll){window._lvPoll=setInterval(function(){fbGet('/lv_data',function(err,r){if(!err&&r&&r.d){LV_DATA=r.d;lvRender();}});},30000);}
+}
 function lvEscHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 /* ── Cycle Helpers ── */
