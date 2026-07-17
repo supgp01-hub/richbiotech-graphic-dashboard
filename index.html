@@ -2969,7 +2969,7 @@ window.gAS=function(){
 /* ── ORDERS MODAL v3 — tabbed modal ── */
 (function(){
 
-  var _OM2=null, _omImages=[], _omBriefImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omViewMode=false, _omUpdateFooter=null;
+  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omViewMode=false, _omUpdateFooter=null;
   function ge(id){return (_OM2&&_OM2.querySelector('[id="'+id+'"]'))||document.getElementById(id);}
 
   function compressImg(file,cb){
@@ -2993,6 +2993,8 @@ window.gAS=function(){
       if(!f.type.startsWith('image/'))return;
       compressImg(f,function(img){
         if(gallery==='brief'){_omBriefImages.push(img);refreshBriefGallery();}
+        else if(gallery==='error'){_omErrorImages.push(img);refreshErrorGallery();}
+        else if(gallery==='fix'){_omFixImages.push(img);refreshFixGallery();}
         else{_omImages.push(img);refreshGallery();}
       });
     });
@@ -3021,6 +3023,14 @@ window.gAS=function(){
   function refreshBriefGallery(){
     var g=document.getElementById('om-brief-gallery');if(!g)return;g.innerHTML='';
     _omBriefImages.forEach(function(img,i){g.appendChild(makeGalleryCard(_omBriefImages,i,refreshBriefGallery));});
+  }
+  function refreshErrorGallery(){
+    var g=document.getElementById('om-error-gallery');if(!g)return;g.innerHTML='';
+    _omErrorImages.forEach(function(img,i){g.appendChild(makeGalleryCard(_omErrorImages,i,refreshErrorGallery));});
+  }
+  function refreshFixGallery(){
+    var g=document.getElementById('om-fix-gallery');if(!g)return;g.innerHTML='';
+    _omFixImages.forEach(function(img,i){g.appendChild(makeGalleryCard(_omFixImages,i,refreshFixGallery));});
   }
 
   function viewImg(img){
@@ -3213,6 +3223,27 @@ window.gAS=function(){
     gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
     p2.appendChild(gl3);
     p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));
+    var revImgSection=document.createElement('div');revImgSection.id='om-rev-imgs';revImgSection.style.cssText='display:none;border-top:2px dashed #fca5a5;margin-top:12px;padding-top:12px;';
+    var eSect=document.createElement('div');
+    var eHd=document.createElement('div');eHd.style.cssText='font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;';eHd.textContent='📸 ข้อผิดพลาด';
+    var eImgInpR=document.createElement('input');eImgInpR.type='file';eImgInpR.accept='image/*';eImgInpR.multiple=true;eImgInpR.style.display='none';
+    var eImgBtnR=document.createElement('button');eImgBtnR.type='button';eImgBtnR.textContent='+ อัพโหลดรูปข้อผิดพลาด';
+    eImgBtnR.style.cssText='background:#fee2e2;color:#dc2626;border:1px dashed #dc2626;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';
+    eImgBtnR.onclick=function(){eImgInpR.click();};
+    eImgInpR.onchange=function(){handleImgUpload(this.files,'error');this.value='';};
+    var eGalR=document.createElement('div');eGalR.id='om-error-gallery';eGalR.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;';
+    eSect.appendChild(eHd);eSect.appendChild(eImgBtnR);eSect.appendChild(eImgInpR);eSect.appendChild(eGalR);
+    var fSect=document.createElement('div');
+    var fHd=document.createElement('div');fHd.style.cssText='font-size:13px;font-weight:700;color:#16a34a;margin-bottom:6px;';fHd.textContent='✅ แก้ไขเรียบร้อย';
+    var fImgInpR=document.createElement('input');fImgInpR.type='file';fImgInpR.accept='image/*';fImgInpR.multiple=true;fImgInpR.style.display='none';
+    var fImgBtnR=document.createElement('button');fImgBtnR.type='button';fImgBtnR.textContent='+ อัพโหลดรูปแก้ไขเรียบร้อย';
+    fImgBtnR.style.cssText='background:#dcfce7;color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';
+    fImgBtnR.onclick=function(){fImgInpR.click();};
+    fImgInpR.onchange=function(){handleImgUpload(this.files,'fix');this.value='';};
+    var fGalR=document.createElement('div');fGalR.id='om-fix-gallery';fGalR.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;';
+    fSect.appendChild(fHd);fSect.appendChild(fImgBtnR);fSect.appendChild(fImgInpR);fSect.appendChild(fGalR);
+    revImgSection.appendChild(eSect);revImgSection.appendChild(fSect);
+    p2.appendChild(revImgSection);
     tabPanels['links']=p2;body.appendChild(p2);
     var p4=document.createElement('div');p4.style.cssText='padding:18px 20px;display:none;';
     var subLinkBox=document.createElement('div');subLinkBox.id='om-submitlink-box';subLinkBox.style.cssText='margin-bottom:14px;padding:10px 14px;border-radius:10px;background:#f0fdf4;border:1.5px solid #40916C;display:none;align-items:center;gap:10px;';
@@ -3249,7 +3280,7 @@ window.gAS=function(){
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
     var resendBtn=document.createElement('button');resendBtn.id='om-resend-btn';resendBtn.style.cssText='display:none;padding:8px 20px;background:#D97706;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;margin-left:8px;';resendBtn.textContent='🔁 ส่งตรวจอีกครั้ง';resendBtn.onclick=function(){var cid=ge('om-id')?ge('om-id').textContent.trim():'';if(!cid)return;var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');var ix=ords.findIndex(function(o){return o.id===cid;});if(ix>=0){ords[ix].status='review';ords[ix].updatedAt=new Date().toISOString();}localStorage.setItem('rb_orders_v1',JSON.stringify(ords));if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',cid+' → รอตรวจ');closeOM();renderOrders&&renderOrders();};foot.appendChild(resendBtn);
-    _omUpdateFooter=function(tabKey){var isAudit=(tabKey==='links'||tabKey==='imgs');var isRevision=ge('om-st')&&ge('om-st').value==='revision';if(!_omViewMode){var rb2=ge('om-resend-btn');if(isRevision){_omSaveBtn.style.display='none';if(rb2)rb2.style.display='inline-flex';}else{_omSaveBtn.style.display='';if(rb2)rb2.style.display='none';}auditRow.style.display='none';}else if(isRevision){_omSaveBtn.style.display='none';auditRow.style.display='none';}else if(isAudit){_omSaveBtn.style.display='none';auditRow.style.display='flex';}else{_omSaveBtn.style.display='';auditRow.style.display='none';}};
+    _omUpdateFooter=function(tabKey){var isAudit=(tabKey==='links'||tabKey==='imgs');var isRevision=ge('om-st')&&ge('om-st').value==='revision';if(!_omViewMode){var rb2=ge('om-resend-btn');var revD=ge('om-rev-imgs');if(revD)revD.style.display=isRevision?'block':'none';if(isRevision){_omSaveBtn.style.display='none';if(rb2)rb2.style.display='inline-flex';}else{_omSaveBtn.style.display='';if(rb2)rb2.style.display='none';}auditRow.style.display='none';}else if(isRevision){_omSaveBtn.style.display='none';auditRow.style.display='none';}else if(isAudit){_omSaveBtn.style.display='none';auditRow.style.display='flex';}else{_omSaveBtn.style.display='';auditRow.style.display='none';}};
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
     _OM2.appendChild(box);document.body.appendChild(_OM2);
     switchTab('info');
@@ -3261,6 +3292,8 @@ window.gAS=function(){
     var o=id?orders.find(function(x){return x.id===id;}):null;
     _omImages=(o&&o.images)?JSON.parse(JSON.stringify(o.images)):[];
     _omBriefImages=(o&&o.briefImages)?JSON.parse(JSON.stringify(o.briefImages)):[];
+    _omErrorImages=(o&&o.errorImages)?JSON.parse(JSON.stringify(o.errorImages)):[];
+    _omFixImages=(o&&o.fixImages)?JSON.parse(JSON.stringify(o.fixImages)):[];
     var _isView=window._ordViewMode==='team';ge('om-hd').textContent=_isView&&id?'📋 สรุปงาน '+id:id?'✏️ แก้ไขงาน '+id:'📋 เพิ่มงานใหม่';
     ge('om-id').textContent=id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));
     ge('om-name').value=o?o.title:'';
@@ -3289,7 +3322,7 @@ window.gAS=function(){
     var _sld=ge('om-submitlink-disp');if(_sld){_sld.href=_slv||'#';_sld.style.display=_slv?'inline-flex':'none';}
     var _slval=ge('om-submitlink-val');if(_slval)_slval.textContent=_slv;
     ge('om-brief').value=o?(o.brief||''):'';
-    refreshGallery();refreshBriefGallery();
+    refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
     _omViewMode=_isView;
     if(_switchTab)_switchTab('info');
     if(_omInfoPanel){_omInfoPanel.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=_isView;el.style.opacity=_isView?'0.7':'';el.style.cursor=_isView?'default':'';el.style.background=_isView&&el.tagName!=='TEXTAREA'?'#f9fafb':'';});_omInfoPanel.querySelectorAll('button').forEach(function(b){if(b.getAttribute('data-link-btn')){b.disabled=false;b.style.opacity='';b.style.cursor='pointer';}else{b.disabled=_isView;b.style.opacity=_isView?'0.4':'';b.style.cursor=_isView?'not-allowed':'';}});}
@@ -3371,6 +3404,8 @@ window.gAS=function(){
       brief:ge('om-brief').value||'',
       images:JSON.parse(JSON.stringify(_omImages)),
       briefImages:JSON.parse(JSON.stringify(_omBriefImages)),
+      errorImages:JSON.parse(JSON.stringify(_omErrorImages)),
+      fixImages:JSON.parse(JSON.stringify(_omFixImages)),
       createdAt:idx>=0?orders[idx].createdAt:now,
       hook:ge('om-hook')?ge('om-hook').value:'',
       hook2:ge('om-hook2')?ge('om-hook2').value:'',
