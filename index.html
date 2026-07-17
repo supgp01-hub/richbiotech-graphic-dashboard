@@ -2128,7 +2128,159 @@ function no(p){return typeof p==="string"?{name:p,status:0,owner:"",type:"เพ
 function updateCounts(){var tc=document.getElementById("tab-channels");if(!tc)return;var fb=lpFB();var ch=lpCH();var fbTotal=Object.values(fb).reduce(function(s,a){return s+(Array.isArray(a)?a.length:0);},0);var rows=tc.querySelectorAll(".platform-row");rows.forEach(function(row){var pn=row.querySelector(".platform-name");var pc=row.querySelector(".platform-count");if(!pn||!pc)return;var name=pn.textContent.trim();var cfg=CH_MAP[name];if(!cfg)return;if(name==="Facebook Pages"){pc.textContent=fbTotal+" "+cfg.unit;}else{var items=ch[cfg.k]||[];pc.textContent=items.length+" "+cfg.unit;}});}
 function renameGraphicBtn(){if(document.querySelector("[data-graphic-renamed]"))return;var btn=Array.from(document.querySelectorAll("button")).find(function(b){return b.getAttribute("onclick")&&b.getAttribute("onclick").includes("'team'")&&b.textContent.includes("ทีมงาน");});if(btn){btn.setAttribute("data-graphic-renamed","1");btn.innerHTML="🎨 Graphic";}}
 function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!teamTab||teamTab.getAttribute("data-graphic-init"))return;teamTab.setAttribute("data-graphic-init","1");var teamPanel=document.createElement("div");teamPanel.className="gsp gsp-active";teamPanel.setAttribute("data-sub","team");while(teamTab.firstChild)teamPanel.appendChild(teamTab.firstChild);var orderPanel=document.createElement("div");orderPanel.className="gsp";orderPanel.setAttribute("data-sub","order");orderPanel.innerHTML='<div class="gsp-empty">📋 สั่งงาน<br><br>เมนูนี้กำลังพัฒนา</div>';var linksPanel=document.createElement("div");linksPanel.className="gsp";linksPanel.setAttribute("data-sub","links");linksPanel.setAttribute('data-links-ready','1');initLinksPanel(linksPanel);var commissionPanel=document.createElement("div");commissionPanel.className="gsp";commissionPanel.setAttribute("data-sub","commission");commissionPanel.innerHTML='<div class="gsp-empty">💰 ค่าคอมมิชชั่น<br><br>เมนูนี้กำลังพัฒนา</div>';var auditPanel=document.createElement("div");auditPanel.className="gsp";auditPanel.setAttribute("data-sub","audit");auditPanel.innerHTML='<div class="gsp-empty">📊 ยอดหักออดิต<br><br>เมนูนี้กำลังพัฒนา</div>';var fblistPanel=document.createElement("div");fblistPanel.className="gsp";fblistPanel.setAttribute("data-sub","fblist");fblistPanel.innerHTML='<div id="fbl-root" style="padding:12px;min-height:80px"></div>';var subNav=document.createElement("div");subNav.className="graphic-subnav";var subs=[{k:"team",l:"👥 ทีมงาน"},{k:"order",l:"📋 สั่งงาน"},{k:"links",l:"🔗 รวมลิงก์"},{k:"commission",l:"💰 ค่าคอมมิชชั่น"},{k:"audit",l:"📊 ยอดหักออดิต"},{k:"fblist",l:"📘 Facebook Pages"},{k:"listfb",l:"📋 List Facebook"}];subs.forEach(function(s){var btn=document.createElement("button");btn.className="gsnav-btn"+(s.k==="team"?" gsnav-active":"");btn.textContent=s.l;btn.onclick=function(){teamTab.querySelectorAll(".gsnav-btn").forEach(function(b){b.classList.remove("gsnav-active");});teamTab.querySelectorAll(".gsp").forEach(function(p){p.classList.remove("gsp-active");});btn.classList.add("gsnav-active");var target=teamTab.querySelector("[data-sub=\""+s.k+"\"]");if(target)target.classList.add("gsp-active");if(s.k==="team"&&typeof lvRestorePhotos==="function")setTimeout(lvRestorePhotos,100);if(s.k==="links")setTimeout(function(){if(typeof window.ctRender==="function")window.ctRender();},50);if(s.k==="order"){var _p=document.querySelector('[data-sub="order"]');if(_p&&!_p.getAttribute('data-order-init'))window._rbInitOP&&window._rbInitOP();else if(_p){renderOrderStats&&renderOrderStats();renderOrders&&renderOrders();}}};subNav.appendChild(btn);});teamTab.appendChild(subNav);teamTab.appendChild(teamPanel);teamTab.appendChild(orderPanel);teamTab.appendChild(linksPanel);teamTab.appendChild(commissionPanel);teamTab.appendChild(auditPanel);teamTab.appendChild(fblistPanel);
-var listfbPanel=document.createElement("div");listfbPanel.className="gsp";listfbPanel.setAttribute("data-sub","listfb");listfbPanel.innerHTML='<div class="gsp-empty">📋 List Facebook<br><br>กำลังพัฒนา...</div>';teamTab.appendChild(listfbPanel);
+var listfbPanel=document.createElement("div");listfbPanel.className="gsp";listfbPanel.setAttribute("data-sub","listfb");listfbPanel.innerHTML='<div id="lfb-root" style="padding:12px;min-height:80px"></div>';teamTab.appendChild(listfbPanel);
+teamTab.addEventListener('click',function(e){var b=e.target.closest('.gsnav-btn');if(!b)return;var t=b.textContent;if(t.indexOf('List Facebook')===-1||t.indexOf('Pages')!==-1)return;if(!window._lfbDone){window._lfbDone=true;window._lfbInit();}});
+window._lfbInit=function(){
+  var root=document.getElementById('lfb-root');
+  if(!root)return;
+  var h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">';
+  h+='<button id="lfb-upd" onclick="window._lfbFetch()" style="padding:8px 18px;background:#1B4332;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🔄 อัพข้อมูลล่าสุด</button>';
+  h+='<span id="lfb-ts" style="font-size:12px;color:#888">ยังไม่ได้โหลด</span>';
+  h+='</div>';
+  h+='<div id="lfb-stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>';
+  h+='<div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)">';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+  ['ALL','บัญชีเล็ก','บัญชีใหญ่'].forEach(function(v){h+='<button class="lfbt" data-t="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
+  h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+  ['ALL','ใช้งาน','ว่าง','โฆษณาจำกัด','รอยืนยัน','ปิดใช้งาน','อื่นๆ'].forEach(function(v){h+='<button class="lfbs" data-s="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
+  h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px"><span style="font-size:11px;color:#888">พนักงาน:</span>';
+  ['ALL','BALL','DOM','JAM','LINK','MOS','NUNE','TER'].forEach(function(v){h+='<button class="lfbe" data-e="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
+  h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px"><span style="font-size:11px;color:#888">สินค้า:</span>';
+  ['ALL','ขุนแผน','จูโด้','ดราก้อนบลัด','ลีฟ แคร์','วูลฟ์พลัส','เจ้าขุน','เดอะลอร์ด','เฮฟเว่นพลัส','โซพิงค์','โอลิมพลัส','โอลิมพลัส แม็กซ์','ไอชัวร์'].forEach(function(v){h+='<button class="lfbp" data-p="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
+  h+='</div></div>';
+  h+='<input id="lfb-q" placeholder="🔍 ค้นหาชื่อบัญชี / Facebook ID..." style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px">';
+  h+='<div style="overflow:auto;max-height:420px;border-radius:10px;border:1px solid #e5e7eb">';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="position:sticky;top:0;background:#1B4332;color:#fff"><tr>';
+  h+='<th style="padding:9px 10px;text-align:center;min-width:70px">ประเภท</th>';
+  h+='<th style="padding:9px 10px;text-align:left;min-width:180px">ชื่อบัญชี</th>';
+  h+='<th style="padding:9px 10px;text-align:center">พนักงาน</th>';
+  h+='<th style="padding:9px 10px;text-align:center">สินค้า</th>';
+  h+='<th style="padding:9px 10px;text-align:center;min-width:120px">สถานะ</th>';
+  h+='<th style="padding:9px 10px;text-align:center">ลิมิต/วัน</th>';
+  h+='<th style="padding:9px 10px;text-align:center">ยอดเงิน</th>';
+  h+='<th style="padding:9px 10px;text-align:center">ต้องติดตาม</th>';
+  h+='</tr></thead><tbody id="lfb-body"></tbody></table></div>';
+  h+='<div id="lfb-cnt" style="font-size:11px;color:#888;text-align:right;margin-top:4px"></div>';
+  root.innerHTML=h;
+  
+  var fT='ALL',fS='ALL',fE='ALL',fP='ALL',q='';
+  
+  window._lfbFilter={fT:fT,fS:fS,fE:fE,fP:fP,q:q};
+  
+  function stGroup(st){
+    if(!st)return'อื่นๆ';
+    if(st==='ใช้งาน')return'ใช้งาน';
+    if(st==='ว่าง')return'ว่าง';
+    if(st.indexOf('จำกัด')!==-1)return'โฆษณาจำกัด';
+    if(st.indexOf('WHAT')!==-1||st.indexOf('whats')!==-1||st.indexOf('ยืนยัน')!==-1||st.indexOf('สแกน')!==-1||st.indexOf('เอกสาร')!==-1||st.indexOf('reCAPT')!==-1||st.indexOf('CAPTCHA')!==-1)return'รอยืนยัน';
+    if(st.indexOf('ปิด')!==-1)return'ปิดใช้งาน';
+    return'อื่นๆ';
+  }
+  window._lfbStGroup=stGroup;
+  
+  var SGC={'ใช้งาน':'#16a34a','ว่าง':'#6b7280','โฆษณาจำกัด':'#d97706','รอยืนยัน':'#2563eb','ปิดใช้งาน':'#dc2626','อื่นๆ':'#7c3aed'};
+  var SGB={'ใช้งาน':'#f0fdf4','ว่าง':'#f9fafb','โฆษณาจำกัด':'#fffbeb','รอยืนยัน':'#eff6ff','ปิดใช้งาน':'#fef2f2','อื่นๆ':'#faf5ff'};
+  
+  window._lfbRender=function(){
+    var data=window._lfbData||[];
+    var f=window._lfbFilter;
+    var qv=f.q.toLowerCase();
+    var filtered=data.filter(function(r){
+      if(f.fT!=='ALL'&&r.type!==f.fT)return false;
+      if(f.fS!=='ALL'&&stGroup(r.st)!==f.fS)return false;
+      if(f.fE!=='ALL'&&r.emp!==f.fE)return false;
+      if(f.fP!=='ALL'&&r.prod!==f.fP)return false;
+      if(qv&&r.name.toLowerCase().indexOf(qv)===-1&&r.fbid.toLowerCase().indexOf(qv)===-1)return false;
+      return true;
+    });
+    filtered.sort(function(a,b){
+      var so={'ใช้งาน':0,'ว่าง':1,'โฆษณาจำกัด':2,'รอยืนยัน':3,'อื่นๆ':4,'ปิดใช้งาน':5};
+      var ga=so[stGroup(a.st)]||4,gb=so[stGroup(b.st)]||4;
+      if(ga!==gb)return ga-gb;
+      if(a.prod<b.prod)return-1;if(a.prod>b.prod)return 1;
+      return 0;
+    });
+    var html='';
+    filtered.forEach(function(r,i){
+      var sg=stGroup(r.st);
+      var sc=SGC[sg]||'#6b7280';
+      var sb=SGB[sg]||'#f9fafb';
+      var bg=i%2===0?'#fff':'#f9fafb';
+      html+='<tr style="background:'+bg+';border-bottom:1px solid #f0f0f0">';
+      html+='<td style="padding:7px 10px;text-align:center"><span style="padding:2px 8px;border-radius:10px;font-size:11px;background:'+(r.type==='บัญชีใหญ่'?'#dbeafe':'#e8f5e9')+';color:'+(r.type==='บัญชีใหญ่'?'#1d4ed8':'#1B4332')+'">'+r.type+'</span></td>';
+      html+='<td style="padding:7px 10px;font-size:12px;color:#111">'+r.name+'</td>';
+      html+='<td style="padding:7px 10px;text-align:center;font-weight:700;color:#1B4332">'+r.emp+'</td>';
+      html+='<td style="padding:7px 10px;text-align:center;color:#555;font-size:11px">'+r.prod+'</td>';
+      html+='<td style="padding:7px 10px;text-align:center"><span style="padding:2px 8px;border-radius:10px;background:'+sb+';color:'+sc+';font-size:11px;font-weight:600">'+r.st+'</span></td>';
+      html+='<td style="padding:7px 10px;text-align:center;color:#555">'+r.limit+'</td>';
+      html+='<td style="padding:7px 10px;text-align:center;color:#555">'+r.bal+'</td>';
+      html+='<td style="padding:7px 10px;text-align:center;color:#f59e0b;font-size:13px">'+(r.flag?'📌':'')+'</td>';
+      html+='</tr>';
+    });
+    if(!filtered.length)html='<tr><td colspan="8" style="padding:20px;text-align:center;color:#aaa">ไม่พบข้อมูล</td></tr>';
+    var tbody=document.getElementById('lfb-body');
+    if(tbody)tbody.innerHTML=html;
+    var cntEl=document.getElementById('lfb-cnt');
+    if(cntEl)cntEl.textContent='แสดง '+filtered.length+' จาก '+data.length+' บัญชี';
+    // update stats
+    var statsEl=document.getElementById('lfb-stats');
+    if(statsEl&&data.length){
+      var tot=data.length,act=data.filter(function(r){return r.st==='ใช้งาน';}).length,idle=data.filter(function(r){return r.st==='ว่าง';}).length;
+      var lim=data.filter(function(r){return stGroup(r.st)==='โฆษณาจำกัด';}).length;
+      var ver=data.filter(function(r){return stGroup(r.st)==='รอยืนยัน';}).length;
+      var dis=data.filter(function(r){return stGroup(r.st)==='ปิดใช้งาน';}).length;
+      var cards=[['ทั้งหมด',tot,'#1B4332','#f0fdf4'],['ใช้งาน',act,'#16a34a','#f0fdf4'],['ว่าง',idle,'#6b7280','#f9fafb'],['โฆษณาจำกัด',lim,'#d97706','#fffbeb'],['รอยืนยัน',ver,'#2563eb','#eff6ff'],['ปิดแล้ว',dis,'#dc2626','#fef2f2']];
+      statsEl.innerHTML=cards.map(function(c){return'<div style="flex:1;min-width:65px;background:'+c[3]+';border-radius:8px;padding:7px 8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+c[2]+'">'+c[1]+'</div><div style="font-size:10px;color:#555">'+c[0]+'</div></div>';}).join('');
+    }
+  };
+  
+  setTimeout(function(){
+    function bindChips(sel,attr){
+      root.querySelectorAll(sel).forEach(function(b){
+        b.addEventListener('click',function(){
+          window._lfbFilter[attr]=b.getAttribute('data-'+attr.replace('f','').toLowerCase().replace('t','t').replace('s','s').replace('e','e').replace('p','p'));
+          // fix attr key
+          if(attr==='fT')window._lfbFilter.fT=b.getAttribute('data-t');
+          if(attr==='fS')window._lfbFilter.fS=b.getAttribute('data-s');
+          if(attr==='fE')window._lfbFilter.fE=b.getAttribute('data-e');
+          if(attr==='fP')window._lfbFilter.fP=b.getAttribute('data-p');
+          root.querySelectorAll(sel).forEach(function(x){var act=x===b;x.style.background=act?'#1B4332':'#fff';x.style.color=act?'#fff':'#374151';x.style.border=act?'none':'1px solid #d1d5db';});
+          window._lfbRender();
+        });
+      });
+    }
+    bindChips('.lfbt','fT');bindChips('.lfbs','fS');bindChips('.lfbe','fE');bindChips('.lfbp','fP');
+    var si=document.getElementById('lfb-q');
+    if(si)si.addEventListener('input',function(){window._lfbFilter.q=this.value;window._lfbRender();});
+  },50);
+  
+  window._lfbFetch();
+};
+window._lfbFetch=function(){
+  var updBtn=document.getElementById('lfb-upd');
+  var tsEl=document.getElementById('lfb-ts');
+  if(updBtn){updBtn.textContent='⏳ กำลังโหลด...';updBtn.disabled=true;}
+  fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=1166630130')
+    .then(function(r){return r.text();})
+    .then(function(csv){
+      var lines=csv.split('\n').filter(function(l){return l.trim();});
+      window._lfbData=lines.slice(1).map(function(line){
+        var cols=[],inQ=false,cur='';
+        for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=c;}
+        cols.push(cur.trim());
+        return{type:cols[0]||'',emp:cols[2]||'',prod:cols[3]||'',st:cols[5]||'',name:cols[6]||'',fbid:cols[7]||'',limit:cols[14]||'',flag:cols[15]||'',bal:cols[17]||''};
+      }).filter(function(r){return r.name||r.fbid;});
+      if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
+      if(tsEl){var now=new Date();tsEl.textContent='อัพเดท: '+now.toLocaleDateString('th-TH')+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
+      if(window._lfbRender)window._lfbRender();
+    })
+    .catch(function(){
+      if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
+      var root=document.getElementById('lfb-root');
+      if(root&&!window._lfbData)root.innerHTML='<p style="text-align:center;padding:20px;color:#e00">❌ โหลดไม่สำเร็จ ลองใหม่อีกครั้ง</p>';
+    });
+};
+
 teamTab.addEventListener('click',function(e){var b=e.target.closest('.gsnav-btn');if(!b||b.textContent.indexOf('Facebook Pages')===-1)return;if(!window._fblDone)window._initFbList();});
 window._initFbList=function(){
   window._fblDone=true;
