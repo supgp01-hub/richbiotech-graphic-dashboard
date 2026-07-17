@@ -2158,7 +2158,7 @@ window._lfbInit=function(){
   h+='<th style="padding:9px 10px;text-align:center;min-width:120px">สถานะ</th>';
   h+='<th style="padding:9px 10px;text-align:center">ลิมิต/วัน</th>';
   h+='<th style="padding:9px 10px;text-align:center">ยอดเงิน</th>';
-  h+='<th style="padding:9px 10px;text-align:center">ต้องติดตาม</th>';
+  h+='<th style="padding:9px 10px;text-align:center">อัพเดทล่าสุด</th>';
   h+='</tr></thead><tbody id="lfb-body"></tbody></table></div>';
   h+='<div id="lfb-cnt" style="font-size:11px;color:#888;text-align:right;margin-top:4px"></div>';
   root.innerHTML=h;
@@ -2214,7 +2214,7 @@ window._lfbInit=function(){
       html+='<td style="padding:7px 10px;text-align:center"><span style="padding:2px 8px;border-radius:10px;background:'+sb+';color:'+sc+';font-size:11px;font-weight:600">'+r.st+'</span></td>';
       html+='<td style="padding:7px 10px;text-align:center;color:#555">'+r.limit+'</td>';
       html+='<td style="padding:7px 10px;text-align:center;color:#555">'+r.bal+'</td>';
-      html+='<td style="padding:7px 10px;text-align:center;color:#f59e0b;font-size:13px">'+(r.flag?'📌':'')+'</td>';
+      html+='<td style="padding:7px 10px;text-align:center;color:#f59e0b;font-size:13px">'+(r.upd||'')+'</td>';
       html+='</tr>';
     });
     if(!filtered.length)html='<tr><td colspan="8" style="padding:20px;text-align:center;color:#aaa">ไม่พบข้อมูล</td></tr>';
@@ -2268,7 +2268,7 @@ window._lfbFetch=function(){
         var cols=[],inQ=false,cur='';
         for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=c;}
         cols.push(cur.trim());
-        return{type:cols[0]||'',emp:cols[2]||'',prod:cols[3]||'',st:cols[5]||'',name:cols[6]||'',fbid:cols[7]||'',limit:cols[14]||'',flag:cols[15]||'',bal:cols[17]||''};
+        return{type:cols[0]||'',emp:cols[2]||'',prod:cols[3]||'',st:cols[5]||'',name:cols[6]||'',fbid:cols[7]||'',limit:cols[14]||'',flag:cols[15],upd:cols[16]||'',bal:cols[17]||''};
       }).filter(function(r){return r.name||r.fbid;});
       if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
       if(tsEl){var now=new Date();tsEl.textContent='อัพเดท: '+now.toLocaleDateString('th-TH')+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
