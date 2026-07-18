@@ -3269,9 +3269,14 @@ window.gAS=function(){
     var foot=document.createElement('div');
     foot.style.cssText='padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;background:white;';
     var sBtn=document.createElement('button');sBtn.type='button';sBtn.textContent='💾 บันทึกงาน';_omSaveBtn=sBtn;
-    sBtn.style.cssText='width:100%;background:#1B4332;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;';
+    sBtn.style.cssText='flex:1;background:#1B4332;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;';
     sBtn.onclick=saveOM2;
-    foot.appendChild(sBtn);
+    var ftRow=document.createElement('div');ftRow.style.cssText='display:flex;gap:8px;';
+    var saveBtn2=document.createElement('button');saveBtn2.type='button';saveBtn2.id='om-save-btn';saveBtn2.textContent='💾 บันทึก';
+    saveBtn2.style.cssText='padding:10px 20px;background:#40916C;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;';
+    saveBtn2.onclick=saveOM2;
+    ftRow.appendChild(sBtn);ftRow.appendChild(saveBtn2);
+    foot.appendChild(ftRow);
     var auditRow=document.createElement('div');auditRow.id='om-audit-btns';auditRow.style.cssText='display:none;gap:10px;width:100%;';
     var cBtn=document.createElement('button');cBtn.type='button';cBtn.textContent='✅ เสร็จสมบูรณ์';
     cBtn.style.cssText='flex:1;background:#15803d;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;';
