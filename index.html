@@ -2051,8 +2051,8 @@ window._lfbInit=function(){
   var root=document.getElementById('lfb-root');
   if(!root)return;
   var h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">';
-  h+='<button id="lfb-upd" onclick="window._lfbFetch()" style="padding:8px 18px;background:#1B4332;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🔄 อัพข้อมูลล่าสุด</button>';
-  h+='<span id="lfb-ts" style="font-size:12px;color:#888">ยังไม่ได้โหลด</span>';
+  h+='<button id="lfb2-upd" onclick="window._listfbFetch()" style="padding:8px 18px;background:#1B4332;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🔄 อัพข้อมูลล่าสุด</button>';
+  h+='<span id="lfb2-ts" style="font-size:12px;color:#888">ยังไม่ได้โหลด</span>';
   h+='</div>';
   h+='<div id="lfb-stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>';
   h+='<div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)">';
@@ -2099,7 +2099,7 @@ window._lfbInit=function(){
   var SGB={'ใช้งาน':'#f0fdf4','ว่าง':'#f9fafb','โฆษณาจำกัด':'#fffbeb','รอยืนยัน':'#eff6ff','ปิดใช้งาน':'#fef2f2','อื่นๆ':'#faf5ff'};
   
   window._lfbRender=function(){
-    var data=window._lfbData||[];
+    var data=window._listfbData||[];
     var f=window._lfbFilter;
     var qv=f.q.toLowerCase();
     var filtered=data.filter(function(r){
@@ -2171,7 +2171,24 @@ window._lfbInit=function(){
     if(si)si.addEventListener('input',function(){window._lfbFilter.q=this.value;window._lfbRender();});
   },50);
   
-  window._lfbFetch();
+  window._listfbFetch();
+};
+window._listfbFetch=function(){
+  var updBtn=document.getElementById('lfb2-upd');
+  var tsEl=document.getElementById('lfb2-ts');
+  if(updBtn){updBtn.disabled=true;updBtn.textContent='🔄 โหลด...';}
+  fetch('https:\/\/docs.google.com\/spreadsheets\/d\/1lw9ZR4rBluR8LJkTVPJc4qCthdOyS7lapYwFozy9ILc\/gviz\/tq?tqx=out:csv&gid=1166630130')
+    .then(function(r){return r.text();})
+    .then(function(csv){
+      window._listfbData=window._parseFbCsv?window._parseFbCsv(csv):[];
+      if(window._lfbRender)window._lfbRender();
+      var d=new Date();
+      if(tsEl)tsEl.textContent='อัพเดท: '+d.getDate()+'/'+(d.getMonth()+1)+'/'+(d.getFullYear()+543)+' '+'00'.concat(d.getHours()).slice(-2)+':'+'00'.concat(d.getMinutes()).slice(-2);
+      if(updBtn){updBtn.disabled=false;updBtn.textContent='🔄 อัพข้อมูลล่าสุด';}
+    })
+    .catch(function(){
+      if(updBtn){updBtn.disabled=false;updBtn.textContent='🔄 อัพข้อมูลล่าสุด';}
+    });
 };
 window._lfbFetch=function(){
   var updBtn=document.getElementById('lfb-upd');
@@ -2189,12 +2206,12 @@ window._lfbFetch=function(){
       }).filter(function(r){return r.name&&(r.prod||r.emp||r.st);});
       if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
       if(tsEl){var now=new Date();tsEl.textContent='อัพเดท: '+now.toLocaleDateString('th-TH')+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
-      if(window._lfbRender)window._lfbRender();
+      
     })
     .catch(function(){
       if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
       var root=document.getElementById('lfb-root');
-      if(root&&!window._lfbData)root.innerHTML='<p style="text-align:center;padding:20px;color:#e00">❌ โหลดไม่สำเร็จ ลองใหม่อีกครั้ง</p>';
+      if(root&&!window._listfbData)root.innerHTML='<p style="text-align:center;padding:20px;color:#e00">❌ โหลดไม่สำเร็จ ลองใหม่อีกครั้ง</p>';
     });
 };
 
