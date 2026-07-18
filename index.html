@@ -2177,7 +2177,7 @@ window._listfbFetch=function(){
   var updBtn=document.getElementById('lfb2-upd');
   var tsEl=document.getElementById('lfb2-ts');
   if(updBtn){updBtn.disabled=true;updBtn.textContent='🔄 โหลด...';}
-  fetch('https:\/\/docs.google.com\/spreadsheets\/d\/1lw9ZR4rBluR8LJkTVPJc4qCthdOyS7lapYwFozy9ILc\/gviz\/tq?tqx=out:csv&gid=1166630130')
+  fetch('https:\/\/docs.google.com\/spreadsheets\/d\/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc\/gviz\/tq?tqx=out:csv&gid=1166630130')
     .then(function(r){return r.text();})
     .then(function(csv){
       window._listfbData=window._parseFbCsv?window._parseFbCsv(csv):[];
