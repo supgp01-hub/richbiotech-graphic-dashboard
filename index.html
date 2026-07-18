@@ -2232,7 +2232,7 @@ window._parseFbCsv=function(csv){
     var cols=[],inQ=false,cur='';
     for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=c;}
     cols.push(cur.trim());
-    return{name:cols[0]||'',prod:cols[1]||'',st:cols[2]||'',own:cols[3]||''};
+    return{type:cols[0]||'',emp:cols[2]||'',prod:cols[3]||'',st:cols[5]||'',name:cols[6]||'',fbid:cols[7]||'',limit:cols[14]||'',upd:cols[16]||'',bal:cols[17]||''};
   }).filter(function(r){return r.name&&r.prod;});
 };
 window._renderFbList=function(root,data){
