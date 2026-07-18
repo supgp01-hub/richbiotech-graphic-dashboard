@@ -2257,7 +2257,7 @@ window._lfbFetch=function(){
   var updBtn=document.getElementById('lfb-upd');
   var tsEl=document.getElementById('lfb-ts');
   if(updBtn){updBtn.textContent='⏳ กำลังโหลด...';updBtn.disabled=true;}
-  fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=1166630130')
+  fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345')
     .then(function(r){return r.text();})
     .then(function(csv){
       var lines=csv.split('\n').filter(function(l){return l.trim();});
@@ -2265,8 +2265,8 @@ window._lfbFetch=function(){
         var cols=[],inQ=false,cur='';
         for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=c;}
         cols.push(cur.trim());
-        return{type:cols[0]||'',emp:cols[2]||'',prod:cols[3]||'',st:cols[5]||'',name:cols[6]||'',fbid:cols[7]||'',limit:cols[14]||'',flag:cols[15],upd:cols[16]||'',bal:cols[17]||''};
-      }).filter(function(r){return r.name||r.fbid;});
+        return{type:'',emp:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:'',flag:false,upd:'',bal:''};
+      }).filter(function(r){return r.name&&(r.prod||r.emp||r.st);});
       if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
       if(tsEl){var now=new Date();tsEl.textContent='อัพเดท: '+now.toLocaleDateString('th-TH')+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
       if(window._lfbRender)window._lfbRender();
