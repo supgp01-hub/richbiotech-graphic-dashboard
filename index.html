@@ -50,27 +50,62 @@
   }
   .header-badge span { font-weight: 700; color: var(--white); }
 
-  /* ─── NAV TABS ─── */
-  nav {
-    background: var(--pine);
-    display: flex; gap: 2px; padding: 0 40px;
-    overflow-x: auto;
+  /* ... SIDEBAR ... */
+  #app-layout { display: flex; min-height: 100vh; }
+  #sidebar {
+    width: 220px; min-width: 220px; background: var(--pine);
+    display: flex; flex-direction: column;
+    height: 100vh; position: sticky; top: 0; overflow-y: auto;
+    box-shadow: 2px 0 16px rgba(27,67,50,.25); z-index: 100; flex-shrink: 0;
   }
-  nav button {
-    background: none; border: none; cursor: pointer;
-    color: var(--mint); font-size: 13px; font-weight: 500;
-    padding: 13px 22px; white-space: nowrap;
-    border-bottom: 3px solid transparent;
-    transition: all .2s;
+  .sb-logo {
+    display: flex; align-items: center; gap: 11px;
+    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.1);
   }
-  nav button:hover { color: var(--white); }
-  nav button.active {
-    color: var(--white); border-bottom-color: var(--seaweed);
-    background: rgba(255,255,255,.06);
+  .sb-logo-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--basil); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
   }
+  .sb-brand { font-size: 12px; font-weight: 700; color: var(--mosspale); letter-spacing: .4px; }
+  .sb-sub { font-size: 10px; color: var(--mosslt); margin-top: 2px; }
+  .sb-section-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--mosslt); opacity: .55;
+    padding: 14px 16px 4px;
+  }
+  #sidebar button {
+    display: flex; align-items: center; gap: 9px;
+    width: 100%; background: none; border: none; cursor: pointer;
+    color: var(--mosslt); font-size: 13px; font-weight: 500;
+    padding: 9px 16px; text-align: left;
+    transition: all .15s; font-family: inherit;
+    border-left: 3px solid transparent;
+  }
+  #sidebar button:hover { background: rgba(255,255,255,.07); color: var(--white); }
+  #sidebar button.active {
+    background: var(--seaweed); color: var(--mosspale);
+    border-left-color: var(--moss); font-weight: 600;
+  }
+  .sb-icon { font-size: 15px; flex-shrink: 0; }
+  .sb-spacer { flex: 1; min-height: 16px; }
+  .sb-footer {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.1);
+  }
+  .sb-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--basil); color: var(--mosspale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .sb-username { font-size: 12px; font-weight: 600; color: var(--mosspale); }
+  .sb-role { font-size: 10px; color: var(--mosslt); margin-top: 1px; }
+  #page-wrap { flex: 1; overflow-x: hidden; min-width: 0; display: flex; flex-direction: column; }
 
   /* ─── CONTENT ─── */
-  main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+  main { padding: 28px 36px; flex: 1; max-width: 1400px; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -301,25 +336,28 @@
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="header-left">
-    <h1>🌿 RICHBIOTECH — Graphic &amp; Ads Dashboard</h1>
-    
-  </div>
-  
-</header>
-
-<!-- NAV -->
-<nav id="nav">
-  <button class="active" onclick="showTab('overview',this)">📊 ภาพรวม</button>
-  <button onclick="showTab('brands',this)">🏷️ แบรนด์สินค้า</button>
-  <button onclick="showTab('team',this)">👥 ทีมงาน</button>
-  <button onclick="showTab('schedule',this)">📅 ตารางวันหยุดทีม</button>
-  <button onclick="showTab('channels',this)">📡 ช่องทาง Social</button>
-  <button onclick="showTab('links',this)">🔗 ลิงก์สำคัญ</button>
+<div id="app-layout">
+<nav id="sidebar">
+  <div class="sb-logo"><div class="sb-logo-icon">🌿</div><div>
+    <div class="sb-brand">RICHBIOTECH</div>
+    <div class="sb-sub">Graphic &amp; Ads Team</div>
+  </div></div>
+  <div class="sb-section-label">หลัก</div>
+  <button class="active" onclick="showTab('overview',this)"><span class="sb-icon">📊</span><span>ภาพรวม</span></button>
+  <div class="sb-section-label">ทีม</div>
+  <button onclick="showTab('brands',this)"><span class="sb-icon">🏷️</span><span>แบรนด์สินค้า</span></button>
+  <button onclick="showTab('team',this)"><span class="sb-icon">🎨</span><span>ทีมงาน</span></button>
+  <button onclick="showTab('schedule',this)"><span class="sb-icon">📅</span><span>ตารางวันหยุด</span></button>
+  <div class="sb-section-label">ช่องทาง</div>
+  <button onclick="showTab('channels',this)"><span class="sb-icon">📡</span><span>Social Media</span></button>
+  <button onclick="showTab('links',this)"><span class="sb-icon">🔗</span><span>ลิงก์สำคัญ</span></button>
+  <div class="sb-spacer"></div>
+  <div class="sb-footer"><div class="sb-avatar">GR</div><div>
+    <div class="sb-username">Admin</div>
+    <div class="sb-role">Graphic &amp; Ads</div>
+  </div></div>
 </nav>
-
+<div id="page-wrap">
 <main>
 
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -1920,6 +1958,8 @@ function lvInit(){
 </div>
 
 </main>
+</div></div>
+
 
 
 
