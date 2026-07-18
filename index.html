@@ -2383,10 +2383,10 @@ var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
 // ===== FIREBASE REALTIME SYNC =====
 var FB_DB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
 var _fbSse=null; // SSE connection for live updates
-function fbGet(path,cb){
+window.fbGet=function fbGet(path,cb){
   fetch(FB_DB+path+'.json').then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e,null);});
 }
-function fbSet(path,data){
+window.fbSet=function fbSet(path,data){
   fetch(FB_DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(e){console.warn('FB write err',e);});
 }
 function fbSyncStart(){
