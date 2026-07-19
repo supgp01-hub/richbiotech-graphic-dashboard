@@ -3161,10 +3161,7 @@ window.gAS=function(){
     gl3.appendChild(mkF('แคมเปญ Ver 2.',mkI('om-camp2','แคมเปญ Ver 2...')));
     gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
     p2.appendChild(gl3);
-    p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));
-
-    p2.appendChild(mkF('ข้อผิดพลาด',mkTA('om-audit-error','ระบุข้อผิดพลาด...')));
-    p2.appendChild(mkF('แก้ไขเรียบร้อย',mkTA('om-audit-fixed','ระบุสิ่งที่แก้ไขแล้ว...')));    var revImgSection=document.createElement('div');revImgSection.id='om-rev-imgs';revImgSection.style.cssText='display:none;border-top:2px dashed #fca5a5;margin-top:12px;padding-top:12px;';
+    p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));    var revImgSection=document.createElement('div');revImgSection.id='om-rev-imgs';revImgSection.style.cssText='display:block;border-top:2px dashed #fca5a5;margin-top:12px;padding-top:12px;';
     var eSect=document.createElement('div');
     var eHd=document.createElement('div');eHd.style.cssText='font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;';eHd.textContent='📸 ข้อผิดพลาด';
     var eImgInpR=document.createElement('input');eImgInpR.type='file';eImgInpR.accept='image/*';eImgInpR.multiple=true;eImgInpR.style.display='none';
@@ -3263,8 +3260,6 @@ window.gAS=function(){
     ge('om-camp2').value=o?(o.camp2||''):'';
     ge('om-uplink').value=o?(o.upLink||''):'';ge('om-imgs-note').value=o?(o.imgsNote||''):'';
     ge('om-ad').value=o?(o.adLink||''):'';ge('om-audit-note').value=o?(o.auditNote||''):'';
-    ge('om-audit-error').value=o?(o.auditError||''):'';
-    ge('om-audit-fixed').value=o?(o.auditFixed||''):'';
     var _slv=o?(o.submitLink||''):''; ge('om-submitlink').value=_slv;
     var _slb=ge('om-submitlink-box');if(_slb)_slb.style.display=_slv?'flex':'none';
     var _sld=ge('om-submitlink-disp');if(_sld){_sld.href=_slv||'#';_sld.style.display=_slv?'inline-flex':'none';}
