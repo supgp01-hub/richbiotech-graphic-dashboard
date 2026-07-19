@@ -3276,8 +3276,8 @@ window.gAS=function(){
         var _ords=typeof lpORD==='function'?lpORD():[];
         var _cjob=_ords.find(function(x){return x.id===_cid;});
         var _cst=_cjob?_cjob.status:'';
-        var _nst=_cst==='inprogress'?'review':'inprogress';
-        _omSaveBtn.textContent=_cst==='inprogress'?'✅ ส่งงาน':'✅ กำลังดำเนินการ';
+        var _nst=_cst==='inprogress'?'review':(_cst==='revision'?'review':'inprogress');
+        _omSaveBtn.textContent=_cst==='inprogress'?'✅ ส่งงาน':(_cst==='revision'?'🔁 ส่งตรวจอีกครั้ง':'✅ กำลังดำเนินการ');
         _omSaveBtn.style.background='#d97706';
         _omSaveBtn.onclick=function(){
           var ordId=ge('om-id').textContent;
