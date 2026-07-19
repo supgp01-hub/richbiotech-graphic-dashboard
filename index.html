@@ -2202,7 +2202,7 @@ window._lfbFetch=function(){
         var cols=[],inQ=false,cur='';
         for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=c;}
         cols.push(cur.trim());
-        return{type:'',emp:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:'',flag:false,upd:'',bal:''};
+        return{type:'',emp:cols[3]||'',owner:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:'',flag:false,upd:'',bal:''};
       }).filter(function(r){return r.name&&(r.prod||r.emp||r.st);});
       if(updBtn){updBtn.textContent='🔄 อัพข้อมูลล่าสุด';updBtn.disabled=false;}
       if(tsEl){var now=new Date();tsEl.textContent='อัพเดท: '+now.toLocaleDateString('th-TH')+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
@@ -2223,7 +2223,7 @@ window._initFbList=function(){
   root.innerHTML='<p style="text-align:center;padding:30px;color:#888">⏳ กำลังโหลดข้อมูลเพจ...</p>';
   fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345')
     .then(function(r){return r.text();})
-    .then(function(csv){window._renderFbList(root,(function(csv){var lines=csv.split('\n').filter(function(l){return l.trim();});return lines.slice(1).map(function(line){var cols=[],inQ=false,cur='';for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else{cur+=c;}}cols.push(cur);return{type:'',emp:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:cols[14]||'',upd:cols[16]||'',bal:cols[17]||''};}).filter(function(r){return r.name;})})(csv));})
+    .then(function(csv){window._renderFbList(root,(function(csv){var lines=csv.split('\n').filter(function(l){return l.trim();});return lines.slice(1).map(function(line){var cols=[],inQ=false,cur='';for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else{cur+=c;}}cols.push(cur);return{type:'',emp:cols[3]||'',owner:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:cols[14]||'',upd:cols[16]||'',bal:cols[17]||''};}).filter(function(r){return r.name;})})(csv));})
     .catch(function(){root.innerHTML='<p style="text-align:center;padding:20px;color:#e00">❌ โหลดข้อมูลไม่สำเร็จ</p>';});
 };
 window._parseFbCsv=function(csv){
