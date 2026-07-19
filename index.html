@@ -2640,7 +2640,7 @@ function buildOM(){
   var hdr=document.createElement('div');hdr.style.cssText='background:#1B4332;padding:18px 24px;display:flex;align-items:center;';
   var ti=document.createElement('div');ti.id='om-hd';ti.style.cssText='font-size:16px;font-weight:700;color:white;flex:1;';
   var cl=document.createElement('button');cl.textContent='✕ ปิด';cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 14px;color:white;cursor:pointer;font-size:13px;';cl.onclick=closeOM;
-  hdr.appendChild(ti);var sv=document.createElement('button');sv.textContent='✓ บันทึก';sv.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 14px;color:white;cursor:pointer;font-size:13px;margin-right:8px;';sv.onclick=saveOrder;hdr.appendChild(sv);hdr.appendChild(cl);
+  hdr.appendChild(ti);hdr.appendChild(cl);
   var body=document.createElement('div');body.style.cssText='padding:20px 24px;max-height:80vh;overflow-y:auto;';
   var idRow=document.createElement('div');idRow.style.cssText='background:#f0fdf4;border-radius:8px;padding:8px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:13px;';
   var idLbl=document.createElement('span');idLbl.textContent='เลขงาน:';idLbl.style.fontWeight='600';
@@ -3049,7 +3049,7 @@ window.gAS=function(){
     var cl=document.createElement('button');cl.type='button';
     cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 14px;color:white;cursor:pointer;font-size:13px;';
     cl.textContent='✕ ปิด';cl.onclick=closeOM2;
-    hdr.appendChild(ti);hdr.appendChild(cl);
+    hdr.appendChild(ti);var sv=document.createElement('button');sv.textContent='✓ บันทึก';sv.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 14px;color:white;cursor:pointer;font-size:13px;margin-right:8px;';sv.onclick=saveOM2;hdr.appendChild(sv);hdr.appendChild(cl);
     var idRow=document.createElement('div');
     idRow.style.cssText='background:#f0fdf4;padding:6px 20px;font-size:13px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid #e5e7eb;';
     var idLbl=document.createElement('span');idLbl.textContent='เลขงาน:';idLbl.style.fontWeight='700';
