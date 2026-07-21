@@ -2716,7 +2716,7 @@ window.gsOrdModal=function(oId){
     if(idx>=0)allOrds[idx]=ent;else allOrds.push(ent);
     localStorage.setItem('rb_orders_v1',JSON.stringify(allOrds));
     ov.remove();
-    if(typeof renderOrders==='function')renderOrders();
+    initOrderPanel();
   };
   br.appendChild(cb);br.appendChild(sb);bx.appendChild(br);
   ov.appendChild(bx);
@@ -2735,7 +2735,7 @@ function saveOrder(){
   if(idx>=0){var old=orders[idx];entry.createdAt=old.createdAt||now;var stLabel=(ST.find(function(s){return s.k===entry.status;})||{l:entry.status}).l;var oldStL=(ST.find(function(s){return s.k===old.status;})||{l:old.status||''}).l;logTL('📋 สั่งงาน',old.status!==entry.status?'อัปเดตสถานะ':'แก้ไขงาน',id+' "'+title+'"'+(old.status!==entry.status?' '+oldStL+' → '+stLabel:''),{jn:entry.title,jt:entry.type,as:entry.assignee});orders[idx]=entry;}
   else{entry.createdAt=now;logTL('📋 สั่งงาน','เพิ่มงานใหม่',id+' "'+title+'"',{jn:entry.title,jt:entry.type,as:entry.assignee});orders.unshift(entry);}
   entry.errorImages=JSON.parse(JSON.stringify(gsErrImgs));entry.fixImages=JSON.parse(JSON.stringify(gsFixImgs));
-  spORD(orders);closeOM();renderOrderStats();renderOrders();
+  spORD(orders);closeOM();initOrderPanel();
 }
 function delOrder(id){
   var orders=lpORD();var o=orders.find(function(x){return x.id===id;});
@@ -3218,13 +3218,13 @@ window.gAS=function(){
     var auditRow=document.createElement('div');auditRow.id='om-audit-btns';auditRow.style.cssText='display:none;gap:10px;width:100%;';
     var cBtn=document.createElement('button');cBtn.type='button';cBtn.textContent='✅ เสร็จสมบูรณ์';
     cBtn.style.cssText='flex:1;background:#15803d;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .15s;';
-    cBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='done';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}closeOM2();if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();};
+    cBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='done';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}closeOM2();if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();initOrderPanel();};
     var rBtn=document.createElement('button');rBtn.type='button';rBtn.textContent='⚠️ ต้องแก้ไข';
     rBtn.style.cssText='flex:1;background:#dc2626;color:white;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(220,38,38,.3);transition:opacity .15s;';
-    rBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='revision';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}closeOM2();if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();};
+    rBtn.onclick=function(){var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){orders[idx].status='revision';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}closeOM2();if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();initOrderPanel();};
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
-    var resendBtn=document.createElement('button');resendBtn.id='om-resend-btn';resendBtn.style.cssText='display:none;padding:10px 22px;background:#D97706;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;margin-left:8px;box-shadow:0 4px 12px rgba(217,119,6,.3);transition:opacity .15s;';resendBtn.textContent='🔁 ส่งตรวจอีกครั้ง';resendBtn.onclick=function(){var cid=ge('om-id')?ge('om-id').textContent.trim():'';if(!cid)return;var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');var ix=ords.findIndex(function(o){return o.id===cid;});if(ix>=0){ords[ix].status='review';ords[ix].updatedAt=new Date().toISOString();}localStorage.setItem('rb_orders_v1',JSON.stringify(ords));if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',cid+' → รอตรวจ',(function(){var _x=ords.find(function(x){return x.id===cid;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());closeOM();renderOrders&&renderOrders();};foot.appendChild(resendBtn);
+    var resendBtn=document.createElement('button');resendBtn.id='om-resend-btn';resendBtn.style.cssText='display:none;padding:10px 22px;background:#D97706;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;margin-left:8px;box-shadow:0 4px 12px rgba(217,119,6,.3);transition:opacity .15s;';resendBtn.textContent='🔁 ส่งตรวจอีกครั้ง';resendBtn.onclick=function(){var cid=ge('om-id')?ge('om-id').textContent.trim():'';if(!cid)return;var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');var ix=ords.findIndex(function(o){return o.id===cid;});if(ix>=0){ords[ix].status='review';ords[ix].updatedAt=new Date().toISOString();}localStorage.setItem('rb_orders_v1',JSON.stringify(ords));if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',cid+' → รอตรวจ',(function(){var _x=ords.find(function(x){return x.id===cid;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());closeOM();initOrderPanel();};foot.appendChild(resendBtn);
     _omUpdateFooter=function(tabKey){var isAudit=tabKey==='links'||tabKey==='imgs';var saveBtn2=ge('om-save-btn');var resendBtn=ge('om-resend-btn');var revD=ge('om-rev-imgs');var cst=ge('om-st')&&ge('om-st').value;var isRev=cst==='revision';if(saveBtn2)saveBtn2.style.display='none';if(isAudit){_omSaveBtn.style.display='none';if(isRev){auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';}else{auditRow.style.display='flex';if(resendBtn)resendBtn.style.display='none';}if(revD)revD.style.display='block';}else if(!_omViewMode&&isRev){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';if(revD)revD.style.display='block';}else{_omSaveBtn.style.display='';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}};
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
     _OM2.appendChild(box);document.body.appendChild(_OM2);
@@ -3289,7 +3289,7 @@ window.gAS=function(){
           closeOM2();
           if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
           if(typeof renderOrderStats==='function')renderOrderStats();
-          if(typeof renderOrders==='function')renderOrders();
+          initOrderPanel();
         };
       } else {
         _omSaveBtn.textContent='💾 สั่งงาน';
@@ -3363,7 +3363,7 @@ window.gAS=function(){
     if(typeof logTL==='function'){var isNew=(idx<0);logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',isNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});}
     if(typeof renderOrderStats==='function')renderOrderStats();
     if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}
-    if(typeof renderOrders==='function')renderOrders();
+    initOrderPanel();
     closeOM2();
   }
   try{
