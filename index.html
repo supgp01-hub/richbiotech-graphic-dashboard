@@ -3360,7 +3360,7 @@ window.gAS=function(){
     };
     if(idx>=0){orders[idx]=entry;}else{orders.push(entry);}
     if(typeof spORD==='function')spORD(orders);
-    if(typeof logTL==='function'){var isNew=(idx<0);logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',isNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"');}
+    if(typeof logTL==='function'){var isNew=(idx<0);logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',isNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});}
     if(typeof renderOrderStats==='function')renderOrderStats();
     if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}
     if(typeof renderOrders==='function')renderOrders();
