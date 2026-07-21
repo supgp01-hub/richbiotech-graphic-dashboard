@@ -1054,6 +1054,7 @@ function edDragEnd()    { ED.drag=false; }
 
 /* save → export 300x300 */
 function edSave() {
+  if(!ED || !ED.img)return;
   const out = document.createElement('canvas');
   out.width=300; out.height=300;
   const ctx=out.getContext('2d');
