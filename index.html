@@ -2718,7 +2718,7 @@ window.gsOrdModal=function(oId){
     ov.remove();
     if(typeof renderOrders==='function')renderOrders();
   };
-  br.appendChild(cb);if(ord&&ord.status==='review')br.appendChild(sb);bx.appendChild(br);
+  br.appendChild(cb);br.appendChild(sb);bx.appendChild(br);
   ov.appendChild(bx);
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
   document.body.appendChild(ov);
