@@ -3286,7 +3286,7 @@ window.gAS=function(){
           var ordId=ge('om-id').textContent;
           var orders=typeof lpORD==='function'?lpORD():[];
           var idx=orders.findIndex(function(x){return x.id===ordId;});
-          if(idx>=0){orders[idx].status=_nst;orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+(ST.find(function(s){return s.k===_nst;})||{l:_nst}).l,(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}
+          if(idx>=0){orders[idx].status=_nst;orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+((typeof ST!=="undefined"?ST:[]).find(function(s){return s.k===_nst;})||{l:_nst}).l,(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}
           closeOM2();
           if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
           if(typeof renderOrderStats==='function')renderOrderStats();
