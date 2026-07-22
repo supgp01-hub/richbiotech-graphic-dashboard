@@ -2584,7 +2584,7 @@ function renderOrders(){
   var f=orders.filter(function(o){
     if(_OF.status&&o.status!==_OF.status)return false;
     if(_OF.type&&o.type!==_OF.type)return false;
-    if(_OF.search){var q=_OF.search.toLowerCase();if(!(o.id||'').toLowerCase().includes(q)&&!(o.title||'').toLowerCase().includes(q))return false;}
+    if(_OF.search){var q=_OF.search.toLowerCase();if(!(o.id||'').toLowerCase().includes(q)&&!(o.name||o.title||'').toLowerCase().includes(q))return false;}
     if(_OF.dl==='soon'&&dlSt(o.deadline)!=='soon')return false;
     if(_OF.dl==='over'&&dlSt(o.deadline)!=='over')return false;
     if(_OF.date&&(o.deadline||'')!==_OF.date)return false;
@@ -2609,7 +2609,7 @@ function renderOrders(){
     var dlc=ds==='over'?'#dc2626':ds==='soon'?'#d97706':'#374151';
     var dlbadge=ds==='over'?'<span style="font-size:10px;background:#fee2e2;color:#dc2626;padding:1px 5px;border-radius:4px;margin-left:4px;">เกิน</span>':ds==='soon'?'<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">ใกล้</span>':'';
     [{html:'<span style="font-family:monospace;font-weight:700;color:#1B4332;">'+esc(o.id)+'</span>'},
-     {html:'<div style="font-weight:600;color:#111827;">'+esc(o.title)+'</div>'+(o.note?'<div style="font-size:11px;color:#9ca3af;margin-top:2px;">'+esc(o.note)+'</div>':'')},
+     {html:'<div style="font-weight:600;color:#111827;">'+esc(o.name||o.title||'')+'</div>'+(o.note?'<div style="font-size:11px;color:#9ca3af;margin-top:2px;">'+esc(o.note)+'</div>':'')},
      {html:'<span style="background:#f3f4f6;padding:2px 8px;border-radius:6px;font-size:11px;">'+esc(o.type||'—')+'</span>'},
      {html:'<span style="color:'+dlc+';font-weight:600;">'+fmtD(o.deadline)+'</span>'+dlbadge}
     ].forEach(function(c){var td=document.createElement('td');td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
@@ -2627,7 +2627,7 @@ function renderOrders(){
     var eb=document.createElement('button');eb.title='แก้ไข';eb.textContent='✏️';eb.style.cssText='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;cursor:pointer;font-size:13px;padding:4px 8px;margin-right:4px;';
     eb.onclick=(function(id){return function(){window.openOM(id);};})(o.id);
     var db=document.createElement('button');db.title='ลบ';db.textContent='🗑️';db.style.cssText='background:#fef2f2;border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-size:13px;padding:4px 8px;';
-    db.onclick=(function(id,ttl){return function(){if(confirm('ลบงาน '+id+': "'+ttl+'"?')){delOrder(id);}};})(o.id,o.title);
+    db.onclick=(function(id,ttl){return function(){if(confirm('ลบงาน '+id+': "'+ttl+'"?')){delOrder(id);}};})(o.id,(o.name||o.title));
     atd.appendChild(eb);if(window._ordViewMode!=='team'){atd.appendChild(db);}tr.appendChild(atd);tbody.appendChild(tr);
   });
   tbl.appendChild(tbody);wrap.appendChild(tbl);
@@ -2685,7 +2685,7 @@ window.gsOrdModal=function(oId){
   function row(lb,el){var w=mk('div','margin-bottom:12px;');var l=mk('label','display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;',lb);w.appendChild(l);w.appendChild(el);return w;}
   bx.appendChild(mk('h3','margin:0 0 16px;color:#1B4332;font-size:17px;',oId?'แก้ไขงาน':'เพิ่มงานใหม่'));
   var idSpan=mk('span','display:none');idSpan.id='om-id';idSpan.textContent=ord?ord.id:newId;bx.appendChild(idSpan);
-  bx.appendChild(row('ชื่องาน / แคมเปญ',inp('om-name',ord?ord.title:'')));
+  bx.appendChild(row('ชื่องาน / แคมเปญ',inp('om-name',ord?(ord.name||ord.title||''):'')));
   bx.appendChild(row('สินค้า',sel('om-prod',[''].concat(brands),ord?ord.product:(_OF&&_OF.activeCard!=='all'?_OF.activeCard:''))));
   bx.appendChild(row('ประเภท',sel('om-type',['ยิงแอด','ออกแบบ','ตัดต่อ','คอนเทนต์','รีวิว','อื่นๆ'],ord?ord.type:'')));
   bx.appendChild(row('ผู้รับผิดชอบ',sel('om-mb',[''].concat(mbs),ord?ord.assignee:'')));
@@ -2732,7 +2732,7 @@ function saveOrder(){
   if(!title){alert('กรุณากรอกชื่องาน');return;}
   var orders=lpORD();var idx=orders.findIndex(function(o){return o.id===id;});
   var now=Date.now();
-  var entry={id:id,title:title,type:document.getElementById('om-type').value,deadline:document.getElementById('om-dl').value,status:document.getElementById('om-st').value,assignee:document.getElementById('om-mb').value,note:document.getElementById('om-note').value,hook:(document.getElementById('om-hook')?document.getElementById('om-hook').value:''),hook2:(document.getElementById('om-hook2')?document.getElementById('om-hook2').value:''),updatedAt:now};
+  var entry={id:id,name:title,type:document.getElementById('om-type').value,deadline:document.getElementById('om-dl').value,status:document.getElementById('om-st').value,assignee:document.getElementById('om-mb').value,note:document.getElementById('om-note').value,hook:(document.getElementById('om-hook')?document.getElementById('om-hook').value:''),hook2:(document.getElementById('om-hook2')?document.getElementById('om-hook2').value:''),updatedAt:now};
   if(idx>=0){var old=orders[idx];entry.createdAt=old.createdAt||now;var stLabel=(ST.find(function(s){return s.k===entry.status;})||{l:entry.status}).l;var oldStL=(ST.find(function(s){return s.k===old.status;})||{l:old.status||''}).l;logTL('📋 สั่งงาน',old.status!==entry.status?'อัปเดตสถานะ':'แก้ไขงาน',id+' "'+title+'"'+(old.status!==entry.status?' '+oldStL+' → '+stLabel:''),{jn:entry.title,jt:entry.type,as:entry.assignee});orders[idx]=entry;}
   else{entry.createdAt=now;logTL('📋 สั่งงาน','เพิ่มงานใหม่',id+' "'+title+'"',{jn:entry.title,jt:entry.type,as:entry.assignee});orders.unshift(entry);}
   entry.errorImages=JSON.parse(JSON.stringify(gsErrImgs));entry.fixImages=JSON.parse(JSON.stringify(gsFixImgs));
@@ -2741,7 +2741,7 @@ function saveOrder(){
 function delOrder(id){
   var orders=lpORD();var o=orders.find(function(x){return x.id===id;});
   spORD(orders.filter(function(x){return x.id!==id;}));
-  logTL('📋 สั่งงาน','ลบงาน',id+(o?' "'+o.title+'"':''),o?{jn:o.title,jt:o.type,as:o.assignee}:null);
+  logTL('📋 สั่งงาน','ลบงาน',id+(o?' "'+(o.name||o.title||'')+'"':''),o?{jn:(o.name||o.title||''),jt:o.type,as:o.assignee}:null);
   renderOrderStats();renderOrders();
 }
 
@@ -3242,7 +3242,7 @@ window.gAS=function(){
     _omFixImages=(o&&o.fixImages)?JSON.parse(JSON.stringify(o.fixImages)):[];
     var _isView=window._ordViewMode==='team';ge('om-hd').textContent=_isView&&id?'📋 สรุปงาน '+id:id?'✏️ แก้ไขงาน '+id:'📋 เพิ่มงานใหม่';
     ge('om-id').textContent=id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));
-    ge('om-name').value=o?o.title:'';
+    ge('om-name').value=o?(o.name||o.title||''):'';
     ge('om-prod').value=o?(o.product||''):'';
     var OT_=typeof OT!=='undefined'?OT:[];
     ge('om-type').value=o?(o.type||''):'';
@@ -3326,7 +3326,7 @@ window.gAS=function(){
     var idx=orders.findIndex(function(x){return x.id===id;});
     var entry={
       id:id,
-      title:title,
+      name:title,
       product:ge('om-prod').value||'',
       type:ge('om-type').value||'',
       deadline:ge('om-dl').value||'',
