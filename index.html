@@ -332,6 +332,38 @@
     font-size: 12px; color: var(--gray);
     border-top: 1px solid var(--foam); margin-top: 20px;
   }
+
+#sidebar{transition:width .25s;}
+#sidebar.sb-collapsed{width:64px!important;min-width:64px!important;overflow:hidden;}
+#sidebar.sb-collapsed .sb-section-label{display:none!important;}
+#sidebar.sb-collapsed .sb-brand,#sidebar.sb-collapsed .sb-role{display:none!important;}
+#sidebar.sb-collapsed button span:not(.sb-icon){display:none!important;}
+#sidebar.sb-collapsed .sb-settings-lbl{display:none!important;}
+#sidebar.sb-collapsed button{justify-content:center!important;padding:10px 0!important;}
+#sidebar.sb-collapsed .sb-logo{justify-content:center!important;padding:10px 0!important;}
+#sb-toggle{background:none;border:none;cursor:pointer;color:#95D5B2;font-size:13px;padding:3px 5px;border-radius:5px;margin-left:auto;flex-shrink:0;transition:transform .25s,background .2s;line-height:1;}
+#sb-toggle:hover{background:rgba(255,255,255,.14);}
+#sidebar.sb-collapsed #sb-toggle{transform:scaleX(-1);margin:0;}
+.sb-settings-sub{display:none;padding:2px 0 4px 16px;}
+.sb-settings-sub.open{display:block;}
+.sb-settings-sub-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;cursor:pointer;color:#95D5B2;font-size:13px;transition:background .2s;}
+.sb-settings-sub-item:hover{background:rgba(255,255,255,.09);}
+#sidebar.sb-collapsed .sb-settings-sub{display:none!important;}
+.sb-settings-arrow{margin-left:auto;font-size:9px;transition:transform .25s;display:inline-block;opacity:.7;}
+#settings-panel{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9900;justify-content:center;align-items:center;}
+#settings-panel.open{display:flex;}
+#sp-inner{background:#fff;border-radius:14px;width:500px;max-width:93vw;max-height:82vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+#sp-head{display:flex;align-items:center;gap:9px;padding:16px 20px 12px;border-bottom:1px solid #e8f3ec;}
+#sp-head h3{margin:0;font-size:16px;color:#1B4332;font-weight:700;}
+.sp-xbtn{margin-left:auto;background:none;border:none;font-size:19px;cursor:pointer;color:#999;padding:2px 6px;border-radius:5px;}
+.sp-xbtn:hover{background:#f0f0f0;}
+.sp-tabs{display:flex;gap:2px;padding:10px 20px 0;border-bottom:1px solid #e8f3ec;}
+.sp-tab{padding:6px 16px;border-radius:7px 7px 0 0;cursor:pointer;font-size:13px;color:#40916C;border-bottom:2px solid transparent;transition:background .15s;}
+.sp-tab.active{background:#F0F7F2;border-bottom-color:#40916C;font-weight:600;color:#1B4332;}
+.sp-body{display:none;padding:18px 20px 20px;}
+.sp-body.active{display:block;}
+.sp-btn{padding:8px 16px;border-radius:8px;border:none;background:#40916C;color:#fff;cursor:pointer;font-size:13px;margin:4px 6px 4px 0;transition:background .2s;}
+.sp-btn:hover{background:#2D6A4F;}
 </style>
 </head>
 <body>
@@ -341,7 +373,9 @@
   <div class="sb-logo"><div class="sb-logo-icon">🌿</div><div>
     <div class="sb-brand">RICHBIOTECH</div>
     <div class="sb-sub">Graphic &amp; Ads Team</div>
-  </div></div>
+  </div>
+<button id="sb-toggle" onclick="window._rbTogSB&&window._rbTogSB()" title="ย่อ/ขยาย">&#9664;</button>
+</div>
   <div class="sb-section-label">หลัก</div>
   <button class="active" onclick="showTab('overview',this)"><span class="sb-icon">📊</span><span>ภาพรวม</span></button>
   <div class="sb-section-label">ทีม</div>
@@ -351,6 +385,14 @@
   <div class="sb-section-label">ช่องทาง</div>
   <button onclick="showTab('channels',this)"><span class="sb-icon">📡</span><span>Social Media</span></button>
   <button onclick="showTab('links',this)"><span class="sb-icon">🔗</span><span>ลิงก์สำคัญ</span></button>
+  <div class="sb-section-label">ระบบ</div>
+  <button id="sb-settings-btn" onclick="window._rbTogSet&&window._rbTogSet(this)"><span class="sb-icon">&#9881;&#65039;</span><span>ตั้งค่า</span><span class="sb-settings-arrow">&#9660;</span></button>
+  <div class="sb-settings-sub" id="sb-sub">
+    <div class="sb-settings-sub-item" onclick="window._rbShowSP&&window._rbShowSP('user')"><span class="sb-icon">&#128100;</span><span class="sb-settings-lbl">USER</span></div>
+    <div class="sb-settings-sub-item" onclick="window._rbShowSP&&window._rbShowSP('export')"><span class="sb-icon">&#128229;</span><span class="sb-settings-lbl">EXPORT</span></div>
+    <div class="sb-settings-sub-item" onclick="window._rbShowSP&&window._rbShowSP('guide')"><span class="sb-icon">&#128214;</span><span class="sb-settings-lbl">คู่มือ</span></div>
+  </div>
+
   <div class="sb-spacer"></div>
   <div class="sb-footer"><div class="sb-avatar">GR</div><div>
     <div class="sb-username">Admin</div>
@@ -3884,7 +3926,15 @@ window.initLinksPanel=function(container){
   window.ctRender();
 };
 })();
+
+window._rbTogSB=function(){var s=document.getElementById('sidebar');if(!s)return;s.classList.toggle('sb-collapsed');try{localStorage.setItem('_rbc',s.classList.contains('sb-collapsed')?'1':'')}catch(e){}};
+(function(){try{if(localStorage.getItem('_rbc')){var s=document.getElementById('sidebar');if(s)s.classList.add('sb-collapsed');}}catch(e){}})();
+window._rbTogSet=function(el){var sub=document.getElementById('sb-sub');var arr=el?el.querySelector('.sb-settings-arrow'):null;if(!sub)return;sub.classList.toggle('open');if(arr)arr.style.transform=sub.classList.contains('open')?'rotate(180deg)':'';};
+window._rbShowSP=function(tab){var p=document.getElementById('settings-panel');if(!p)return;p.classList.add('open');[].forEach.call(document.querySelectorAll('.sp-tab'),function(t){t.classList.toggle('active',t.dataset.tab===tab);});[].forEach.call(document.querySelectorAll('.sp-body'),function(b){b.classList.toggle('active',b.dataset.tab===tab);});};
+document.addEventListener('click',function(e){var p=document.getElementById('settings-panel');if(p&&e.target===p)p.classList.remove('open');});
+window._rbExport=function(type){var orders=window.orders||window._orders||[];if(!orders.length){try{var d=localStorage.getItem('rb_orders');if(d)orders=JSON.parse(d);}catch(e){}}if(type==='orders'){if(!orders.length){alert('ไม่พบข้อมูล');return;}var h=['สถานะ','แบรนด์','ประเภท','ผู้รับงาน','วันส่ง'];var rows=orders.map(function(o){return[o.status||'',o.brand||'',o.type||'',o.assignee||'',o.dl||''].map(function(v){return'"'+v.replace(/"/g,'""')+'"';}).join(',');});var csv='\ufeff'+h.join(',')+'\n'+rows.join('\n');var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='orders.csv';a.click();URL.revokeObjectURL(url);}else{alert('ไม่รองรับ');}};
 </script>
+<div id="settings-panel"><div id="sp-inner"><div id="sp-head"><span style="font-size:18px">&#9881;&#65039;</span><h3>ตั้งค่า</h3><button class="sp-xbtn" onclick="document.getElementById('settings-panel').classList.remove('open')">&#10005;</button></div><div class="sp-tabs"><div class="sp-tab active" data-tab="user" onclick="window._rbShowSP&&window._rbShowSP('user')">&#128100; USER</div><div class="sp-tab" data-tab="export" onclick="window._rbShowSP&&window._rbShowSP('export')">&#128229; EXPORT</div><div class="sp-tab" data-tab="guide" onclick="window._rbShowSP&&window._rbShowSP('guide')">&#128214; คู่มือ</div></div><div class="sp-body active" data-tab="user"><h4 style="margin:0 0 12px;color:#1B4332;">ผู้ใช้งานระบบ</h4><div style="background:#F0F7F2;border-radius:10px;padding:13px 15px;font-size:14px;"><strong>Admin &mdash; Graphic &amp; Ads Team</strong><br><span style="color:#888;font-size:12px;">สิทธิ์: ผู้ดูแลระบบ</span></div><p style="margin:13px 0 0;font-size:13px;color:#666;">หากต้องการเพิ่ม/แก้ไขผู้ใช้ กรุณาติดต่อผู้ดูแลระบบ</p></div><div class="sp-body" data-tab="export"><h4 style="margin:0 0 10px;color:#1B4332;">ดาวน์โหลดข้อมูล</h4><p style="font-size:13px;color:#666;margin:0 0 14px;">เลือกข้อมูลที่ต้องการ export เป็นไฟล์ CSV</p><button class="sp-btn" onclick="window._rbExport&&window._rbExport('orders')">⬇️ คำสั่งงานทั้งหมด (.csv)</button></div><div class="sp-body" data-tab="guide"><h4 style="margin:0 0 12px;color:#1B4332;">คู่มือการใช้งาน Dashboard</h4><div style="font-size:13px;color:#444;line-height:1.85;"><p><strong>&#128203; สั่งงาน:</strong> สร้าง ติดตาม อัปเดตสถานะคำสั่งงาน</p><p><strong>&#128101; ทีมงาน:</strong> ดูโครงสร้างทีมและรายชื่อ</p><p><strong>&#128197; ตารางวันหยุด:</strong> ดูและจัดการวันลา</p><p><strong>&#128279; รวมลิงก์:</strong> รวม Content &amp; Assets ทั้งหมด</p><p><strong>&#128229; EXPORT:</strong> ดาวน์โหลดข้อมูลเป็นไฟล์ CSV</p></div></div></div></div>
 </body>
 </html>
             
