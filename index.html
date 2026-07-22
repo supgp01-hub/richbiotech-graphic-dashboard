@@ -3216,6 +3216,7 @@ window.gAS=function(){
     gl3.appendChild(mkF('แคมเปญ Ver 2.',mkI('om-camp2','แคมเปญ Ver 2...')));
     gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
     p2.appendChild(gl3);
+    var _campExDiv=document.createElement('div');_campExDiv.id='om-camp-extra';p2.appendChild(_campExDiv);window._addCampRow=function(){var cont=document.getElementById('om-camp-extra');if(!cont)return;var n=cont.querySelectorAll('.om-camp-row').length+3;var row=document.createElement('div');row.className='om-camp-row';row.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;margin-bottom:4px;';row.appendChild(mkF('แคมเปญ Ver '+n+'.',mkI('om-camp'+n,'แคมเปญ Ver '+n+'...')));row.appendChild(mkF('Link Ver '+n+'.',mkLink('om-link'+n)));cont.appendChild(row);};var _campAddBtn=document.createElement('button');_campAddBtn.type='button';_campAddBtn.textContent='+ เพิ่มแคมเปญ';_campAddBtn.style.cssText='display:inline-block;margin:6px 0 10px 0;padding:5px 16px;background:#1B4332;color:#D8F3DC;border:none;border-radius:20px;cursor:pointer;font-size:13px;';_campAddBtn.onclick=function(){window._addCampRow&&window._addCampRow();};p2.appendChild(_campAddBtn);
     p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));    var revImgSection=document.createElement('div');revImgSection.id='om-rev-imgs';revImgSection.style.cssText='display:block;border-top:2px dashed #fca5a5;margin-top:12px;padding-top:12px;';
     var eSect=document.createElement('div');
     var eHd=document.createElement('div');eHd.style.cssText='font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;';eHd.textContent='📸 ข้อผิดพลาด';
@@ -3313,6 +3314,7 @@ window.gAS=function(){
     if(ge('om-contentuplist')._applyStyle)ge('om-contentuplist')._applyStyle();
     ge('om-camp1').value=o?(o.camp1||''):'';
     ge('om-camp2').value=o?(o.camp2||''):'';
+    var _extC=document.getElementById('om-camp-extra');if(_extC){_extC.innerHTML='';if(o&&o.campExtra&&o.campExtra.length){o.campExtra.forEach(function(){window._addCampRow&&window._addCampRow();});o.campExtra.forEach(function(c,i){var n=i+3;var el=document.getElementById('om-camp'+n);if(el)el.value=c.name||'';var el2=document.getElementById('om-link'+n);if(el2)el2.value=c.link||'';});}}
     ge('om-uplink').value=o?(o.upLink||''):'';ge('om-imgs-note').value=o?(o.imgsNote||''):'';
     ge('om-ad').value=o?(o.adLink||''):'';ge('om-audit-note').value=o?(o.auditNote||''):'';
     var _slv=o?(o.submitLink||''):''; ge('om-submitlink').value=_slv;
@@ -3393,6 +3395,7 @@ window.gAS=function(){
       fbUpList:ge('om-fbuplist').value||'',
       contentUpList:ge('om-contentuplist').value||'',
       camp1:ge('om-camp1').value||'',
+      campExtra:(function(){var cont=document.getElementById('om-camp-extra');if(!cont)return[];return Array.prototype.slice.call(cont.querySelectorAll('.om-camp-row')).map(function(r,i){var n=i+3;var el=document.getElementById('om-camp'+n);var el2=document.getElementById('om-link'+n);return{name:el?el.value||'':'',link:el2?el2.value||'':''};});})(),
       camp2:ge('om-camp2').value||'',
       upLink:ge('om-uplink').value||'',
       imgsNote:ge('om-imgs-note')?ge('om-imgs-note').value:'',
