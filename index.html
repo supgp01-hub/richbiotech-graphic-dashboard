@@ -2328,8 +2328,42 @@ window._renderFbList=function(root,data){
       html+='<tr data-name="'+r.name+'" style="background:'+(i%2===0?'#fff':'#f9fafb')+';border-bottom:1px solid #f0f0f0"><td style="padding:7px 12px">'+r.name+'</td><td style="padding:7px 12px;text-align:center;color:#555">'+r.prod+'</td><td style="padding:7px 12px;text-align:center"><span style="padding:2px 9px;border-radius:12px;background:'+sb2+';color:'+sc+';font-size:11px;font-weight:600">'+r.st+'</span></td><td style="padding:7px 12px;text-align:center;font-weight:700;color:#1B4332">'+r.own+'</td><td style="padding:5px 8px;text-align:center"><select class="fbl-notif" data-name="'+r.name+'" style="font-size:11px;padding:3px 6px;border:1px solid #ddd;border-radius:4px;background:#ef4444;color:#fff;cursor:pointer;max-width:130px" onchange="window._fbNotifSave&&window._fbNotifSave(this)"><option value="">ยังไม่ได้แจ้ง</option><option value="1">แจ้งรอบแรก (แชร์เพจ)</option><option value="2">แจ้งรอบ 2 (ยิงแอด)</option></select></td></tr>';
     });
     if(!filtered.length)html='<tr><td colspan="5" style="padding:20px;text-align:center;color:#aaa">ไม่พบข้อมูล</td></tr>';
-    tbody.innerHTML=html;(function(){var nd={};try{nd=JSON.parse(localStorage.getItem('rb_fb_notif')||'{}')}catch(e){}[].forEach.call(tbody.querySelectorAll('.fbl-notif'),function(sel){var nm=sel.getAttribute('data-name');if(nm&&nd[nm])sel.value=nd[nm];sel.style.background=sel.value==='2'?'#22c55e':sel.value==='1'?'#f59e0b':'#ef4444';sel.style.color='#fff';});[].forEach.call(tbody.querySelectorAll('tr[data-name]'),function(tr){var nm=tr.getAttribute('data-name');var tds=tr.querySelectorAll('td');[0,1,3].forEach(function(idx){if(tds[idx]){tds[idx].contentEditable='true';tds[idx].title='คลิกเพื่อแก้ไข';tds[idx].style.cursor='text';tds[idx].addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();this.blur();}});tds[idx].addEventListener('blur',function(){var val=this.textContent.trim();var d={};try{d=JSON.parse(localStorage.getItem('rb_fb_cells')||'{}')}catch(e){}if(!d[nm])d[nm]={};d[nm][idx===0?'name':idx===1?'prod':'own']=val;localStorage.setItem('rb_fb_cells',JSON.stringify(d));});}});});})();
-window._fbNotifSave=function(sel){var nm=sel.getAttribute('data-name');var val=sel.value;var d={};try{d=JSON.parse(localStorage.getItem('rb_fb_notif')||'{}')}catch(e){}if(nm){if(val)d[nm]=val;else delete d[nm];localStorage.setItem('rb_fb_notif',JSON.stringify(d));}sel.style.background=val==='2'?'#22c55e':val==='1'?'#f59e0b':'#ef4444';sel.style.color='#fff';};
+    tbody.innerHTML=html;(function(){var nd={};try{nd=JSON.parse(localStorage.getItem('rb_fb_notif')||'{}')}catch(e){}
+var COLORS={'':'#ef4444','1':'#f59e0b','2':'#22c55e'};
+var LABELS={'':'ยังไม่ได้แจ้ง','1':'แจ้งรอบแรก (แชร์เพจ)','2':'แจ้งรอบ 2 (ยิงแอด)'};
+[].forEach.call(tbody.querySelectorAll('.fbl-notif'),function(sel){
+  var nm=sel.getAttribute('data-name');
+  var val=nm&&nd[nm]?nd[nm]:'';
+  var d=document.createElement('div');
+  d.className='fbl-sel';d.setAttribute('data-name',nm);d.setAttribute('data-val',val);
+  d.innerHTML='<div class="fbl-sel-btn" onclick="window._fbSelTog&&window._fbSelTog(this)" style="background:'+COLORS[val]+';color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;min-width:130px"><span class="fbl-sel-label">'+LABELS[val]+'</span><span style="font-size:9px;margin-left:4px">&#9660;</span></div><div class="fbl-sel-menu" style="display:none;border-radius:6px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.25);min-width:160px"><div class="fbl-opt" data-val="" onclick="window._fbOptSel&&window._fbOptSel(this)" style="padding:8px 14px;font-size:11px;cursor:pointer;background:#ef4444;color:#fff">ยังไม่ได้แจ้ง</div><div class="fbl-opt" data-val="1" onclick="window._fbOptSel&&window._fbOptSel(this)" style="padding:8px 14px;font-size:11px;cursor:pointer;background:#f59e0b;color:#fff">แจ้งรอบแรก (แชร์เพจ)</div><div class="fbl-opt" data-val="2" onclick="window._fbOptSel&&window._fbOptSel(this)" style="padding:8px 14px;font-size:11px;cursor:pointer;background:#22c55e;color:#fff">แจ้งรอบ 2 (ยิงแอด)</div></div>';
+  sel.parentElement.replaceChild(d,sel);
+});
+[].forEach.call(tbody.querySelectorAll('tr[data-name]'),function(tr){
+  var nm=tr.getAttribute('data-name');var tds=tr.querySelectorAll('td');
+  [0,1,3].forEach(function(idx){
+    if(tds[idx]){tds[idx].contentEditable='true';tds[idx].title='คลิกเพื่อแก้ไข';tds[idx].style.cursor='text';
+      tds[idx].addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();this.blur();}});
+      tds[idx].addEventListener('blur',function(){var val=this.textContent.trim();var d={};try{d=JSON.parse(localStorage.getItem('rb_fb_cells')||'{}')}catch(e){}if(!d[nm])d[nm]={};d[nm][idx===0?'name':idx===1?'prod':'own']=val;localStorage.setItem('rb_fb_cells',JSON.stringify(d));});
+    }
+  });
+});
+})();
+window._fbSelTog=function(btn){
+  var menu=btn.nextElementSibling;var isOpen=menu.style.display==='block';
+  [].forEach.call(document.querySelectorAll('.fbl-sel-menu'),function(m){m.style.display='none';});
+  if(!isOpen){var r=btn.getBoundingClientRect();menu.style.cssText='display:block;position:fixed;top:'+(r.bottom+2)+'px;left:'+r.left+'px;z-index:9999;border-radius:6px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.25);min-width:160px';}
+};
+window._fbOptSel=function(opt){
+  var val=opt.getAttribute('data-val');var menu=opt.parentElement;var btn=menu.previousElementSibling;var cont=btn.parentElement;var nm=cont.getAttribute('data-name');
+  var COLORS={'':'#ef4444','1':'#f59e0b','2':'#22c55e'};
+  var LABELS={'':'ยังไม่ได้แจ้ง','1':'แจ้งรอบแรก (แชร์เพจ)','2':'แจ้งรอบ 2 (ยิงแอด)'};
+  btn.style.background=COLORS[val];btn.querySelector('.fbl-sel-label').textContent=LABELS[val];
+  cont.setAttribute('data-val',val);menu.style.display='none';
+  var d={};try{d=JSON.parse(localStorage.getItem('rb_fb_notif')||'{}')}catch(e){}
+  if(nm){if(val)d[nm]=val;else delete d[nm];localStorage.setItem('rb_fb_notif',JSON.stringify(d));}
+};
+(function(){document.addEventListener('click',function(e){if(!e.target.closest||!e.target.closest('.fbl-sel'))[].forEach.call(document.querySelectorAll('.fbl-sel-menu'),function(m){m.style.display='none';});});})()
 
     var cntEl=document.getElementById('fbl-cnt');if(cntEl)cntEl.textContent='แสดง '+filtered.length+' จาก '+data.length+' เพจ';
   }
