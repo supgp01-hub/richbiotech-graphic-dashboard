@@ -3677,12 +3677,12 @@ window.ctRender=function(){
       +'<td class="ct-td-ep" title="'+ctEsc(r.episode)+'">'+ctEsc(r.episode||'-')+'</td>'
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
       +'<td>'+mkSelRelease(id,r.release)+'</td>'
-      +'<td>'+mkSelShot(id,r.shot)+'</td>'
+      +'<td style="text-align:center;"><input type="date" class="ct-upd-input" data-id="'+id+'" value="'+ctEsc(r.updDate||'')+'" onchange="window.ctSaveUpdDate(this)" style="border:1px solid #d1d5db;border-radius:4px;padding:2px 4px;font-size:11px;width:100%;"></td>'
       +'<td><div class="ct-actions-cell">'
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
         +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+id+'&#39;)">&#128465;</button>'
       +'</div></td>'
-    +(window._ctDLMap&&window._ctDLMap[r.name]?(function(){var dl=window._ctDLMap[r.name];var d=new Date(dl);var now=new Date();var dy=d.getDate();var mn=d.getMonth()+1;var diff=Math.ceil((d-now)/86400000);var clr=diff<0?'#ef4444':diff<=3?'#f97316':'#10b981';return '<td style="text-align:center;font-size:11px;white-space:nowrap;font-weight:bold;color:'+clr+';">'+dy+'/'+(mn<10?'0'+mn:mn)+'</td>';}()):'<td style="text-align:center;color:#ccc;font-size:11px;">-</td>')
+    
     +'</tr>';
   }
   if(_ctBrand!=='ALL'){
@@ -3793,6 +3793,7 @@ window.ctBulkDelete=function(){
   window.ctRender();
 };
 window.ctSaveEmp=function(inp){var id=inp.dataset.id,idx=parseInt(inp.dataset.idx),val=inp.value.trim();var row=(_ctLinks||[]).find(function(r){return String(r.id)===String(id);});if(row){if(!row.empVals)row.empVals=[];row.empVals[idx]=val;try{ctSave();}catch(e){}}}
+window.ctSaveUpdDate=function(inp){var id=inp.dataset.id,val=inp.value;var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){row.updDate=val;try{ctSave();}catch(e){}}};
 window.ctSetBrand=function(b,btn){
   _ctBrand=b;
   document.querySelectorAll('.ct-bchip').forEach(function(el){el.classList.remove('ct-bchip-active');});
@@ -3961,8 +3962,7 @@ window.initLinksPanel=function(container){
           +'<th>ชื่อตอน/ที่</th>'
           +'<th>Hook</th>'
           +'<th>VDO</th>'
-          +'<th>ยิงแล้ว</th>'
-          +'<th style="min-width:55px;text-align:center;">วันส่ง</th>'
+          +'<th style="min-width:90px;text-align:center;">วันที่อัพ</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
         +'<tbody id="ct-tbody"></tbody>'
