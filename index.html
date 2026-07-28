@@ -3387,10 +3387,10 @@ window.gAS=function(){
         _omSaveBtn.onclick=saveOM2;
       }   }
     _OM2.style.display='flex';document.body.style.overflow='hidden';
-  }
-
   
-    var _p2el=document.getElementById('om2-p2-panel');if(_p2el){var _cr=window._rbUser?window._rbUser.role:'';var _canEd=_cr==='sup'||_cr==='spec';_p2el.style.pointerEvents=_canEd?'auto':'none';_p2el.style.opacity=_canEd?'1':'0.85';var _rob=_p2el.querySelector('#om2-p2-banner');if(!_canEd&&!_rob){var _b=document.createElement('div');_b.id='om2-p2-banner';_b.style.cssText='background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:13px;color:#713f12;';_b.textContent='🔒 ดูได้เท่านั้น — ไม่สามารถแก้ไขได้';_p2el.insertBefore(_b,_p2el.firstChild);}else if(_canEd&&_rob){_rob.remove();}}function closeOM2(){if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
+    var _p2el=document.getElementById('om2-p2-panel');if(_p2el){var _cr=window._rbUser?window._rbUser.role:'';var _canEd=_cr==='sup'||_cr==='spec';_p2el.style.pointerEvents=_canEd?'auto':'none';_p2el.style.opacity=_canEd?'1':'0.85';var _rob=_p2el.querySelector('#om2-p2-banner');if(!_canEd&&!_rob){var _b=document.createElement('div');_b.id='om2-p2-banner';_b.style.cssText='background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:13px;color:#713f12;';_b.textContent='🔒 ดูได้เท่านั้น — ไม่สามารถแก้ไขได้';_p2el.insertBefore(_b,_p2el.firstChild);}else if(_canEd&&_rob){_rob.remove();}}}
+
+  function closeOM2(){if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
 
   function saveOM2(){
     var id=ge('om-id').textContent;
