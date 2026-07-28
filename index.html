@@ -1659,30 +1659,30 @@ function lvRefreshEList(){
   var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
   var entries=lvGetDay(y,m,d);
   if(!entries.length){el.innerHTML='<div class="lv-no-entry">ยังไม่มีการลาในวันนี้</div>';return;}
-  var h='',types=['hol','vac','sick','per'];
+  var h='',types=['hol','vac','sick','per']; var _cu=window._rbUser;
   for(var i=0;i<entries.length;i++){
     var e=entries[i];
     var emp=lvFindEmp(e.empId);
     var nm=emp?emp.name:'?';
     var pos=emp?emp.pos:'';
-    var uid=e.uid;
+    var uid=e.uid; var canEdit=_cu&&(_cu.role==='sup'||_cu.name===nm);
     h+='<div class="lv-erow">';
     h+='<div class="lv-erow-top">';
     h+='<div><span class="lv-ename">'+nm+'</span> <span class="lv-epos">'+pos+'</span></div>';
-    h+='<button class="lv-edel" onclick="lvDelEntry('+uid+')">&#128465; ลบ</button>';
+    if(canEdit)h+='<button class="lv-edel" onclick="lvDelEntry('+uid+')">&#128465; ลบ</button>';
     h+='</div>';
     /* type badge + dropdown */
     h+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px">';
     h+='<span class="lv-chip lv-'+e.type+'" style="flex-shrink:0">'+LV_TYPE_ICON[e.type]+' '+LV_TYPE_LABEL[e.type]+'</span>';
-    h+='<select class="lv-esel" data-uid="'+uid+'" onchange="lvESelChange(this)">';
+    h+='<select class="lv-esel" data-uid="'+uid+'" onchange="lvESelChange(this)"'+(canEdit?'':' disabled')+'>';
     for(var ti=0;ti<types.length;ti++){
       var isSel=(e.type===types[ti])?' selected':'';
       h+='<option value="'+types[ti]+'"'+isSel+'>'+LV_TYPE_LABEL[types[ti]]+'</option>';
     }
     h+='</select></div>';
     /* note */
-    h+='<input class="lv-enote" data-uid="'+uid+'" value="'+lvEscHtml(e.note||'')+'" placeholder="หมายเหตุ (คลิกเพื่อแก้ไข)" onchange="lvENoteChange(this)">';
-    h+='<button class="lv-esave" onclick="lvSaveRow('+uid+')">&#10003; บันทึกการเปลี่ยนแปลง</button>';
+    h+='<input class="lv-enote" data-uid="'+uid+'" value="'+lvEscHtml(e.note||'')+'" placeholder="หมายเหตุ (คลิกเพื่อแก้ไข)" onchange="lvENoteChange(this)"'+(canEdit?'':' disabled')+'>';
+    if(canEdit)h+='<button class="lv-esave" onclick="lvSaveRow('+uid+')">&#10003; บันทึกการเปลี่ยนแปลง</button>';
     var tsStr='';
     if(e.updatedAt)tsStr='✏️ แก้ไขล่าสุด: '+lvFmtTime(e.updatedAt);
     else if(e.createdAt)tsStr='🕐 บันทึก: '+lvFmtTime(e.createdAt);
