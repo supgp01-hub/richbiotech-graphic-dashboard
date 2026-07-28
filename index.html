@@ -1755,6 +1755,7 @@ function lvAddEntry(){
   errEl.textContent='';
   var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=false;
   lvRefreshEList();
+lvCloseModal();
 }
 function lvCloseModal(){var el=document.getElementById('lv-modal');if(el)el.classList.remove('open');}
 
