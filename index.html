@@ -4083,10 +4083,12 @@ window._rbRenderMyWork = function(){
     if(window._OF){window._OF.status=status;window._OF.activeCard=status;window._OF.dl='';window._OF.date='';}
     var navBtn = Array.prototype.slice.call(document.querySelectorAll('nav button')).find(function(b){return b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'team'")>=0;});
     if(navBtn && typeof window.showTab==='function'){ window.showTab('team', navBtn); }
-    setTimeout(function(){
+    var _rbTries=0;
+    var _rbIv=setInterval(function(){
+      _rbTries++;
       var subBtn = Array.prototype.slice.call(document.querySelectorAll('.gsnav-btn')).find(function(b){return b.textContent.indexOf('สั่งงาน')>=0;});
-      if(subBtn) subBtn.click();
-      else { window.renderOrderStats&&window.renderOrderStats(); window._rbInitOP&&window._rbInitOP(); }
+      if(subBtn){ clearInterval(_rbIv); subBtn.click(); }
+      else if(_rbTries>100){ clearInterval(_rbIv); window.renderOrderStats&&window.renderOrderStats(); window._rbInitOP&&window._rbInitOP(); }
     },50);
   };
   function orderTable(list){
