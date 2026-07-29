@@ -149,6 +149,11 @@
   [data-theme="dark"] .mywork-stat-pending .mywork-stat-l{color:#EF9F27;}
   [data-theme="dark"] #rb-theme-track{background:#0F241C;}
   [data-theme="dark"] #rb-theme-knob{transform:translateX(16px);}
+  #rb-theme-fab{position:fixed;top:16px;right:24px;z-index:900;width:38px;height:38px;border-radius:50%;background:var(--pine);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:background .25s;}
+  .rb-theme-ic-moon{display:none;}
+  [data-theme="dark"] .rb-theme-ic-sun{display:none;}
+  [data-theme="dark"] .rb-theme-ic-moon{display:inline;}
+  
   
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -550,7 +555,7 @@
     <div class="sb-settings-sub-item" onclick="window._rbShowSP&&window._rbShowSP('guide')"><span class="sb-icon">&#128214;</span><span class="sb-settings-lbl">คู่มือ</span></div>
   </div>
 
-  <div id="rb-theme-toggle" onclick="window._rbToggleTheme&&window._rbToggleTheme()" title="กลางวัน/กลางคืน" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;cursor:pointer;"><span style="font-size:12px;">☀️</span><div id="rb-theme-track" style="width:36px;height:20px;background:var(--pine);border-radius:999px;position:relative;transition:background .25s;"><div id="rb-theme-knob" style="width:16px;height:16px;background:var(--auto-lc11);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .25s;"></div></div><span style="font-size:12px;">🌙</span></div><div class="sb-spacer"></div>
+  <div class="sb-spacer"></div>
   <div class="sb-footer" onclick="event.stopImmediatePropagation();window._rbTogUC&&window._rbTogUC()" style="cursor:pointer"><div class="sb-avatar" id="sb-foot-av">??</div><div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-username" id="sb-foot-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ไม่ได้ล็อกอิน</div><div class="sb-role" id="sb-foot-role"></div></div><button id="sb-foot-tog" onclick="window._rbTogSB&&window._rbTogSB()" title="ย่อ/ขยาย" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:16px;padding:4px 2px;margin-left:4px;flex-shrink:0;width:auto;line-height:1;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">&#9776;</button></div>
 </nav>
 <div id="page-wrap">
@@ -4252,6 +4257,7 @@ window._rbRenderMyWork = function(){
 window.addEventListener('load', function(){ window._rbRenderMyWork && window._rbRenderMyWork(); });
 </script>
 <script>window._rbToggleTheme=function(){var isDark=document.documentElement.getAttribute("data-theme")==="dark";if(isDark){document.documentElement.removeAttribute("data-theme");try{localStorage.setItem("rb_theme","light");}catch(e){}}else{document.documentElement.setAttribute("data-theme","dark");try{localStorage.setItem("rb_theme","dark");}catch(e){}}};</script>
+<div id="rb-theme-fab" onclick="window._rbToggleTheme&&window._rbToggleTheme()" title="กลางวัน/กลางคืน"><span class="rb-theme-ic-sun">☀️</span><span class="rb-theme-ic-moon">🌙</span></div>
 </body>
 </html>
             
