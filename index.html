@@ -4081,19 +4081,13 @@ window._rbRenderMyWork = function(){
   }
   window._rbGoOrderStatus = function(status){
     if(window._OF){window._OF.status=status;window._OF.activeCard=status;window._OF.dl='';window._OF.date='';}
-    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
-    var teamPanel = document.getElementById('tab-team');
-    if(teamPanel) teamPanel.classList.add('active');
-    document.querySelectorAll('nav button').forEach(function(b){
-      b.classList.remove('active');
-      if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'team'")>=0) b.classList.add('active');
-    });
-    try{localStorage.setItem('rb_tab','team');}catch(e){}
+    var navBtn = Array.prototype.slice.call(document.querySelectorAll('nav button')).find(function(b){return b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'team'")>=0;});
+    if(navBtn && typeof window.showTab==='function'){ window.showTab('team', navBtn); }
     setTimeout(function(){
       var subBtn = Array.prototype.slice.call(document.querySelectorAll('.gsnav-btn')).find(function(b){return b.textContent.indexOf('สั่งงาน')>=0;});
       if(subBtn) subBtn.click();
       else { window.renderOrderStats&&window.renderOrderStats(); window._rbInitOP&&window._rbInitOP(); }
-    },20);
+    },50);
   };
   function orderTable(list){
     if(!list.length) return '<div class="mywork-empty">ไม่มีรายการ</div>';
