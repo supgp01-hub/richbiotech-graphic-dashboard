@@ -4077,8 +4077,24 @@ window._rbRenderMyWork = function(){
   }
   function pill(status){
     var m = STAT_MAP[status] || {l:status||'-',col:'#6b7280',bg:'#f3f4f6'};
-    return '<span class="mywork-pill" style="color:'+m.col+';background:'+m.bg+';">'+m.l+'</span>';
+    return '<span class="mywork-pill" style="color:'+m.col+';background:'+m.bg+';cursor:pointer;" onclick="window._rbGoOrderStatus&&window._rbGoOrderStatus(\''+status+'\')" title="ดูในสั่งงาน">'+m.l+'</span>';
   }
+  window._rbGoOrderStatus = function(status){
+    if(window._OF){window._OF.status=status;window._OF.activeCard=status;window._OF.dl='';window._OF.date='';}
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+    var teamPanel = document.getElementById('tab-team');
+    if(teamPanel) teamPanel.classList.add('active');
+    document.querySelectorAll('nav button').forEach(function(b){
+      b.classList.remove('active');
+      if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'team'")>=0) b.classList.add('active');
+    });
+    try{localStorage.setItem('rb_tab','team');}catch(e){}
+    setTimeout(function(){
+      var subBtn = Array.prototype.slice.call(document.querySelectorAll('.gsnav-btn')).find(function(b){return b.textContent.indexOf('สั่งงาน')>=0;});
+      if(subBtn) subBtn.click();
+      else { window.renderOrderStats&&window.renderOrderStats(); window._rbInitOP&&window._rbInitOP(); }
+    },20);
+  };
   function orderTable(list){
     if(!list.length) return '<div class="mywork-empty">ไม่มีรายการ</div>';
     var h = '<table class="mywork-table"><thead><tr><th>เลขงาน</th><th>ชื่องาน</th><th>ประเภท</th><th>Deadline</th><th>สถานะ</th></tr></thead><tbody>';
