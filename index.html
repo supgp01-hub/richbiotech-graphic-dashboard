@@ -901,12 +901,6 @@ radient(160deg,#d6ebd0,#c4dfc0);
         <div class="oc-arch-body"><div class="oc-arch-name">บอล</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
       </div>
     </div>
-    <div class="oc-node lv-ga" data-pid="lnk" onclick="openModal(this,'ลิ้งค์','LINK','Graphic &amp; Ads')">
-      <div class="oc-arch">
-        <div class="oc-arch-photo" onclick="event.stopPropagation();triggerUpload(this)"><span class="ph-icon">👤</span><div class="ph-cam">📷</div><input type="file" accept="image/*" onchange="loadPhoto(this)"></div>
-        <div class="oc-arch-body"><div class="oc-arch-name">ลิ้งค์</div><div class="oc-arch-role">Graphic &amp; Ads</div></div>
-      </div>
-    </div>
     <div class="oc-l3-sep"></div>
     <div class="oc-node lv-ao" data-pid="nuy" onclick="openModal(this,'นุ้ย','NUEY','Ads Optimizer')">
       <div class="oc-arch">
@@ -1439,7 +1433,6 @@ var LV_EMPS=[
   {id:'jam',name:'แจ๋ม',  pos:'Graphic & Ads',group:'ga', max:4},
   {id:'dom',name:'ดอม',   pos:'Graphic & Ads',group:'ga', max:4},
   {id:'bol',name:'บอล',   pos:'Graphic & Ads',group:'ga', max:4},
-  {id:'lnk',name:'ลิ้งค์',pos:'Graphic & Ads',group:'ga', max:4},
   {id:'nui',name:'นุ้ย',  pos:'Ads Optimizer',group:'ao', max:4},
   {id:'mnd',name:'มายด์', pos:'Ads Optimizer',group:'ao', max:4}
 ];
@@ -1660,7 +1653,7 @@ function lvPopulateEmpSel(){
   var h='<option value="">— เลือกพนักงาน —</option>';
   var grps=[
     {label:'Supervisor / Specialist',ids:['wiw','mos']},
-    {label:'Graphic & Ads',ids:['ter','nun','jam','dom','bol','lnk']},
+    {label:'Graphic & Ads',ids:['ter','nun','jam','dom','bol']},
     {label:'Ads Optimizer',ids:['nui','mnd']}
   ];
   for(var gi=0;gi<grps.length;gi++){
@@ -2132,7 +2125,7 @@ window._lfbInit=function(){
   h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
   ['ALL','ใช้งาน','ว่าง','โฆษณาจำกัด','รอยืนยัน','ปิดใช้งาน','อื่นๆ'].forEach(function(v){h+='<button class="lfbs" data-s="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
   h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px"><span style="font-size:11px;color:#888">พนักงาน:</span>';
-  ['ALL','BALL','DOM','JAM','LINK','MOS','NUNE','TER'].forEach(function(v){h+='<button class="lfbe" data-e="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
+  ['ALL','BALL','DOM','JAM','MOS','NUNE','TER'].forEach(function(v){h+='<button class="lfbe" data-e="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
   h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px"><span style="font-size:11px;color:#888">สินค้า:</span>';
   ['ALL','ขุนแผน','จูโด้','ดราก้อนบลัด','ลีฟ แคร์','วูลฟ์พลัส','เจ้าขุน','เดอะลอร์ด','เฮฟเว่นพลัส','โซพิงค์','โอลิมพลัส','โอลิมพลัส แม็กซ์','ไอชัวร์'].forEach(function(v){h+='<button class="lfbp" data-p="'+v+'" style="padding:4px 12px;border:1px solid #d1d5db;border-radius:20px;background:'+(v==='ALL'?'#1B4332':'#fff')+';color:'+(v==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px">'+v+'</button>';});
   h+='</div></div>';
@@ -2472,7 +2465,7 @@ function fbLoadOrders(cb){
   });
 }
 // ===== END FIREBASE SYNC =====
-var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL","LINK"];window.MB_GR=MB_GR;
+var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL"];window.MB_GR=MB_GR;
 var MB_ALL=["วิว","มอส","ดอม","เตอร์","นุ่น","แจ๋ม","บอล","นุ้ย","มายด์"];
 var OT=["กราฟิก","รูปภาพ","ยิงแอด","เทสส่วนตัว","คัดคลิป","Rlees","สร้างเพจ"];window.OT=OT;
 var ST=[
@@ -2488,7 +2481,7 @@ var LT_MAP={
   'ลากิจ'    :{icon:'📋',col:'#92400e',bg:'#fef3c7'},
   'ลาป่วย'   :{icon:'🤒',col:'#991b1b',bg:'#fee2e2'}
 };
-var LV_EMP_MAP={wiw:'วิว',mos:'มอส',ter:'เตอร์',nun:'นุ่น',jam:'แจ๋ม',dom:'ดอม',bol:'บอล',lnk:'ลิ้งค์',nui:'นุ้ย',mnd:'มายด์'};
+var LV_EMP_MAP={wiw:'วิว',mos:'มอส',ter:'เตอร์',nun:'นุ่น',jam:'แจ๋ม',dom:'ดอม',bol:'บอล',nui:'นุ้ย',mnd:'มายด์'};
 var LV_TYPE_MAP={hol:{name:'วันหยุดรอบ',icon:'🌴',col:'#065f46',bg:'#d1fae5'},vac:{name:'พักร้อน',icon:'☀️',col:'#1d4ed8',bg:'#dbeafe'},sick:{name:'ลาป่วย',icon:'🤒',col:'#991b1b',bg:'#fee2e2'},per:{name:'ลากิจ',icon:'📋',col:'#92400e',bg:'#fef3c7'}};
 
 function curUser(){return localStorage.getItem('rb_cur_user')||'ไม่ระบุ';}
@@ -2607,7 +2600,7 @@ function initOrderPanel(){
   var wrap=document.createElement('div');wrap.style.cssText='padding:20px;';
   var sr=document.createElement('div');sr.id='ord-stats';sr.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;';wrap.appendChild(sr);
   /* ── Tab nav: งานทั้งหมด / ทีมงาน ── */
-  var TEAM_MBR=['MOS','DOM','TER','JAM','NUNE','BALL','LINK'];
+  var TEAM_MBR=['MOS','DOM','TER','JAM','NUNE','BALL'];
   var _activeOrdTab='all';var _activeTeam='';window._ordViewMode='all';
   var tabNav=document.createElement('div');tabNav.style.cssText='display:flex;gap:0;background:white;border:1px solid #e5e7eb;border-radius:12px 12px 0 0;border-bottom:none;padding:0 4px;';
   var chipRow=document.createElement('div');chipRow.id='ord-chip-row';chipRow.style.cssText='display:none;flex-wrap:wrap;gap:6px;padding:10px 16px;background:white;border:1px solid #e5e7eb;border-top:none;border-bottom:none;';
@@ -2776,7 +2769,7 @@ window.gsOrdModal=function(oId){
   var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');
   var ord=oId?ords.filter(function(o){return o.id===oId;})[0]:null;
   var brands=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
-  var mbs=['MOS','DOM','TER','NUNE','JAM','BALL','LINK','VIW'];
+  var mbs=['MOS','DOM','TER','NUNE','JAM','BALL','VIW'];
   var now=new Date();
   var td=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+now.getDate()).slice(-2);
   var newId='GR'+('00'+(ords.length+1)).slice(-3);
@@ -3590,7 +3583,7 @@ var CT_EMBED = [{"id":"sh1783833929qr","brand":"Olymplus","script":"https://docs
 var CT_KEY='rb_olympplus_v1';
 var CT_BRANDS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
 var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','I Sure Plus':'#7c3aed','Olymplus':'#d97706','Olymplus MAX':'#b45309','JUDO':'#dc2626','Dragon Blood':'#991b1b','ขุนแผน':'#6d28d9','Heaven PLUS+':'#0891b2','THE LORD':'#1d4ed8','WOLF+':'#374151','เจ้าขุน':'#92400e'};
-var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','I Sure Plus':'LINK','Olymplus':'MOS DOM','Olymplus MAX':'MOS DOM','JUDO':'NUNE JAM','Dragon Blood':'MOS DOM BALL','ขุนแผน':'MOS DOM BALL','Heaven PLUS+':'MOS DOM','THE LORD':'TER JAM','WOLF+':'TER NUNE BALL','เจ้าขุน':'BALL LINK'};
+var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','I Sure Plus':'','Olymplus':'MOS DOM','Olymplus MAX':'MOS DOM','JUDO':'NUNE JAM','Dragon Blood':'MOS DOM BALL','ขุนแผน':'MOS DOM BALL','Heaven PLUS+':'MOS DOM','THE LORD':'TER JAM','WOLF+':'TER NUNE BALL','เจ้าขุน':'BALL'};
 var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
 function ctLoad(){var raw=localStorage.getItem('rb_olympplus_v1');if(raw)return JSON.parse(raw);return typeof CT_EMBED!=='undefined'?CT_EMBED:[]}
@@ -4034,7 +4027,7 @@ window._rbRenderMyWork = function(){
   var u = window._rbUser;
   if(!u){ wrap.innerHTML = '<div class="mywork-empty">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</div>'; return; }
   if(typeof LV_EMPS==='undefined' || typeof lpORD!=='function' || typeof lvGetCycle!=='function' || typeof lvCycleStart!=='function' || typeof lvGetDay!=='function'){ wrap.innerHTML=''; return; }
-  var NAME2CODE = {'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL','ลิ้งค์':'LINK'};
+  var NAME2CODE = {'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};
   var STAT_MAP = {
     pending:{l:'มอบหมาย',col:'#6b7280',bg:'#f3f4f6'},
     inprogress:{l:'กำลังดำเนินการ',col:'#1d4ed8',bg:'#dbeafe'},
