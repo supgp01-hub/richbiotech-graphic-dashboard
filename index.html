@@ -145,9 +145,19 @@
   .mywork-head{font-size:16px;font-weight:700;color:var(--pine);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
   .mywork-pos{font-size:11px;font-weight:500;color:var(--gray);background:var(--foam);padding:2px 8px;border-radius:20px;}
   .mywork-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;}
-  .mywork-stat{background:#eef6f0;border-radius:10px;padding:10px 12px;text-align:center;}
+  .mywork-stat{position:relative;border-radius:0 10px 10px 0;border-left:3px solid var(--foam);padding:10px 12px;text-align:center;}
+  .mywork-stat-ic{position:absolute;top:8px;right:10px;font-size:13px;}
+  .mywork-stat-days{background:#E1F5EE;border-left-color:#1D9E75;}
+  .mywork-stat-done{background:#D8F3DC;border-left-color:#1B4332;}
+  .mywork-stat-pending{background:#FAEEDA;border-left-color:#BA7517;}
   .mywork-stat-v{font-size:22px;font-weight:800;color:var(--pine);}
   .mywork-stat-l{font-size:11px;color:var(--subtext);margin-top:2px;}
+  .mywork-stat-days .mywork-stat-v{color:#04342C;}
+  .mywork-stat-days .mywork-stat-l{color:#085041;}
+  .mywork-stat-done .mywork-stat-v{color:#1B4332;}
+  .mywork-stat-done .mywork-stat-l{color:#2D6A4F;}
+  .mywork-stat-pending .mywork-stat-v{color:#412402;}
+  .mywork-stat-pending .mywork-stat-l{color:#854F0B;}
   .mywork-sub{font-size:13px;font-weight:600;color:var(--seaweed);margin:14px 0 8px;}
   .mywork-table{width:100%;border-collapse:collapse;font-size:12.5px;}
   .mywork-table th{text-align:left;padding:6px 8px;color:var(--gray);font-weight:600;border-bottom:1.5px solid var(--foam);}
@@ -4088,10 +4098,9 @@ window._rbRenderMyWork = function(){
     var workDays = Math.max(0, totalCycleDays - leaveDays);
     html += '<div class="mywork-card">'
       + '<div class="mywork-head">'+emp.name+' <span class="mywork-pos">'+emp.pos+'</span></div>'
-      + '<div class="mywork-stats">'
-      +   '<div class="mywork-stat"><div class="mywork-stat-v">'+workDays+'/'+totalCycleDays+'</div><div class="mywork-stat-l">วันทำงาน (รอบปัจจุบัน)</div></div>'
-      +   '<div class="mywork-stat"><div class="mywork-stat-v">'+doneAll.length+'</div><div class="mywork-stat-l">งานเสร็จสมบูรณ์ทั้งหมด</div></div>'
-      +   '<div class="mywork-stat"><div class="mywork-stat-v">'+pending.length+'</div><div class="mywork-stat-l">งานรอมอบหมาย</div></div>'
+      + '<div class="mywork-stats">'+   '<div class="mywork-stat mywork-stat-days"><span class="mywork-stat-ic">📅</span><div class="mywork-stat-v">'+workDays+'/'+totalCycleDays+'</div><div class="mywork-stat-l">วันทำงาน (รอบปัจจุบัน)</div></div>'
+      +   '<div class="mywork-stat mywork-stat-done"><span class="mywork-stat-ic">✅</span><div class="mywork-stat-v">'+doneAll.length+'</div><div class="mywork-stat-l">งานเสร็จสมบูรณ์ทั้งหมด</div></div>'
+      +   '<div class="mywork-stat mywork-stat-pending"><span class="mywork-stat-ic">⏳</span><div class="mywork-stat-v">'+pending.length+'</div><div class="mywork-stat-l">งานรอมอบหมาย</div></div>'
       + '</div>'
       + '<div class="mywork-sub">รายละเอียดการสั่งงาน'+(code?'':' (ยังไม่ผูกรหัสมอบหมายงาน)')+'</div>'
       + orderTable(myOrders)
