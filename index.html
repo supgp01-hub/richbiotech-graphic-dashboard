@@ -1289,7 +1289,11 @@ window.addEventListener('load', () => {
 .lv-day-sun .lv-day-num{color:#DC2626}
 .lv-day-today{background:var(--offwhite);border-color:var(--basil)}
 .lv-day-today .lv-day-num{background:var(--pine);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
-.lv-chips{display:flex;flex-direction:column;gap:6px}.lv-chip-wrap{position:relative;display:block}.lv-chip-badge{position:absolute;top:-6px;right:-6px;background:#fff;border:1px solid var(--foam);border-radius:50%;width:15px;height:15px;font-size:9px;display:flex;align-items:center;justify-content:center;line-height:1}
+.lv-chips{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px}.lv-chip-wrap{position:relative;display:block}.lv-chip-badge{position:absolute;top:-6px;right:-6px;background:#fff;border:1px solid var(--foam);border-radius:50%;width:15px;height:15px;font-size:9px;display:flex;align-items:center;justify-content:center;line-height:1}
+.lv-emp-chip{display:flex;flex-direction:column;align-items:center;gap:2px;width:34px;cursor:pointer}
+.lv-emp-avatar{position:relative;width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lv-emp-badge{position:absolute;bottom:-3px;right:-3px;background:#fff;border-radius:50%;width:11px;height:11px;font-size:7px;display:flex;align-items:center;justify-content:center;border:1px solid var(--foam);line-height:1}
+.lv-emp-name{font-size:9px;color:#5C6B60;text-align:center;line-height:1.2;max-width:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lv-chip.lv-hol{background:#B7E4C7;color:#1B4332}
 .lv-day-mtg{background:#F5F3FF!important}
 .lv-chip-mtg{font-size:10px;font-weight:700;padding:2px 5px;border-radius:5px;background:#7C3AED;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.4;display:block}
@@ -1439,6 +1443,7 @@ var LV_TH_M=['','มกราคม','กุมภาพันธ์','มีน
 var LV_TYPE_LABEL={hol:'🌴 วันหยุดรอบ',vac:'☀️ พักร้อน',sick:'🤒 ลาป่วย',per:'📋 ลากิจ'};
 var LV_TYPE_ICON={hol:'🌴',vac:'☀️',sick:'🤒',per:'📋'};
 var LV_COLOR={wiw:'#B45309',mos:'#065F46',ter:'#2D6A4F',nun:'#40916C',jam:'#52B788',dom:'#1B4332',bol:'#1A6B3C',nui:'#1D4ED8',mnd:'#6D28D9'};
+var EMP_INIT={wiw:'V',mos:'M',ter:'T',nun:'N',jam:'J',dom:'D',bol:'B',nui:'N',mnd:'M'};
 var LV_LS='lv_dash_v5';
 var LV_DATA={};
 var LV_UID=1;
@@ -1591,7 +1596,7 @@ function lvRenderCal(){
       var ico=LV_TYPE_ICON[e.type]||'';
       var noteStr=e.note?(' <span class="lv-chip-note">'+lvEscHtml(e.note.substring(0,10))+'</span>'):'';
       var tip=lvEscHtml(nm+': '+LV_TYPE_LABEL[e.type]+(e.note?' — '+e.note:''));
-      h+='<div class="lv-chip-wrap" title="'+tip+'"><div class="lv-chip" style="background:'+(LV_COLOR[e.empId]||"#1B4332")+';color:#fff;">'+lvEscHtml(nm)+noteStr+'</div><span class="lv-chip-badge">'+ico+'</span></div>';
+      h+='<div class="lv-emp-chip" title="'+tip+'"><span class="lv-emp-avatar" style="background:'+(LV_COLOR[e.empId]||"#1B4332")+'">'+(EMP_INIT[e.empId]||"?")+'<span class="lv-emp-badge">'+ico+'</span></span><span class="lv-emp-name">'+lvEscHtml(nm)+noteStr+'</span></div>';
     }
     h+='</div></div>';
   }
