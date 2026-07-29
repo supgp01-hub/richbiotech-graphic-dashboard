@@ -149,10 +149,11 @@
   [data-theme="dark"] .mywork-stat-pending .mywork-stat-l{color:#EF9F27;}
   [data-theme="dark"] #rb-theme-track{background:#0F241C;}
   [data-theme="dark"] #rb-theme-knob{transform:translateX(16px);}
-  #rb-theme-fab{position:fixed;top:16px;right:24px;z-index:900;width:38px;height:38px;border-radius:50%;background:var(--pine);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:background .25s;}
-  .rb-theme-ic-moon{display:none;}
-  [data-theme="dark"] .rb-theme-ic-sun{display:none;}
-  [data-theme="dark"] .rb-theme-ic-moon{display:inline;}
+  #rb-theme-fab{position:fixed;top:16px;right:24px;z-index:900;display:flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:#1e2a3a;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+  .rb-theme-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;transition:background .25s,color .25s;background:transparent;color:rgba(255,255,255,.4);}
+  .rb-theme-circle-sun{background:rgba(255,255,255,.14);color:#fff;}
+  [data-theme="dark"] .rb-theme-circle-sun{background:transparent;color:rgba(255,255,255,.4);}
+  [data-theme="dark"] .rb-theme-circle-moon{background:#1B4332;color:#fff;}
   
   
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -4257,7 +4258,7 @@ window._rbRenderMyWork = function(){
 window.addEventListener('load', function(){ window._rbRenderMyWork && window._rbRenderMyWork(); });
 </script>
 <script>window._rbToggleTheme=function(){var isDark=document.documentElement.getAttribute("data-theme")==="dark";if(isDark){document.documentElement.removeAttribute("data-theme");try{localStorage.setItem("rb_theme","light");}catch(e){}}else{document.documentElement.setAttribute("data-theme","dark");try{localStorage.setItem("rb_theme","dark");}catch(e){}}};</script>
-<div id="rb-theme-fab" onclick="window._rbToggleTheme&&window._rbToggleTheme()" title="กลางวัน/กลางคืน"><span class="rb-theme-ic-sun">☀️</span><span class="rb-theme-ic-moon">🌙</span></div>
+<div id="rb-theme-fab" onclick="window._rbToggleTheme&&window._rbToggleTheme()" title="กลางวัน/กลางคืน"><span class="rb-theme-circle rb-theme-circle-sun">☀️</span><span class="rb-theme-circle rb-theme-circle-moon">🌙</span></div>
 </body>
 </html>
             
