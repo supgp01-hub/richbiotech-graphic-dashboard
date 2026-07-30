@@ -2582,9 +2582,9 @@ function fbSyncStart(){
     try{
       if(window._fbOrdSuppressUntil&&Date.now()<window._fbOrdSuppressUntil)return;
       var ev=JSON.parse(e.data);
-      if(ev&&ev.data&&ev.data!=='null'){
-        var remote=Array.isArray(ev.data)?ev.data:Object.values(ev.data);
-        if(remote.length>0){localStorage.setItem(LS_ORD,JSON.stringify(remote));}
+      if(ev&&('data' in ev)){
+        var remote=(ev.data&&ev.data!=='null')?(Array.isArray(ev.data)?ev.data:Object.values(ev.data)):[];
+        localStorage.setItem(LS_ORD,JSON.stringify(remote));
         var p=document.querySelector('.gsp.gsp-active[data-sub="order"]');
         if(p&&p.getAttribute('data-order-init')){renderOrderStats();renderOrders();}
       }
@@ -2593,21 +2593,28 @@ function fbSyncStart(){
   _fbSse.onerror=function(){_fbSse.close();_fbSse=null;};
 }
 function fbLoadOrders(cb){
+  var SYNCED_KEY='rb_orders_synced_v1';
   fbGet('/orders',function(err,data){
-    if(!err&&data){
-      var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);
-      arr=arr.filter(function(x){return x&&x.id;});
-      if(arr.length>0){
-        localStorage.setItem(LS_ORD,JSON.stringify(arr));
-      } else {
-        // Firebase empty — push local data up (migration)
+    if(!err){
+      var everSynced=localStorage.getItem(SYNCED_KEY)==='1';
+      if(data){
+        var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);
+        arr=arr.filter(function(x){return x&&x.id;});
+        if(arr.length>0){
+          localStorage.setItem(LS_ORD,JSON.stringify(arr));
+        } else if(!everSynced){
+          var local=lpORD();
+          if(local.length>0){fbSet('/orders',local);}
+        } else {
+          localStorage.setItem(LS_ORD,JSON.stringify(arr));
+        }
+      } else if(!everSynced){
         var local=lpORD();
         if(local.length>0){fbSet('/orders',local);}
+      } else {
+        localStorage.setItem(LS_ORD,'[]');
       }
-    } else {
-      // Error or null — push local data to Firebase
-      var local=lpORD();
-      if(local.length>0){fbSet('/orders',local);}
+      localStorage.setItem(SYNCED_KEY,'1');
     }
     if(cb)cb();
   });
