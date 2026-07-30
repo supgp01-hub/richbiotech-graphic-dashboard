@@ -3359,6 +3359,7 @@ window.gAS=function(){
     glp.appendChild(mkF('ลิงก์สคริป',mkLink('om-sheet')));
     var _hi2=document.createElement('select');_hi2.id='om-hook';_hi2.style.cssText='width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:0.85em;color:#333;background:var(--surface-card);cursor:pointer;';var _hwrap=mkF('HOOK',_hi2);var _hrow=document.createElement('div');_hrow.style.cssText='display:flex;gap:12px;align-items:flex-start;';var _nwrap=_ni.parentElement;if(_nwrap&&_nwrap.parentElement){_nwrap.style.flex='1 1 50%';_hwrap.style.flex='1 1 50%';_nwrap.parentElement.insertBefore(_hrow,_nwrap);_hrow.appendChild(_nwrap);_hrow.appendChild(_hwrap);}else{p1.appendChild(_hwrap);};
     p1.appendChild(glp);
+    p1.appendChild(mkF('ลิงก์ Footage',mkLink('om-footage')));
     p1.appendChild(mkF('Insert / Review',mkLink('om-review')));
     var clipExDiv=document.createElement('div');clipExDiv.id='om-clip-extra';    p1.appendChild(mkF('หมายเหตุ',mkTA('om-note','หมายเหตุ...',3)));
 var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style.cssText='font-size:12px;font-weight:500;color:#374151;margin:10px 0 8px;';clipHdr.textContent='ลิงก์ยิงแอด';p1.appendChild(clipHdr);p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var rows=cont.querySelectorAll('.om-clip-row');var vals=[];rows.forEach(function(r){var i=r.querySelector('input');vals.push(i?i.value:'');});for(var idx=0;idx<vals.length;idx++){var vid=idx===0?'om-uplink':(idx===1?'om-ad':'om-link'+(idx+1));var el=document.getElementById(vid);if(!el&&typeof window._addCampRow==='function'){window._addCampRow();el=document.getElementById(vid);}if(el)el.value=vals[idx];}};window._addClipRow=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var row=document.createElement('div');row.className='om-clip-row';row.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center;';var inp=document.createElement('input');inp.type='text';inp.placeholder='ลิงก์คลิป...';inp.style.cssText='flex:1;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;';inp.oninput=function(){window._syncClipToVer&&window._syncClipToVer();};var rmBtn=document.createElement('button');rmBtn.type='button';rmBtn.textContent='-';rmBtn.style.cssText='width:28px;height:28px;border:1px solid #f87171;border-radius:6px;background:var(--surface-card);color:#ef4444;font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;';rmBtn.onclick=function(){row.parentNode&&row.parentNode.removeChild(row);window._syncClipToVer&&window._syncClipToVer();};row.appendChild(inp);row.appendChild(rmBtn);cont.appendChild(row);window._syncClipToVer&&window._syncClipToVer();};var addClipBtn=document.createElement('button');addClipBtn.id='om-add-clip-btn';addClipBtn.type='button';addClipBtn.textContent='+ เพิ่มลิงก์ยิงแอด';addClipBtn.style.cssText='margin-top:8px;margin-bottom:8px;padding:4px 10px;border:1px solid #6ee7b7;border-radius:6px;background:var(--auto-lc36);color:#065f46;font-size:12px;cursor:pointer;';addClipBtn.onclick=function(){window._addClipRow&&window._addClipRow();};p1.appendChild(addClipBtn);
@@ -3499,6 +3500,7 @@ var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style
     ge('om-raw').value=o?(o.rawLink||''):'';
     ge('om-sheet').value=o?(o.sheetLink||''):'';
     ge('om-review').value=o?(o.reviewLink||''):'';
+    ge('om-footage').value=o?(o.footageLink||''):'';
     ge('om-fbname').value=o?(o.fbName||''):'';
     ge('om-pagename').value=o?(o.pageName||''):'';
     ge('om-fbuplist').value=o?(o.fbUpList||''):'';
@@ -3587,6 +3589,7 @@ var _p1el=document.getElementById('om2-p1-panel');if(_p1el){var _keep={'om-clip-
       rawLink:ge('om-raw').value||'',
       sheetLink:ge('om-sheet').value||'',
       reviewLink:ge('om-review').value||'',
+      footageLink:ge('om-footage').value||'',
       fbName:ge('om-fbname').value||'',
       pageName:ge('om-pagename').value||'',
       fbUpList:ge('om-fbuplist').value||'',
