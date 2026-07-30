@@ -2852,7 +2852,7 @@ function renderOrders(){
     var tr=document.createElement('tr');var bg=i%2===0?'white':'#fafafa';tr.style.cssText='border-bottom:1px solid #f3f4f6;background:'+bg+';';
     tr.onmouseenter=function(){this.style.background='#f0fdf4';};tr.onmouseleave=function(){this.style.background=bg;};
     var st=ST.find(function(s){return s.k===o.status;})||ST[0];
-    var ds=dlSt(o.deadline);
+    var ds=o.status==='done'?'ok':dlSt(o.deadline);
     var dlc=ds==='over'?'#dc2626':ds==='soon'?'#d97706':'#374151';
     var dlbadge=ds==='over'?'<span style="font-size:10px;background:var(--auto-lc21);color:#dc2626;padding:1px 5px;border-radius:4px;margin-left:4px;">เกิน</span>':ds==='soon'?'<span style="font-size:10px;background:var(--auto-lc25);color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">ใกล้</span>':'';
     [{html:'<span style="font-family:monospace;font-weight:700;color:var(--text-heading);">'+esc(o.id)+'</span>'},
