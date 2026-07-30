@@ -2580,6 +2580,7 @@ function fbSyncStart(){
   _fbSse=new EventSource(FB_DB+'/orders.json?accept=text%2Fevent-stream');
   _fbSse.onmessage=function(e){
     try{
+      if(window._fbOrdSuppressUntil&&Date.now()<window._fbOrdSuppressUntil)return;
       var ev=JSON.parse(e.data);
       if(ev&&ev.data&&ev.data!=='null'){
         var remote=Array.isArray(ev.data)?ev.data:Object.values(ev.data);
@@ -2633,7 +2634,7 @@ var LV_TYPE_MAP={hol:{name:'วันหยุดรอบ',icon:'🌴',col:'#06
 
 function curUser(){return localStorage.getItem('rb_cur_user')||'ไม่ระบุ';}
 function lpORD(){try{return JSON.parse(localStorage.getItem(LS_ORD)||'[]');}catch(e){return[];}}
-function spORD(d){localStorage.setItem(LS_ORD,JSON.stringify(d));fbSet('/orders',d);}
+function spORD(d){localStorage.setItem(LS_ORD,JSON.stringify(d));window._fbOrdSuppressUntil=Date.now()+5000;fbSet('/orders',d);}
 function lpTL(){try{return JSON.parse(localStorage.getItem(LS_TL)||'[]');}catch(e){return[];}}
 function spTL(d){localStorage.setItem(LS_TL,JSON.stringify(d));}
 
