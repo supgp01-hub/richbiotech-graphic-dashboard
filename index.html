@@ -1281,9 +1281,9 @@ function edCancel() { document.getElementById('edit-modal').classList.remove('op
 function triggerUpload(slot) { slot.querySelector('input[type=file]').click(); }
 
 function checkPhotoPassword(cb) {
-  var pw = prompt('🔒 ใส่รหัสผ่านเพื่อบันทึกรูปภาพ:');
-  if (pw === 'suprich01') { cb(); }
-  else if (pw !== null) { alert('❌ รหัสผ่านไม่ถูกต้อง'); }
+  var u = window._rbUser;
+  if (u && u.role === 'sup') { cb(); }
+  else { alert('❌ เฉพาะ Supervisor เท่านั้นที่แก้ไขรูปได้'); }
 }
 
 function loadPhoto(input) {
