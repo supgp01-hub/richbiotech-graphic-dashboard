@@ -3375,7 +3375,7 @@ var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style
     var fixGalP1=document.createElement('div');fixGalP1.id='om-p1fix-gallery';fixGalP1.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;';p1.appendChild(fixGalP1);
     var fixInpP1=document.createElement('input');fixInpP1.id='om-p1fix-inp';fixInpP1.type='file';fixInpP1.accept='image/*';fixInpP1.multiple=true;fixInpP1.style.display='none';
     fixInpP1.onchange=function(){handleImgUpload(this.files,'fix');this.value='';};
-    var fixBtnP1=document.createElement('button');fixBtnP1.id='om-p1fix-btn';fixBtnP1.type='button';fixBtnP1.textContent='+ อัพโหลดรูปแก้ไขเรียบร้อย';fixBtnP1.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;margin-bottom:10px;';fixBtnP1.onclick=function(){fixInpP1.click();};
+    var fixBtnP1=document.createElement('button');fixBtnP1.id='om-p1fix-btn';fixBtnP1.type='button';fixBtnP1.textContent='+ อัพโหลดรูปแก้ไข';fixBtnP1.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;margin-bottom:10px;';fixBtnP1.onclick=function(){fixInpP1.click();};
     p1.appendChild(fixBtnP1);p1.appendChild(fixInpP1);
     var subLnkInp=mkLink('om-submitlink');
     subLnkInp.querySelector('input').addEventListener('input',function(){
@@ -3385,7 +3385,7 @@ var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style
       var box=document.getElementById('om-submitlink-box');if(box)box.style.display=v?'flex':'none';
     });
     p1.appendChild(mkF('ลิงก์ส่งงาน',subLnkInp));
-    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.textContent='+ แนบรูปอ้างอิง';
+    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.textContent='รูปตัวอย่าง';
     bImgBtn.style.cssText='background:var(--auto-lc31);border:1.5px solid #40916C;color:var(--text-heading);border-radius:12px;padding:9px 22px;font-size:13px;cursor:pointer;font-weight:700;margin-top:10px;margin-bottom:8px;box-shadow:0 2px 6px rgba(64,145,108,.15);transition:opacity .15s;';
     var bImgInp=document.createElement('input');bImgInp.type='file';bImgInp.accept='image/*';bImgInp.multiple=true;bImgInp.style.display='none';
     bImgBtn.onclick=function(){bImgInp.click();};
