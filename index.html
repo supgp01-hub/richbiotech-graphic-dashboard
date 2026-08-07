@@ -1558,7 +1558,7 @@ window.addEventListener('load', () => {
           <option value="per">📋 ลากิจ</option>
         </select>
       </div>
-      <input class="lv-fnote" id="lv-f-note" type="text" placeholder="หมายเหตุ (ถ้ามี)">
+      <input class="lv-fnote" id="lv-f-note" type="text" placeholder="หมายเหตุ (ถ้ามี)" oninput="lvCheckAdd()">
       <div class="lv-ferr" id="lv-f-err"></div>
       <div class="lv-factions">
         <button class="lv-fbtn-cancel" onclick="lvCloseModal()">ยกเลิก</button>
@@ -1661,20 +1661,24 @@ function lvConsecRun(empId,y,m,d,types,excUid){
 }
 
 /* ── Validation ── */
-function lvRuleErr(empId,y,m,d,excUid){
+function lvRuleErr(empId,y,m,d,type,excUid){
   var emp=lvFindEmp(empId);if(!emp)return null;
   if(emp.group==='sup'||emp.group==='spec')return null;
-  var es=lvGetDay(y,m,d),gaC=0,aoC=0;
+  var es=lvGetDay(y,m,d),gaSet={},aoSet={};
   for(var i=0;i<es.length;i++){
     if(es[i].uid===excUid)continue;
+    if(es[i].empId===empId)continue;
+    if(es[i].type!==type)continue;
     var ee=lvFindEmp(es[i].empId);
-    if(ee&&ee.group==='ga')gaC++;
-    if(ee&&ee.group==='ao')aoC++;
+    if(ee&&ee.group==='ga')gaSet[es[i].empId]=1;
+    if(ee&&ee.group==='ao')aoSet[es[i].empId]=1;
   }
-  if(emp.group==='ga'&&gaC>=2)return 'Graphic & Ads ลาครบ 2 คนแล้วในวันนี้';
-  if(emp.group==='ao'&&aoC>=1)return 'Ads Optimizer มีคนลาอยู่แล้ว ลาซ้ำไม่ได้';
+  var gaC=Object.keys(gaSet).length,aoC=Object.keys(aoSet).length;
+  if(emp.group==='ga'&&gaC>=2)return 'Graphic & Ads ลา '+(LV_TYPE_LABEL[type]||type)+' ครบ 2 คนแล้วในวันนี้';
+  if(emp.group==='ao'&&aoC>=1)return 'Ads Optimizer มีคนลา '+(LV_TYPE_LABEL[type]||type)+' อยู่แล้ว ลาซ้ำไม่ได้';
   return null;
 }
+
 function lvQuotaErr(empId,y,m,d,type,excUid){
   var emp=lvFindEmp(empId);if(!emp)return null;
   if(type==='hol'){
@@ -1694,9 +1698,14 @@ function lvQuotaErr(empId,y,m,d,type,excUid){
   }
   return null;
 }
-function lvValidate(empId,y,m,d,type,excUid){
-  return lvRuleErr(empId,y,m,d,excUid)||lvQuotaErr(empId,y,m,d,type,excUid)||null;
+function lvValidate(empId,y,m,d,type,excUid,hasNote){
+  var rule=lvRuleErr(empId,y,m,d,type,excUid);
+  if(rule)return {msg:rule,block:true,bypassable:false};
+  var quota=lvQuotaErr(empId,y,m,d,type,excUid);
+  if(quota)return {msg:quota,block:!hasNote,bypassable:true};
+  return null;
 }
+
 
 /* ── Render ── */
 function lvRender(){lvRenderLabel();lvRenderCal();lvRenderSum();}
@@ -1871,13 +1880,13 @@ function lvSaveRow(uid){
   var es=lvGetDay(y,m,d),entry=null;
   for(var i=0;i<es.length;i++)if(es[i].uid===uid){entry=es[i];break;}
   if(!entry)return;
-  var err=lvValidate(entry.empId,y,m,d,entry.type,uid);
-  if(err){alert('⚠️ '+err);return;}
-  entry.updatedAt=Date.
-now();
+  var v=lvValidate(entry.empId,y,m,d,entry.type,uid,!!(entry.note&&entry.note.trim()));
+  if(v&&v.block){alert('⚠️ '+v.msg+(v.bypassable?' — กรุณาใส่หมายเหตุก่อนบันทึก':''));return;}
+  entry.updatedAt=Date.now();
   lvSaveDay(y,m,d,es);
   lvRenderCal();lvRenderSum();lvRefreshEList();
 }
+
 function lvDelEntry(uid){
   var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
   var es=lvGetDay(y,m,d).filter(function(e){return e.uid!==uid;});
@@ -1889,13 +1898,17 @@ function lvDelEntry(uid){
 function lvCheckAdd(){
   var empId=document.getElementById('lv-f-emp').value;
   var type=document.getElementById('lv-f-type').value;
+  var note=document.getElementById('lv-f-note').value.trim();
   var errEl=document.getElementById('lv-f-err');
   var sb=document.getElementById('lv-f-save');
   if(!empId){errEl.textContent='';if(sb)sb.disabled=false;return;}
-  var err=lvValidate(empId,LV_SEL.y,LV_SEL.m,LV_SEL.d,type,undefined);
-  if(err){errEl.textContent='🚫 '+err;if(sb)sb.disabled=true;}
-  else{errEl.textContent='';if(sb)sb.disabled=false;}
+  var v=lvValidate(empId,LV_SEL.y,LV_SEL.m,LV_SEL.d,type,undefined,!!note);
+  if(!v){errEl.textContent='';if(sb)sb.disabled=false;}
+  else if(v.bypassable&&!v.block){errEl.textContent='⚠️ '+v.msg+' — จะถูกบันทึกพร้อมหมายเหตุ';if(sb)sb.disabled=false;}
+  else if(v.bypassable&&v.block){errEl.textContent='⚠️ '+v.msg+' — กรุณาใส่หมายเหตุก่อนบันทึก';if(sb)sb.disabled=true;}
+  else{errEl.textContent='🚫 '+v.msg;if(sb)sb.disabled=true;}
 }
+
 function lvAddEntry(){
   var empId=document.getElementById('lv-f-emp').value;
   var type=document.getElementById('lv-f-type').value;
@@ -1904,9 +1917,12 @@ function lvAddEntry(){
   if(!empId){errEl.textContent='🚫 กรุณาเลือกพนักงาน';return;}
   var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
   var es=lvGetDay(y,m,d);
-  for(var i=0;i<es.length;i++)if(es[i].empId===empId){errEl.textContent='🚫 '+lvFindEmp(empId).name+' มีการลาในวันนี้แล้ว';return;}
-  var err=lvValidate(empId,y,m,d,type,undefined);
-  if(err){errEl.textContent='🚫 '+err;var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=true;return;}
+  var v=lvValidate(empId,y,m,d,type,undefined,!!note);
+  if(v&&v.block){
+    errEl.textContent=(v.bypassable?'⚠️ ':'🚫 ')+v.msg+(v.bypassable?' — กรุณาใส่หมายเหตุก่อนบันทึก':'');
+    var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=true;
+    return;
+  }
   es.push({uid:LV_UID++,empId:empId,type:type,note:note,createdAt:Date.now(),updatedAt:null});
   lvSaveDay(y,m,d,es);
   lvRenderCal();lvRenderSum();
@@ -1915,7 +1931,7 @@ function lvAddEntry(){
   errEl.textContent='';
   var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=false;
   lvRefreshEList();
-lvCloseModal();
+  lvCloseModal();
 }
 function lvCloseModal(){var el=document.getElementById('lv-modal');if(el)el.classList.remove('open');}
 
