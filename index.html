@@ -3380,7 +3380,7 @@ window.gAS=function(){
     g2.appendChild(mkF('สถานะ',mkS('om-st',[['','-- เลือกสถานะ --']].concat(ST_.map(function(s){return[s.k,s.l];})))));
     g2.appendChild(mkF('ผู้รับผิดชอบ',mkS('om-mb',[['','— ไม่ระบุ —']].concat(MB_.map(function(m){return[m,m];})))));
     p1.appendChild(g2);
-    p1.appendChild(mkF('บรีฟงาน / สไตล์ที่ต้องการ',mkTA('om-brief','อธิบายบรีฟงาน สไตล์ที่ต้องการ...',4)));
+    var briefWrap=mkF('บรีฟงาน / สไตล์ที่ต้องการ',mkTA('om-brief','อธิบายบรีฟงาน สไตล์ที่ต้องการ...',4));briefWrap.id='om-brief-wrap';p1.appendChild(briefWrap);
     var glp=document.createElement('div');glp.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
     glp.appendChild(mkF('ลิงก์ไฟล์ดิบ (Creative)',mkLink('om-raw')));
     glp.appendChild(mkF('ลิงก์สคริป',mkLink('om-sheet')));
@@ -3388,7 +3388,7 @@ window.gAS=function(){
     p1.appendChild(glp);
     p1.appendChild(mkF('ลิงก์ Footage',mkLink('om-footage')));
     p1.appendChild(mkF('Insert / Review',mkLink('om-review')));
-    var clipExDiv=document.createElement('div');clipExDiv.id='om-clip-extra';    p1.appendChild(mkF('หมายเหตุ',mkTA('om-note','หมายเหตุ...',3)));
+    var clipExDiv=document.createElement('div');clipExDiv.id='om-clip-extra';    var noteWrap=mkF('หมายเหตุ',mkTA('om-note','หมายเหตุ...',3));noteWrap.id='om-note-wrap';p1.appendChild(noteWrap);
 var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style.cssText='font-size:12px;font-weight:500;color:#374151;margin:10px 0 8px;';clipHdr.textContent='ลิงก์ยิงแอด';p1.appendChild(clipHdr);p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var rows=cont.querySelectorAll('.om-clip-row');var vals=[];rows.forEach(function(r){var i=r.querySelector('input');vals.push(i?i.value:'');});for(var idx=0;idx<vals.length;idx++){var vid=idx===0?'om-uplink':(idx===1?'om-ad':'om-link'+(idx+1));var el=document.getElementById(vid);if(!el&&typeof window._addCampRow==='function'){window._addCampRow();el=document.getElementById(vid);}if(el)el.value=vals[idx];}};window._addClipRow=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var row=document.createElement('div');row.className='om-clip-row';row.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center;';var inp=document.createElement('input');inp.type='text';inp.placeholder='ลิงก์คลิป...';inp.style.cssText='flex:1;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;';inp.oninput=function(){window._syncClipToVer&&window._syncClipToVer();};var rmBtn=document.createElement('button');rmBtn.type='button';rmBtn.textContent='-';rmBtn.style.cssText='width:28px;height:28px;border:1px solid #f87171;border-radius:6px;background:var(--surface-card);color:#ef4444;font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;';rmBtn.onclick=function(){row.parentNode&&row.parentNode.removeChild(row);window._syncClipToVer&&window._syncClipToVer();};row.appendChild(inp);row.appendChild(rmBtn);cont.appendChild(row);window._syncClipToVer&&window._syncClipToVer();};var addClipBtn=document.createElement('button');addClipBtn.id='om-add-clip-btn';addClipBtn.type='button';addClipBtn.textContent='+ เพิ่มลิงก์ยิงแอด';addClipBtn.style.cssText='margin-top:8px;margin-bottom:8px;padding:4px 10px;border:1px solid #6ee7b7;border-radius:6px;background:var(--auto-lc36);color:#065f46;font-size:12px;cursor:pointer;';addClipBtn.onclick=function(){window._addClipRow&&window._addClipRow();};p1.appendChild(addClipBtn);
     var fixHdrP1=document.createElement('div');fixHdrP1.id='om-p1fix-hdr';fixHdrP1.style.cssText='font-size:13px;font-weight:700;color:#16a34a;margin:14px 0 6px;';fixHdrP1.textContent='✅ รูปงานที่แก้ไขแล้ว';p1.appendChild(fixHdrP1);
     var fixGalP1=document.createElement('div');fixGalP1.id='om-p1fix-gallery';fixGalP1.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;';p1.appendChild(fixGalP1);
@@ -3404,13 +3404,17 @@ var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style
       var box=document.getElementById('om-submitlink-box');if(box)box.style.display=v?'flex':'none';
     });
     p1.appendChild(mkF('ลิงก์ส่งงาน',subLnkInp));
-    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.textContent='รูปตัวอย่าง';
+    var sampleLbl=document.createElement('div');sampleLbl.style.cssText='font-size:12px;font-weight:600;color:var(--text-muted2);margin-bottom:4px;';sampleLbl.textContent='รูปตัวอย่าง';
+    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.id='om-sample-btn';bImgBtn.textContent='+ อัพโหลดรูปตัวอย่าง';
     bImgBtn.style.cssText='background:var(--auto-lc31);border:1.5px solid #40916C;color:var(--text-heading);border-radius:12px;padding:9px 22px;font-size:13px;cursor:pointer;font-weight:700;margin-top:10px;margin-bottom:8px;box-shadow:0 2px 6px rgba(64,145,108,.15);transition:opacity .15s;';
     var bImgInp=document.createElement('input');bImgInp.type='file';bImgInp.accept='image/*';bImgInp.multiple=true;bImgInp.style.display='none';
     bImgBtn.onclick=function(){bImgInp.click();};
     bImgInp.onchange=function(){handleImgUpload(this.files,'brief');this.value='';};
     var bGal=document.createElement('div');bGal.id='om-brief-gallery';bGal.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
-    p1.appendChild(bImgBtn);p1.appendChild(bImgInp);p1.appendChild(bGal);
+    var sampleWrap=document.createElement('div');sampleWrap.id='om-sample-wrap';
+    sampleWrap.appendChild(sampleLbl);sampleWrap.appendChild(bImgBtn);sampleWrap.appendChild(bImgInp);sampleWrap.appendChild(bGal);
+    p1.appendChild(sampleWrap);
+    p1.appendChild(mkF('ลิงก์ตัวอย่าง',mkLink('om-sample-link')));
     tabPanels['info']=p1;_omInfoPanel=p1;body.appendChild(p1);
     function mkStatus(id){
       var s=document.createElement('select');
@@ -3583,8 +3587,28 @@ var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style
     _OM2.style.display='flex';document.body.style.overflow='hidden';
   
     var _p2el=document.getElementById('om2-p2-panel');if(_p2el){var _cr=window._rbUser?window._rbUser.role:'';var _canEd=_cr==='sup'||_cr==='audit';_p2el.style.pointerEvents=_canEd?'auto':'none';_p2el.style.opacity=_canEd?'1':'0.85';var _rob=_p2el.querySelector('#om2-p2-banner');if(!_canEd&&!_rob){var _b=document.createElement('div');_b.id='om2-p2-banner';_b.style.cssText='background:var(--auto-lc37);border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:13px;color:#713f12;';_b.textContent='🔒 ดูได้เท่านั้น — ไม่สามารถแก้ไขได้';_p2el.insertBefore(_b,_p2el.firstChild);}else if(_canEd&&_rob){_rob.remove();}}
-var _p1el=document.getElementById('om2-p1-panel');if(_p1el){var _keep={'om-clip-hdr':1,'om-clip-extra':1,'om-add-clip-btn':1,'om-p1fix-hdr':1,'om-p1fix-gallery':1,'om-p1fix-btn':1,'om-p1fix-inp':1};Array.prototype.forEach.call(_p1el.children,function(ch){var lock=(_isView||_cr==='audit')&&!_keep[ch.id];ch.style.pointerEvents=lock?'none':'';ch.style.opacity=lock?'0.55':'';var tag=ch.tagName;var chIsLink=ch.hasAttribute('data-link-btn');if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!(lock&&!chIsLink);if(lock&&chIsLink){ch.style.pointerEvents='auto';}}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}}});}
-var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
+var _p1el=document.getElementById('om2-p1-panel');if(_p1el){
+var _keep={'om-clip-hdr':1,'om-clip-extra':1,'om-add-clip-btn':1,'om-p1fix-hdr':1,'om-p1fix-gallery':1,'om-p1fix-btn':1,'om-p1fix-inp':1};
+var _roCardMap={'om-brief-wrap':{bg:'#EFF6FF',bd:'#BFDBFE'},'om-note-wrap':{bg:'#FFFBEB',bd:'#FDE68A'},'om-sample-wrap':{bg:'#F0FDF4',bd:'#BBF7D0'}};
+Array.prototype.forEach.call(_p1el.children,function(ch){
+var lock=(_isView||_cr==='audit')&&!_keep[ch.id];
+var _roCfg=_roCardMap[ch.id];
+ch.style.pointerEvents=lock?'none':'';
+ch.style.opacity=(lock&&!_roCfg)?'0.55':'1';
+if(lock&&_roCfg){ch.style.background=_roCfg.bg;ch.style.border='1.5px solid '+_roCfg.bd;ch.style.borderRadius='10px';ch.style.padding='10px 12px';}
+else{ch.style.background='';ch.style.border='';ch.style.borderRadius='';ch.style.padding='';}
+var _roTA=ch.querySelectorAll('textarea');
+for(var _rt=0;_rt<_roTA.length;_rt++){
+if(lock&&_roCfg){_roTA[_rt].style.cssText='width:100%;border:none;background:transparent;padding:0;font-size:13px;color:#1f2937;resize:none;';}
+else{_roTA[_rt].style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;resize:vertical;box-sizing:border-box;';}
+}
+if(ch.id==='om-sample-wrap'){var _roBtn=document.getElementById('om-sample-btn');if(_roBtn){_roBtn.style.display=(lock&&_roCfg)?'none':'';}}
+var tag=ch.tagName;
+var chIsLink=ch.hasAttribute('data-link-btn');
+if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!(lock&&!chIsLink);if(lock&&chIsLink){ch.style.pointerEvents='auto';}}
+var fields=ch.querySelectorAll('input,textarea,select,button');
+for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}}
+});}var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
 }
 
   function closeOM2(){if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
