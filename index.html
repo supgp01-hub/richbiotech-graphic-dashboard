@@ -2767,6 +2767,12 @@ var _OM=null;
 function initOrderPanel(){
   var panel=document.querySelector('.gsp[data-sub="order"]');
   if(!panel)return;
+  var _rbu=window._rbUser;
+  if(_rbu&&_rbu.role==='graphic'){
+    var _ordN2C={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};
+    _OF.assignee=_ordN2C[_rbu.name]||'__none__';
+    var _ocr=document.getElementById('ord-chip-row');if(_ocr)_ocr.style.display='none';
+  }
   if(panel.getAttribute('data-order-init')){renderOrderStats();renderOrders();return;}
   panel.setAttribute('data-order-init','1');
   panel.innerHTML='';panel.style.cssText='background:var(--auto-lc27);min-height:400px;';
@@ -2785,8 +2791,8 @@ function initOrderPanel(){
       b.style.color=active?'#1B4332':'#6b7280';
       b.style.fontWeight=active?'700':'500';
     });
-    if(k==='team'){chipRow.style.display='flex';renderOrders();}
-    else{chipRow.style.display='none';_activeTeam='';_OF.assignee='';renderOrders();}
+    if(k==='team'){var _rbu2=window._rbUser;var _isGR=_rbu2&&_rbu2.role==='graphic';chipRow.style.display=_isGR?'none':'flex';renderOrders();}
+    else{chipRow.style.display='none';_activeTeam='';var _rbu3=window._rbUser;if(!(_rbu3&&_rbu3.role==='graphic'))_OF.assignee='';renderOrders();}
   ab.style.display=(k==='team')?'none':'';}
   [['all','งานทั้งหมด'],['team','ทีมงาน']].forEach(function(t){
     var btn=document.createElement('button');btn.className='ord-tab-btn';btn.setAttribute('data-k',t[0]);btn.textContent=t[1];
