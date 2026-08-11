@@ -3602,7 +3602,7 @@ for(var _rt=0;_rt<_roTA.length;_rt++){
 if(lock&&_roCfg){_roTA[_rt].style.cssText='width:100%;border:none;background:transparent;padding:0;font-size:13px;color:#1f2937;resize:none;';}
 else{_roTA[_rt].style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;resize:vertical;box-sizing:border-box;';}
 }
-if(ch.id==='om-sample-wrap'){var _roBtn=document.getElementById('om-sample-btn');if(_roBtn){_roBtn.style.display=(lock&&_roCfg)?'none':'';}}
+if(ch.id==='om-sample-wrap'){var _roBtn=document.getElementById('om-sample-btn');if(_roBtn){_roBtn.style.display=(lock&&_roCfg)?'none':'';}var _sGal=document.getElementById('om-brief-gallery');if(_sGal){var _sEls=_sGal.querySelectorAll('img,a');for(var _si=0;_si<_sEls.length;_si++){_sEls[_si].style.pointerEvents=lock?'auto':'';}}}
 var tag=ch.tagName;
 var chIsLink=ch.hasAttribute('data-link-btn');
 if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!(lock&&!chIsLink);if(lock&&chIsLink){ch.style.pointerEvents='auto';}}
