@@ -2842,7 +2842,8 @@ window._rbInitOP=initOrderPanel;
 function renderOrderStats(){
   var sr=document.getElementById('ord-stats');if(!sr)return;sr.innerHTML='';
   var orders=lpORD();
-  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
+
+  var _rbuS=window._rbUser;if(_rbuS&&_rbuS.role==='graphic'){var _ordN2C2={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};var _myCode2=_ordN2C2[_rbuS.name]||'__none__';orders=orders.filter(function(o){return (o.assignee||'')===_myCode2;});}  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
   orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
   [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'มอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
     var isAct=_OF.activeCard===card.k;
