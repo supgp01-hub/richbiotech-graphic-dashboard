@@ -3381,6 +3381,17 @@ window.gAS=function(){
     g2.appendChild(mkF('ผู้รับผิดชอบ',mkS('om-mb',[['','— ไม่ระบุ —']].concat(MB_.map(function(m){return[m,m];})))));
     p1.appendChild(g2);
     var briefWrap=mkF('บรีฟงาน / สไตล์ที่ต้องการ',mkTA('om-brief','อธิบายบรีฟงาน สไตล์ที่ต้องการ...',4));briefWrap.id='om-brief-wrap';p1.appendChild(briefWrap);
+    var sampleLbl=document.createElement('div');sampleLbl.style.cssText='font-size:12px;font-weight:600;color:var(--text-muted2);margin-bottom:4px;';sampleLbl.textContent='รูปตัวอย่าง';
+    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.id='om-sample-btn';bImgBtn.textContent='+ อัพโหลดรูปตัวอย่าง';
+    bImgBtn.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';
+    var bImgInp=document.createElement('input');bImgInp.type='file';bImgInp.accept='image/*';bImgInp.multiple=true;bImgInp.style.display='none';
+    bImgBtn.onclick=function(){bImgInp.click();};
+    bImgInp.onchange=function(){handleImgUpload(this.files,'brief');this.value='';};
+    var bGal=document.createElement('div');bGal.id='om-brief-gallery';bGal.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+    var sampleWrap=document.createElement('div');sampleWrap.id='om-sample-wrap';
+    sampleWrap.appendChild(sampleLbl);sampleWrap.appendChild(bImgBtn);sampleWrap.appendChild(bImgInp);sampleWrap.appendChild(bGal);
+    p1.appendChild(sampleWrap);
+    p1.appendChild(mkF('ลิงก์ตัวอย่าง',mkLink('om-sample-link')));
     var glp=document.createElement('div');glp.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
     glp.appendChild(mkF('ลิงก์ไฟล์ดิบ (Creative)',mkLink('om-raw')));
     glp.appendChild(mkF('ลิงก์สคริป',mkLink('om-sheet')));
@@ -3404,17 +3415,7 @@ var clipHdr=document.createElement('div');clipHdr.id='om-clip-hdr';clipHdr.style
       var box=document.getElementById('om-submitlink-box');if(box)box.style.display=v?'flex':'none';
     });
     p1.appendChild(mkF('ลิงก์ส่งงาน',subLnkInp));
-    var sampleLbl=document.createElement('div');sampleLbl.style.cssText='font-size:12px;font-weight:600;color:var(--text-muted2);margin-bottom:4px;';sampleLbl.textContent='รูปตัวอย่าง';
-    var bImgBtn=document.createElement('button');bImgBtn.type='button';bImgBtn.id='om-sample-btn';bImgBtn.textContent='+ อัพโหลดรูปตัวอย่าง';
-    bImgBtn.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';
-    var bImgInp=document.createElement('input');bImgInp.type='file';bImgInp.accept='image/*';bImgInp.multiple=true;bImgInp.style.display='none';
-    bImgBtn.onclick=function(){bImgInp.click();};
-    bImgInp.onchange=function(){handleImgUpload(this.files,'brief');this.value='';};
-    var bGal=document.createElement('div');bGal.id='om-brief-gallery';bGal.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
-    var sampleWrap=document.createElement('div');sampleWrap.id='om-sample-wrap';
-    sampleWrap.appendChild(sampleLbl);sampleWrap.appendChild(bImgBtn);sampleWrap.appendChild(bImgInp);sampleWrap.appendChild(bGal);
-    p1.appendChild(sampleWrap);
-    p1.appendChild(mkF('ลิงก์ตัวอย่าง',mkLink('om-sample-link')));
+    
     tabPanels['info']=p1;_omInfoPanel=p1;body.appendChild(p1);
     function mkStatus(id){
       var s=document.createElement('select');
