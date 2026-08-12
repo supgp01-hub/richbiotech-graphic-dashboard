@@ -3524,6 +3524,29 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     switchTab('info');
   }
 
+  function _rbShowSendWarn(){
+    var _ex=document.getElementById('rb-sw-overlay');if(_ex&&_ex.parentNode)_ex.parentNode.removeChild(_ex);
+    var d=document.createElement('div');
+    d.id='rb-sw-overlay';
+    d.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);';
+    d.innerHTML='<div style="background:#fff;border-radius:16px;padding:32px 28px 24px;width:360px;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);">'
+      +'<div style="font-size:38px;margin-bottom:12px;">⚠️</div>'
+      +'<div style="font-size:16px;font-weight:700;color:#1B4332;margin-bottom:14px;">ยังส่งงานไม่ได้</div>'
+      +'<div style="display:flex;justify-content:center;gap:18px;margin-bottom:22px;flex-wrap:wrap;">'
+      +'<div style="font-size:12.5px;color:#991B1B;display:flex;align-items:center;gap:6px;white-space:nowrap;"><span style="font-size:14px;">☐</span>แนบลิงก์ยิงแอด</div>'
+      +'<div style="font-size:12.5px;color:#991B1B;display:flex;align-items:center;gap:6px;white-space:nowrap;"><span style="font-size:14px;">☐</span>อัพโหลดรูปแก้ไข</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:10px;">'
+      +'<button id="rbSwClose" style="flex:1;padding:11px 0;border-radius:10px;border:1px solid #e5e7eb;background:#f7f7f8;color:#374151;font-size:13.5px;font-weight:600;cursor:pointer;">ปิด</button>'
+      +'<button id="rbSwOk" style="flex:1;padding:11px 0;border-radius:10px;border:none;background:#B42318;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;">เข้าใจแล้ว</button>'
+      +'</div></div>';
+    document.body.appendChild(d);
+    function _rbSwClose(){d.parentNode&&d.parentNode.removeChild(d);}
+    d.querySelector('#rbSwClose').onclick=_rbSwClose;
+    d.querySelector('#rbSwOk').onclick=_rbSwClose;
+    d.onclick=function(e){if(e.target===d)_rbSwClose();};
+  }
+
   function openOM2(id){
     buildOM2();
     var orders=typeof lpORD==='function'?lpORD():[];
@@ -3578,6 +3601,23 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
         _omSaveBtn.textContent=_cst==='inprogress'?'✅ ส่งงาน':(_cst==='revision'?'🔁 ส่งตรวจอีกครั้ง':'✅ กำลังดำเนินการ');
         _omSaveBtn.style.background='#d97706';
         _omSaveBtn.onclick=function(){
+            if(_nst==='review'){
+              var _clipCont=document.getElementById('om-clip-extra');
+              var _hasClip=false;
+              if(_clipCont){
+                var _clipRows=_clipCont.querySelectorAll('.om-clip-row');
+                for(var _cli=0;_cli<_clipRows.length;_cli++){
+                  var _clipInp=_clipRows[_cli].querySelector('input[type="text"]');
+                  if(_clipInp&&_clipInp.value&&_clipInp.value.trim()){_hasClip=true;break;}
+                }
+              }
+              var _hasFix=typeof _omFixImages!=='undefined'&&_omFixImages&&_omFixImages.length>0;
+              if(!_hasClip&&!_hasFix){
+                if(typeof _rbShowSendWarn==='function')_rbShowSendWarn();
+                return;
+              }
+            }
+          
           var ordId=ge('om-id').textContent;
           var orders=typeof lpORD==='function'?lpORD():[];
           var idx=orders.findIndex(function(x){return x.id===ordId;});
