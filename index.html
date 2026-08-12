@@ -3543,7 +3543,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     document.body.appendChild(d);
     function _rbSwClose(){d.parentNode&&d.parentNode.removeChild(d);}
     d.querySelector('#rbSwClose').onclick=_rbSwClose;
-    d.querySelector('#rbSwOk').onclick=_rbSwClose;
+    d.querySelector('#rbSwOk').onclick=function(){_rbSwClose();if(typeof _switchTab==='function')_switchTab('info');setTimeout(function(){var _t=document.getElementById('om-add-clip-btn');if(_t){_t.scrollIntoView({behavior:'smooth',block:'center'});_t.style.transition='box-shadow .3s';_t.style.boxShadow='0 0 0 3px rgba(180,35,24,.55)';setTimeout(function(){_t.style.boxShadow='';},1800);}},60);};
     d.onclick=function(e){if(e.target===d)_rbSwClose();};
   }
 
