@@ -3655,7 +3655,7 @@ var tag=ch.tagName;
 var chIsLink=ch.hasAttribute('data-link-btn');
 if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!(lock&&!chIsLink);if(lock&&chIsLink){ch.style.pointerEvents='auto';}}if(tag==='BUTTON'&&!(lock&&!chIsLink)){ch.style.cursor='pointer';}
 var fields=ch.querySelectorAll('input,textarea,select,button');
-for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}}if(f.tagName==='BUTTON'&&!(lock&&!fIsLink)){f.style.cursor='pointer';}
+for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}if(f.tagName==='BUTTON'&&!(lock&&!fIsLink)){f.style.cursor='pointer';}}
 });}var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
 }
 
