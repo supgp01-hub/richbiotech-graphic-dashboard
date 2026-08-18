@@ -1591,7 +1591,7 @@ var EMP_INIT={wiw:'V',mos:'M',ter:'T',nun:'N',jam:'J',dom:'D',bol:'B',nui:'N',mn
 var LV_LS='lv_dash_v5';
 var LV_DATA={};
 var LV_UID=1;
-var LV_CUR={y:2026,m:6};
+var LV_CUR=(function(){var _d=new Date();return{y:_d.getFullYear(),m:_d.getMonth()+1};})();
 var LV_SEL={y:0,m:0,d:0};
 
 /* ── Helpers ── */
