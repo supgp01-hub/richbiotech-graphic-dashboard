@@ -1533,7 +1533,196 @@ window.addEventListener('load', () => {
     <div class="lv-sum-wrap"><div id="lv-sum-inner"></div></div>
   </div>
 
-  <!-- Modal -->
+  <style id="lv-sw-css">
+.lv-sw-wrap{margin-top:24px;background:#fff;border:1.5px solid var(--foam);border-radius:14px;padding:18px 20px;}
+.lv-sw-title{font-size:15px;font-weight:800;color:var(--text-heading);margin-bottom:14px;}
+.lv-sw-cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.lv-sw-cat-card{border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:transform .1s;}
+.lv-sw-cat-card:hover{transform:translateY(-2px);}
+.lv-sw-cat-emoji{font-size:24px;margin-bottom:6px;}
+.lv-sw-cat-label{font-size:13px;font-weight:700;}
+.lv-sw-cat-header{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;}
+.lv-sw-back-link{float:right;font-size:12px;color:var(--text-muted2);cursor:pointer;text-decoration:underline;}
+.lv-sw-day-desc{font-size:12px;color:var(--text-muted2);margin:12px 0 8px;clear:both;}
+.lv-sw-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px;}
+.lv-sw-day-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#374151;}
+.lv-sw-day-cell.sel{border-color:transparent;color:#fff;}
+.lv-sw-count-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-muted2);margin-bottom:10px;}
+.lv-sw-clear{color:#B45309;cursor:pointer;text-decoration:underline;}
+.lv-sw-note{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:10px;font-family:inherit;}
+.lv-sw-save-btn{width:100%;background:#1B4332;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
+</style>
+<div class="lv-sw-wrap" id="lv-sw-wrap">
+  <div class="lv-sw-title">🖊️ วันทำงานพิเศษ (อบรม / เข้าออฟฟิศ / WFH / OUTING)</div>
+  <div id="lv-sw-step1" class="lv-sw-step">
+    <div class="lv-sw-cat-grid" id="lv-sw-cat-grid"></div>
+  </div>
+  <div id="lv-sw-step2" class="lv-sw-step" style="display:none">
+    <div style="overflow:hidden;margin-bottom:4px;">
+      <span class="lv-sw-cat-header" id="lv-sw-cat-header"></span>
+      <span class="lv-sw-back-link" onclick="window._swBackToStep1&&window._swBackToStep1()">เปลี่ยนหมวด</span>
+    </div>
+    <div class="lv-sw-day-desc" id="lv-sw-day-desc"></div>
+    <div class="lv-sw-day-grid" id="lv-sw-day-grid"></div>
+    <div class="lv-sw-count-row">
+      <span id="lv-sw-count">เลือกแล้ว 0 วัน</span>
+      <span class="lv-sw-clear" onclick="window._swClearAll&&window._swClearAll()">ล้างทั้งหมด</span>
+    </div>
+    <textarea id="lv-sw-note" class="lv-sw-note" placeholder="หมายเหตุ (ถ้ามี)"></textarea>
+    <button id="lv-sw-save-btn" class="lv-sw-save-btn" onclick="window._swSave&&window._swSave()">✓ บันทึก (0 วัน)</button>
+  </div>
+</div>
+<script>
+(function(){
+var SW_CATS=[
+  {k:'training', l:'อบรม', bg:'#EDE9FE', col:'#5B21B6', dot:'#7F77DD', emoji:'📚'},
+  {k:'office', l:'เข้าออฟฟิศ', bg:'#FFEDD5', col:'#9A3412', dot:'#F97316', emoji:'🏢'},
+  {k:'wfh', l:'WFH', bg:'#FEF9C3', col:'#854D0E', dot:'#EAB308', emoji:'🏠'},
+  {k:'outing', l:'OUTING', bg:'#FCE7F3', col:'#9D174D', dot:'#EC4899', emoji:'🚗'}
+];
+var SW_LS='rb_specialwork_v1';
+var SW_SYNCED_KEY='rb_specialwork_synced_v1';
+var SW_DATA=[];
+var SW_SEL={cat:null, days:{}};
+function swLoad(){try{return JSON.parse(localStorage.getItem(SW_LS)||'[]');}catch(e){return [];}}
+function swSaveLocal(a){localStorage.setItem(SW_LS,JSON.stringify(a));}
+function swPersist(a){swSaveLocal(a);window.fbSet&&window.fbSet('/specialwork',a);}
+function swFetchAndInit(){
+  if(typeof window.fbGet!=='function'){SW_DATA=swLoad();swRenderStep1();return;}
+  window.fbGet('/specialwork',function(err,data){
+    var everSynced=localStorage.getItem(SW_SYNCED_KEY)==='1';
+    if(!err){
+      if(data){
+        var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);
+        arr=arr.filter(function(x){return x&&x.id;});
+        SW_DATA=arr; swSaveLocal(arr);
+      } else if(!everSynced){
+        var local=swLoad();
+        SW_DATA=local;
+        if(local.length>0){window.fbSet&&window.fbSet('/specialwork',local);}
+      } else {
+        SW_DATA=[]; swSaveLocal([]);
+      }
+      localStorage.setItem(SW_SYNCED_KEY,'1');
+    } else {
+      SW_DATA=swLoad();
+    }
+    swRenderStep1();
+  });
+}
+window._swInit=function(){
+  var wrap=document.getElementById('lv-sw-wrap');
+  if(!wrap)return;
+  SW_SEL={cat:null,days:{}};
+  swFetchAndInit();
+};
+function swRenderStep1(){
+  var grid=document.getElementById('lv-sw-cat-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  SW_CATS.forEach(function(c){
+    var card=document.createElement('div');
+    card.className='lv-sw-cat-card';
+    card.style.background=c.bg;
+    card.style.borderColor=c.dot;
+    card.innerHTML='<div class="lv-sw-cat-emoji">'+c.emoji+'</div><div class="lv-sw-cat-label" style="color:'+c.col+'">'+c.l+'</div>';
+    card.onclick=(function(k){return function(){window._swSelectCat(k);};})(c.k);
+    grid.appendChild(card);
+  });
+  var s1=document.getElementById('lv-sw-step1'); if(s1)s1.style.display='';
+  var s2=document.getElementById('lv-sw-step2'); if(s2)s2.style.display='none';
+}
+window._swSelectCat=function(k){
+  SW_SEL.cat=k; SW_SEL.days={};
+  document.getElementById('lv-sw-step1').style.display='none';
+  document.getElementById('lv-sw-step2').style.display='';
+  swRenderStep2();
+};
+window._swBackToStep1=function(){ swRenderStep1(); };
+function swCatObj(k){for(var i=0;i<SW_CATS.length;i++)if(SW_CATS[i].k===k)return SW_CATS[i];return null;}
+function swRenderStep2(){
+  var c=swCatObj(SW_SEL.cat); if(!c)return;
+  var hdr=document.getElementById('lv-sw-cat-header');
+  hdr.style.background=c.bg; hdr.style.color=c.col;
+  hdr.innerHTML=c.emoji+' '+c.l;
+  var descEl=document.getElementById('lv-sw-day-desc');
+  var today=new Date();
+  var cyc=lvGetCycle(today.getFullYear(), today.getMonth()+1, today.getDate());
+  var start=lvCycleStart(cyc.endY, cyc.endM);
+  var days=[];
+  var dt=new Date(start.y, start.m-1, start.d);
+  var endDt=new Date(cyc.endY, cyc.endM-1, 25);
+  while(dt<=endDt){
+    days.push({y:dt.getFullYear(), m:dt.getMonth()+1, d:dt.getDate()});
+    dt.setDate(dt.getDate()+1);
+  }
+  var fmtShort=function(o){return o.d+'/'+o.m;};
+  descEl.textContent='เลือกวันที่ (กดซ้ำเพื่อยกเลิก) — รอบ '+fmtShort(days[0])+' - '+fmtShort(days[days.length-1])+':';
+  var grid=document.getElementById('lv-sw-day-grid');
+  grid.innerHTML='';
+  var dow=['อา','จ','อ','พ','พฤ','ศ','ส'];
+  dow.forEach(function(d){
+    var lbl=document.createElement('div');
+    lbl.style.cssText='text-align:center;font-size:10px;color:var(--text-muted2);font-weight:700;';
+    lbl.textContent=d;
+    grid.appendChild(lbl);
+  });
+  var firstDow=new Date(days[0].y, days[0].m-1, days[0].d).getDay();
+  for(var p=0;p<firstDow;p++){
+    var pad=document.createElement('div'); grid.appendChild(pad);
+  }
+  days.forEach(function(o){
+    var key=o.y+'-'+o.m+'-'+o.d;
+    var cell=document.createElement('div');
+    cell.className='lv-sw-day-cell'+(SW_SEL.days[key]?' sel':'');
+    if(SW_SEL.days[key]){cell.style.background=c.dot;}
+    cell.textContent=o.d;
+    cell.onclick=(function(kk){return function(){window._swToggleDay(kk);};})(key);
+    grid.appendChild(cell);
+  });
+  swUpdateCount();
+}
+window._swToggleDay=function(key){
+  if(SW_SEL.days[key])delete SW_SEL.days[key]; else SW_SEL.days[key]=true;
+  swRenderStep2();
+};
+window._swClearAll=function(){
+  SW_SEL.days={};
+  swRenderStep2();
+};
+function swUpdateCount(){
+  var n=Object.keys(SW_SEL.days).length;
+  var cnt=document.getElementById('lv-sw-count');
+  if(cnt)cnt.textContent='เลือกแล้ว '+n+' วัน';
+  var btn=document.getElementById('lv-sw-save-btn');
+  if(btn)btn.textContent='✓ บันทึก ('+n+' วัน)';
+}
+window._swSave=function(){
+  var n=Object.keys(SW_SEL.days).length;
+  if(n===0){alert('กรุณาเลือกวันที่อย่างน้อย 1 วัน');return;}
+  var u=window._rbUser;
+  var noteEl=document.getElementById('lv-sw-note');
+  var note=noteEl?noteEl.value:'';
+  var entry={
+    id:'sw_'+Date.now()+'_'+Math.floor(Math.random()*1000),
+    empName:u?u.name:'',
+    empRole:u?u.role:'',
+    cat:SW_SEL.cat,
+    dates:Object.keys(SW_SEL.days),
+    note:note.trim(),
+    createdAt:Date.now()
+  };
+  var arr=swLoad();
+  arr.push(entry);
+  swPersist(arr);
+  SW_DATA=arr;
+  SW_SEL={cat:null,days:{}};
+  if(noteEl)noteEl.value='';
+  alert('บันทึกสำเร็จ');
+  swRenderStep1();
+};
+})();
+</script><!-- Modal -->
   <div id="lv-modal" onclick="if(event.target===this)lvCloseModal()">
     <div class="lv-mbox">
       <div class="lv
@@ -2192,7 +2381,7 @@ function lvInit(){
 <script>
 /* ─── Switch tab via nav button ─── */
 function showTab(name, btn) {
-  if (name === 'schedule') { setTimeout(function(){ if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit(); else lvRender(); }, 10); }
+  if (name === 'schedule') { setTimeout(function(){ if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit(); else lvRender();if(typeof window._swInit==='function')window._swInit(); }, 10); }
   if (name === 'team') { setTimeout(lvRestorePhotos, 30); }
   if (name === 'overview') { setTimeout(function(){ window._rbRenderMyWork && window._rbRenderMyWork(); window._rbRenderHomeStats && window._rbRenderHomeStats(); }, 10); }
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -2241,7 +2430,7 @@ function goTab(name, el) {
     document.querySelectorAll('nav button').forEach(function(b){
       if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf("'"+t+"'")>=0)b.classList.add('active');
     });
-    if(t==='schedule'){if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit();else lvRender();}
+    if(t==='schedule'){if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit();else lvRender();if(typeof window._swInit==='function')window._swInit();}
   }
 })();
 </script>
