@@ -1821,8 +1821,8 @@ function lvSaveLS(){
   try{fbSet('/lv_data',{d:LV_DATA,t:Date.now()});}catch(e){}
 }
 function lvLoadLS(){try{var r=localStorage.getItem(LV_LS);if(r){var o=JSON.parse(r);LV_DATA=o.d||{};LV_UID=o.u||LV_UID;}}catch(e){}
-  if(typeof fbGet==='function')fbGet('/lv_data',function(err,remote){if(!err&&remote&&remote.d){LV_DATA=remote.d;try{localStorage.setItem(LV_LS,JSON.stringify({d:LV_DATA,u:LV_UID}));}catch(ex){}setTimeout(function(){lvRender();},50);}});
-  if(!window._lvPoll){window._lvPoll=setInterval(function(){fbGet('/lv_data',function(err,r){if(!err&&r&&r.d){LV_DATA=r.d;lvRender();}});},30000);}
+  if(typeof fbGet==='function')fbGet('/lv_data',function(err,remote){if(!err&&remote&&remote.d){LV_DATA=remote.d;try{localStorage.setItem(LV_LS,JSON.stringify({d:LV_DATA,u:LV_UID}));}catch(ex){}setTimeout(function(){lvRender();lvRestorePhotos();},50);}});
+  if(!window._lvPoll&&typeof fbGet==='function'){window._lvPoll=setInterval(function(){fbGet('/lv_data',function(err,r){if(!err&&r&&r.d){LV_DATA=r.d;lvRender();lvRestorePhotos();}});},30000);}
 }
 function lvEscHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -2409,7 +2409,7 @@ function lvInit(){
 /* ─── Switch tab via nav button ─── */
 function showTab(name, btn) {
   if (name === 'schedule') { setTimeout(function(){ if(document.getElementById('lv-month-lbl')&&!document.getElementById('lv-month-lbl').textContent)lvInit(); else lvRender();if(typeof window._swInit==='function')window._swInit(); }, 10); }
-  if (name === 'team') { setTimeout(lvRestorePhotos, 30); }
+  if (name === 'team') { setTimeout(function(){ if(typeof lvLoadLS==='function')lvLoadLS(); if(typeof lvRestorePhotos==='function')lvRestorePhotos(); }, 30); }
   if (name === 'overview') { setTimeout(function(){ window._rbRenderMyWork && window._rbRenderMyWork(); window._rbRenderHomeStats && window._rbRenderHomeStats(); }, 10); }
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -4647,6 +4647,53 @@ window._rbRenderHomeStats=function(){try{var orders=window.lpORD?window.lpORD():
 window.addEventListener('load',function(){window._rbRenderHomeStats&&window._rbRenderHomeStats();});
 window.addEventListener('load', function(){ window._rbRenderMyWork && window._rbRenderMyWork(); });
 window.addEventListener('load',function(){setTimeout(function(){if(window.fbRefreshOrders){window.fbRefreshOrders(function(){window._rbRefreshOrderViews&&window._rbRefreshOrderViews();});}if(window.fbSyncStart)window.fbSyncStart();},50);});
+window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoadLS==='function')lvLoadLS();if(typeof lvRestorePhotos==='function')lvRestorePhotos();},120);});
+</script>
+<script id="rb-employee-display-names-en">
+(function(){
+  var NAME_MAP={
+    'วิว':'View','มอส':'Moss','ดอม':'Dom','เตอร์':'Ter','นุ่น':'Nune',
+    'แจ๋ม':'Jam','บอล':'Ball','นุ้ย':'Nui','มายด์':'Mind'
+  };
+  var NAME_RULES=Object.keys(NAME_MAP).map(function(thai){
+    return {re:new RegExp('(^|[^A-Za-z0-9_\\u0E00-\\u0E7F])'+thai+'(?=$|[^A-Za-z0-9_\\u0E00-\\u0E7F])','g'),english:NAME_MAP[thai]};
+  });
+  function translate(value){
+    if(!value)return value;
+    var out=String(value);
+    NAME_RULES.forEach(function(rule){out=out.replace(rule.re,function(match,prefix){return prefix+rule.english;});});
+    return out;
+  }
+  function translateTextNode(node){
+    if(!node||node.nodeType!==3||!node.parentElement)return;
+    var tag=node.parentElement.tagName;
+    if(tag==='SCRIPT'||tag==='STYLE'||tag==='NOSCRIPT')return;
+    var next=translate(node.nodeValue);
+    if(next!==node.nodeValue)node.nodeValue=next;
+  }
+  function translateElement(el){
+    if(!el||el.nodeType!==1)return;
+    ['title','aria-label','alt'].forEach(function(attr){var value=el.getAttribute(attr);if(value){var next=translate(value);if(next!==value)el.setAttribute(attr,next);}});
+    var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
+    var node;while((node=walker.nextNode()))translateTextNode(node);
+  }
+  function apply(root){
+    if(!root)return;
+    if(root.nodeType===3){translateTextNode(root);return;}
+    if(root.nodeType===1)translateElement(root);
+  }
+  window.RB_EMPLOYEE_NAME_MAP=NAME_MAP;
+  window.rbEmployeeDisplayName=function(value){return NAME_MAP[value]||translate(value);};
+  apply(document.documentElement);
+  var observer=new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      if(m.type==='characterData')translateTextNode(m.target);
+      else Array.prototype.forEach.call(m.addedNodes,apply);
+    });
+  });
+  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+  window.addEventListener('load',function(){apply(document.documentElement);});
+})();
 </script>
 <script>window._rbToggleTheme=function(){var isDark=document.documentElement.getAttribute("data-theme")==="dark";if(isDark){document.documentElement.removeAttribute("data-theme");try{localStorage.setItem("rb_theme","light");}catch(e){}}else{document.documentElement.setAttribute("data-theme","dark");try{localStorage.setItem("rb_theme","dark");}catch(e){}}};</script>
 <div id="rb-theme-fab"><div id="rb-notif-wrap"><button id="rb-bell-btn" onclick="window._rbTogNotif&&window._rbTogNotif()" title="การแจ้งเตือน"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><span id="rb-bell-badge">0</span></button><div id="rb-notif-panel" style="display:none"><div class="rbn-hdr"><span class="rbn-htitle">การแจ้งเตือน</span><button class="rbn-readall" onclick="window._rbReadAll&&window._rbReadAll()">อ่านทั้งหมด</button></div><div class="rbn-tabs"><button class="rbn-tab rbn-tab-active" onclick="window._rbSetNotifTab('all',this)">ทั้งหมด</button><button class="rbn-tab" onclick="window._rbSetNotifTab('unread',this)">ยังไม่อ่าน</button><button class="rbn-tab" onclick="window._rbSetNotifTab('work',this)">งาน</button></div><div class="rbn-list" id="rb-notif-list"></div></div></div><div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 6px;"></div><div onclick="window._rbToggleTheme&&window._rbToggleTheme()" title="กลางวัน/กลางคืน" style="display:flex;align-items:center;gap:1px;cursor:pointer;"><span class="rb-theme-circle rb-theme-circle-sun">☀️</span><span class="rb-theme-circle rb-theme-circle-moon">🌙</span></div></div>
