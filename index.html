@@ -1,4 +1,4 @@
-<!-- redeploy-fix175-timeline-close-icon -->
+<!-- redeploy-fix176-dropdown-colorbar-scope -->
 <!DOCTYPE html>
 <html lang="th">
 <head><script>(function(){try{if(localStorage.getItem("rb_theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
@@ -4765,12 +4765,15 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
 .rb-dd-search{width:100%;box-sizing:border-box;border:1px solid var(--surface-card-border,#d8e8dc);border-radius:10px;background:var(--surface-page,#f7fbf8);color:var(--text-heading,#173c2b);font:inherit;font-size:12px;padding:9px 10px 9px 32px;outline:none}
 .rb-dd-search:focus{border-color:#52B788;box-shadow:0 0 0 3px rgba(82,183,136,.14)}
 .rb-dd-list{display:flex;flex-direction:column;gap:3px;max-height:min(340px,calc(100vh - 120px));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-.rb-dd-option{display:grid;grid-template-columns:6px minmax(0,1fr);align-items:center;gap:10px;width:100%;min-height:40px;box-sizing:border-box;padding:4px 10px 4px 0;border:1px solid transparent;border-radius:8px;background:var(--rb-dd-bg,#edf7f0);color:var(--text-heading,#253b30);font:inherit;font-size:13px;text-align:left;cursor:pointer;overflow:hidden;transition:filter .13s,box-shadow .13s,transform .13s}
+.rb-dd-option{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;width:100%;min-height:40px;box-sizing:border-box;padding:4px 10px 4px 6px;border:1px solid transparent;border-radius:8px;background:var(--rb-dd-bg,#edf7f0);color:var(--text-heading,#253b30);font:inherit;font-size:13px;text-align:left;cursor:pointer;overflow:hidden;transition:filter .13s,box-shadow .13s,transform .13s}
 .rb-dd-option:hover,.rb-dd-option.rb-dd-focus{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#cae6d3);filter:saturate(1.06) brightness(.985);box-shadow:inset 0 0 0 1px var(--rb-dd-border,#cae6d3);transform:none}
 .rb-dd-option.rb-dd-selected{background:var(--rb-dd-bg,#edf7f0);border-color:transparent;font-weight:700}
 .rb-dd-option:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.rb-dd-icon{display:block;align-self:stretch;width:6px;min-height:30px;border-radius:0 4px 4px 0;background:var(--rb-dd-icon-bg,#94A3B8);color:transparent;font-size:0}
-.rb-dd-icon svg{display:none!important}
+.rb-dd-icon{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--rb-dd-icon-bg,#94A3B8);color:#fff;font-size:0}
+.rb-dd-icon svg{display:block;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rb-dd-option.rb-dd-color-bar{grid-template-columns:6px minmax(0,1fr);gap:10px;padding-left:0}
+.rb-dd-option.rb-dd-color-bar .rb-dd-icon{display:block;align-self:stretch;width:6px;height:auto;min-height:30px;border-radius:0 4px 4px 0;color:transparent}
+.rb-dd-option.rb-dd-color-bar .rb-dd-icon svg{display:none!important}
 .rb-dd-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--rb-dd-color,var(--text-heading,#253b30));font-weight:600}
 .rb-dd-check{display:none}
 .rb-dd-empty{padding:18px 10px;text-align:center;color:var(--text-muted2,#829087);font-size:12px}
@@ -4834,11 +4837,15 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     if(!root)return;if(isEligible(root))enhance(root);
     if(root.querySelectorAll)root.querySelectorAll('select').forEach(enhance);
   }
+  function usesRequestedColorBar(select){
+    var requested={view:1,moss:1,ter:1,ball:1,nune:1,jam:1,dom:1,nui:1,mind:1,'วิว':1,'มอส':1,'เตอร์':1,'บอล':1,'นุ่น':1,'แจ๋ม':1,'ดอม':1,'นุ้ย':1,'มายด์':1,'กราฟิก':1,'รูปภาพ':1,'ยิงแอด':1,'เทสส่วนตัว':1,'คัดคลิป':1,rlees:1,'สร้างเพจ':1,'liv care':1,'so pink':1,'i sure plus':1,olymplus:1,'olymplus max':1,judo:1,'dragon blood':1,'ขุนแผน':1,'heaven plus+':1,'the lord':1,'wolf+':1,'เจ้าขุน':1,'โอลิมพลัส':1,'เฮฟเว่นพลัส':1,'เดอะลอร์ด':1,'จูโด้':1,'ลีฟแคร์':1,'โซพิงค์':1,'วูล์ฟ':1,'เมนพลัส':1,'วันพลัส':1,'ไอชัวร์พลัส':1};
+    return Array.prototype.some.call(select.options,function(option){var v=String(option.value||'').trim().toLowerCase();var l=String(option.textContent||'').trim().toLowerCase();return !!(requested[v]||requested[l]);});
+  }
   function build(){
-    list.innerHTML='';visibleButtons=[];focusIndex=-1;
+    list.innerHTML='';visibleButtons=[];focusIndex=-1;var useColorBar=usesRequestedColorBar(active);
     Array.prototype.forEach.call(active.options,function(option,index){
       if(option.hidden)return;
-      var look=semantic(option.value,option.textContent);var button=document.createElement('button');button.type='button';button.className='rb-dd-option'+(index===active.selectedIndex?' rb-dd-selected':'');button.setAttribute('role','option');button.setAttribute('aria-selected',index===active.selectedIndex?'true':'false');button.disabled=option.disabled;
+      var look=semantic(option.value,option.textContent);var button=document.createElement('button');button.type='button';button.className='rb-dd-option'+(useColorBar?' rb-dd-color-bar':'')+(index===active.selectedIndex?' rb-dd-selected':'');button.setAttribute('role','option');button.setAttribute('aria-selected',index===active.selectedIndex?'true':'false');button.disabled=option.disabled;
       button.style.setProperty('--rb-dd-bg',look.bg);button.style.setProperty('--rb-dd-border',look.border);button.style.setProperty('--rb-dd-color',look.color);button.style.setProperty('--rb-dd-icon-bg',look.iconBg);
       button.innerHTML='<span class="rb-dd-icon" style="color:#fff">'+look.icon+'</span><span class="rb-dd-label"></span><span class="rb-dd-check">'+(index===active.selectedIndex?'✓':'')+'</span>';
       button.querySelector('.rb-dd-label').textContent=option.textContent;
