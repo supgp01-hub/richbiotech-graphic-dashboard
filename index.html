@@ -4976,6 +4976,60 @@ button>.rb-leading-icon{width:17px;height:17px}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){apply(document.documentElement);});else apply(document.documentElement);
 })();
 </script>
+<style id="rb-exact-mockup-layout-css">
+.stats-grid,.stats-grid-3col{gap:18px!important}
+.stat-card.rb-stat-v5{display:grid!important;grid-template-columns:48px minmax(0,1fr)!important;align-items:center!important;column-gap:15px!important;min-height:112px;padding:17px 20px!important;border-radius:15px!important;border-width:1px!important;box-shadow:0 5px 18px rgba(27,67,50,.075)!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
+.stat-card.rb-stat-v5:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(27,67,50,.13)!important}
+.rb-stat-icon-slot{display:flex;align-items:center;justify-content:center;align-self:center}
+.rb-stat-icon-slot>.rb-ui-icon-badge{width:48px!important;height:48px!important;padding:11px!important;border-radius:50%!important;margin:0!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 15%,transparent)!important}
+.rb-stat-content{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.rb-stat-content .label{margin:0 0 3px!important;font-size:12.5px!important;font-weight:600!important;line-height:1.35!important;color:var(--text-heading)}
+.rb-stat-content .value{margin:0!important;font-size:30px!important;font-weight:700!important;line-height:1.05!important;letter-spacing:-.035em!important}
+.rb-stat-content .sub{margin:5px 0 0!important;font-size:11.5px!important;font-weight:400!important;line-height:1.35!important}
+.rb-stat-content .click-hint{display:none!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-icon-slot>.rb-ui-icon-badge{background:rgba(255,255,255,.93)!important;box-shadow:none!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-content .label{color:var(--mint)!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-content .value{color:#fff!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-content .sub{color:#95D5B2!important}
+.mywork-card{border-radius:15px!important;border-width:1px!important;padding:18px 20px!important;box-shadow:0 5px 18px rgba(27,67,50,.07)!important}
+.mywork-stats{gap:14px!important}
+.mywork-stat{min-height:62px!important;border-left:none!important;border-radius:10px!important;padding:10px 14px 10px 54px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+.mywork-stat .mywork-stat-ic{left:14px!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;width:31px!important;height:31px!important;padding:7px!important;background:rgba(255,255,255,.46)!important}
+.mywork-stat-v{font-size:22px!important;font-weight:700!important;line-height:1.05!important}
+.mywork-stat-l{font-size:11px!important;font-weight:400!important;margin-top:4px!important}
+.mywork-sub{font-size:13px!important;font-weight:600!important}
+.mywork-table th{font-size:11.5px!important;font-weight:600!important;color:var(--text-muted2)!important}
+.mywork-table td{font-size:12px!important;line-height:1.45!important}
+#sidebar{box-shadow:5px 0 22px rgba(13,45,31,.07)}
+#sidebar button{min-height:43px;border-radius:9px;margin:2px 8px;width:calc(100% - 16px);font-size:13px!important;padding:10px 13px!important;gap:11px!important}
+#sidebar button.active{box-shadow:0 5px 14px rgba(36,123,85,.22)}
+#sidebar .sb-icon.rb-ui-icon{width:19px!important;height:19px!important}
+.sb-logo-icon.rb-ui-icon{width:38px!important;height:38px!important;padding:9px!important;border-radius:11px!important}
+.section-title{display:flex;align-items:center;min-height:32px;margin-bottom:14px!important}
+.graphic-subnav{gap:3px!important}
+.gsnav-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px;font-size:12.5px!important}
+.platform-row,.link-card,.ic-table,.ct-card,.op-card{border-radius:13px!important}
+.platform-name,.link-title,.ic-title{font-weight:600!important}
+@media(max-width:900px){.stat-card.rb-stat-v5{grid-template-columns:40px minmax(0,1fr)!important;column-gap:11px!important;min-height:100px;padding:14px!important}.rb-stat-icon-slot>.rb-ui-icon-badge{width:40px!important;height:40px!important;padding:9px!important}.rb-stat-content .value{font-size:26px!important}}
+@media(max-width:640px){.stats-grid,.stats-grid-3col{gap:9px!important}.stat-card.rb-stat-v5{grid-template-columns:34px minmax(0,1fr)!important;column-gap:8px!important;min-height:86px;padding:11px 10px!important;border-radius:12px!important}.rb-stat-icon-slot>.rb-ui-icon-badge{width:34px!important;height:34px!important;padding:8px!important}.rb-stat-content .label{font-size:10.5px!important}.rb-stat-content .value{font-size:22px!important}.rb-stat-content .sub{font-size:9.5px!important}.mywork-stat{padding-left:38px!important}.mywork-stat .mywork-stat-ic{left:7px!important;width:25px!important;height:25px!important;padding:6px!important}}
+</style>
+<script id="rb-exact-mockup-layout-script">
+(function(){
+  function arrange(card){
+    if(!card||card.classList.contains('rb-stat-v5'))return;
+    var row=card.querySelector(':scope>div:first-child');if(!row)return;
+    var label=row.querySelector('.label');var icon=row.querySelector('.rb-ui-icon');var value=card.querySelector(':scope>.value');var sub=card.querySelector(':scope>.sub');var hint=card.querySelector(':scope>.click-hint');
+    if(!label||!icon||!value)return;
+    var iconSlot=document.createElement('div');iconSlot.className='rb-stat-icon-slot';iconSlot.appendChild(icon);
+    var content=document.createElement('div');content.className='rb-stat-content';content.appendChild(label);content.appendChild(value);if(sub)content.appendChild(sub);if(hint)content.appendChild(hint);
+    if(row.parentNode===card)row.remove();card.appendChild(iconSlot);card.appendChild(content);card.classList.add('rb-stat-v5');
+  }
+  function apply(root){if(!root||root.nodeType!==1)return;if(root.matches&&root.matches('.stat-card'))arrange(root);if(root.querySelectorAll)root.querySelectorAll('.stat-card').forEach(arrange);}
+  var observer=new MutationObserver(function(mutations){mutations.forEach(function(mutation){Array.prototype.forEach.call(mutation.addedNodes,apply);});});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){apply(document.documentElement);},0);});else setTimeout(function(){apply(document.documentElement);},0);
+})();
+</script>
 <nav id="rb-bottom-nav">
   <button class="active" onclick="showTab('overview',this)"><span class="rbn-ic">📊</span><span class="rbn-lb">Home</span></button>
   <button onclick="showTab('brands',this)"><span class="rbn-ic">🏷️</span><span class="rbn-lb">แบรนด์</span></button>
