@@ -1,4 +1,4 @@
-<!-- redeploy-fix172-calendar-two-column-leaves -->
+<!-- redeploy-fix173-unified-modal-brand-icons -->
 <!DOCTYPE html>
 <html lang="th">
 <head><script>(function(){try{if(localStorage.getItem("rb_theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
@@ -658,7 +658,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>โอลิมพลัส</h3><div class="brand-en">OLYMPLUS</div></div>
-        <div style="font-size:28px">💊</div>
+        <div class="rb-brand-icon" data-rb-icon="capsule" style="--rb-brand-color:#D97706"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -677,7 +677,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>เฮฟเว่นพลัส</h3><div class="brand-en">HEAVEN PLUS</div></div>
-        <div style="font-size:28px">⭐</div>
+        <div class="rb-brand-icon" data-rb-icon="sparkles" style="--rb-brand-color:#E6A700"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -696,7 +696,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>เดอะลอร์ด</h3><div class="brand-en">THE LORD</div></div>
-        <div style="font-size:28px">🛡️</div>
+        <div class="rb-brand-icon" data-rb-icon="shield" style="--rb-brand-color:#2F6FD6"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -714,7 +714,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>จูโด้</h3><div class="brand-en">JUDO</div></div>
-        <div style="font-size:28px">🥋</div>
+        <div class="rb-brand-icon" data-rb-icon="award" style="--rb-brand-color:#7454C8"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -732,7 +732,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>ลีฟแคร์</h3><div class="brand-en">LIV CARE</div></div>
-        <div style="font-size:28px">🍃</div>
+        <div class="rb-brand-icon" data-rb-icon="leaf" style="--rb-brand-color:#15966B"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -750,7 +750,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>โซพิงค์</h3><div class="brand-en">SO PINK</div></div>
-        <div style="font-size:28px">🌸</div>
+        <div class="rb-brand-icon" data-rb-icon="flower" style="--rb-brand-color:#E85291"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -766,7 +766,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>วูล์ฟ</h3><div class="brand-en">WOLF+</div></div>
-        <div style="font-size:28px">🐺</div>
+        <div class="rb-brand-icon" data-rb-icon="paw" style="--rb-brand-color:#52606D"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -782,7 +782,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>ขุนแผน</h3><div class="brand-en">KHUN PHAEN</div></div>
-        <div style="font-size:28px">⚔️</div>
+        <div class="rb-brand-icon" data-rb-icon="swords" style="--rb-brand-color:#7454C8"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -798,7 +798,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>เมนพลัส &amp; วันพลัส</h3><div class="brand-en">Men Plus &amp; One Plus (สบู่เจล)</div></div>
-        <div style="font-size:28px">🧴</div>
+        <div class="rb-brand-icon" data-rb-icon="bottle" style="--rb-brand-color:#E85291"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -816,7 +816,7 @@
     <div class="brand-card">
       <div class="brand-header">
         <div><h3>ไอชัวร์พลัส</h3><div class="brand-en">I SURE PLUS</div></div>
-        <div style="font-size:28px">💉</div>
+        <div class="rb-brand-icon" data-rb-icon="syringe" style="--rb-brand-color:#2F6FD6"></div>
       </div>
       <div class="brand-body">
         <div class="brand-contact">
@@ -3596,7 +3596,7 @@ window.gAS=function(){
     box.style.cssText='background:var(--surface-card);border-radius:16px;width:100%;max-width:660px;display:flex;flex-direction:column;max-height:90vh;box-shadow:0 24px 64px rgba(0,0,0,.35);overflow:hidden;';
     var hdr=document.createElement('div');
     hdr.style.cssText='background:#1B4332;padding:14px 20px;display:flex;align-items:center;flex-shrink:0;';
-    var ti=document.createElement('span');ti.id='om-hd';
+    var ti=document.createElement('span');ti.id='om-hd';ti.className='rb-order-title';
     ti.style.cssText='font-size:15px;font-weight:700;color:white;flex:1;';
     var cl=document.createElement('button');cl.type='button';
     cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 14px;color:white;cursor:pointer;font-size:13px;';
@@ -3767,7 +3767,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     tabPanels['imgs']=p4;body.appendChild(p4);
     var foot=document.createElement('div');
     foot.style.cssText='padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;background:var(--surface-card);';
-    var sBtn=document.createElement('button');sBtn.type='button';sBtn.textContent='💾 บันทึกงาน';_omSaveBtn=sBtn;
+    var sBtn=document.createElement('button');sBtn.type='button';sBtn.id='om-primary-btn';sBtn.textContent='บันทึกงาน';_omSaveBtn=sBtn;
     sBtn.style.cssText='flex:1;background:#1B4332;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .15s;';
     sBtn.onclick=saveOM2;
     var ftRow=document.createElement('div');ftRow.style.cssText='display:flex;gap:8px;';
@@ -3823,7 +3823,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     _omBriefImages=(o&&o.briefImages)?JSON.parse(JSON.stringify(o.briefImages)):[];
     _omErrorImages=(o&&o.errorImages)?JSON.parse(JSON.stringify(o.errorImages)):[];
     _omFixImages=(o&&o.fixImages)?JSON.parse(JSON.stringify(o.fixImages)):[];
-    var _isView=window._ordViewMode==='team';ge('om-hd').textContent=_isView&&id?'📋 สรุปงาน '+id:id?'✏️ แก้ไขงาน '+id:'📋 เพิ่มงานใหม่';
+    var _isView=window._ordViewMode==='team';ge('om-hd').textContent=_isView&&id?'สรุปงาน '+id:id?'แก้ไขงาน '+id:'เพิ่มงานใหม่';
     ge('om-id').textContent=id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));
     ge('om-name').value=o?(o.name||o.title||''):'';
     ge('om-prod').value=o?(o.product||''):'';
@@ -3866,7 +3866,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
         var _cjob=_ords.find(function(x){return x.id===_cid;});
         var _cst=_cjob?_cjob.status:'';
         var _nst=_cst==='inprogress'?'review':(_cst==='revision'?'review':'inprogress');
-        _omSaveBtn.textContent=_cst==='inprogress'?'✅ ส่งงาน':(_cst==='revision'?'🔁 ส่งตรวจอีกครั้ง':'✅ กำลังดำเนินการ');
+        _omSaveBtn.textContent=_cst==='inprogress'?'ส่งงาน':(_cst==='revision'?'ส่งตรวจอีกครั้ง':'กำลังดำเนินการ');
         _omSaveBtn.style.background='#d97706';
         _omSaveBtn.onclick=function(){
             if(_nst==='review'){
@@ -4529,7 +4529,7 @@ window._rbTogSB=function(){var s=document.getElementById('sidebar');if(!s)return
 (function(){try{if(localStorage.getItem('_rbc')){var s=document.getElementById('sidebar');if(s)s.classList.add('sb-collapsed');}}catch(e){}})();
 window._rbTogSet=function(el){var _sbEl=document.getElementById('sidebar');if(_sbEl&&_sbEl.classList.contains('sb-collapsed')){var _fly=document.getElementById('sb-settings-flyout');if(!_fly){_fly=document.createElement('div');_fly.id='sb-settings-flyout';var _its=[['user','👤 USER'],['export','📥 EXPORT'],['guide','📖 คู่มือ']];_its.forEach(function(it){var d=document.createElement('div');d.className='sf-item';d.textContent=it[1];(function(tab,fly){d.onclick=function(){window._rbShowSP&&window._rbShowSP(tab);fly.style.display='none';};})(it[0],_fly);_fly.appendChild(d);});document.body.appendChild(_fly);document.addEventListener('click',function(e){if(!e.target.closest('#sb-settings-flyout')&&!e.target.closest('#sb-settings-btn'))_fly.style.display='none';});}if(_fly.style.display==='block'){_fly.style.display='none';return;}var _r=el?el.getBoundingClientRect():{top:window.innerHeight-170,height:40};_fly.style.top=Math.min(_r.top,window.innerHeight-170)+'px';_fly.style.display='block';return;}var sub=document.getElementById('sb-sub');var arr=el?el.querySelector('.sb-settings-arrow'):null;if(!sub)return;sub.classList.toggle('open');if(arr)arr.style.transform=sub.classList.contains('open')?'rotate(180deg)':'';};
 (function(){document.querySelectorAll("#sidebar button").forEach(function(btn){var sp=Array.from(btn.querySelectorAll("span")).find(function(s){return !s.classList.contains("sb-icon")&&!s.classList.contains("sb-settings-arrow");});if(sp){var t=sp.textContent.trim();if(t)btn.setAttribute("data-label",t);}});var tip=document.getElementById("sb-tooltip");if(!tip){tip=document.createElement("div");tip.id="sb-tooltip";document.body.appendChild(tip);}document.querySelectorAll("#sidebar button").forEach(function(btn){btn.addEventListener("mouseover",function(){var sidebar=document.getElementById("sidebar");if(!sidebar||!sidebar.classList.contains("sb-collapsed"))return;var label=btn.getAttribute("data-label");if(!label)return;var r=btn.getBoundingClientRect();tip.textContent=label;tip.style.display="block";tip.style.top=(r.top+r.height/2-18)+"px";tip.style.left=(r.right+14)+"px";});btn.addEventListener("mouseout",function(){tip.style.display="none";});});})();
-window._rbShowSP=function(tab){var p=document.getElementById('settings-panel');if(!p)return;p.classList.add('open');var TT={'user':'👤 USER','export':'📥 EXPORT','guide':'📖 คู่มือ'};var t=document.getElementById('sp-title');if(t)t.textContent=TT[tab]||tab;[].forEach.call(document.querySelectorAll('.sp-body'),function(b){b.classList.toggle('active',b.dataset.tab===tab);});};
+window._rbShowSP=function(tab){var p=document.getElementById('settings-panel');if(!p)return;p.classList.add('open');var TT={'user':'USER','export':'EXPORT','guide':'คู่มือ'};var t=document.getElementById('sp-title');if(t){t.textContent=TT[tab]||tab;t.setAttribute('data-rb-settings-tab',tab);}if(window.rbApplyUnifiedPageIcons)window.rbApplyUnifiedPageIcons();[].forEach.call(document.querySelectorAll('.sp-body'),function(b){b.classList.toggle('active',b.dataset.tab===tab);});};
 window._rbBnTap=function(){var u=window._rbUser;if(u&&u.role==='sup'){window._rbShowSP('user');}else{window._rbTogUC&&window._rbTogUC();}};
 document.addEventListener('click',function(e){var p=document.getElementById('settings-panel');if(p&&e.target===p)p.classList.remove('open');});
 window._rbExport=function(type){var orders=window.orders||window._orders||[];if(!orders.length){try{var d=localStorage.getItem('rb_orders');if(d)orders=JSON.parse(d);}catch(e){}}if(type==='orders'){if(!orders.length){alert('ไม่พบข้อมูล');return;}var h=['สถานะ','แบรนด์','ประเภท','ผู้รับงาน','วันส่ง'];var rows=orders.map(function(o){return[o.status||'',o.brand||'',o.type||'',o.assignee||'',o.dl||''].map(function(v){return'"'+v.replace(/"/g,'""')+'"';}).join(',');});var csv='\ufeff'+h.join(',')+'\n'+rows.join('\n');var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='orders.csv';a.click();URL.revokeObjectURL(url);}else{alert('ไม่รองรับ');}};
@@ -5076,14 +5076,20 @@ button>.rb-leading-icon{width:17px;height:17px}
 .rb-action-svg{width:18px;height:18px;display:inline-block;flex:0 0 18px;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.rb-unified-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important}#lfb-upd,#lfb2-upd{min-height:34px!important;padding:7px 14px!important;border-radius:8px!important;background:#174F3B!important;color:#fff!important;font-size:12px!important;font-weight:700!important;line-height:1!important;box-shadow:0 2px 5px rgba(23,79,59,.18)!important}#lfb-upd .rb-action-svg,#lfb2-upd .rb-action-svg{color:#fff;width:17px;height:17px;flex-basis:17px}#lfb-upd:disabled .rb-action-svg,#lfb2-upd:disabled .rb-action-svg{animation:rb-icon-spin .9s linear infinite}@keyframes rb-icon-spin{to{transform:rotate(360deg)}}
 .rb-icon-input-wrap{position:relative;display:inline-flex;align-items:center;min-width:0}.rb-icon-input-wrap.rb-search-wide{width:100%;margin-bottom:10px}.rb-icon-input-wrap.rb-search-flex{flex:1;min-width:220px}.rb-icon-input-wrap.rb-search-compact{width:200px}.rb-search-badge{position:absolute;z-index:2;left:5px;top:50%;transform:translateY(-50%);width:27px;height:27px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#EAF2FF;color:#2F6FD6;box-shadow:inset 0 0 0 1px #D8E7FF;pointer-events:none}.rb-search-badge .rb-action-svg{width:15px;height:15px;flex-basis:15px}.rb-icon-search{width:100%!important;padding-left:40px!important;background-image:none!important;margin-bottom:0!important}.rb-priority-select,.rb-filter-select{padding-left:34px!important;background-repeat:no-repeat!important;background-position:10px center!important;background-size:17px 17px!important}.rb-inline-calendar{width:28px;height:28px;border-radius:8px;display:inline-flex!important;align-items:center;justify-content:center;background:#EAF2FF;color:#2F6FD6;box-shadow:inset 0 0 0 1px #D8E7FF;flex:0 0 28px}.rb-inline-calendar .rb-action-svg{width:16px;height:16px}.ct-title>.rb-title-icon{width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:#F1EDFF;color:#7454C8;box-shadow:inset 0 0 0 1px #E5DDFD;flex:0 0 34px}.ct-title>.rb-title-icon .rb-action-svg{width:19px;height:19px}.ct-bchip .rb-chip-icon{width:22px;height:22px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;background:#FFF4D9;color:#D08A00;box-shadow:inset 0 0 0 1px #FFE4A4}.ct-bchip .rb-chip-icon .rb-action-svg{width:13px;height:13px;flex-basis:13px}.rb-product-chip{color:#9A6500!important}.ct-btn-icon .rb-action-svg{width:15px;height:15px}.ct-btn-icon:not(.ct-del){color:#287B5B}
 .ct-btn-icon.ct-del,.ic-del-btn.rb-unified-delete{width:30px!important;height:30px!important;border-radius:9px!important;border:1px solid #FECACA!important;background:#FFF1F2!important;color:#E33B45!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:0!important;box-shadow:0 1px 2px rgba(227,59,69,.08)!important}.ct-btn-icon.ct-del:hover,.ic-del-btn.rb-unified-delete:hover{background:#FFE4E6!important;border-color:#F87171!important;transform:translateY(-1px)}.ct-btn-icon.ct-del .rb-action-svg,.ic-del-btn.rb-unified-delete .rb-action-svg{width:16px;height:16px}@media(max-width:720px){.rb-icon-search{padding-left:38px!important}.ct-title>.rb-title-icon{width:30px;height:30px;flex-basis:30px}.rb-icon-input-wrap.rb-search-compact{width:100%}}
+.rb-brand-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;background:rgba(255,255,255,.94);color:var(--rb-brand-color,#287B5B);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 2px 7px rgba(0,0,0,.12)}.rb-brand-icon .rb-action-svg{width:21px;height:21px;flex-basis:21px;stroke-width:1.9}.rb-order-title-icon,.rb-settings-title-icon{width:32px;height:32px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px}.rb-order-title-icon{margin-right:10px;background:rgba(216,243,220,.16);color:#D8F3DC;box-shadow:inset 0 0 0 1px rgba(216,243,220,.24)}.rb-settings-title-icon{background:#F1EDFF;color:#7454C8;box-shadow:inset 0 0 0 1px #E5DDFD}.rb-order-title-icon .rb-action-svg,.rb-settings-title-icon .rb-action-svg{width:18px;height:18px;flex-basis:18px}.rb-order-action-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important}.rb-order-action-icon .rb-action-svg{width:17px;height:17px;flex-basis:17px}.sp-xbtn .rb-action-svg{width:16px;height:16px}.sp-xbtn.rb-unified-btn{width:30px;height:30px;padding:0!important;gap:0!important;border-radius:8px!important}.sp-xbtn.rb-unified-btn span{display:none}
+.rb-modal-close .rb-action-svg{color:#FF6B6B!important;stroke-width:2.4}
 </style>
 <script id="rb-unified-page-icons-script">
 (function(){
 var D={search:'<circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>',calendar:'<path d="M8 2v4M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path>',bolt:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"></path>',chart:'<path d="M3 3v18h18"></path><path d="M18 17V9M13 17V5M8 17v-3"></path>',package:'<path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path>',refresh:'<path d="M21 12a9 9 0 0 0-15.2-6.5L3 8"></path><path d="M3 3v5h5M3 12a9 9 0 0 0 15.2 6.5L21 16"></path><path d="M16 16h5v5"></path>',plus:'<path d="M5 12h14M12 5v14"></path>',upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>',download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>',eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle>',pencil:'<path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>',trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"></path>',x:'<path d="M18 6 6 18M6 6l12 12"></path>'};
+D.clipboard='<rect x="6" y="4" width="12" height="17" rx="2"></rect><path d="M9 4.5V3h6v1.5M9 9h6M9 13h6M9 17h4"></path>';D.send='<path d="m22 2-7 20-4-9-9-4 20-7Z"></path><path d="M22 2 11 13"></path>';D.settings='<path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.94 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.57 15 1.7 1.7 0 0 0 3 14H3v-4h.08A1.7 1.7 0 0 0 4.6 8.94a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.57 1.7 1.7 0 0 0 10 3.08V3h4v.08A1.7 1.7 0 0 0 15.06 4.6a1.7 1.7 0 0 0 1.88-.34L17 4.2 19.83 7l-.06.06A1.7 1.7 0 0 0 19.43 9 1.7 1.7 0 0 0 20.92 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"></path>';D.user='<circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>';D.capsule='<path d="m10.5 20.5-7-7a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7Z"></path><path d="m8.5 8.5 7 7"></path>';D.sparkles='<path d="m12 3 1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"></path><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"></path>';D.shield='<path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"></path>';D.award='<circle cx="12" cy="9" r="5"></circle><path d="m8.5 13-1 8 4.5-2 4.5 2-1-8"></path>';D.leaf='<path d="M20 4C12 4 5 7 5 14c0 3 2 5 5 5 7 0 10-7 10-15Z"></path><path d="M4 21c3-6 7-9 13-12"></path>';D.flower='<circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="6.5" r="3"></circle><circle cx="17.2" cy="10.3" r="3"></circle><circle cx="15.2" cy="16.5" r="3"></circle><circle cx="8.8" cy="16.5" r="3"></circle><circle cx="6.8" cy="10.3" r="3"></circle>';D.paw='<circle cx="8" cy="8" r="2"></circle><circle cx="16" cy="8" r="2"></circle><circle cx="5" cy="13" r="2"></circle><circle cx="19" cy="13" r="2"></circle><path d="M8 19c0-3 1.8-5 4-5s4 2 4 5c0 2-1.7 3-4 3s-4-1-4-3Z"></path>';D.swords='<path d="m14 5 5-2-2 5-9 9-3 1 1-3 8-10Z"></path><path d="m10 5-5-2 2 5 3 3M14 15l3 3M15 18l3-3M6 15l3 3M9 18l-3-3"></path>';D.bottle='<path d="M9 3h6M10 3v4l-2 2v11h8V9l-2-2V3"></path><path d="M8 12h8"></path>';D.syringe='<path d="m14 5 5 5M13 2l9 9M16 8 6-6M5 14l5 5M3 21l4-4M8 16l7-7"></path>';
+D.check='<path d="m5 12 4 4L19 6"></path>';
 function svg(n){return '<svg class="rb-action-svg" viewBox="0 0 24 24" aria-hidden="true">'+D[n]+'</svg>'}function dataIcon(n,c){return 'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+D[n]+'</svg>')+'")'}
 function setBtn(b,n,l){if(!b)return;if(b.querySelector(':scope>.rb-action-svg')&&b.getAttribute('data-rb-label')===l)return;b.classList.add('rb-unified-btn');b.setAttribute('data-rb-label',l);b.innerHTML=svg(n)+'<span>'+l+'</span>'}function all(r,s){var a=[];if(r.matches&&r.matches(s))a.push(r);if(r.querySelectorAll)a=a.concat([].slice.call(r.querySelectorAll(s)));return a}
 function wrapSearch(e){if(e.closest('.rb-icon-input-wrap'))return;e.placeholder=(e.placeholder||'').replace(/^[^\u0E00-\u0E7Fa-zA-Z0-9]+/,'');var w=document.createElement('span');w.className='rb-icon-input-wrap '+(e.id==='ord-search'?'rb-search-flex':e.id==='ct-search'?'rb-search-compact':'rb-search-wide');e.parentNode.insertBefore(w,e);w.innerHTML='<span class="rb-search-badge">'+svg('search')+'</span>';w.appendChild(e);e.classList.add('rb-icon-search')}
 function apply(r){if(!r)return;if(r.nodeType!==1)r=r.parentElement;if(!r)return;all(r,'#ord-search,#ct-search,#fbl-q,#lfb-q,input[placeholder*="ค้นหาชื่อเพจ"],input[placeholder*="ค้นหาชื่อบัญชี"],input[placeholder*="ค้นหาเลขงาน"]').forEach(wrapSearch);all(r,'.rb-inline-calendar').forEach(function(e){if(!e.querySelector('.rb-action-svg'))e.innerHTML=svg('calendar')});all(r,'#ord-sort').forEach(function(e){e.classList.add('rb-priority-select');e.style.backgroundImage=dataIcon('bolt','#D08A00')});all(r,'#ct-filter').forEach(function(e){e.classList.add('rb-filter-select');e.style.backgroundImage=dataIcon('eye','#287B5B')});all(r,'.ct-title').forEach(function(e){if(!e.querySelector(':scope>.rb-title-icon'))e.insertAdjacentHTML('afterbegin','<span class="rb-title-icon">'+svg('chart')+'</span>')});all(r,'.rb-product-chip').forEach(function(e){if(!e.querySelector(':scope>.rb-chip-icon'))e.insertAdjacentHTML('afterbegin','<span class="rb-chip-icon">'+svg('package')+'</span>')});all(r,'#lfb-upd,#lfb2-upd').forEach(function(e){setBtn(e,'refresh',e.disabled?'กำลังโหลด...':'อัปเดตข้อมูลล่าสุด')});all(r,'#fp-add-btn,.rb-add-btn,#ord-add-btn,.ic-addbtn').forEach(function(e){setBtn(e,'plus',(e.textContent||'').replace(/^\s*[+➕]\s*/,'').trim())});all(r,'.rb-import-btn').forEach(function(e){setBtn(e,'upload','นำเข้า CSV')});all(r,'.rb-export-btn').forEach(function(e){setBtn(e,'download','ส่งออก')});all(r,'.ct-btn-icon:not(.ct-del)').forEach(function(e){if(!e.querySelector('.rb-action-svg')){e.innerHTML=svg('pencil');e.setAttribute('aria-label','แก้ไข')}});all(r,'.ct-del').forEach(function(e){e.classList.add('rb-unified-delete');if(!e.querySelector('.rb-action-svg')){e.innerHTML=svg('trash');e.setAttribute('aria-label','ลบ')}});all(r,'.ic-del-btn').forEach(function(e){var d=!!e.closest('.ic-add-row');e.classList.add('rb-unified-delete');if(!e.querySelector('.rb-action-svg')){e.innerHTML=svg(d?'x':'trash');e.setAttribute('aria-label',d?'ลบแถว':'ลบ')}})}
+function applyThemeIcons(r){all(r,'.rb-brand-icon[data-rb-icon],.rb-settings-title-icon[data-rb-icon]').forEach(function(e){var n=e.getAttribute('data-rb-icon');if(D[n]&&!e.querySelector('.rb-action-svg'))e.innerHTML=svg(n)});all(r,'#om-hd').forEach(function(e){var p=e.parentElement;if(p&&!p.querySelector(':scope>.rb-order-title-icon'))e.insertAdjacentHTML('beforebegin','<span class="rb-order-title-icon">'+svg('clipboard')+'</span>');if(p){[].slice.call(p.querySelectorAll('button')).forEach(function(b){var l=(b.textContent||'').replace(/^[^\u0E00-\u0E7Fa-zA-Z0-9]+/,'').trim();if(l.indexOf('ปิด')>=0){setBtn(b,'x','ปิด');b.classList.add('rb-modal-close')}else if(l.indexOf('บันทึก')>=0){setBtn(b,'check','บันทึก')}})}});all(r,'#om-primary-btn,#om-save-btn').forEach(function(b){var l=(b.textContent||'').replace(/^[^\u0E00-\u0E7Fa-zA-Z0-9]+/,'').trim();if(l){setBtn(b,l.indexOf('ส่ง')>=0?'send':'clipboard',l);b.classList.add('rb-order-action-icon')}});all(r,'#sp-head').forEach(function(h){var old=h.querySelector(':scope>span:first-child');if(old){old.className='rb-settings-title-icon';old.setAttribute('data-rb-icon','settings');if(!old.querySelector('.rb-action-svg'))old.innerHTML=svg('settings')}var x=h.querySelector('.sp-xbtn');if(x){setBtn(x,'x','ปิด');x.classList.add('rb-modal-close')}})}
+var applyBase=apply;apply=function(r){if(!r)return;var root=r;if(root.nodeType!==1&&root.nodeType!==9)root=root.parentElement;if(!root)return;applyThemeIcons(root);applyBase(root.nodeType===9?root.documentElement:root)};
 var q=false;function schedule(){if(q)return;q=true;requestAnimationFrame(function(){q=false;apply(document)})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){apply(document)});else apply(document);new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});window.rbApplyUnifiedPageIcons=function(){apply(document)};
 })();
 </script>
