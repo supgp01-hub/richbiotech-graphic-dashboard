@@ -4853,7 +4853,7 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
 })();
 </script>
 <style id="rb-ui-refresh-css">
-:root{--rb-ui-font:'Noto Sans Thai','Bai Jamjuree','Segoe UI',sans-serif}
+:root{--rb-ui-font:'Bai Jamjuree','Noto Sans Thai','Segoe UI',sans-serif}
 html,body,button,input,select,textarea{font-family:var(--rb-ui-font)!important}
 body{font-weight:400;line-height:1.5;letter-spacing:.002em}
 button,input,select,textarea{letter-spacing:0}
@@ -4868,8 +4868,8 @@ table th{font-weight:600!important;letter-spacing:.005em}
 table td{font-weight:400}
 #sidebar button,.gsnav-btn,#rb-bottom-nav button{font-weight:500!important}
 .rb-ui-icon{--rb-ic-color:#2D6A4F;--rb-ic-bg:#E7F3EB;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;color:var(--rb-ic-color);vertical-align:middle}
-.rb-ui-icon svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.rb-ui-icon-badge{width:36px;height:36px;padding:8px;border-radius:50%;background:var(--rb-ic-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 13%,transparent)}
+.rb-ui-icon svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.rb-ui-icon-badge{width:38px;height:38px;padding:8px;border-radius:50%;background:var(--rb-ic-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 13%,transparent)}
 .rb-ui-icon-inline{width:18px;height:18px}
 .rb-ui-icon-mini{width:16px;height:16px}
 .rb-ui-icon-nav{width:19px;height:19px;color:currentColor}
@@ -4895,7 +4895,7 @@ button>.rb-leading-icon{width:17px;height:17px}
 (function(){
   var ICONS={
     home:'<path d="M3 10.8 12 3l9 7.8"/><path d="M5 9.8V21h14V9.8"/><path d="M9 21v-7h6v7"/>',
-    facebook:'<circle cx="12" cy="12" r="9"/><path d="M14.5 7.5h-1.7c-1.3 0-2.3 1-2.3 2.3V21M8 13h7"/>',
+    facebook:'<circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><path d="M13.4 21v-8h2.7l.4-3h-3.1V8.2c0-.9.3-1.5 1.6-1.5h1.7V4.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.2v3H10v8h3.4Z" fill="#fff" stroke="none"/>',
     tag:'<path d="M20.6 13.6 13.6 20.6a2 2 0 0 1-2.8 0L3.4 13.2a2 2 0 0 1-.6-1.4V4a1 1 0 0 1 1-1h7.8a2 2 0 0 1 1.4.6l7.6 7.2a2 2 0 0 1 0 2.8Z"/><circle cx="8" cy="8" r="1.3"/>',
     palette:'<path d="M12 3a9 9 0 0 0 0 18h1.4a2 2 0 0 0 0-4H12a1.5 1.5 0 0 1 0-3h3.5A5.5 5.5 0 0 0 21 8.5C21 5.5 17 3 12 3Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="9.5" cy="6.5" r="1"/><circle cx="14" cy="6" r="1"/><circle cx="17" cy="9" r="1"/>',
     calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>',
@@ -4943,7 +4943,7 @@ button>.rb-leading-icon{width:17px;height:17px}
   function choose(text){
     var t=(text||'').toLowerCase();
     if(/home|หน้าหลัก/.test(t))return['home','teal'];if(/product|แบรนด์|สินค้า/.test(t))return['tag','amber'];if(/ตารางวันหยุด|วันหยุด|ปฏิทิน/.test(t))return['calendar','teal'];if(/graphic|ทีมงาน|สมาชิกทีม|พนักงาน/.test(t))return['users','purple'];
-    if(/social|ช่องทาง/.test(t))return['radio','blue'];if(/setting|ตั้งค่า/.test(t))return['settings','slate'];
+    if(/social|ช่องทาง/.test(t))return['users','teal'];if(/setting|ตั้งค่า/.test(t))return['settings','slate'];
     if(/profile|โปรไฟล์|ผู้ใช้|user/.test(t))return['user','teal'];if(/export|ดาวน์โหลด/.test(t))return['download','blue'];if(/อัพโหลด|upload/.test(t))return['upload','blue'];if(/คู่มือ|ช่วยเหลือ/.test(t))return['book','teal'];
     if(/facebook/.test(t))return['facebook','blue'];if(/tiktok/.test(t))return['music','slate'];if(/shopee|lazada|ร้าน/.test(t))return['store','amber'];if(/cart|ตะกร้า/.test(t))return['cart','blue'];
     if(/บัตรประชาชน|id card/.test(t))return['idcard','blue'];if(/รวมลิงก์|ลิงก์/.test(t))return['link','purple'];if(/คอมมิชชั่น|เงิน|ยอดรวม/.test(t))return['money','teal'];if(/ออดิต|ใบเสร็จ|หัก/.test(t))return['receipt','purple'];
@@ -4957,7 +4957,7 @@ button>.rb-leading-icon{width:17px;height:17px}
   var TONES={green:['#18864B','#E8F7EE'],teal:['#167255','#E6F5EE'],blue:['#2563B8','#E8F1FF'],amber:['#B46B09','#FFF3DB'],red:['#D34242','#FDEAEA'],purple:['#6D5BD0','#F0ECFF'],slate:['#5F6B66','#EEF2F0']};
   function context(el){var holder=el.closest&&el.closest('.stat-card,.platform-row,.link-card,.mywork-stat,.gsnav-btn,button,.section-title,.ic-title,.lv-sw-cat-card,.uc-row');return(holder||el.parentElement||el).textContent||el.textContent||'';}
   function applyTone(el,tone){var pair=TONES[tone]||TONES.slate;el.style.setProperty('--rb-ic-color',pair[0]);el.style.setProperty('--rb-ic-bg',pair[1]);}
-  function whole(el,kind){if(!el||el.getAttribute('data-rb-iconified')==='1')return;var picked;if(el.classList.contains('sb-logo-icon')||(el.closest('#rb-login-brand')&&el.textContent.trim()==='🌿'))picked=['leaf','green'];else if(el.classList.contains('ph-icon'))picked=['user','purple'];else if(el.classList.contains('ph-cam'))picked=['camera','teal'];else if(el.classList.contains('rb-theme-circle-sun'))picked=['sun','amber'];else if(el.classList.contains('rb-theme-circle-moon'))picked=['moon','purple'];else picked=choose(context(el));el.innerHTML=svg(picked[0]);el.setAttribute('data-rb-iconified','1');el.classList.add('rb-ui-icon',kind||'rb-ui-icon-inline');applyTone(el,picked[1]);}
+  function whole(el,kind){if(!el||el.getAttribute('data-rb-iconified')==='1')return;var picked;var card=el.closest&&el.closest('.stat-card');var navButton=el.closest&&el.closest('#sidebar button,#rb-bottom-nav button');var navText=navButton?(navButton.textContent||'').trim():'';var cardText=card?(card.textContent||'').trim():'';if(el.classList.contains('sb-logo-icon')||(el.closest('#rb-login-brand')&&el.textContent.trim()==='🌿'))picked=['leaf','green'];else if(navButton&&/^graphic$/i.test(navText))picked=['palette','purple'];else if(navButton&&/social media/i.test(navText))picked=['users','teal'];else if(card&&/แบรนด์สินค้า/.test(cardText))picked=['clipboard','teal'];else if(card&&/เพจ facebook/i.test(cardText))picked=['facebook','blue'];else if(card&&/สมาชิกทีม/.test(cardText))picked=['users','purple'];else if(card&&card.id==='stc-all')picked=['clipboard','teal'];else if(card&&card.id==='stc-pending')picked=['user','slate'];else if(card&&card.id==='stc-inprogress')picked=['refresh','blue'];else if(card&&card.id==='stc-review')picked=['search','amber'];else if(card&&card.id==='stc-revision')picked=['alert','red'];else if(card&&card.id==='stc-done')picked=['check','green'];else if(card&&card.id==='stc-soon')picked=['hourglass','amber'];else if(el.classList.contains('ph-icon'))picked=['user','purple'];else if(el.classList.contains('ph-cam'))picked=['camera','teal'];else if(el.classList.contains('rb-theme-circle-sun'))picked=['sun','amber'];else if(el.classList.contains('rb-theme-circle-moon'))picked=['moon','purple'];else picked=choose(context(el));el.innerHTML=svg(picked[0]);el.setAttribute('data-rb-iconified','1');el.classList.add('rb-ui-icon',kind||'rb-ui-icon-inline');applyTone(el,picked[1]);}
   function leading(el){
     if(!el||el.getAttribute('data-rb-leading-icon')==='1'||el.querySelector(':scope > .rb-leading-icon'))return;
     var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),node,match;while((node=walker.nextNode())){match=node.nodeValue.match(/^(\s*)(?:[\u{1F300}-\u{1FAFF}]|[\u2600-\u27BF])\uFE0F?\s*/u);if(match)break;}
@@ -4978,10 +4978,10 @@ button>.rb-leading-icon{width:17px;height:17px}
 </script>
 <style id="rb-exact-mockup-layout-css">
 .stats-grid,.stats-grid-3col{gap:18px!important}
-.stat-card.rb-stat-v5{display:grid!important;grid-template-columns:48px minmax(0,1fr)!important;align-items:center!important;column-gap:15px!important;min-height:112px;padding:17px 20px!important;border-radius:15px!important;border-width:1px!important;box-shadow:0 5px 18px rgba(27,67,50,.075)!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
+.stat-card.rb-stat-v5{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;align-items:center!important;column-gap:13px!important;min-height:104px;padding:15px 18px!important;border-radius:14px!important;border-width:1px!important;box-shadow:0 4px 15px rgba(27,67,50,.075)!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
 .stat-card.rb-stat-v5:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(27,67,50,.13)!important}
 .rb-stat-icon-slot{display:flex;align-items:center;justify-content:center;align-self:center}
-.rb-stat-icon-slot>.rb-ui-icon-badge{width:48px!important;height:48px!important;padding:11px!important;border-radius:50%!important;margin:0!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 15%,transparent)!important}
+.rb-stat-icon-slot>.rb-ui-icon-badge{width:42px!important;height:42px!important;padding:9px!important;border-radius:50%!important;margin:0!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 15%,transparent)!important}
 .rb-stat-content{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
 .rb-stat-content .label{margin:0 0 3px!important;font-size:12.5px!important;font-weight:600!important;line-height:1.35!important;color:var(--text-heading)}
 .rb-stat-content .value{margin:0!important;font-size:30px!important;font-weight:700!important;line-height:1.05!important;letter-spacing:-.035em!important}
