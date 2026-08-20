@@ -25,7 +25,7 @@ eval(fs.readFileSync('snippets/performance-v4.js', 'utf8'));
 
 (async () => {
   const started = Date.now();
-  const result = await window.ctSave();
+  const result = await window.ctSave(global._ctData);
   assert.ok(Date.now() - started < 100, 'การบันทึกหน้าจอต้องเสร็จทันทีโดยไม่รอเครือข่าย');
   assert.equal(result.local, true);
   assert.equal(fetchCalls, 0, 'ต้องยังไม่ส่งเครือข่ายก่อนครบช่วง debounce');

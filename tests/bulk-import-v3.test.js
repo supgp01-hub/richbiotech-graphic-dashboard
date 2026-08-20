@@ -7,7 +7,11 @@ global.document = {
   readyState: 'loading', addEventListener() {}, getElementById() { return null; },
   querySelector() { return null; }, querySelectorAll() { return []; }
 };
-global.localStorage = { getItem() { return null; }, setItem() {}, removeItem() {} };
+const storage = new Map();
+global.localStorage = {
+  getItem(key) { return storage.has(key) ? storage.get(key) : null; },
+  setItem(key, value) { storage.set(key, value); }, removeItem(key) { storage.delete(key); }
+};
 global.ctLoad = () => [];
 
 eval(fs.readFileSync('snippets/bulk-import-v2.js', 'utf8'));
@@ -36,9 +40,9 @@ assert.equal(duplicateResult.dupRows, 4, 'สองกลุ่มซ้ำต�
 assert.equal(duplicateResult.selected, 2, 'ค่าเริ่มต้นต้องเลือกหนึ่งรายการต่อกลุ่มซ้ำ');
 assert.deepEqual(duplicateResult.groups.map(group => group.fileRows), [[3,4],[5,6]]);
 
-global.ctLoad = () => [{
+storage.set('rb_olympplus_v1', JSON.stringify([{
   brand: 'So Pink', script: 'script-a', clipLink: 'clip-a', episode: 'content-a', ready: 'hook-a'
-}];
+}]));
 const dashboardFixture = window.ctParseCSV([
   'สคริป,ลิงค์คลิป,ชื่อคอนเท้นท์,ท่อนฮุก',
   'script-a,clip-a,content-a,hook-a'
