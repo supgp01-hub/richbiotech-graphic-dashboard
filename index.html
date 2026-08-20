@@ -1,4 +1,4 @@
-<!-- redeploy-fix170-leave-calendar-colors -->
+<!-- redeploy-fix171-dropdown-left-color-bars -->
 <!DOCTYPE html>
 <html lang="th">
 <head><script>(function(){try{if(localStorage.getItem("rb_theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
@@ -4765,12 +4765,12 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
 .rb-dd-search{width:100%;box-sizing:border-box;border:1px solid var(--surface-card-border,#d8e8dc);border-radius:10px;background:var(--surface-page,#f7fbf8);color:var(--text-heading,#173c2b);font:inherit;font-size:12px;padding:9px 10px 9px 32px;outline:none}
 .rb-dd-search:focus{border-color:#52B788;box-shadow:0 0 0 3px rgba(82,183,136,.14)}
 .rb-dd-list{display:flex;flex-direction:column;gap:3px;max-height:min(340px,calc(100vh - 120px));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-.rb-dd-option{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;width:100%;min-height:36px;box-sizing:border-box;padding:4px 8px;border:1px solid transparent;border-radius:8px;background:var(--rb-dd-bg,#edf7f0);color:var(--text-heading,#253b30);font:inherit;font-size:13px;text-align:left;cursor:pointer;transition:filter .13s,box-shadow .13s,transform .13s}
+.rb-dd-option{display:grid;grid-template-columns:6px minmax(0,1fr);align-items:center;gap:10px;width:100%;min-height:40px;box-sizing:border-box;padding:4px 10px 4px 0;border:1px solid transparent;border-radius:8px;background:var(--rb-dd-bg,#edf7f0);color:var(--text-heading,#253b30);font:inherit;font-size:13px;text-align:left;cursor:pointer;overflow:hidden;transition:filter .13s,box-shadow .13s,transform .13s}
 .rb-dd-option:hover,.rb-dd-option.rb-dd-focus{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#cae6d3);filter:saturate(1.06) brightness(.985);box-shadow:inset 0 0 0 1px var(--rb-dd-border,#cae6d3);transform:none}
 .rb-dd-option.rb-dd-selected{background:var(--rb-dd-bg,#edf7f0);border-color:transparent;font-weight:700}
 .rb-dd-option:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.rb-dd-icon{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--rb-dd-icon-bg,#e5efe8);color:#fff;font-size:0}
-.rb-dd-icon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.rb-dd-icon{display:block;align-self:stretch;width:6px;min-height:30px;border-radius:0 4px 4px 0;background:var(--rb-dd-icon-bg,#94A3B8);color:transparent;font-size:0}
+.rb-dd-icon svg{display:none!important}
 .rb-dd-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--rb-dd-color,var(--text-heading,#253b30));font-weight:600}
 .rb-dd-check{display:none}
 .rb-dd-empty{padding:18px 10px;text-align:center;color:var(--text-muted2,#829087);font-size:12px}
@@ -4793,7 +4793,15 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(paths[name]||paths.dot)+'</svg>';
   }
   function semantic(value,label){
-    var text=((value||'')+' '+(label||'')).toLowerCase();
+    var rawValue=String(value==null?'':value).trim();var rawLabel=String(label==null?'':label).trim();var valueKey=rawValue.toLowerCase();var labelKey=rawLabel.toLowerCase();var text=(rawValue+' '+rawLabel).toLowerCase();
+    var people={
+      'วิว':'#fbbc04',view:'#fbbc04',wiw:'#fbbc04','มอส':'#191970',moss:'#191970',mos:'#191970','เตอร์':'#d96400',ter:'#d96400','บอล':'#00257d',ball:'#00257d',bol:'#00257d','นุ่น':'#FF64AD',nune:'#FF64AD',nun:'#FF64AD','แจ๋ม':'#5f6738',jam:'#5f6738','ดอม':'#000000',dom:'#000000','นุ้ย':'#ea4335',nui:'#ea4335','มายด์':'#c42b2b',mind:'#c42b2b',mnd:'#c42b2b',demo:'#94A3B8'
+    };
+    var workTypes={'กราฟิก':'#7C3AED','รูปภาพ':'#2563EB','ยิงแอด':'#EA4335','เทสส่วนตัว':'#D96400','คัดคลิป':'#009688',rlees:'#64748B','สร้างเพจ':'#1877F2'};
+    var products={'liv care':'#059669','so pink':'#DB2777','i sure plus':'#7C3AED',olymplus:'#D97706','olymplus max':'#B45309',judo:'#DC2626','dragon blood':'#991B1B','ขุนแผน':'#6D28D9','heaven plus+':'#0891B2','the lord':'#1D4ED8','wolf+':'#374151','เจ้าขุน':'#92400E'};
+    var exact=people[valueKey]||people[labelKey];if(exact)return{icon:statusIcon('dot'),color:'#285D43',bg:'#EEF8F2',border:'#D3E9DA',iconBg:exact};
+    exact=workTypes[valueKey]||workTypes[labelKey];if(exact)return{icon:statusIcon('dot'),color:'#285D43',bg:'#F3F7F5',border:'#DCE9E1',iconBg:exact};
+    exact=products[valueKey]||products[labelKey];if(exact)return{icon:statusIcon('dot'),color:'#285D43',bg:'#F3F7F5',border:'#DCE9E1',iconBg:exact};
     if(/ส่งแล้วผ่าน|เสร็จ|สำเร็จ|อนุมัติ|ใช้งาน|done|complete|approved|active/.test(text))return{icon:statusIcon('check'),color:'#17964D',bg:'#EAF8EF',border:'#BCE8CC',iconBg:'#28B463'};
     if(/ส่งแล้วไม่ผ่าน|ไม่ผ่าน|ยกเลิก|ระงับ|ผิดพลาด|ลบ|missing|fail|reject|cancel|disabled/.test(text))return{icon:statusIcon('close'),color:'#E33333',bg:'#FDEDED',border:'#F6CACA',iconBg:'#EF4444'};
     if(/หมดอายุ|ใกล้|deadline|expired|warning|เตือน/.test(text))return{icon:statusIcon('clock'),color:'#E07A00',bg:'#FFF5E6',border:'#F8D9A9',iconBg:'#F59E0B'};
@@ -4801,7 +4809,8 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     if(/แก้ไข|revision|revise/.test(text))return{icon:statusIcon('alert'),color:'#C45C16',bg:'#FFF1E8',border:'#F5CEB3',iconBg:'#E8792E'};
     if(/รอ|ตรวจสอบ|ยังไม่มี|pending|review|wait/.test(text))return{icon:statusIcon('search'),color:'#5F6569',bg:'#F1F2F2',border:'#DADDDD',iconBg:'#777F83'};
     if(/ว่าง|vacant|empty/.test(text))return{icon:statusIcon('user'),color:'#5A6E85',bg:'#EEF2F6',border:'#D4DDE6',iconBg:'#718096'};
-    return{icon:statusIcon('dot'),color:'#285D43',bg:'#EEF8F2',border:'#D3E9DA',iconBg:'#69A982'};
+    if(/ไม่ระบุ|เลือก|ทั้งหมด|^\s*$/.test(text))return{icon:statusIcon('dot'),color:'#5F6569',bg:'#F3F5F4',border:'#DEE4E1',iconBg:'#94A3B8'};
+    return{icon:statusIcon('dot'),color:'#285D43',bg:'#F3F7F5',border:'#DCE9E1',iconBg:'#69A982'};
   }
   function ensurePopover(){
     if(popover)return;
