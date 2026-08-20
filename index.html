@@ -4707,7 +4707,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 <script id="rb-idcard-status-colors-script">
 (function(){
   var STATUS={
-    '':{label:'ยังไม่มีข้อมูล',background:'#6B7280',color:'#FFFFFF'},
+    '':{label:'รอตรวจสอบ',background:'#6B7280',color:'#FFFFFF'},
     has:{label:'ส่งแล้วผ่าน',background:'#22C55E',color:'#FFFFFF'},
     missing:{label:'ส่งแล้วไม่ผ่าน',background:'#EF4444',color:'#FFFFFF'},
     expired:{label:'บัตรหมดอายุ',background:'#F59E0B',color:'#FFFFFF'},
@@ -4749,6 +4749,107 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
   observer.observe(document.documentElement,{childList:true,subtree:true});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){apply(document.getElementById('ic-root'));});
   else apply(document.getElementById('ic-root'));
+})();
+</script>
+<style id="rb-global-dropdown-v5-css">
+select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:30px!important;border-radius:8px;cursor:pointer;transition:box-shadow .16s,border-color .16s,transform .16s}
+select.rb-dd-native:not([multiple]):hover{border-color:#52B788!important;box-shadow:0 3px 10px rgba(27,67,50,.10)}
+select.rb-dd-native:not([multiple]):focus{outline:none!important;border-color:#40916C!important;box-shadow:0 0 0 3px rgba(64,145,108,.17)}
+select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
+#rb-dd-popover{position:fixed;z-index:11050;display:none;box-sizing:border-box;padding:9px;background:var(--surface-card,#fff);border:1px solid var(--surface-card-border,#d8e8dc);border-radius:15px;box-shadow:0 20px 55px rgba(17,55,37,.22),0 4px 14px rgba(17,55,37,.10);color:var(--text-heading,#173c2b);overflow:hidden;transform-origin:top center;animation:rbDdIn .14s ease-out}
+#rb-dd-popover.rb-dd-up{transform-origin:bottom center}
+@keyframes rbDdIn{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.rb-dd-search-wrap{position:relative;margin:1px 1px 8px}
+.rb-dd-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:#789084;pointer-events:none}
+.rb-dd-search{width:100%;box-sizing:border-box;border:1px solid var(--surface-card-border,#d8e8dc);border-radius:10px;background:var(--surface-page,#f7fbf8);color:var(--text-heading,#173c2b);font:inherit;font-size:12px;padding:9px 10px 9px 32px;outline:none}
+.rb-dd-search:focus{border-color:#52B788;box-shadow:0 0 0 3px rgba(82,183,136,.14)}
+.rb-dd-list{display:flex;flex-direction:column;gap:4px;max-height:min(340px,calc(100vh - 120px));overflow-y:auto;overscroll-behavior:contain;padding-right:2px;scrollbar-width:thin}
+.rb-dd-option{display:grid;grid-template-columns:30px minmax(0,1fr) 20px;align-items:center;gap:9px;width:100%;min-height:40px;box-sizing:border-box;padding:6px 9px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text-heading,#253b30);font:inherit;font-size:12px;text-align:left;cursor:pointer;transition:background .13s,border-color .13s,transform .13s}
+.rb-dd-option:hover,.rb-dd-option.rb-dd-focus{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#cae6d3);transform:translateX(1px)}
+.rb-dd-option.rb-dd-selected{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#b9dec6);font-weight:700}
+.rb-dd-option:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.rb-dd-icon{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--rb-dd-icon-bg,#e5efe8);color:var(--rb-dd-color,#557064);font-size:14px;font-weight:700}
+.rb-dd-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--rb-dd-color,var(--text-heading,#253b30));font-weight:600}
+.rb-dd-check{color:#22A85A;font-size:15px;font-weight:700;text-align:center}
+.rb-dd-empty{padding:18px 10px;text-align:center;color:var(--text-muted2,#829087);font-size:12px}
+@media(max-width:640px){#rb-dd-popover{max-width:calc(100vw - 20px)}.rb-dd-option{min-height:44px;font-size:13px}.rb-dd-list{max-height:min(380px,calc(100vh - 100px))}}
+</style>
+<script id="rb-global-dropdown-v5-script">
+(function(){
+  var popover=null,list=null,search=null,active=null,focusIndex=-1,visibleButtons=[];
+  function semantic(value,label){
+    var text=((value||'')+' '+(label||'')).toLowerCase();
+    if(/ส่งแล้วผ่าน|เสร็จ|สำเร็จ|อนุมัติ|ใช้งาน|done|complete|approved|active/.test(text))return{icon:'✓',color:'#17964D',bg:'#EAF8EF',border:'#BCE8CC',iconBg:'#34B766'};
+    if(/ส่งแล้วไม่ผ่าน|ไม่ผ่าน|ยกเลิก|ระงับ|ผิดพลาด|ลบ|missing|fail|reject|cancel|disabled/.test(text))return{icon:'×',color:'#D93636',bg:'#FDEEEE',border:'#F7CACA',iconBg:'#EF5350'};
+    if(/หมดอายุ|ใกล้|deadline|expired|warning|เตือน/.test(text))return{icon:'◷',color:'#D47A00',bg:'#FFF5E5',border:'#F9D9A6',iconBg:'#F59E0B'};
+    if(/กำลัง|ดำเนิน|inprogress|progress|working/.test(text))return{icon:'↻',color:'#2563B8',bg:'#EAF2FF',border:'#C7DBF8',iconBg:'#3B82D0'};
+    if(/แก้ไข|revision|revise/.test(text))return{icon:'!',color:'#C45C16',bg:'#FFF1E8',border:'#F5CEB3',iconBg:'#E8792E'};
+    if(/รอ|ตรวจสอบ|ยังไม่มี|pending|review|wait/.test(text))return{icon:'⌕',color:'#5F6B66',bg:'#F0F3F1',border:'#D9E0DC',iconBg:'#7B8580'};
+    if(/ว่าง|vacant|empty/.test(text))return{icon:'•',color:'#5A6E85',bg:'#EEF2F6',border:'#D4DDE6',iconBg:'#718096'};
+    return{icon:'•',color:'#285D43',bg:'#EEF8F2',border:'#D3E9DA',iconBg:'#69A982'};
+  }
+  function ensurePopover(){
+    if(popover)return;
+    popover=document.createElement('div');popover.id='rb-dd-popover';popover.setAttribute('role','listbox');
+    popover.innerHTML='<div class="rb-dd-search-wrap" style="display:none"><span class="rb-dd-search-icon">⌕</span><input class="rb-dd-search" type="text" placeholder="ค้นหารายการ..."></div><div class="rb-dd-list"></div>';
+    document.body.appendChild(popover);list=popover.querySelector('.rb-dd-list');search=popover.querySelector('.rb-dd-search');
+    search.addEventListener('input',filterOptions);
+    search.addEventListener('keydown',function(e){if(e.key==='ArrowDown'){e.preventDefault();e.stopPropagation();moveFocus(1);}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();var select=active;close();if(select)select.focus();}});
+    popover.addEventListener('pointerdown',function(e){e.stopPropagation();});
+    popover.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();var select=active;close();if(select)select.focus();}else if(e.key==='ArrowDown'){e.preventDefault();moveFocus(1);}else if(e.key==='ArrowUp'){e.preventDefault();moveFocus(-1);}});
+  }
+  function isEligible(select){return select&&select.tagName==='SELECT'&&!select.multiple&&(!select.size||select.size<=1)&&!select.hasAttribute('data-rb-dd-off');}
+  function enhance(select){
+    if(!isEligible(select)||select.getAttribute('data-rb-dd-ready')==='1')return;
+    select.setAttribute('data-rb-dd-ready','1');select.classList.add('rb-dd-native');select.setAttribute('aria-haspopup','listbox');select.setAttribute('aria-expanded','false');
+    select.addEventListener('pointerdown',function(e){if(e.button!==0||select.disabled)return;e.preventDefault();e.stopPropagation();select.focus();open(select);});
+    select.addEventListener('click',function(e){if(!select.disabled){e.preventDefault();e.stopPropagation();}});
+    select.addEventListener('keydown',function(e){if(select.disabled)return;if(e.key==='Enter'||e.key===' '||e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();open(select);if(e.key==='ArrowUp')moveFocus(-1);}else if(e.key==='Escape')close();});
+  }
+  function enhanceAll(root){
+    if(!root)return;if(isEligible(root))enhance(root);
+    if(root.querySelectorAll)root.querySelectorAll('select').forEach(enhance);
+  }
+  function build(){
+    list.innerHTML='';visibleButtons=[];focusIndex=-1;
+    Array.prototype.forEach.call(active.options,function(option,index){
+      if(option.hidden)return;
+      var look=semantic(option.value,option.textContent);var button=document.createElement('button');button.type='button';button.className='rb-dd-option'+(index===active.selectedIndex?' rb-dd-selected':'');button.setAttribute('role','option');button.setAttribute('aria-selected',index===active.selectedIndex?'true':'false');button.disabled=option.disabled;
+      button.style.setProperty('--rb-dd-bg',look.bg);button.style.setProperty('--rb-dd-border',look.border);button.style.setProperty('--rb-dd-color',look.color);button.style.setProperty('--rb-dd-icon-bg',look.iconBg);
+      button.innerHTML='<span class="rb-dd-icon" style="color:#fff">'+look.icon+'</span><span class="rb-dd-label"></span><span class="rb-dd-check">'+(index===active.selectedIndex?'✓':'')+'</span>';
+      button.querySelector('.rb-dd-label').textContent=option.textContent;
+      button.addEventListener('click',function(){choose(index);});
+      list.appendChild(button);visibleButtons.push(button);
+      if(index===active.selectedIndex)focusIndex=visibleButtons.length-1;
+    });
+    var searchWrap=popover.querySelector('.rb-dd-search-wrap');searchWrap.style.display=active.options.length>8?'block':'none';search.value='';
+    if(!visibleButtons.length)list.innerHTML='<div class="rb-dd-empty">ไม่มีรายการ</div>';
+  }
+  function position(){
+    if(!active||!popover)return;var rect=active.getBoundingClientRect();var gap=7;var width=Math.max(rect.width,230);width=Math.min(width,Math.min(380,window.innerWidth-20));popover.style.width=width+'px';popover.style.display='block';popover.classList.remove('rb-dd-up');
+    var height=popover.offsetHeight;var left=Math.min(Math.max(10,rect.left),window.innerWidth-width-10);var below=window.innerHeight-rect.bottom-gap;var top;
+    if(below>=Math.min(height,260)||below>rect.top){top=Math.min(rect.bottom+gap,window.innerHeight-height-10);}else{top=Math.max(10,rect.top-height-gap);popover.classList.add('rb-dd-up');}
+    popover.style.left=left+'px';popover.style.top=Math.max(10,top)+'px';
+  }
+  function open(select){
+    ensurePopover();if(active===select&&popover.style.display==='block'){close();return;}if(active)active.setAttribute('aria-expanded','false');active=select;active.setAttribute('aria-expanded','true');build();position();
+    var selected=list.querySelector('.rb-dd-selected');if(selected)selected.scrollIntoView({block:'nearest'});
+    if(active.options.length>8)setTimeout(function(){search.focus();},0);
+  }
+  function close(){if(active)active.setAttribute('aria-expanded','false');if(popover)popover.style.display='none';active=null;focusIndex=-1;visibleButtons=[];}
+  function choose(index){
+    if(!active||!active.options[index]||active.options[index].disabled)return;var select=active;select.selectedIndex=index;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));close();if(document.contains(select))select.focus();
+  }
+  function filterOptions(){
+    var old=list.querySelector('.rb-dd-filter-empty');if(old)old.remove();var query=(search.value||'').trim().toLowerCase();visibleButtons=[];Array.prototype.forEach.call(list.querySelectorAll('.rb-dd-option'),function(button){var show=!query||button.textContent.toLowerCase().indexOf(query)>=0;button.style.display=show?'grid':'none';if(show)visibleButtons.push(button);});focusIndex=-1;if(!visibleButtons.length&&query){var empty=document.createElement('div');empty.className='rb-dd-empty rb-dd-filter-empty';empty.textContent='ไม่พบรายการ';list.appendChild(empty);}
+  }
+  function moveFocus(step){if(!visibleButtons.length)return;focusIndex=(focusIndex+step+visibleButtons.length)%visibleButtons.length;visibleButtons.forEach(function(b,i){b.classList.toggle('rb-dd-focus',i===focusIndex);});visibleButtons[focusIndex].scrollIntoView({block:'nearest'});visibleButtons[focusIndex].focus();}
+  document.addEventListener('pointerdown',function(){close();});
+  window.addEventListener('resize',close);
+  document.addEventListener('scroll',function(e){if(popover&&popover.contains(e.target))return;close();},true);
+  var observer=new MutationObserver(function(mutations){mutations.forEach(function(mutation){Array.prototype.forEach.call(mutation.addedNodes,enhanceAll);});});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){enhanceAll(document);});else enhanceAll(document);
 })();
 </script>
 <nav id="rb-bottom-nav">
