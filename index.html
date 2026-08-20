@@ -4697,6 +4697,60 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 </script>
 <script>window._rbToggleTheme=function(){var isDark=document.documentElement.getAttribute("data-theme")==="dark";if(isDark){document.documentElement.removeAttribute("data-theme");try{localStorage.setItem("rb_theme","light");}catch(e){}}else{document.documentElement.setAttribute("data-theme","dark");try{localStorage.setItem("rb_theme","dark");}catch(e){}}};</script>
 <div id="rb-theme-fab"><div id="rb-notif-wrap"><button id="rb-bell-btn" onclick="window._rbTogNotif&&window._rbTogNotif()" title="การแจ้งเตือน"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><span id="rb-bell-badge">0</span></button><div id="rb-notif-panel" style="display:none"><div class="rbn-hdr"><span class="rbn-htitle">การแจ้งเตือน</span><button class="rbn-readall" onclick="window._rbReadAll&&window._rbReadAll()">อ่านทั้งหมด</button></div><div class="rbn-tabs"><button class="rbn-tab rbn-tab-active" onclick="window._rbSetNotifTab('all',this)">ทั้งหมด</button><button class="rbn-tab" onclick="window._rbSetNotifTab('unread',this)">ยังไม่อ่าน</button><button class="rbn-tab" onclick="window._rbSetNotifTab('work',this)">งาน</button></div><div class="rbn-list" id="rb-notif-list"></div></div></div><div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 6px;"></div><div onclick="window._rbToggleTheme&&window._rbToggleTheme()" title="กลางวัน/กลางคืน" style="display:flex;align-items:center;gap:1px;cursor:pointer;"><span class="rb-theme-circle rb-theme-circle-sun">☀️</span><span class="rb-theme-circle rb-theme-circle-moon">🌙</span></div></div>
+<style id="rb-idcard-status-colors">
+#ic-root .ic-emp-select{font-weight:700!important;text-align:center!important;text-align-last:center!important;padding:7px 28px 7px 10px!important}
+#ic-root .ic-emp-select option{font-weight:700;text-align:center}
+#ic-root .ic-field-select[data-icf="status"]{border:none!important;border-radius:7px!important;padding:7px 28px 7px 10px!important;font-weight:700!important;text-align:center!important;text-align-last:center!important}
+#ic-root .ic-field-select[data-icf="status"] option,#ic-root .ic-add-row select option{font-weight:700;color:#fff}
+#ic-root .ic-field-select:disabled,#ic-root .ic-emp-select:disabled{opacity:1!important;cursor:default}
+</style>
+<script id="rb-idcard-status-colors-script">
+(function(){
+  var STATUS={
+    '':{label:'ยังไม่มีข้อมูล',background:'#6B7280',color:'#FFFFFF'},
+    has:{label:'ส่งแล้วผ่าน',background:'#22C55E',color:'#FFFFFF'},
+    missing:{label:'ส่งแล้วไม่ผ่าน',background:'#EF4444',color:'#FFFFFF'},
+    expired:{label:'บัตรหมดอายุ',background:'#F59E0B',color:'#FFFFFF'},
+    vacant:{label:'ว่าง',background:'#64748B',color:'#FFFFFF'}
+  };
+  function isStatusSelect(select){return select&&select.tagName==='SELECT'&&select.querySelector('option[value="has"]')&&select.querySelector('option[value="missing"]');}
+  function paint(select){
+    if(!isStatusSelect(select))return;
+    Object.keys(STATUS).forEach(function(value){
+      var option=Array.prototype.find.call(select.options,function(o){return o.value===value;});
+      if(!option)return;
+      var status=STATUS[value];
+      option.textContent=status.label;
+      option.style.backgroundColor=status.background;
+      option.style.color=status.color;
+      option.style.fontWeight='700';
+      option.style.textAlign='center';
+    });
+    var current=STATUS[select.value]||STATUS[''];
+    select.style.backgroundColor=current.background;
+    select.style.color=current.color;
+    select.style.fontWeight='700';
+    select.style.textAlign='center';
+    select.style.textAlignLast='center';
+  }
+  function apply(root){
+    if(!root)return;
+    if(root.nodeType===1&&root.matches&&root.matches('.ic-emp-select')){
+      root.style.fontWeight='700';root.style.textAlign='center';root.style.textAlignLast='center';
+    }
+    if(root.nodeType===1&&root.tagName==='SELECT')paint(root);
+    if(root.querySelectorAll){
+      root.querySelectorAll('.ic-emp-select').forEach(function(select){select.style.fontWeight='700';select.style.textAlign='center';select.style.textAlignLast='center';});
+      root.querySelectorAll('select').forEach(paint);
+    }
+  }
+  document.addEventListener('change',function(event){if(isStatusSelect(event.target))paint(event.target);},true);
+  var observer=new MutationObserver(function(mutations){mutations.forEach(function(mutation){Array.prototype.forEach.call(mutation.addedNodes,apply);});});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){apply(document.getElementById('ic-root'));});
+  else apply(document.getElementById('ic-root'));
+})();
+</script>
 <nav id="rb-bottom-nav">
   <button class="active" onclick="showTab('overview',this)"><span class="rbn-ic">📊</span><span class="rbn-lb">Home</span></button>
   <button onclick="showTab('brands',this)"><span class="rbn-ic">🏷️</span><span class="rbn-lb">แบรนด์</span></button>
