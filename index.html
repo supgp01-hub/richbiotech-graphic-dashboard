@@ -1,4 +1,4 @@
-<!-- redeploy-fix166-lucide-home-icons -->
+<!-- redeploy-fix167-reference-dropdown -->
 <!DOCTYPE html>
 <html lang="th">
 <head><script>(function(){try{if(localStorage.getItem("rb_theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}})();</script>
@@ -4756,37 +4756,52 @@ select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;back
 select.rb-dd-native:not([multiple]):hover{border-color:#52B788!important;box-shadow:0 3px 10px rgba(27,67,50,.10)}
 select.rb-dd-native:not([multiple]):focus{outline:none!important;border-color:#40916C!important;box-shadow:0 0 0 3px rgba(64,145,108,.17)}
 select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
-#rb-dd-popover{position:fixed;z-index:11050;display:none;box-sizing:border-box;padding:9px;background:var(--surface-card,#fff);border:1px solid var(--surface-card-border,#d8e8dc);border-radius:15px;box-shadow:0 20px 55px rgba(17,55,37,.22),0 4px 14px rgba(17,55,37,.10);color:var(--text-heading,#173c2b);overflow:hidden;transform-origin:top center;animation:rbDdIn .14s ease-out}
+#ic-root .ic-field-select[data-icf="status"].rb-dd-native{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E")!important;background-position:right 8px center!important;background-size:13px!important}
+#rb-dd-popover{position:fixed;z-index:11050;display:none;box-sizing:border-box;padding:6px;background:var(--surface-card,#fff);border:1px solid #E4E9E6;border-radius:9px;box-shadow:0 8px 22px rgba(17,55,37,.16),0 2px 7px rgba(17,55,37,.08);color:var(--text-heading,#173c2b);overflow:hidden;transform-origin:top center;animation:rbDdIn .14s ease-out}
 #rb-dd-popover.rb-dd-up{transform-origin:bottom center}
 @keyframes rbDdIn{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 .rb-dd-search-wrap{position:relative;margin:1px 1px 8px}
 .rb-dd-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:#789084;pointer-events:none}
 .rb-dd-search{width:100%;box-sizing:border-box;border:1px solid var(--surface-card-border,#d8e8dc);border-radius:10px;background:var(--surface-page,#f7fbf8);color:var(--text-heading,#173c2b);font:inherit;font-size:12px;padding:9px 10px 9px 32px;outline:none}
 .rb-dd-search:focus{border-color:#52B788;box-shadow:0 0 0 3px rgba(82,183,136,.14)}
-.rb-dd-list{display:flex;flex-direction:column;gap:4px;max-height:min(340px,calc(100vh - 120px));overflow-y:auto;overscroll-behavior:contain;padding-right:2px;scrollbar-width:thin}
-.rb-dd-option{display:grid;grid-template-columns:30px minmax(0,1fr) 20px;align-items:center;gap:9px;width:100%;min-height:40px;box-sizing:border-box;padding:6px 9px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text-heading,#253b30);font:inherit;font-size:12px;text-align:left;cursor:pointer;transition:background .13s,border-color .13s,transform .13s}
-.rb-dd-option:hover,.rb-dd-option.rb-dd-focus{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#cae6d3);transform:translateX(1px)}
-.rb-dd-option.rb-dd-selected{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#b9dec6);font-weight:700}
+.rb-dd-list{display:flex;flex-direction:column;gap:3px;max-height:min(340px,calc(100vh - 120px));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.rb-dd-option{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;width:100%;min-height:36px;box-sizing:border-box;padding:4px 8px;border:1px solid transparent;border-radius:8px;background:var(--rb-dd-bg,#edf7f0);color:var(--text-heading,#253b30);font:inherit;font-size:13px;text-align:left;cursor:pointer;transition:filter .13s,box-shadow .13s,transform .13s}
+.rb-dd-option:hover,.rb-dd-option.rb-dd-focus{background:var(--rb-dd-bg,#edf7f0);border-color:var(--rb-dd-border,#cae6d3);filter:saturate(1.06) brightness(.985);box-shadow:inset 0 0 0 1px var(--rb-dd-border,#cae6d3);transform:none}
+.rb-dd-option.rb-dd-selected{background:var(--rb-dd-bg,#edf7f0);border-color:transparent;font-weight:700}
 .rb-dd-option:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.rb-dd-icon{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--rb-dd-icon-bg,#e5efe8);color:var(--rb-dd-color,#557064);font-size:14px;font-weight:700}
+.rb-dd-icon{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--rb-dd-icon-bg,#e5efe8);color:#fff;font-size:0}
+.rb-dd-icon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
 .rb-dd-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--rb-dd-color,var(--text-heading,#253b30));font-weight:600}
-.rb-dd-check{color:#22A85A;font-size:15px;font-weight:700;text-align:center}
+.rb-dd-check{display:none}
 .rb-dd-empty{padding:18px 10px;text-align:center;color:var(--text-muted2,#829087);font-size:12px}
-@media(max-width:640px){#rb-dd-popover{max-width:calc(100vw - 20px)}.rb-dd-option{min-height:44px;font-size:13px}.rb-dd-list{max-height:min(380px,calc(100vh - 100px))}}
+@media(max-width:640px){#rb-dd-popover{max-width:calc(100vw - 20px)}.rb-dd-option{min-height:40px;font-size:13px}.rb-dd-list{max-height:min(380px,calc(100vh - 100px))}}
 </style>
 <script id="rb-global-dropdown-v5-script">
 (function(){
   var popover=null,list=null,search=null,active=null,focusIndex=-1,visibleButtons=[];
+  function statusIcon(name){
+    var paths={
+      search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+      check:'<path d="m5 12 4 4L19 6"/>',
+      close:'<path d="M6 6l12 12M18 6 6 18"/>',
+      clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      refresh:'<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8A7 7 0 0 1 18.7 7L20 12M4 12l1.3 5A7 7 0 0 0 17.9 16"/>',
+      alert:'<path d="m21 19-8-15a1.2 1.2 0 0 0-2 0L3 19a1.2 1.2 0 0 0 1 2h16a1.2 1.2 0 0 0 1-2Z"/><path d="M12 9v4M12 17h.01"/>',
+      user:'<circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0 1 14 0"/>',
+      dot:'<circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>'
+    };
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(paths[name]||paths.dot)+'</svg>';
+  }
   function semantic(value,label){
     var text=((value||'')+' '+(label||'')).toLowerCase();
-    if(/ส่งแล้วผ่าน|เสร็จ|สำเร็จ|อนุมัติ|ใช้งาน|done|complete|approved|active/.test(text))return{icon:'✓',color:'#17964D',bg:'#EAF8EF',border:'#BCE8CC',iconBg:'#34B766'};
-    if(/ส่งแล้วไม่ผ่าน|ไม่ผ่าน|ยกเลิก|ระงับ|ผิดพลาด|ลบ|missing|fail|reject|cancel|disabled/.test(text))return{icon:'×',color:'#D93636',bg:'#FDEEEE',border:'#F7CACA',iconBg:'#EF5350'};
-    if(/หมดอายุ|ใกล้|deadline|expired|warning|เตือน/.test(text))return{icon:'◷',color:'#D47A00',bg:'#FFF5E5',border:'#F9D9A6',iconBg:'#F59E0B'};
-    if(/กำลัง|ดำเนิน|inprogress|progress|working/.test(text))return{icon:'↻',color:'#2563B8',bg:'#EAF2FF',border:'#C7DBF8',iconBg:'#3B82D0'};
-    if(/แก้ไข|revision|revise/.test(text))return{icon:'!',color:'#C45C16',bg:'#FFF1E8',border:'#F5CEB3',iconBg:'#E8792E'};
-    if(/รอ|ตรวจสอบ|ยังไม่มี|pending|review|wait/.test(text))return{icon:'⌕',color:'#5F6B66',bg:'#F0F3F1',border:'#D9E0DC',iconBg:'#7B8580'};
-    if(/ว่าง|vacant|empty/.test(text))return{icon:'•',color:'#5A6E85',bg:'#EEF2F6',border:'#D4DDE6',iconBg:'#718096'};
-    return{icon:'•',color:'#285D43',bg:'#EEF8F2',border:'#D3E9DA',iconBg:'#69A982'};
+    if(/ส่งแล้วผ่าน|เสร็จ|สำเร็จ|อนุมัติ|ใช้งาน|done|complete|approved|active/.test(text))return{icon:statusIcon('check'),color:'#17964D',bg:'#EAF8EF',border:'#BCE8CC',iconBg:'#28B463'};
+    if(/ส่งแล้วไม่ผ่าน|ไม่ผ่าน|ยกเลิก|ระงับ|ผิดพลาด|ลบ|missing|fail|reject|cancel|disabled/.test(text))return{icon:statusIcon('close'),color:'#E33333',bg:'#FDEDED',border:'#F6CACA',iconBg:'#EF4444'};
+    if(/หมดอายุ|ใกล้|deadline|expired|warning|เตือน/.test(text))return{icon:statusIcon('clock'),color:'#E07A00',bg:'#FFF5E6',border:'#F8D9A9',iconBg:'#F59E0B'};
+    if(/กำลัง|ดำเนิน|inprogress|progress|working/.test(text))return{icon:statusIcon('refresh'),color:'#2563B8',bg:'#EAF2FF',border:'#C7DBF8',iconBg:'#3B82D0'};
+    if(/แก้ไข|revision|revise/.test(text))return{icon:statusIcon('alert'),color:'#C45C16',bg:'#FFF1E8',border:'#F5CEB3',iconBg:'#E8792E'};
+    if(/รอ|ตรวจสอบ|ยังไม่มี|pending|review|wait/.test(text))return{icon:statusIcon('search'),color:'#5F6569',bg:'#F1F2F2',border:'#DADDDD',iconBg:'#777F83'};
+    if(/ว่าง|vacant|empty/.test(text))return{icon:statusIcon('user'),color:'#5A6E85',bg:'#EEF2F6',border:'#D4DDE6',iconBg:'#718096'};
+    return{icon:statusIcon('dot'),color:'#285D43',bg:'#EEF8F2',border:'#D3E9DA',iconBg:'#69A982'};
   }
   function ensurePopover(){
     if(popover)return;
@@ -4826,7 +4841,7 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     if(!visibleButtons.length)list.innerHTML='<div class="rb-dd-empty">ไม่มีรายการ</div>';
   }
   function position(){
-    if(!active||!popover)return;var rect=active.getBoundingClientRect();var gap=7;var width=Math.max(rect.width,230);width=Math.min(width,Math.min(380,window.innerWidth-20));popover.style.width=width+'px';popover.style.display='block';popover.classList.remove('rb-dd-up');
+    if(!active||!popover)return;var rect=active.getBoundingClientRect();var gap=7;var width=Math.max(rect.width,190);width=Math.min(width,Math.min(340,window.innerWidth-20));popover.style.width=width+'px';popover.style.display='block';popover.classList.remove('rb-dd-up');
     var height=popover.offsetHeight;var left=Math.min(Math.max(10,rect.left),window.innerWidth-width-10);var below=window.innerHeight-rect.bottom-gap;var top;
     if(below>=Math.min(height,260)||below>rect.top){top=Math.min(rect.bottom+gap,window.innerHeight-height-10);}else{top=Math.max(10,rect.top-height-gap);popover.classList.add('rb-dd-up');}
     popover.style.left=left+'px';popover.style.top=Math.max(10,top)+'px';
