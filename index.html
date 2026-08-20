@@ -3567,6 +3567,46 @@ window.gAS=function(){
     ob.onclick=function(){var u=el.value.trim();if(u)window.open(u,'_blank');};
     wrap.appendChild(el);wrap.appendChild(ob);return wrap;
   }
+  var PRODUCT_ASSET_LINKS={
+    'Liv CARE':{footage:['https://drive.google.com/drive/folders/1RkA0weOX7eohpOnVzzrw3UfrFeLHGDC2?usp=sharing'],review:['https://drive.google.com/drive/folders/1HKWmCXPhPmndem8dgxpO3XnXev3Or4xj','https://drive.google.com/drive/folders/17dP9Zavwsfy6JFLIDmbCie2GEVgqYfRJ']},
+    'So Pink':{footage:['https://drive.google.com/drive/folders/14UIB-e1ZaoWrQDfyT3B-iT0qKK2m4r4d','https://drive.google.com/drive/folders/1IIbojUpaPZKG1vb18ik8XoP4o3xiZCOL'],review:['https://drive.google.com/drive/folders/1MyDWBA3sMji8G4i2nvDFI_DguknFdYEL','https://drive.google.com/drive/folders/1pRN_s9vDxku2tH2j90avdUhEmiv7HxzN','https://drive.google.com/drive/folders/11xoXeW4hHH7Dk6NekpPPM0JhZV4wPaU3']},
+    'Olymplus':{footage:['https://drive.google.com/drive/folders/15PQlJ2kOSMp3YjEBG953UCcB0_M8zNEe','https://drive.google.com/drive/folders/1upS_fekMJ1bMPEx3YKvLbIA-vbVjrYIX'],review:['https://drive.google.com/drive/folders/1JyOpP04JHPRjZe5A4vLITdXzzqrTfQ7V','https://drive.google.com/drive/folders/1KRs--DsTIVV_6cEvlUDkogdIzYgGhBK4','https://drive.google.com/drive/folders/11DHBq8BgnXCuBq2Dvt8KRrfUINzvh8aJ']},
+    'Olymplus MAX':{footage:['https://drive.google.com/drive/folders/1kFYHZV48NiAavAQUOVbYBX_KnPloRsdQ'],review:['https://drive.google.com/drive/folders/1X88wMgh_-tRuaEQrQSsqexT8E9m5OlI9']},
+    'JUDO':{footage:['https://drive.google.com/drive/folders/1iiFMH7n-fA5uDD5hpjIAxX613CjdSXBo'],review:['https://drive.google.com/drive/folders/14b8zeypdjBhpPFEQvLLmzXIPyB6f94Yd','https://drive.google.com/drive/folders/1pJ9ZghJIsHtzmcpN04ZU8G-TpkYTYJdb']},
+    'Dragon Blood':{footage:['https://drive.google.com/drive/folders/1PGvEWVWCLQMTTS3TCsQdD-0VEU2ZYAh1'],review:['https://drive.google.com/drive/folders/1VXtl0mpyrejXFnUa48wMTd6PZ0tYqIiR']},
+    'ขุนแผน':{footage:['https://drive.google.com/drive/folders/19vuaW98Qe9i3DtQNrD3FKFi9LQLBxX74'],review:['https://drive.google.com/drive/folders/1GlVR0mpH09OXGDCaifv6iNpTClICqajw','https://drive.google.com/drive/folders/1hBkzLj00T8JMraKopmt-8Ng1oZPURwfD']},
+    'Heaven PLUS+':{footage:['https://drive.google.com/drive/folders/1aIkQnd5b-SNF_QeMfNHX0hE78csBHH6J','https://drive.google.com/drive/folders/1x8-8as-LM5dpuI8uEd-HmREBzLGaJHoN'],review:['https://drive.google.com/drive/folders/1jFXHr-RcaQmAboSZk3TLSF40Nq6mt37E','https://drive.google.com/drive/folders/1ogHBA1BdqKbyU3jxTA2kRaVyOkZgkmZW']},
+    'THE LORD':{footage:['https://drive.google.com/drive/folders/1gOr5wPZzdM6fJhgTurFST_HkFp0Pbh7I'],review:['https://drive.google.com/drive/folders/1JQA8Ve9GiG13QlLG3RvZpEAZgWSqTjaq','https://drive.google.com/drive/folders/1v5FB_OlegjexTelRDEe9n1_M9BtINXRs']},
+    'WOLF+':{footage:['https://drive.google.com/drive/folders/1pfCFgsC8Uof4teKDEUIfb4c51OoOs-zG','https://drive.google.com/drive/folders/1klc01VfUJe8oRT07to1uIRzttyITxTDC'],review:['https://drive.google.com/drive/folders/1Hb33vCtWG9sjV0lC2_5yosflgPPpeU-c','https://drive.google.com/drive/folders/1XZflLx9cQ4laRdbeNHubR4l8INT8Hnxx']},
+    'เจ้าขุน':{footage:['https://drive.google.com/drive/folders/1bUzM_0MPF8Io1oiUriVgNXQqYDTXifG2'],review:['https://drive.google.com/drive/folders/12T-UWXszKxqPHbLblbwPiDZVhsjMrNXS']}
+  };
+  function mkProductAssetLink(lbl,id,kind){
+    var field=mkF(lbl,mkLink(id));
+    var tools=document.createElement('div');tools.id=id+'-preset-wrap';tools.style.cssText='display:none;align-items:center;gap:7px;margin-top:6px;';
+    var pick=document.createElement('select');pick.id=id+'-preset';pick.style.cssText='flex:1;min-width:0;border:1px solid #b7dfc5;border-radius:7px;background:#f0faf3;color:#1B4332;padding:6px 8px;font-size:11px;font-weight:600;';
+    pick.onchange=function(){var input=document.getElementById(id);if(input&&this.value)input.value=this.value;};
+    var openAll=document.createElement('button');openAll.id=id+'-open-all';openAll.type='button';openAll.textContent='เปิดทั้งหมด';openAll.style.cssText='display:none;flex:0 0 auto;border:1px solid #95D5B2;border-radius:7px;background:#D8F3DC;color:#1B4332;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;';
+    openAll.onclick=function(){var data=PRODUCT_ASSET_LINKS[(document.getElementById('om-prod')||{}).value]||{};(data[kind]||[]).forEach(function(url){window.open(url,'_blank');});};
+    tools.appendChild(pick);tools.appendChild(openAll);field.appendChild(tools);return field;
+  }
+  function syncProductAssetLinks(product,overwrite){
+    var data=PRODUCT_ASSET_LINKS[product]||{};
+    ['footage','review'].forEach(function(kind){
+      var id=kind==='footage'?'om-footage':'om-review';
+      var input=document.getElementById(id),pick=document.getElementById(id+'-preset'),tools=document.getElementById(id+'-preset-wrap'),openAll=document.getElementById(id+'-open-all');
+      if(!input||!pick||!tools)return;
+      var urls=(data[kind]||[]).slice(),current=(input.value||'').trim(),known=[];
+      Object.keys(PRODUCT_ASSET_LINKS).forEach(function(name){known=known.concat(PRODUCT_ASSET_LINKS[name][kind]||[]);});
+      if(overwrite==='force'||(overwrite&&(!current||known.indexOf(current)!==-1))){input.value=urls[0]||'';current=input.value;}
+      pick.innerHTML='';
+      if(!urls.length){tools.style.display='none';return;}
+      urls.forEach(function(url,i){var option=document.createElement('option');option.value=url;option.textContent=(kind==='footage'?'Footage ':'Insert / Review ')+(i+1);option.title=url;pick.appendChild(option);});
+      if(current&&urls.indexOf(current)===-1){var custom=document.createElement('option');custom.value=current;custom.textContent='ลิงก์กำหนดเอง';pick.appendChild(custom);}
+      pick.value=current&&Array.prototype.some.call(pick.options,function(op){return op.value===current;})?current:urls[0];
+      tools.style.display='flex';if(openAll)openAll.style.display=urls.length>1?'inline-flex':'none';
+    });
+  }
+  window._omSyncProductAssetLinks=syncProductAssetLinks;
   function mkS(id,opts){
     var el=document.createElement('select');el.id=id;
     el.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;background:var(--surface-card);box-sizing:border-box;';
@@ -3631,7 +3671,7 @@ window.gAS=function(){
     var _ni=mkI('om-name','ชื่องาน *');_ni.setAttribute('list','om-name-list');p1.appendChild(mkF('ชื่องาน *',_ni));_ni.oninput=function(){var nm=this.value;var brand=document.getElementById('om-prod')?document.getElementById('om-prod').value:'';var matches=[];for(var i=0;i<CT_EMBED.length;i++){var r=CT_EMBED[i];if(r.name===nm&&(!brand||r.brand===brand))matches.push(r);}var hookEl=document.getElementById('om-hook');if(hookEl){hookEl.innerHTML='';var defOpt=document.createElement('option');defOpt.value='';defOpt.textContent='-- เลือก Hook --';hookEl.appendChild(defOpt);matches.forEach(function(r,i){var o=document.createElement('option');o.value=r.hook||'';o.textContent=(r.hook||'');hookEl.appendChild(o);});};var hookEl2=document.getElementById('om-hook2');if(!hookEl2){hookEl2=document.createElement('select');hookEl2.id='om-hook2';var h1s=document.getElementById('om-hook');if(h1s){hookEl2.style.cssText=h1s.style.cssText;if(h1s.parentNode){h1s.parentNode.insertBefore(hookEl2,h1s.nextSibling);}}}if(hookEl2){hookEl2.innerHTML='';var defOpt2=document.createElement('option');defOpt2.value='';defOpt2.textContent='-- Hook 2 --';hookEl2.appendChild(defOpt2);matches.forEach(function(r){var o2=document.createElement('option');o2.value=r.hook||'';o2.textContent=(r.hook||'');hookEl2.appendChild(o2);});}if(matches.length>0){var match=matches[0];var rawEl=document.getElementById('om-raw');var sheetEl=document.getElementById('om-sheet');if(rawEl&&match.link)rawEl.value=match.link;if(sheetEl&&match.script)sheetEl.value=match.script;}};if(!document.getElementById('om-name-list')){var _dl=document.createElement('datalist');_dl.id='om-name-list';var _seen={};CT_EMBED.forEach(function(r){if(r.name&&!_seen[r.name]){_seen[r.name]=1;var _o=document.createElement('option');_o.value=r.name;_dl.appendChild(_o);}});document.body.appendChild(_dl);}
     var PRODS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
     var prodSel=mkS('om-prod',[['','-- เลือกสินค้า --']].concat(PRODS.map(function(p){return[p,p];})));
-    prodSel.onchange=function(){var brand=this.value;var dl=document.getElementById('om-name-list');if(!dl)return;dl.innerHTML='';var seen={};CT_EMBED.forEach(function(r){if(r.name&&(!brand||r.brand===brand)&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}});};
+    prodSel.onchange=function(){var brand=this.value;var dl=document.getElementById('om-name-list');if(dl){dl.innerHTML='';var seen={};CT_EMBED.forEach(function(r){if(r.name&&(!brand||r.brand===brand)&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}});}syncProductAssetLinks(brand,'force');};
     p1.appendChild(mkF('สินค้า',prodSel));
     var g1=document.createElement('div');g1.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
     var dlI=document.createElement('input');dlI.id='om-dl';dlI.type='date';dlI.autocomplete='off';
@@ -3672,8 +3712,8 @@ window.gAS=function(){
     glp.appendChild(mkF('ลิงก์สคริป',mkLink('om-sheet')));
     var _hi2=document.createElement('select');_hi2.id='om-hook';_hi2.style.cssText='width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:0.85em;color:#333;background:var(--surface-card);cursor:pointer;';var _hwrap=mkF('HOOK',_hi2);var _hrow=document.createElement('div');_hrow.style.cssText='display:flex;gap:12px;align-items:flex-start;';var _nwrap=_ni.parentElement;if(_nwrap&&_nwrap.parentElement){_nwrap.style.flex='1 1 50%';_hwrap.style.flex='1 1 50%';_nwrap.parentElement.insertBefore(_hrow,_nwrap);_hrow.appendChild(_nwrap);_hrow.appendChild(_hwrap);}else{p1.appendChild(_hwrap);};
     p1.appendChild(glp);
-    p1.appendChild(mkF('ลิงก์ Footage',mkLink('om-footage')));
-    p1.appendChild(mkF('Insert / Review',mkLink('om-review')));
+    p1.appendChild(mkProductAssetLink('ลิงก์ Footage','om-footage','footage'));
+    p1.appendChild(mkProductAssetLink('Insert / Review','om-review','review'));
     var clipExDiv=document.createElement('div');clipExDiv.id='om-clip-extra';    var noteWrap=mkF('หมายเหตุ',mkTA('om-note','หมายเหตุ...',3));noteWrap.id='om-note-wrap';p1.appendChild(noteWrap);
 p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var rows=cont.querySelectorAll('.om-clip-row');var vals=[];rows.forEach(function(r){var i=r.querySelector('input');vals.push(i?i.value:'');});for(var idx=0;idx<vals.length;idx++){var vid=idx===0?'om-uplink':(idx===1?'om-ad':'om-link'+(idx+1));var el=document.getElementById(vid);if(!el&&typeof window._addCampRow==='function'){window._addCampRow();el=document.getElementById(vid);}if(el)el.value=vals[idx];}};window._addClipRow=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var row=document.createElement('div');row.className='om-clip-row';row.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center;';var inp=document.createElement('input');inp.type='text';inp.placeholder='ลิงก์คลิป...';inp.style.cssText='flex:1;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;';inp.oninput=function(){window._syncClipToVer&&window._syncClipToVer();};var rmBtn=document.createElement('button');rmBtn.type='button';rmBtn.textContent='-';rmBtn.style.cssText='width:28px;height:28px;border:1px solid #f87171;border-radius:6px;background:var(--surface-card);color:#ef4444;font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;';rmBtn.onclick=function(){row.parentNode&&row.parentNode.removeChild(row);window._syncClipToVer&&window._syncClipToVer();};row.appendChild(inp);row.appendChild(rmBtn);cont.appendChild(row);window._syncClipToVer&&window._syncClipToVer();};var addClipBtn=document.createElement('button');addClipBtn.id='om-add-clip-btn';addClipBtn.type='button';addClipBtn.textContent='+ เพิ่มลิงก์ยิงแอด';addClipBtn.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';addClipBtn.onclick=function(){window._addClipRow&&window._addClipRow();};var addClipWrap=document.createElement('div');addClipWrap.id='om-add-clip-wrap';addClipWrap.appendChild(addClipBtn);p1.appendChild(addClipWrap);
     var fixHdrP1=document.createElement('div');fixHdrP1.id='om-p1fix-hdr';fixHdrP1.style.cssText='font-size:13px;font-weight:700;color:#16a34a;margin:14px 0 6px;';fixHdrP1.textContent='✅ รูปงานที่แก้ไขแล้ว';p1.appendChild(fixHdrP1);
@@ -3837,6 +3877,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     ge('om-sheet').value=o?(o.sheetLink||''):'';
     ge('om-review').value=o?(o.reviewLink||''):'';
     ge('om-footage').value=o?(o.footageLink||''):'';
+    syncProductAssetLinks(ge('om-prod').value,true);
     ge('om-fbname').value=o?(o.fbName||''):'';
     ge('om-pagename').value=o?(o.pageName||''):'';
     ge('om-fbuplist').value=o?(o.fbUpList||''):'';
