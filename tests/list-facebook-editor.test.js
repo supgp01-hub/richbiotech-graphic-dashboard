@@ -1,10 +1,16 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
+const editorSource = fs.readFileSync('snippets/list-facebook-editor.js', 'utf8');
+
 global.window = global;
 global.localStorage = { getItem() { return null; }, setItem() {} };
 global.document = { getElementById() { return null; } };
-eval(fs.readFileSync('snippets/list-facebook-editor.js', 'utf8'));
+eval(editorSource);
+
+assert.ok(editorSource.includes("pageSize:80"), 'large Facebook lists must be paginated');
+assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
+assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 
 const csv = [
   'ประเภท,คอลัมน์ B,พนักงาน,สินค้า,คอลัมน์ E,สถานะ,ชื่อบัญชี,Facebook ID,รหัสผ่าน,Email,รหัส Email,2FA,คอลัมน์ M,คอลัมน์ N,ลิมิต/วัน,คอลัมน์ P,อัปเดตล่าสุด,ยอดเงิน,หมายเหตุ',
