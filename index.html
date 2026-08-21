@@ -606,8 +606,22 @@
     #ord-tw .ord-table td,#ord-tw .ord-table td[data-label="ชื่องาน"],#ord-tw .ord-table td[data-label="ACTION"]{grid-column:1!important;}
   }
 </style>
-<link rel="stylesheet" href="snippets/list-facebook-editor.css?v=192">
-<script defer src="snippets/list-facebook-editor.js?v=192"></script>
+<link rel="stylesheet" href="snippets/list-facebook-editor.css?v=193">
+<script>
+(function(){
+  window._lfbEditorBoot='waiting';
+  function loadFacebookEditor(){
+    if(window._lfbEditorTest){window._lfbEditorBoot='ready';return;}
+    var script=document.createElement('script');
+    script.src='snippets/list-facebook-editor.js?v=193';
+    script.onload=function(){window._lfbEditorBoot='ready';};
+    script.onerror=function(){window._lfbEditorBoot='error';};
+    document.head.appendChild(script);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadFacebookEditor);
+  else loadFacebookEditor();
+})();
+</script>
 </head>
 <body>
 
