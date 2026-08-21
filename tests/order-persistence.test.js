@@ -23,4 +23,13 @@ assert.ok(!syncSave.includes('byId[row.id]'), 'visible GR numbers must not selec
 
 assert.ok(html.includes('if(_omIsNew&&idx>=0)'), 'a stale new-order form must not replace an existing visible GR number');
 
+const workflowStart = html.indexOf('function persistOMWorkflow(order)');
+const workflowEnd = html.indexOf('\n  function saveOM2()', workflowStart);
+const workflowSave = html.slice(workflowStart, workflowEnd);
+assert.ok(workflowSave.includes('order.clipLinks='), 'employee clip links must be copied into the order before status changes');
+assert.ok(workflowSave.includes('order.fixImages='), 'employee fix images must be copied into the order before status changes');
+assert.ok(workflowSave.includes('order.errorImages='), 'audit images must be copied into the order before status changes');
+assert.ok((html.match(/persistOMWorkflow\(orders\[idx\]\)/g)||[]).length >= 3, 'review actions must persist modal data before changing status');
+assert.ok(html.includes('persistOMWorkflow(ords[ix]);ords[ix].status=\'review\''), 'resubmission must save its latest attachments');
+
 console.log('order-persistence: all tests passed');
