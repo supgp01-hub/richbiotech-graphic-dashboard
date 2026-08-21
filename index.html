@@ -2904,6 +2904,10 @@ function orderContentRows(){
     else rows=[];
   }
   rows=rows.filter(function(r){return r&&typeof r==='object';});
+  if(Array.isArray(window._rbOrderContentCloudRows)){
+    var byId={};rows.forEach(function(r){if(r.id)byId[r.id]=1;});
+    window._rbOrderContentCloudRows.forEach(function(r){if(r&&(!r.id||!byId[r.id]))rows.push(r);});
+  }
   if(!rows.length&&typeof CT_EMBED!=='undefined'&&Array.isArray(CT_EMBED))rows=CT_EMBED;
   return rows.map(function(r){
     return {
@@ -2918,6 +2922,15 @@ function refreshOrderContentList(brand){
   orderContentRows().forEach(function(r){
     if(r.name&&(!brand||r.brand===brand)&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}
   });
+}
+function refreshOrderContentFromCloud(brand){
+  var url='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com/content_tracker_v2.json';
+  return fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(d){
+    var items=Array.isArray(d)?d:(d&&Array.isArray(d.items)?d.items:[]);
+    window._rbOrderContentCloudRows=items;
+    refreshOrderContentList(brand||'');
+    return items;
+  }).catch(function(e){console.warn('โหลดข้อมูลคอนเทนต์ล่าสุดไม่สำเร็จ',e);return [];});
 }
 function refreshOrderViews(){
   var p=document.querySelector('.gsp[data-sub="order"]');
@@ -3479,7 +3492,8 @@ window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
 window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window._rbRefreshOrderViews=refreshOrderViews;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
-window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;
+window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;window.refreshOrderContentFromCloud=refreshOrderContentFromCloud;
+window.addEventListener('rb:content-updated',function(){var p=document.getElementById('om-prod');refreshOrderContentList(p?p.value:'');});
 })();
 </script><script>
 /* ── Section detector ── */
@@ -3906,6 +3920,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     ge('om-name').value=o?(o.name||o.title||''):'';
     ge('om-prod').value=o?(o.product||''):'';
     refreshOrderContentList(ge('om-prod').value);
+    refreshOrderContentFromCloud(ge('om-prod').value);
     var OT_=typeof OT!=='undefined'?OT:[];
     ge('om-type').value=o?(o.type||''):'';
     ge('om-dl').value=o?o.deadline:'';
@@ -4202,7 +4217,12 @@ var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','I Sure Plus':'','Olymp
 var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
 function ctLoad(){var raw=localStorage.getItem('rb_olympplus_v1');if(raw)return JSON.parse(raw);return typeof CT_EMBED!=='undefined'?CT_EMBED:[]}
-function ctSave(){try{localStorage.setItem(CT_KEY,JSON.stringify(_ctData));}catch(e){}}
+function ctSave(){
+  try{localStorage.setItem(CT_KEY,JSON.stringify(_ctData));}catch(e){}
+  try{window.dispatchEvent(new CustomEvent('rb:content-updated'));}catch(e){}
+  if(typeof window.ctSave==='function'&&window.ctSave!==ctSave)return window.ctSave(_ctData);
+  return Promise.resolve({local:true});
+}
 function ctGenId(){return 'ct_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
 function ctEsc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -5190,11 +5210,11 @@ var applyBase=apply;apply=function(r){if(!r)return;var root=r;if(root.nodeType!=
 var q=false;function schedule(){if(q)return;q=true;requestAnimationFrame(function(){q=false;apply(document)})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){apply(document)});else apply(document);new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});window.rbApplyUnifiedPageIcons=function(){apply(document)};
 })();
 </script>
-<link rel="stylesheet" href="snippets/bulk-import-v2.css?v=181">
-<link rel="stylesheet" href="snippets/bulk-import-v3.css?v=181">
-<link rel="stylesheet" href="snippets/performance-v4.css?v=181">
-<script src="snippets/bulk-import-v2.js?v=181"></script>
-<script src="snippets/bulk-import-v3.js?v=181"></script>
-<script src="snippets/performance-v4.js?v=181"></script>
+<link rel="stylesheet" href="snippets/bulk-import-v2.css?v=187">
+<link rel="stylesheet" href="snippets/bulk-import-v3.css?v=187">
+<link rel="stylesheet" href="snippets/performance-v4.css?v=187">
+<script src="snippets/bulk-import-v2.js?v=187"></script>
+<script src="snippets/bulk-import-v3.js?v=187"></script>
+<script src="snippets/performance-v4.js?v=187"></script>
 </html>
             
