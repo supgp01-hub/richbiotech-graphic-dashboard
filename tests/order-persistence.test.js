@@ -32,4 +32,9 @@ assert.ok(workflowSave.includes('order.errorImages='), 'audit images must be cop
 assert.ok((html.match(/persistOMWorkflow\(orders\[idx\]\)/g)||[]).length >= 3, 'review actions must persist modal data before changing status');
 assert.ok(html.includes('persistOMWorkflow(ords[ix]);ords[ix].status=\'review\''), 'resubmission must save its latest attachments');
 
+assert.ok(html.includes("else if(_cr0==='audit')window._ordViewMode='audit'"), 'Audit users must not be opened in employee/team mode');
+assert.ok(html.includes("var isAuditRole=window._rbUser&&window._rbUser.role==='audit'"), 'the footer must recognize the Audit role explicitly');
+assert.ok(html.includes("_isAuditView&&id?'ตรวจออดิต '"), 'Audit orders must show an unambiguous Audit heading');
+assert.ok(html.includes("} else if(_isAuditView) {"), 'the normal order-save action must stay hidden in Audit mode');
+
 console.log('order-persistence: all tests passed');
