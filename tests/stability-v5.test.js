@@ -10,6 +10,7 @@ assert.ok(index.length < 600000, 'initial dashboard HTML should stay below 600 K
 assert.equal(index.includes(0), false, 'dashboard HTML must not contain null bytes');
 assert.ok(source.includes('function fbFetch(url,opts,timeout)'), 'Firebase requests need a shared timeout wrapper');
 assert.ok(source.includes("if(_fbRefreshActive){_fbRefreshAgain=true;return;}"), 'overlapping Firebase refreshes must be coalesced');
+assert.ok(source.includes("_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว'"), 'a successful fallback request must show the system as online');
 assert.ok(source.includes("document.addEventListener('visibilitychange'"), 'hidden tabs must pause realtime work');
 assert.ok(source.includes('Date.now()-_rbOrderContentCloudAt<120000'), 'large content data should be reused instead of downloaded for every modal');
 assert.ok(source.includes('window.ctCloudInit)window.ctCloudInit()'), 'opening the tracker must start its cloud connection on demand');

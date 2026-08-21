@@ -2950,6 +2950,7 @@ function fbLoadOrders(cb){
   var SYNCED_KEY='rb_orders_synced_v1';
   fbGet('/orders',function(err,data){
     if(!err){
+      fbSetSyncState('online','ออนไลน์',_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว');
       var everSynced=localStorage.getItem(SYNCED_KEY)==='1';
       if(data){
         var arr=fbMergeRemoteSnapshot(data);
@@ -2979,6 +2980,7 @@ function fbRefreshOrders(cb){
   _fbRefreshActive=true;
   fbGet('/orders',function(err,data){
     if(!err){
+      fbSetSyncState('online','ออนไลน์',_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว');
       if(data){
         var arr=fbMergeRemoteSnapshot(data);
         localStorage.setItem(LS_ORD,JSON.stringify(arr));
