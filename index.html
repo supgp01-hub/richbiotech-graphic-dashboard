@@ -2896,7 +2896,15 @@ function orderContentRows(){
     if(typeof ctLoad==='function')rows=ctLoad()||[];
     else rows=JSON.parse(localStorage.getItem('rb_olympplus_v1')||'[]');
   }catch(e){rows=[];}
-  if(!rows.length&&typeof CT_EMBED!=='undefined')rows=CT_EMBED;
+  /* Firebase/local migrations may leave the tracker as an object instead of an
+     array.  Never let that shape mismatch stop the order modal from opening. */
+  if(!Array.isArray(rows)){
+    if(rows&&Array.isArray(rows.items))rows=rows.items;
+    else if(rows&&typeof rows==='object')rows=Object.keys(rows).map(function(k){return rows[k];});
+    else rows=[];
+  }
+  rows=rows.filter(function(r){return r&&typeof r==='object';});
+  if(!rows.length&&typeof CT_EMBED!=='undefined'&&Array.isArray(CT_EMBED))rows=CT_EMBED;
   return rows.map(function(r){
     return {
       id:r.id||'',brand:r.brand||'',script:r.script||'',
@@ -3098,7 +3106,15 @@ function initOrderPanel(){
     renderOrderStats();renderOrders();
   };
   var ab=document.createElement('button');ab.textContent='+ เพิ่มงานใหม่';ab.id='ord-add-btn';ab.style.cssText='background:#1B4332;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;';
-  ab.onclick=function(){window.openOM(null);};
+  ab.onclick=function(){
+    try{
+      if(typeof window.openOM!=='function')throw new Error('ไม่พบฟังก์ชันเปิดหน้าสั่งงาน');
+      window.openOM(null);
+    }catch(err){
+      console.error('เปิดหน้าสั่งงานไม่สำเร็จ',err);
+      alert('เปิดหน้าสั่งงานไม่สำเร็จ กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง');
+    }
+  };
   [si,sts,tys,sortSel,resetBtn,ab].forEach(function(el){fb.appendChild(el);});
   wrap.appendChild(fb);
 
