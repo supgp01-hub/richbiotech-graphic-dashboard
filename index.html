@@ -606,7 +606,7 @@
     #ord-tw .ord-table td,#ord-tw .ord-table td[data-label="ชื่องาน"],#ord-tw .ord-table td[data-label="ACTION"]{grid-column:1!important;}
   }
 </style>
-<link rel="stylesheet" href="snippets/list-facebook-editor.css?v=193">
+<link rel="stylesheet" href="snippets/list-facebook-editor.css?v=195">
 <script>
 (function(){
   window._lfbEditorBoot='waiting';
@@ -619,7 +619,7 @@
   function loadFacebookEditor(){
     if(window._lfbEditorTest){window._lfbEditorBoot='ready';document.documentElement.setAttribute('data-lfb-boot','ready');return;}
     var script=document.createElement('script');
-    script.src='snippets/list-facebook-editor.js?v=194';
+    script.src='snippets/list-facebook-editor.js?v=195';
     script.onload=function(){window._lfbEditorBoot=window._lfbEditorTest?'ready':'loaded-without-editor';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);};
     script.onerror=function(){window._lfbEditorBoot='load-error';document.documentElement.setAttribute('data-lfb-boot','load-error');};
     document.head.appendChild(script);
@@ -2857,8 +2857,24 @@ function fbMergePendingOrders(rows){
   fbOrderQueueLoad().forEach(function(op){var key=op.path.split('/').pop();if(op.method==='DELETE'){delete map[key];return;}if(!map[key]){map[key]={_fbKey:key};order.push(key);}Object.keys(op.data||{}).forEach(function(k){map[key][k]=op.data[k];});});
   return order.filter(function(key,i){return order.indexOf(key)===i&&map[key]&&map[key].id;}).map(function(key){return map[key];});
 }
+function fbRememberOrders(rows){
+  try{var json=JSON.stringify(Array.isArray(rows)?rows:[]);if(json.length&&json.length<3500000)localStorage.setItem('rb_orders_last_good_v1',json);}catch(e){}
+}
+function fbMergeRemoteSnapshot(data){
+  var remote=fbOrdersFromData(data),local=lpORD(),localByKey={},localById={};
+  local.forEach(function(row){if(!row||!row.id)return;if(row._fbKey)localByKey[row._fbKey]=row;localById[row.id]=row;});
+  if(!remote.length&&local.length)return fbMergePendingOrders(local);
+  var merged=remote.map(function(row){
+    var old=localByKey[row._fbKey]||localById[row.id],out={};
+    if(old)Object.keys(old).forEach(function(k){out[k]=old[k];});
+    Object.keys(row).forEach(function(k){out[k]=row[k];});
+    return out;
+  });
+  return fbMergePendingOrders(merged);
+}
 function fbApplyRemoteOrders(data){
-  var remote=fbMergePendingOrders(fbOrdersFromData(data));
+  var before=lpORD(),remote=fbMergeRemoteSnapshot(data);
+  if(before.length)fbRememberOrders(before);
   localStorage.setItem(LS_ORD,JSON.stringify(remote));
   refreshOrderViews();
 }
@@ -2890,7 +2906,7 @@ function fbHandleStreamEvent(e){
     // Firebase sends named `put`/`patch` events. A root put contains the
     // complete order list; nested puts and patches are refreshed once from
     // the server so every tab sees the same result.
-    if(ev&&ev.path==='/'&&('data' in ev))fbApplyRemoteOrders(ev.data);
+    if(e.type==='put'&&ev&&ev.path==='/'&&('data' in ev))fbApplyRemoteOrders(ev.data);
     else fbScheduleStreamRefresh();
   }catch(ex){fbScheduleStreamRefresh();}
 }
@@ -2926,7 +2942,7 @@ function fbLoadOrders(cb){
     if(!err){
       var everSynced=localStorage.getItem(SYNCED_KEY)==='1';
       if(data){
-        var arr=fbMergePendingOrders(fbOrdersFromData(data));
+        var arr=fbMergeRemoteSnapshot(data);
         if(arr.length>0){
           localStorage.setItem(LS_ORD,JSON.stringify(arr));
         } else if(!everSynced){
@@ -2939,7 +2955,7 @@ function fbLoadOrders(cb){
         var local=lpORD();
         if(local.length>0){fbSet('/orders',local);}
       } else {
-        localStorage.setItem(LS_ORD,'[]');
+        fbSetSyncState('waiting','ใช้ข้อมูลในเครื่อง','ไม่พบข้อมูลออนไลน์ จึงไม่ล้างข้อมูลในเครื่อง');
       }
       localStorage.setItem(SYNCED_KEY,'1');
     }
@@ -2951,10 +2967,10 @@ function fbRefreshOrders(cb){
   fbGet('/orders',function(err,data){
     if(!err){
       if(data){
-        var arr=fbMergePendingOrders(fbOrdersFromData(data));
+        var arr=fbMergeRemoteSnapshot(data);
         localStorage.setItem(LS_ORD,JSON.stringify(arr));
       }else if(localStorage.getItem(SYNCED_KEY)==='1'){
-        localStorage.setItem(LS_ORD,'[]');
+        fbSetSyncState('waiting','ใช้ข้อมูลในเครื่อง','ไม่พบข้อมูลออนไลน์ จึงไม่ล้างข้อมูลในเครื่อง');
       }
       localStorage.setItem(SYNCED_KEY,'1');
       refreshOrderViews();
@@ -3036,6 +3052,7 @@ function refreshOrderViews(){
 }
 function spORD(d){
   var before=lpORD(),after=Array.isArray(d)?d:[],byId={},byKey={},active={};
+  if(before.length)fbRememberOrders(before);
   before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=String(idx);byId[row.id]=row;byKey[row._fbKey]=row;});
   after.forEach(function(row){
     if(!row||!row.id)return;

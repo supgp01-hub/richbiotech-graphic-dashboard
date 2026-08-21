@@ -31,9 +31,16 @@ window._lfbSaveEditor=function(){var overlay=document.getElementById('lfb-editor
 window._listfbFetch=function(){var button=document.getElementById('lfb2-upd'),ts=document.getElementById('lfb2-ts');if(button){button.disabled=true;button.textContent='กำลังโหลด...';}Promise.all([fetch(CSV_URL).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}),cloudGet('/listfacebook_edits'),cloudGet('/listfacebook_manual')]).then(function(res){baseRows=parseCsv(res[0]);if(res[1]&&typeof res[1]==='object')edits=res[1];if(res[2])manualRows=objectValues(res[2]);saveLocal();refreshData();if(ts)ts.textContent='อัปเดต: '+new Date().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'});}).catch(function(){baseRows=load(LS_BASE,baseRows);edits=load(LS_EDITS,edits);manualRows=load(LS_MANUAL,manualRows);refreshData();if(ts)ts.textContent='ใช้ข้อมูลล่าสุดที่บันทึกไว้';}).finally(function(){if(button){button.disabled=false;button.textContent='↻ อัปเดตข้อมูลล่าสุด';}});};
 window._parseFbCsv=parseCsv;
 window._lfbEditorTest={parseCsv:parseCsv,rowKey:rowKey,applyStored:applyStored};
-var existingRoot=document.getElementById('lfb-root');
-if(existingRoot&&existingRoot.children.length){
+function activateEditor(){
+  var root=document.getElementById('lfb-root');
+  if(!root)return false;
+  if(root.querySelector('#lfb-add'))return true;
   window._lfbDone=true;
   window._lfbInit();
+  return true;
 }
+activateEditor();
+setTimeout(activateEditor,100);
+setTimeout(activateEditor,500);
+setTimeout(activateEditor,1500);
 })();
