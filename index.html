@@ -546,6 +546,7 @@
   .stats-grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))!important;gap:10px!important;}
   .stats-grid-3col{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;}
   #rb-theme-fab{top:8px!important;right:8px!important;padding:3px 6px!important;}
+  #rb-sync-chip{top:9px!important;right:104px!important;padding:5px 8px!important;font-size:10px!important;}
   #rb-notif-panel{width:min(320px,calc(100vw - 20px))!important;right:-6px!important;}
   #sb-user-card{bottom:74px!important;}
   #rb-tl-btn{bottom:74px!important;}
@@ -2800,18 +2801,62 @@ if(localStorage.getItem("rb_tab")==="team")setTimeout(function(){renameGraphicBt
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
 // ===== FIREBASE REALTIME SYNC =====
 var FB_DB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
-var _fbSse=null,_fbFallbackTimer=null,_fbStreamRefreshTimer=null; // live updates + fallback
+var _fbSse=null,_fbFallbackTimer=null,_fbStreamRefreshTimer=null,_fbSyncUiTimer=null; // live updates + fallback
+var FB_ORDER_QUEUE='rb_order_write_queue_v1',_fbOrderFlushActive=false;
+function fbEnsureSyncChip(){
+  var el=document.getElementById('rb-sync-chip');
+  if(el||!document.body)return el;
+  el=document.createElement('div');el.id='rb-sync-chip';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
+  el.style.cssText='position:fixed;top:18px;right:132px;z-index:901;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:all .2s;white-space:nowrap;';
+  document.body.appendChild(el);return el;
+}
+function fbSetSyncState(state,text,title){
+  var el=fbEnsureSyncChip();if(!el)return;
+  var map={online:['#D1FAE5','#065F46','#22C55E'],saving:['#DBEAFE','#1D4ED8','#3B82F6'],saved:['#D1FAE5','#065F46','#22C55E'],waiting:['#FEF3C7','#92400E','#F59E0B'],error:['#FEE2E2','#991B1B','#EF4444'],connecting:['#F3F4F6','#4B5563','#9CA3AF']};
+  var c=map[state]||map.connecting;el.style.background=c[0];el.style.color=c[1];el.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:'+c[2]+';display:inline-block"></span><span>'+text+'</span>';el.title=title||text;el.setAttribute('data-state',state);
+  clearTimeout(_fbSyncUiTimer);
+  if(state==='saved')_fbSyncUiTimer=setTimeout(function(){fbSetSyncState('online','ออนไลน์','เชื่อมต่อข้อมูลเรียลไทม์แล้ว');},1800);
+}
 window.fbGet=function fbGet(path,cb){
   fetch(FB_DB+path+'.json').then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e,null);});
 }
 window.fbSet=function fbSet(path,data){
-  fetch(FB_DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(e){console.warn('FB write err',e);});
+  fbSetSyncState('saving','กำลังบันทึก...');
+  return fetch(FB_DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);fbSetSyncState('saved','บันทึกแล้ว');return true;}).catch(function(e){fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'บันทึกไม่สำเร็จ',e.message||'บันทึกไม่สำเร็จ');console.warn('FB write err',e);return false;});
+}
+function fbOrdersFromData(data){
+  if(!data||data==='null')return[];
+  var keys=Object.keys(data),out=[];
+  keys.forEach(function(key){var src=data[key];if(!src||typeof src!=='object'||!src.id)return;var row={};Object.keys(src).forEach(function(k){if(k!=='_fbKey')row[k]=src[k];});row._fbKey=key;out.push(row);});
+  return out;
+}
+function fbMergePendingOrders(rows){
+  var map={},order=[];(rows||[]).forEach(function(row){if(!row||!row._fbKey)return;map[row._fbKey]=row;order.push(row._fbKey);});
+  fbOrderQueueLoad().forEach(function(op){var key=op.path.split('/').pop();if(op.method==='DELETE'){delete map[key];return;}if(!map[key]){map[key]={_fbKey:key};order.push(key);}Object.keys(op.data||{}).forEach(function(k){map[key][k]=op.data[k];});});
+  return order.filter(function(key,i){return order.indexOf(key)===i&&map[key]&&map[key].id;}).map(function(key){return map[key];});
 }
 function fbApplyRemoteOrders(data){
-  var remote=(data&&data!=='null')?(Array.isArray(data)?data:Object.values(data)):[];
-  remote=remote.filter(function(x){return x&&x.id;});
+  var remote=fbMergePendingOrders(fbOrdersFromData(data));
   localStorage.setItem(LS_ORD,JSON.stringify(remote));
   refreshOrderViews();
+}
+function fbOrderQueueLoad(){try{var q=JSON.parse(localStorage.getItem(FB_ORDER_QUEUE)||'[]');return Array.isArray(q)?q:[];}catch(e){return[];}}
+function fbOrderQueueSave(q){try{localStorage.setItem(FB_ORDER_QUEUE,JSON.stringify(q));}catch(e){}}
+function fbQueueOrderOp(method,key,data){
+  if(!key)return;
+  var q=fbOrderQueueLoad(),path='/orders/'+key,found=-1;
+  for(var i=0;i<q.length;i++)if(q[i].path===path){found=i;break;}
+  var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,ts:Date.now()};
+  if(found>=0){var old=q[found];if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;}else q[found]=op;}else q.push(op);
+  fbOrderQueueSave(q);fbFlushOrderQueue();
+}
+function fbFlushOrderQueue(){
+  if(_fbOrderFlushActive)return;
+  var q=fbOrderQueueLoad();if(!q.length){fbSetSyncState(_fbSse&&_fbSse.readyState===1?'online':'saved',_fbSse&&_fbSse.readyState===1?'ออนไลน์':'บันทึกแล้ว');return;}
+  if(typeof navigator!=='undefined'&&navigator.onLine===false){fbSetSyncState('waiting','รออินเทอร์เน็ต','มี '+q.length+' รายการรอซิงค์');return;}
+  var op=q[0],opts={method:op.method,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
+  _fbOrderFlushActive=true;fbSetSyncState('saving','กำลังบันทึก...','เหลือ '+q.length+' รายการ');
+  fetch(FB_DB+op.path+'.json',opts).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);var next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});fbOrderQueueSave(next);_fbOrderFlushActive=false;fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue();}).catch(function(e){_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');setTimeout(fbFlushOrderQueue,5000);});
 }
 function fbScheduleStreamRefresh(){
   clearTimeout(_fbStreamRefreshTimer);
@@ -2829,17 +2874,21 @@ function fbHandleStreamEvent(e){
 }
 function fbStartFallback(){
   if(_fbFallbackTimer)return;
+  fbSetSyncState(typeof navigator!=='undefined'&&navigator.onLine===false?'waiting':'connecting',typeof navigator!=='undefined'&&navigator.onLine===false?'รออินเทอร์เน็ต':'กำลังเชื่อมต่อ...');
   fbRefreshOrders();
-  _fbFallbackTimer=setInterval(function(){fbRefreshOrders();},15000);
+  fbFlushOrderQueue();
+  _fbFallbackTimer=setInterval(function(){fbRefreshOrders();fbFlushOrderQueue();},15000);
 }
 function fbStopFallback(){
   if(_fbFallbackTimer){clearInterval(_fbFallbackTimer);_fbFallbackTimer=null;}
+  fbSetSyncState('online','ออนไลน์','เชื่อมต่อข้อมูลเรียลไทม์แล้ว');fbFlushOrderQueue();
 }
 function fbSyncStart(){
   // Firebase Realtime Database uses named SSE events: put and patch.
   if(typeof EventSource==='undefined'){fbStartFallback();return;}
   if(_fbSse&&_fbSse.readyState!==2)return;
   if(_fbSse)_fbSse.close();
+  fbSetSyncState('connecting','กำลังเชื่อมต่อ...');
   _fbSse=new EventSource(FB_DB+'/orders.json?accept=text%2Fevent-stream');
   _fbSse.addEventListener('put',fbHandleStreamEvent);
   _fbSse.addEventListener('patch',fbHandleStreamEvent);
@@ -2855,8 +2904,7 @@ function fbLoadOrders(cb){
     if(!err){
       var everSynced=localStorage.getItem(SYNCED_KEY)==='1';
       if(data){
-        var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);
-        arr=arr.filter(function(x){return x&&x.id;});
+        var arr=fbMergePendingOrders(fbOrdersFromData(data));
         if(arr.length>0){
           localStorage.setItem(LS_ORD,JSON.stringify(arr));
         } else if(!everSynced){
@@ -2881,8 +2929,8 @@ function fbRefreshOrders(cb){
   fbGet('/orders',function(err,data){
     if(!err){
       if(data){
-        var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);
-        localStorage.setItem(LS_ORD,JSON.stringify(arr.filter(function(x){return x&&x.id;})));
+        var arr=fbMergePendingOrders(fbOrdersFromData(data));
+        localStorage.setItem(LS_ORD,JSON.stringify(arr));
       }else if(localStorage.getItem(SYNCED_KEY)==='1'){
         localStorage.setItem(LS_ORD,'[]');
       }
@@ -2892,6 +2940,8 @@ function fbRefreshOrders(cb){
     if(cb)cb(err||null);
   });
 }
+window.addEventListener('online',function(){fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbFlushOrderQueue();fbRefreshOrders();fbSyncStart();});
+window.addEventListener('offline',function(){fbSetSyncState('waiting','รออินเทอร์เน็ต','การแก้ไขจะเก็บไว้และซิงค์เมื่อออนไลน์');});
 // ===== END FIREBASE SYNC =====
 var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL"];window.MB_GR=MB_GR;
 var MB_ALL=["วิว","มอส","ดอม","เตอร์","นุ่น","แจ๋ม","บอล","นุ้ย","มายด์"];
@@ -2962,7 +3012,27 @@ function refreshOrderViews(){
   window._rbRenderHomeStats&&window._rbRenderHomeStats();
   window._rbRenderMyWork&&window._rbRenderMyWork();
 }
-function spORD(d){localStorage.setItem(LS_ORD,JSON.stringify(d));window._fbOrdSuppressUntil=Date.now()+5000;refreshOrderViews();fbSet('/orders',d);}
+function spORD(d){
+  var before=lpORD(),after=Array.isArray(d)?d:[],byId={},byKey={},active={};
+  before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=String(idx);byId[row.id]=row;byKey[row._fbKey]=row;});
+  after.forEach(function(row){
+    if(!row||!row.id)return;
+    var old=row._fbKey?byKey[row._fbKey]:byId[row.id];
+    if(!row._fbKey)row._fbKey=(old&&old._fbKey)||('ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
+    active[row._fbKey]=1;
+  });
+  localStorage.setItem(LS_ORD,JSON.stringify(after));refreshOrderViews();
+  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey])fbQueueOrderOp('DELETE',old._fbKey,null);});
+  after.forEach(function(row){
+    if(!row||!row.id)return;
+    var old=byKey[row._fbKey]||byId[row.id],clean={},changes={};
+    Object.keys(row).forEach(function(k){if(k!=='_fbKey')clean[k]=row[k];});
+    if(!old){fbQueueOrderOp('PUT',row._fbKey,clean);return;}
+    var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
+    Object.keys(allKeys).forEach(function(k){var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
+    if(Object.keys(changes).length)fbQueueOrderOp('PATCH',row._fbKey,changes);
+  });
+}
 function lpTL(){try{return JSON.parse(localStorage.getItem(LS_TL)||'[]');}catch(e){return[];}}
 function spTL(d){localStorage.setItem(LS_TL,JSON.stringify(d));}
 
