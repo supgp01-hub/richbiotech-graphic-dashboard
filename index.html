@@ -495,7 +495,6 @@
 
 #sidebar{transition:width .25s;}
 #sidebar.sb-collapsed{width:64px!important;min-width:64px!important;overflow:hidden;}
-body:has(#sidebar.sb-collapsed) #rb-sync-chip{left:calc(50% + 32px)!important;}
 #sidebar.sb-collapsed .sb-section-label{display:none!important;}
 #sidebar.sb-collapsed .sb-logo > div:not(.sb-logo-icon){display:none!important;}
 #sidebar.sb-collapsed button span:not(.sb-icon){display:none!important;}
@@ -547,7 +546,7 @@ body:has(#sidebar.sb-collapsed) #rb-sync-chip{left:calc(50% + 32px)!important;}
   .stats-grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))!important;gap:10px!important;}
   .stats-grid-3col{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;}
   #rb-theme-fab{top:8px!important;right:8px!important;padding:3px 6px!important;}
-  #rb-sync-chip{top:9px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;padding:5px 8px!important;font-size:10px!important;}
+  #rb-sync-chip{top:9px!important;right:104px!important;left:auto!important;transform:none!important;padding:5px 8px!important;font-size:10px!important;}
   #rb-notif-panel{width:min(320px,calc(100vw - 20px))!important;right:-6px!important;}
   #sb-user-card{bottom:74px!important;}
   #rb-tl-btn{bottom:74px!important;}
@@ -2808,7 +2807,7 @@ function fbEnsureSyncChip(){
   var el=document.getElementById('rb-sync-chip');
   if(el||!document.body)return el;
   el=document.createElement('div');el.id='rb-sync-chip';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
-  el.style.cssText='position:fixed;top:18px;left:calc(50% + 110px);right:auto;transform:translateX(-50%);z-index:901;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:all .2s;white-space:nowrap;';
+  el.style.cssText='position:fixed;top:18px;right:132px;left:auto;transform:none;z-index:901;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:all .2s;white-space:nowrap;';
   document.body.appendChild(el);return el;
 }
 function fbSetSyncState(state,text,title){
