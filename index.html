@@ -4832,7 +4832,7 @@ window._rbRenderMyWork = function(){
     var doneAll = myOrders.filter(function(o){ return o.status==='done'; });
     var leaveDays = countLeaveInCycle(emp.id);
     var workDays = Math.max(0, totalCycleDays - leaveDays);
-    html += '<div class="mywork-card">'
+    html += '<div class="mywork-card mywork-emp-'+emp.id+'">'
       + '<div class="mywork-head">'+emp.name+' <span class="mywork-pos">'+emp.pos+'</span></div>'
       + '<div class="mywork-stats">'+   '<div class="mywork-stat mywork-stat-days"><span class="mywork-stat-ic">📅</span><div class="mywork-stat-v">'+workDays+'/'+totalCycleDays+'</div><div class="mywork-stat-l">วันทำงาน (รอบปัจจุบัน)</div></div>'
       +   '<div class="mywork-stat mywork-stat-done"><span class="mywork-stat-ic">✅</span><div class="mywork-stat-v">'+doneAll.length+'</div><div class="mywork-stat-l">งานเสร็จสมบูรณ์ทั้งหมด</div></div>'
@@ -5227,7 +5227,19 @@ button>.rb-leading-icon{width:17px;height:17px}
 .stat-card.accent.rb-stat-v5 .rb-stat-content .label{color:var(--mint)!important}
 .stat-card.accent.rb-stat-v5 .rb-stat-content .value{color:#fff!important}
 .stat-card.accent.rb-stat-v5 .rb-stat-content .sub{color:#95D5B2!important}
-.mywork-card{border-radius:15px!important;border-width:1px!important;padding:18px 20px!important;box-shadow:0 5px 18px rgba(27,67,50,.07)!important}
+.mywork-card{--mywork-accent:#00a889;position:relative!important;overflow:visible!important;border-radius:15px!important;border-width:1px!important;padding:18px 20px!important;box-shadow:0 5px 18px rgba(27,67,50,.07)!important}
+.mywork-card::before{content:"";position:absolute;top:12px;bottom:12px;left:-9px;width:7px;border-radius:7px 0 0 7px;background:var(--mywork-accent);box-shadow:0 2px 6px color-mix(in srgb,var(--mywork-accent) 25%,transparent)}
+.mywork-card.mywork-emp-wiw{--mywork-accent:#174f3b}
+.mywork-card.mywork-emp-mos{--mywork-accent:#66875d}
+.mywork-card.mywork-emp-ter{--mywork-accent:#00a889}
+.mywork-card.mywork-emp-nun{--mywork-accent:#2f7d59}
+.mywork-card.mywork-emp-jam{--mywork-accent:#7b8d42}
+.mywork-card.mywork-emp-dom{--mywork-accent:#24584a}
+.mywork-card.mywork-emp-bol{--mywork-accent:#3c8c6b}
+.mywork-card.mywork-emp-nui{--mywork-accent:#4c7662}
+.mywork-card.mywork-emp-mnd{--mywork-accent:#2b6f61}
+.mywork-head{margin:-18px -20px 14px!important;padding:12px 20px!important;min-height:45px!important;border-radius:14px 14px 0 0!important;background:linear-gradient(90deg,#174f3b,#2f7d59)!important;color:#fff!important}
+.mywork-head .mywork-pos{background:rgba(255,255,255,.16)!important;color:#f4fff8!important}
 .mywork-stats{gap:14px!important}
 .mywork-stat{min-height:62px!important;border-left:none!important;border-radius:10px!important;padding:10px 14px 10px 54px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
 .mywork-stat .mywork-stat-ic{left:14px!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;width:34px!important;height:34px!important;padding:7px!important;background:rgba(255,255,255,.58)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 20%,transparent)!important}
