@@ -3112,7 +3112,7 @@ function initOrderPanel(){
       window.openOM(null);
     }catch(err){
       console.error('เปิดหน้าสั่งงานไม่สำเร็จ',err);
-      alert('เปิดหน้าสั่งงานไม่สำเร็จ กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง');
+      alert('เปิดหน้าสั่งงานไม่สำเร็จ: '+(err&&err.message?err.message:'ไม่ทราบสาเหตุ'));
     }
   };
   [si,sts,tys,sortSel,resetBtn,ab].forEach(function(el){fb.appendChild(el);});
@@ -3479,6 +3479,7 @@ window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
 window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window._rbRefreshOrderViews=refreshOrderViews;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
+window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;
 })();
 </script><script>
 /* ── Section detector ── */
