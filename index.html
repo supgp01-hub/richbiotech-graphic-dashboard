@@ -2800,30 +2800,54 @@ if(localStorage.getItem("rb_tab")==="team")setTimeout(function(){renameGraphicBt
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
 // ===== FIREBASE REALTIME SYNC =====
 var FB_DB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
-var _fbSse=null; // SSE connection for live updates
+var _fbSse=null,_fbFallbackTimer=null,_fbStreamRefreshTimer=null; // live updates + fallback
 window.fbGet=function fbGet(path,cb){
   fetch(FB_DB+path+'.json').then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e,null);});
 }
 window.fbSet=function fbSet(path,data){
   fetch(FB_DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(e){console.warn('FB write err',e);});
 }
+function fbApplyRemoteOrders(data){
+  var remote=(data&&data!=='null')?(Array.isArray(data)?data:Object.values(data)):[];
+  remote=remote.filter(function(x){return x&&x.id;});
+  localStorage.setItem(LS_ORD,JSON.stringify(remote));
+  refreshOrderViews();
+}
+function fbScheduleStreamRefresh(){
+  clearTimeout(_fbStreamRefreshTimer);
+  _fbStreamRefreshTimer=setTimeout(function(){fbRefreshOrders();},120);
+}
+function fbHandleStreamEvent(e){
+  try{
+    var ev=JSON.parse(e.data||'{}');
+    // Firebase sends named `put`/`patch` events. A root put contains the
+    // complete order list; nested puts and patches are refreshed once from
+    // the server so every tab sees the same result.
+    if(ev&&ev.path==='/'&&('data' in ev))fbApplyRemoteOrders(ev.data);
+    else fbScheduleStreamRefresh();
+  }catch(ex){fbScheduleStreamRefresh();}
+}
+function fbStartFallback(){
+  if(_fbFallbackTimer)return;
+  fbRefreshOrders();
+  _fbFallbackTimer=setInterval(function(){fbRefreshOrders();},15000);
+}
+function fbStopFallback(){
+  if(_fbFallbackTimer){clearInterval(_fbFallbackTimer);_fbFallbackTimer=null;}
+}
 function fbSyncStart(){
-  // SSE for live order updates
-  if(typeof EventSource==='undefined')return;
-  if(_fbSse){_fbSse.close();}
+  // Firebase Realtime Database uses named SSE events: put and patch.
+  if(typeof EventSource==='undefined'){fbStartFallback();return;}
+  if(_fbSse&&_fbSse.readyState!==2)return;
+  if(_fbSse)_fbSse.close();
   _fbSse=new EventSource(FB_DB+'/orders.json?accept=text%2Fevent-stream');
-  _fbSse.onmessage=function(e){
-    try{
-      if(window._fbOrdSuppressUntil&&Date.now()<window._fbOrdSuppressUntil)return;
-      var ev=JSON.parse(e.data);
-      if(ev&&('data' in ev)){
-        var remote=(ev.data&&ev.data!=='null')?(Array.isArray(ev.data)?ev.data:Object.values(ev.data)):[];
-        localStorage.setItem(LS_ORD,JSON.stringify(remote));
-        refreshOrderViews();
-      }
-    }catch(ex){}
-  };
-  _fbSse.onerror=function(){_fbSse.close();_fbSse=null;};
+  _fbSse.addEventListener('put',fbHandleStreamEvent);
+  _fbSse.addEventListener('patch',fbHandleStreamEvent);
+  // Keep message support for compatible proxies without relying on it.
+  _fbSse.onmessage=fbHandleStreamEvent;
+  _fbSse.onopen=fbStopFallback;
+  // EventSource reconnects automatically. Poll only while it is reconnecting.
+  _fbSse.onerror=fbStartFallback;
 }
 function fbLoadOrders(cb){
   var SYNCED_KEY='rb_orders_synced_v1';
