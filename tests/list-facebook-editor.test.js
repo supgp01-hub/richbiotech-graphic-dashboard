@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const editorSource = fs.readFileSync('snippets/list-facebook-editor.js', 'utf8');
+const indexSource = fs.readFileSync('index.html', 'utf8');
 
 global.window = global;
 global.localStorage = { getItem() { return null; }, setItem() {} };
@@ -10,6 +11,8 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:80"), 'large Facebook lists must be paginated');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=201"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('filtered.slice(0,80).forEach'), 'the legacy fallback must not render the full Facebook list');
 assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 
 const csv = [
