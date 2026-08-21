@@ -610,12 +610,18 @@
 <script>
 (function(){
   window._lfbEditorBoot='waiting';
+  document.documentElement.setAttribute('data-lfb-boot','waiting');
+  window.addEventListener('error',function(event){
+    if(String(event.filename||'').indexOf('list-facebook-editor')===-1)return;
+    document.documentElement.setAttribute('data-lfb-boot','runtime-error');
+    document.documentElement.setAttribute('data-lfb-error',String(event.message||'unknown error'));
+  });
   function loadFacebookEditor(){
-    if(window._lfbEditorTest){window._lfbEditorBoot='ready';return;}
+    if(window._lfbEditorTest){window._lfbEditorBoot='ready';document.documentElement.setAttribute('data-lfb-boot','ready');return;}
     var script=document.createElement('script');
-    script.src='snippets/list-facebook-editor.js?v=193';
-    script.onload=function(){window._lfbEditorBoot='ready';};
-    script.onerror=function(){window._lfbEditorBoot='error';};
+    script.src='snippets/list-facebook-editor.js?v=194';
+    script.onload=function(){window._lfbEditorBoot=window._lfbEditorTest?'ready':'loaded-without-editor';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);};
+    script.onerror=function(){window._lfbEditorBoot='load-error';document.documentElement.setAttribute('data-lfb-boot','load-error');};
     document.head.appendChild(script);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadFacebookEditor);
