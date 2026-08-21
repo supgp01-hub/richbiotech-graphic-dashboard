@@ -3,6 +3,7 @@ const fs = require('node:fs');
 
 global.window = global;
 global.localStorage = { getItem() { return null; }, setItem() {} };
+global.document = { getElementById() { return null; } };
 eval(fs.readFileSync('snippets/list-facebook-editor.js', 'utf8'));
 
 const csv = [
