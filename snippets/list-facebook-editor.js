@@ -39,8 +39,13 @@ function activateEditor(){
   window._lfbInit();
   return true;
 }
+window._lfbEditorActivate=activateEditor;
 activateEditor();
 setTimeout(activateEditor,100);
 setTimeout(activateEditor,500);
 setTimeout(activateEditor,1500);
+if(typeof MutationObserver!=='undefined'){
+  var editorObserver=new MutationObserver(function(){activateEditor();});
+  editorObserver.observe(document.documentElement,{childList:true,subtree:true});
+}
 })();
