@@ -1,0 +1,13 @@
+const fs=require('fs');const assert=require('assert');
+const js=fs.readFileSync('snippets/unified-graphic-headers-v1.js','utf8');
+const css=fs.readFileSync('snippets/unified-graphic-headers-v1.css','utf8');
+const index=fs.readFileSync('index.html','utf8');
+['order','links','commission','audit','fblist','idcard'].forEach(k=>assert.ok(js.includes(k+':{'),`missing ${k} header config`));
+assert.ok(js.includes("key==='listfb'"),'List Facebook must be explicitly excluded');
+assert.ok(css.includes('[data-sub="listfb"] .rb-unified-section-banner{display:none!important}'),'CSS must also protect List Facebook');
+assert.ok(js.includes('live.click()'),'header actions must delegate to the existing functional controls');
+['localStorage','fbSet(','fetch(','removeItem(','innerHTML=\'\''].forEach(s=>assert.ok(!js.includes(s),`presentation module must not mutate app data: ${s}`));
+assert.ok(index.includes('snippets/unified-graphic-headers-v1.css?v=229'));
+assert.ok(index.includes('snippets/unified-graphic-headers-v1.js?v=229'));
+assert.ok(index.includes('<meta name="rb-build" content="fix229">'));
+console.log('unified-graphic-headers-v1: all tests passed');
