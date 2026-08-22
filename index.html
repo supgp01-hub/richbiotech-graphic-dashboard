@@ -620,7 +620,7 @@
   function loadFacebookEditor(){
     if(window._lfbEditorTest){window._lfbEditorBoot='ready';document.documentElement.setAttribute('data-lfb-boot','ready');return;}
     var script=document.createElement('script');
-    script.src='snippets/list-facebook-editor.js?v=204';
+    script.src='snippets/list-facebook-editor.js?v=208';
     script.onload=function(){window._lfbEditorBoot=window._lfbEditorTest?'ready':'loaded-without-editor';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);};
     script.onerror=function(){window._lfbEditorBoot='load-error';document.documentElement.setAttribute('data-lfb-boot','load-error');};
     document.head.appendChild(script);
@@ -3310,8 +3310,9 @@ function initOrderPanel(){
 
   var tw=document.createElement('div');tw.id='ord-tw';tw.style.cssText='background:var(--surface-card);border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;';wrap.appendChild(tw);
   panel.appendChild(wrap);
-  // Load from Firebase first, then render
-  fbLoadOrders(function(){renderOrderStats();renderOrders();fbSyncStart();});
+  // Show the page immediately. Network synchronization must never block the click.
+  renderOrderStats();renderOrders();
+  setTimeout(function(){fbLoadOrders(function(){renderOrderStats();renderOrders();setTimeout(fbSyncStart,0);});},0);
 }
 
 window._rbInitOP=initOrderPanel;
@@ -5464,4 +5465,6 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/bulk-import-v3.js?v=203"></script>
 <script src="snippets/performance-v4.js?v=207"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
+<link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=208">
+<script src="snippets/manual-refresh-v1.js?v=208"></script>
 </html>
