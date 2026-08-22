@@ -4,7 +4,7 @@ const vm=require('vm');
 const source=fs.readFileSync('snippets/order-leave-guard-v1.js','utf8');
 const index=fs.readFileSync('index.html','utf8');
 const data={
-  '2026-8-22':[{empId:'nun',type:'hol'}],
+  '2026-8-22':[{empId:'nun',type:'hol'},{empId:'ter',type:'hol'}],
   '2026-8-25':[{empId:'mos',type:'vac'}],
   '2026-8-26':[{empId:'dom',type:'sick'}]
 };
@@ -25,6 +25,10 @@ assert.strictEqual(result.block,true,'saving must pause when the deadline is an 
 assert.strictEqual(result.offDeadline,true,'deadline conflict must be identified');
 result=api.validate({assignee:'TER',deadline:'2026-08-25',now:new Date(2026,7,22,9),data,enforce:true});
 assert.strictEqual(result.block,false,'working deadlines must remain assignable');
+result=api.validate({assignee:'TER',deadline:'2026-08-23',now:new Date(2026,7,22,9),data,enforce:true});
+assert.strictEqual(result.block,false,'Ter may receive an order due on August 23 even when leave is on August 22');
+result=api.validate({assignee:'TER',deadline:'2026-08-22',now:new Date(2026,7,22,9),data,enforce:true});
+assert.strictEqual(result.block,true,'Ter must only be blocked when the deadline itself is August 22');
 result=api.validate({assignee:'DOM',deadline:'2026-08-26',now:new Date(2026,7,22,9),data,enforce:false});
 assert.strictEqual(result.block,false,'an unchanged existing assignment must remain editable');
 assert.strictEqual(result.conflicts.length,1,'existing assignments must still display their deadline warning');
@@ -43,6 +47,6 @@ assert.strictEqual(dom['om-dl'].style.borderColor,'','the deadline highlight mus
 assert.ok(index.includes("rbValidateOrderLeaveAssignment({assignee:guardAssignee"),'order save must validate the deadline before persistence');
 assert.ok(index.includes("var guardDate=ge('om-dl')"),'a conflict must return focus to the deadline field, not the employee dropdown');
 assert.ok(index.includes("id='om-leave-guard'")||index.includes("leaveGuard.id='om-leave-guard'"),'order modal must display the live deadline status');
-assert.ok(index.includes('order-leave-guard-v1.js?v=228')&&index.includes('order-leave-guard-v1.css?v=228'),'deployed page must load the cache-busted deadline guard assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix229">'),'deployed page must expose build fix229');
+assert.ok(index.includes('order-leave-guard-v1.js?v=230')&&index.includes('order-leave-guard-v1.css?v=230'),'deployed page must load the cache-busted deadline guard assets');
+assert.ok(index.includes('<meta name="rb-build" content="fix230">'),'deployed page must expose build fix230');
 console.log('order-leave-guard-v1: all tests passed');

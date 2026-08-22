@@ -20,5 +20,5 @@ assert.ok(followup.includes('rbFacebookStatusNeedsFollowup'),'follow-up recommen
 assert.ok(followup.includes('id="lfb-hybrid-status"'),'workspace must include a complete status filter dropdown');
 assert.ok(followup.includes('คู่มือสถานะ'),'workspace must include the status guide button');
 assert.ok(index.includes('facebook-status-catalog-v1.js?v=225')&&index.includes('facebook-status-catalog-v1.css?v=225'),'deployed page must load the cache-busted catalog assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix229">'),'deployed page must expose the current build');
+assert.ok(index.includes('<meta name="rb-build" content="fix230">'),'deployed page must expose the current build');
 console.log('facebook-status-catalog-v1: all tests passed');
