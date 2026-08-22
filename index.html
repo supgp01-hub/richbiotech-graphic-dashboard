@@ -620,8 +620,8 @@
   function loadFacebookEditor(){
     if(window._lfbEditorTest){window._lfbEditorBoot='ready';document.documentElement.setAttribute('data-lfb-boot','ready');return;}
     var script=document.createElement('script');
-    script.src='snippets/list-facebook-editor.js?v=209';
-    script.onload=function(){window._lfbEditorBoot=window._lfbEditorTest?'ready':'loaded-without-editor';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);};
+    script.src='snippets/list-facebook-editor.js?v=213';
+    script.onload=function(){window._lfbEditorBoot=window._lfbEditorTest?'ready':'loaded-without-editor';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);var panel=document.querySelector('[data-sub="listfb"].gsp-active');if(panel&&window._lfbEditorActivate)window._lfbEditorActivate();};
     script.onerror=function(){window._lfbEditorBoot='load-error';document.documentElement.setAttribute('data-lfb-boot','load-error');};
     document.head.appendChild(script);
   }
@@ -2515,7 +2515,7 @@ function initGraphicTab(){var teamTab=document.getElementById("tab-team");if(!te
 var listfbPanel=document.createElement("div");listfbPanel.className="gsp";listfbPanel.setAttribute("data-sub","listfb");listfbPanel.innerHTML='<div id="lfb-root" style="padding:12px;min-height:80px"></div>';teamTab.appendChild(listfbPanel);
 var idcardPanel=document.createElement("div");idcardPanel.className="gsp";idcardPanel.setAttribute("data-sub","idcard");idcardPanel.innerHTML='<div id="ic-root" style="padding:12px;min-height:80px"></div>';teamTab.appendChild(idcardPanel);
 teamTab.addEventListener('click',function(e){var b=e.target.closest('.gsnav-btn');if(!b)return;var t=b.textContent;if(t.indexOf('บัตรประชาชน')===-1)return;if(!window._icDone){window._icDone=true;window._icInit();}});
-teamTab.addEventListener('click',function(e){var b=e.target.closest('.gsnav-btn');if(!b)return;var t=b.textContent;if(t.indexOf('List Facebook')===-1||t.indexOf('Pages')!==-1)return;if(!window._lfbDone){window._lfbDone=true;window._lfbInit();}});
+teamTab.addEventListener('click',function(e){var b=e.target.closest('.gsnav-btn');if(!b)return;var t=b.textContent;if(t.indexOf('List Facebook')===-1||t.indexOf('Pages')!==-1)return;var tries=0;function openEditor(){if(window._lfbEditorActivate){window._lfbEditorActivate();return}tries++;if(tries<30)setTimeout(openEditor,100)}setTimeout(openEditor,0);});
 window._lfbInit=function(){
   var root=document.getElementById('lfb-root');
   if(!root)return;
@@ -5473,5 +5473,5 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/performance-v4.js?v=207"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
-<script src="snippets/manual-refresh-v1.js?v=210"></script>
+<script src="snippets/manual-refresh-v1.js?v=213"></script>
 </html>

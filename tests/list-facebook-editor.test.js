@@ -11,7 +11,7 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=209"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=213"), 'the deployed page must cache-bust the current Facebook editor');
 assert.equal(editorSource.includes('activateEditor();\nsetTimeout(activateEditor'), false, 'the large Facebook table must not initialize in the background');
 assert.equal(editorSource.includes('refreshData();window._listfbFetch();'), false, 'opening Graphic must not automatically download the Facebook sheet');
 assert.ok(indexSource.includes('var shown=filtered.slice(0,60)'), 'the legacy Facebook Pages fallback must not render the full list');
@@ -40,5 +40,17 @@ assert.equal(merged.length, 3);
 assert.equal(merged[0].note, 'แก้ไขแล้ว');
 assert.equal(merged[0].bal, '6000');
 assert.equal(merged[2]._source, 'manual');
+
+const additive = window._lfbEditorTest.mergeRows(rows, [
+  { ...rows[0], note: 'ข้อมูลใหม่จากต้นทาง' },
+  { name: 'บัญชีเพิ่ม', fbid: '3000', email: 'new@example.com' }
+]);
+assert.equal(additive.rows.length, 3, 'source refresh must keep old rows and append only new rows');
+assert.equal(additive.added, 1);
+assert.equal(additive.rows[0].note, 'ข้อมูลใหม่จากต้นทาง');
+const safe = window._lfbEditorTest.safeSnapshot(rows);
+assert.equal('passFb' in safe[0], false, 'shared snapshot must not duplicate Facebook passwords');
+assert.equal('emailPass' in safe[0], false, 'shared snapshot must not duplicate email passwords');
+assert.equal('twofa' in safe[0], false, 'shared snapshot must not duplicate 2FA secrets');
 
 console.log('list-facebook-editor: all tests passed');
