@@ -11,11 +11,11 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=220"), 'the deployed page must cache-bust the current Facebook editor');
-assert.ok(indexSource.includes('list-facebook-editor.css?v=220'), 'the deployed page must cache-bust the Facebook editor layout');
-assert.ok(indexSource.includes('list-facebook-followup.css?v=220'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=220"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix220">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=221"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('list-facebook-editor.css?v=221'), 'the deployed page must cache-bust the Facebook editor layout');
+assert.ok(indexSource.includes('list-facebook-followup.css?v=221'), 'the deployed page must load the follow-up workspace layout');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=221"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix221">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');
@@ -64,6 +64,13 @@ const additive = window._lfbEditorTest.mergeRows(rows, [
 assert.equal(additive.rows.length, 4, 'source refresh must keep old rows and append only new rows');
 assert.equal(additive.added, 1);
 assert.equal(additive.rows[0].note, 'ข้อมูลใหม่จากต้นทาง');
+const authoritative = window._lfbEditorTest.mergeRows(rows, [
+  { ...rows[0], st: 'รหัส 2FA ผิด', follow: '' }
+]);
+assert.equal(authoritative.rows[0].st, 'รหัส 2FA ผิด', 'the current sheet status must replace the stale snapshot status');
+assert.equal(authoritative.rows[0].follow, '', 'removing a follow-up mark in the source sheet must clear the stale mark');
+assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 2 }), true, 'the migrated shared snapshot must expose its schema version');
+assert.equal(window._lfbEditorTest.sourceSchemaCurrent({}), false, 'old shared snapshots must trigger a one-time source migration');
 const safe = window._lfbEditorTest.safeSnapshot(rows);
 assert.equal('passFb' in safe[0], false, 'shared snapshot must not duplicate Facebook passwords');
 assert.equal('emailPass' in safe[0], false, 'shared snapshot must not duplicate email passwords');
