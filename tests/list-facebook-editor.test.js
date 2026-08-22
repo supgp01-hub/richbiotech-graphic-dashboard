@@ -11,8 +11,9 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=216"), 'the deployed page must cache-bust the current Facebook editor');
-assert.ok(indexSource.includes('list-facebook-editor.css?v=216'), 'the deployed page must cache-bust the minimal Facebook layout');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=217"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('list-facebook-editor.css?v=217'), 'the deployed page must cache-bust the minimal Facebook layout');
+assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');
 assert.ok(editorSource.includes('lfb-advanced-filters'), 'detailed filters must remain available without cluttering the page');
 assert.ok(editorSource.includes('colspan="7"'), 'the minimal table must use the reduced seven-column layout');
