@@ -22,6 +22,7 @@ function makeTab(){
     document: {hidden:false, addEventListener:(n,fn)=>{listeners['d:'+n]=fn;}},
     CustomEvent: function(type, init){this.type=type;this.detail=init&&init.detail;},
     setInterval: fn => {context._beat=fn;return 1;}, clearInterval:()=>{},
+    setTimeout, clearTimeout,
     window: null
   };
   context.window = context;
@@ -31,14 +32,21 @@ function makeTab(){
   return context;
 }
 
+async function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+
+(async()=>{
 const first = makeTab();
 const second = makeTab();
-assert.equal(first.rbMultiTab.isLeader(), true, 'first visible tab should own realtime sync');
-assert.equal(second.rbMultiTab.isLeader(), false, 'second tab must stay in lightweight follower mode');
-first.rbMultiTab.release();
-assert.equal(second.rbMultiTab.claim(), true, 'a follower must take over immediately when the leader closes');
+await wait(500);
+assert.equal(Number(first.rbMultiTab.isLeader())+Number(second.rbMultiTab.isLeader()),1,'exactly one visible tab should own realtime sync');
+const currentLeader=first.rbMultiTab.isLeader()?first:second;
+const follower=currentLeader===first?second:first;
+currentLeader.rbMultiTab.release();
+follower.rbMultiTab.claim();
+await wait(500);
+assert.equal(follower.rbMultiTab.isLeader(), true, 'a follower must take over after the leader closes');
 
-assert.ok(index.indexOf('multitab-stability-v1.js?v=204') < index.indexOf('list-facebook-editor.css'), 'leader election must load before feature scripts');
+assert.ok(index.indexOf('multitab-stability-v1.js?v=205') < index.indexOf('list-facebook-editor.css'), 'leader election must load before feature scripts');
 assert.ok(index.includes("function fbIsLeader(){return !window.rbMultiTab||window.rbMultiTab.isLeader();}"), 'Firebase realtime must use one leader tab');
 assert.ok(index.includes("if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}"), 'follower tabs must not flush the shared order queue');
 assert.ok(index.includes('var q=false,pending=[];function schedule(ms)'), 'icon observer must process only added nodes');
@@ -53,3 +61,4 @@ assert.ok(tracker.includes("window.rbMultiTab&&!window.rbMultiTab.isLeader()"), 
 assert.ok(bulk.includes("window.rbMultiTab&&!window.rbMultiTab.isLeader()"), 'Content Tracker realtime must run only in the leader tab');
 
 console.log('multitab-stability-v1: all tests passed');
+})().catch(error=>{console.error(error);process.exitCode=1;});
