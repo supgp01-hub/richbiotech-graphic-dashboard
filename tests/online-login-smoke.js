@@ -30,7 +30,8 @@ if (!url) throw new Error('Usage: node tests/online-login-smoke.js <url>');
         userChoices: select.options.length,
         selectedValueCommitted: !!select.value,
         nativeSelector: select.hasAttribute('data-rb-dd-off') && !select.hasAttribute('data-rb-dd-ready'),
-        pinVisible: pinStyle.opacity === '1' && pinStyle.pointerEvents !== 'none' && pin.getBoundingClientRect().height >= 40,
+        pinInteractive: pinStyle.pointerEvents !== 'none' && pin.getBoundingClientRect().height >= 40,
+        pinBoxesVisible: getComputedStyle(document.querySelector('#rb-pin-dots')).display === 'flex',
         numericKeyboard: pin.getAttribute('inputmode') === 'numeric',
         error: error.textContent.trim(),
         nodes: document.getElementsByTagName('*').length,
@@ -41,6 +42,6 @@ if (!url) throw new Error('Usage: node tests/online-login-smoke.js <url>');
     await context.close();
   }
   console.log(JSON.stringify(results, null, 2));
-  if (results.some(item => item.ready !== 'complete' || !item.loginVisible || item.userChoices < 2 || !item.selectedValueCommitted || !item.nativeSelector || !item.pinVisible || !item.numericKeyboard || item.error || item.errors.length || item.nodes > 2500)) process.exitCode = 1;
+  if (results.some(item => item.ready !== 'complete' || !item.loginVisible || item.userChoices < 2 || !item.selectedValueCommitted || !item.nativeSelector || !item.pinInteractive || !item.pinBoxesVisible || !item.numericKeyboard || item.error || item.errors.length || item.nodes > 2500)) process.exitCode = 1;
   await browser.close();
 })().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

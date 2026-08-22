@@ -11,6 +11,7 @@ pin.setAttribute('inputmode','numeric');
 pin.setAttribute('pattern','[0-9]*');
 pin.setAttribute('autocomplete','current-password');
 pin.setAttribute('placeholder','••••');
+if(pin.parentElement)pin.parentElement.style.position='relative';
 
 document.addEventListener('input',function(event){
   if(event.target!==pin)return;
