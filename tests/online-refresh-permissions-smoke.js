@@ -36,7 +36,6 @@ async function exercise(browser, role) {
   await page.waitForTimeout(250);
   const listButtonVisible = await page.locator('#lfb2-upd').isVisible();
   const afterListOpen = sheetRequests;
-  await context.close();
   const diagnostics = await page.evaluate(() => ({
     actualRole: window._rbUser && window._rbUser.role,
     canRefresh: typeof window.rbCanRefreshHeavy === 'function' ? window.rbCanRefreshHeavy() : 'missing',
@@ -44,6 +43,7 @@ async function exercise(browser, role) {
     fetchSource: String(window._lfbFetch || '').slice(0, 100),
     controllerLoaded: !!document.querySelector('script[src*="manual-refresh-v1"]'),
   }));
+  await context.close();
   return { role, beforeOpen, afterPagesOpen, afterPagesManual, afterListOpen, pagesButtonVisible, listButtonVisible, diagnostics, errors };
 }
 

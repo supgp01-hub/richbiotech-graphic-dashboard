@@ -2642,7 +2642,7 @@ window._lfbInit=function(){
     if(si)si.addEventListener('input',function(){window._lfbFilter.q=this.value;window._lfbRender();});
   },50);
   
-  window._listfbFetch();
+  if(window.rbCanRefreshHeavy&&window.rbCanRefreshHeavy()&&window._rbExplicitListFbRefresh)window._listfbFetch();
 };
 window._listfbFetch=function(){
   var updBtn=document.getElementById('lfb2-upd');
@@ -5466,5 +5466,5 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/performance-v4.js?v=207"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
-<script src="snippets/manual-refresh-v1.js?v=209"></script>
+<script src="snippets/manual-refresh-v1.js?v=210"></script>
 </html>
