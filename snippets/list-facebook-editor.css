@@ -1,5 +1,52 @@
 #lfb-root .lfb-editor-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 #lfb-root .lfb-editor-toolbar .lfb-spacer{flex:1}
+#lfb-root .lfb-min-title{display:flex;align-items:baseline;gap:9px}
+#lfb-root .lfb-min-title strong{font-size:18px;color:var(--text-heading)}
+#lfb-root .lfb-min-title span,#lfb-root #lfb2-ts{font-size:11px;color:var(--text-muted2)}
+#lfb-root .lfb-min-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+#lfb-root .lfb-min-stat{padding:11px 12px;border-radius:10px;text-align:center;border:1px solid var(--surface-card-border)}
+#lfb-root .lfb-min-stat strong{display:block;font-size:20px;line-height:1.1;color:var(--text-heading)}
+#lfb-root .lfb-min-stat span{font-size:10px;color:var(--text-muted2)}
+#lfb-root .lfb-min-stat-ok{background:color-mix(in srgb,#dcfce7 72%,var(--surface-card))}
+#lfb-root .lfb-min-stat-review{background:color-mix(in srgb,#fef3c7 72%,var(--surface-card))}
+#lfb-root .lfb-min-stat-closed{background:color-mix(in srgb,#fee2e2 72%,var(--surface-card))}
+#lfb-root .lfb-search-row{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}
+#lfb-root .lfb-search-row input{width:100%;padding:9px 12px;border:1px solid var(--surface-card-border);border-radius:8px;background:var(--surface-card);color:var(--text-heading);font-size:13px;box-sizing:border-box}
+#lfb-root .lfb-search-row .rb-icon-input-wrap{margin-bottom:0!important}
+#lfb-root .lfb-quick-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+#lfb-root .lfb-filter-chip{padding:4px 11px;border:1px solid var(--surface-card-border);border-radius:999px;background:var(--surface-card);color:var(--text-heading);cursor:pointer;font-size:11px}
+#lfb-root .lfb-filter-chip.is-active{background:#1B4332;color:#fff;border-color:#1B4332}
+#lfb-root .lfb-advanced-filters{display:none;padding:12px;margin-bottom:10px;border-radius:10px;background:var(--surface-tint)}
+#lfb-root .lfb-advanced-filters.is-open{display:block}
+#lfb-root .lfb-filter-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#lfb-root .lfb-filter-group+.lfb-filter-group{margin-top:8px}
+#lfb-root .lfb-filter-group>span{min-width:95px;font-size:11px;color:var(--text-muted2)}
+#lfb-root .lfb-result-note{font-size:11px;color:var(--text-muted2);margin:6px 2px 8px}
+#lfb-root .lfb-table-shell{overflow:auto;max-height:520px;border-radius:10px;border:1px solid var(--surface-card-border);background:var(--surface-card)}
+#lfb-root .lfb-min-table{width:100%;min-width:820px;border-collapse:collapse;font-size:12px}
+#lfb-root .lfb-min-table thead{position:sticky;top:0;z-index:2;background:#1B4332;color:#fff}
+#lfb-root .lfb-min-table th{padding:10px;text-align:center;font-size:11px}
+#lfb-root .lfb-min-table th:first-child{text-align:left;min-width:210px}
+#lfb-root .lfb-min-table td{padding:9px 10px;border-bottom:1px solid var(--surface-card-border);color:var(--text-heading)}
+#lfb-root .lfb-min-table tbody tr:nth-child(even){background:color-mix(in srgb,var(--surface-tint) 45%,transparent)}
+#lfb-root .lfb-min-table tbody tr:last-child td{border-bottom:0}
+#lfb-root .lfb-account-meta{display:flex;align-items:center;gap:6px;margin-top:3px;min-width:0}
+#lfb-root .lfb-account-meta>span:first-child{padding:1px 6px;border-radius:999px;background:var(--surface-tint);font-size:9px;color:var(--text-muted2);white-space:nowrap}
+#lfb-root .lfb-account-meta .lfb-note-cell{font-size:10px;max-width:160px}
+#lfb-root .lfb-center{text-align:center}
+#lfb-root .lfb-number{text-align:right;font-variant-numeric:tabular-nums}
+#lfb-root .lfb-employee{font-weight:700}
+#lfb-root .lfb-updated{color:#b7791f;font-size:11px}
+#lfb-root .lfb-min-status{font-weight:600;white-space:nowrap}
+#lfb-root .lfb-min-status-ok{color:#16a34a}
+#lfb-root .lfb-min-status-vacant{color:#64748b}
+#lfb-root .lfb-min-status-limited{color:#d97706}
+#lfb-root .lfb-min-status-pending{color:#2563eb}
+#lfb-root .lfb-min-status-closed{color:#dc2626}
+#lfb-root .lfb-min-status-other{color:#7c3aed}
+#lfb-root .lfb-empty-row{padding:28px!important;text-align:center;color:var(--text-muted2)}
+#lfb-root .lfb-pager-row{display:flex;justify-content:flex-end;margin-top:8px}
+#lfb-root #lfb-pager{display:flex;align-items:center;gap:7px}
 #lfb-root .lfb-editor-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--surface-card-border);border-radius:8px;padding:8px 14px;background:var(--surface-card);color:var(--text-heading);cursor:pointer;font-size:13px;font-weight:600}
 #lfb-root .lfb-editor-btn-primary{background:#1B4332;color:#fff;border-color:#1B4332}
 #lfb-root .lfb-name-btn{border:0;background:transparent;color:#1B4332;padding:0;cursor:pointer;font-size:12px;font-weight:700;text-decoration:underline;text-underline-offset:3px;text-align:left}
@@ -24,4 +71,4 @@
 #lfb-root .lfb-editor-error{min-height:18px;padding:0 18px;color:#dc2626;font-size:12px}
 #lfb-root .lfb-editor-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--surface-card-border);background:var(--surface-tint)}
 #lfb-root .lfb-editor-save-state{font-size:12px;color:#17603F;margin-right:auto;align-self:center}
-@media(max-width:620px){#lfb-root .lfb-editor-overlay{padding:8px;align-items:flex-start}#lfb-root .lfb-editor-modal{width:100%;max-height:96vh}#lfb-root .lfb-editor-grid{grid-template-columns:1fr}#lfb-root .lfb-editor-field-full{grid-column:auto}#lfb-root .lfb-editor-body{padding:14px}#lfb-root .lfb-editor-foot{padding:10px 14px}}
+@media(max-width:620px){#lfb-root .lfb-editor-toolbar{align-items:flex-start}#lfb-root .lfb-min-title{width:100%}#lfb-root #lfb2-ts{margin-right:auto}#lfb-root .lfb-min-stats{gap:6px}#lfb-root .lfb-min-stat{padding:9px 6px}#lfb-root .lfb-min-stat strong{font-size:18px}#lfb-root .lfb-filter-group>span{width:100%;min-width:0}#lfb-root .lfb-editor-overlay{padding:8px;align-items:flex-start}#lfb-root .lfb-editor-modal{width:100%;max-height:96vh}#lfb-root .lfb-editor-grid{grid-template-columns:1fr}#lfb-root .lfb-editor-field-full{grid-column:auto}#lfb-root .lfb-editor-body{padding:14px}#lfb-root .lfb-editor-foot{padding:10px 14px}}

@@ -607,7 +607,7 @@
   }
 </style>
 <script src="snippets/multitab-stability-v1.js?v=205"></script>
-<link rel="stylesheet" href="snippets/list-facebook-editor.css?v=201">
+<link rel="stylesheet" href="snippets/list-facebook-editor.css?v=215">
 <script>
 (function(){
   window._lfbEditorBoot='waiting';
@@ -620,7 +620,7 @@
   function loadFacebookEditor(){
     if(window._lfbEditorTest){window._lfbEditorBoot='ready';document.documentElement.setAttribute('data-lfb-boot','ready');return;}
     var script=document.createElement('script');
-    script.src='snippets/list-facebook-editor.js?v=214';
+    script.src='snippets/list-facebook-editor.js?v=215';
     script.onload=function(){window._lfbEditorBoot=window._lfbEditorTest?'ready':'loaded-without-editor';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);var panel=document.querySelector('[data-sub="listfb"].gsp-active');if(panel&&window._lfbEditorActivate)window._lfbEditorActivate();};
     script.onerror=function(){window._lfbEditorBoot='load-error';document.documentElement.setAttribute('data-lfb-boot','load-error');};
     document.head.appendChild(script);
