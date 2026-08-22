@@ -3682,7 +3682,7 @@ window.gAS=function(){
 /* ── ORDERS MODAL v3 — tabbed modal ── */
 (function(){
 
-  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omViewMode=false, _omUpdateFooter=null, _omIsNew=false;
+  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omViewMode=false, _omUpdateFooter=null, _omIsNew=false, _omDraftTimer=null, _omDraftHydrating=false, _omSummaryOpen=false;
   function ge(id){return (_OM2&&_OM2.querySelector('[id="'+id+'"]'))||document.getElementById(id);}
 
   function compressImg(file,cb){
@@ -4085,6 +4085,8 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     sBtn.style.cssText='flex:1;background:#1B4332;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .15s;';
     sBtn.onclick=saveOM2;
     var submitFeedback=document.createElement('div');submitFeedback.id='om-submit-feedback';submitFeedback.setAttribute('role','status');submitFeedback.style.cssText='display:none;margin:0 0 9px;padding:9px 12px;border-radius:9px;font-size:12px;font-weight:700;';
+    var draftStatus=document.createElement('div');draftStatus.id='om-draft-status';draftStatus.setAttribute('role','status');draftStatus.style.cssText='display:none;margin:0 0 8px;color:var(--text-muted2);font-size:10.5px;text-align:right;';
+    foot.appendChild(draftStatus);
     foot.appendChild(submitFeedback);
     var ftRow=document.createElement('div');ftRow.style.cssText='display:flex;gap:8px;';
     var saveBtn2=document.createElement('button');saveBtn2.type='button';saveBtn2.id='om-save-btn';saveBtn2.textContent='💾 บันทึก';
@@ -4105,6 +4107,8 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     _omUpdateFooter=function(tabKey){var isAudit=tabKey==='links'||tabKey==='imgs';var isAuditRole=window._rbUser&&window._rbUser.role==='audit';var saveBtn2=ge('om-save-btn');var resendBtn=ge('om-resend-btn');var revD=ge('om-rev-imgs');var cst=ge('om-st')&&ge('om-st').value;var isRev=cst==='revision';if(saveBtn2)saveBtn2.style.display='none';if(isAudit){_omSaveBtn.style.display='none';if(isRev){auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';}else{auditRow.style.display='flex';if(resendBtn)resendBtn.style.display='none';}if(revD)revD.style.display='block';}else if(isAuditRole){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}else if(!_omViewMode&&isRev){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';if(revD)revD.style.display='block';}else{_omSaveBtn.style.display='';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}};
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
     _OM2.appendChild(box);document.body.appendChild(_OM2);
+    _OM2.addEventListener('input',function(e){if(e&&e.target&&e.target.id)clearOMFieldError(e.target.id);scheduleOMDraftSave();},true);
+    _OM2.addEventListener('change',function(e){if(e&&e.target&&e.target.id)clearOMFieldError(e.target.id);scheduleOMDraftSave();},true);
     switchTab('info');
   }
 
@@ -4156,6 +4160,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     _OM2.setAttribute('data-original-deadline',o?(o.deadline||''):'');
     if(window.rbRefreshOrderLeaveGuard)setTimeout(window.rbRefreshOrderLeaveGuard,0);
     ge('om-note').value=o?(o.note||''):'';
+    ge('om-sample-link').value=o?(o.sampleLink||''):'';
     ge('om-raw').value=o?(o.rawLink||''):'';
     ge('om-sheet').value=o?(o.sheetLink||''):'';
     ge('om-review').value=o?(o.reviewLink||''):'';
@@ -4176,6 +4181,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     var _slvs=o&&Array.isArray(o.submitLinks)?o.submitLinks.slice(0,3):(o&&o.submitLink?[o.submitLink]:[]);if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(_slvs);
     ge('om-brief').value=o?(o.brief||''):'';var _briefMenu=ge('om-brief-menu'),_briefToggle=ge('om-brief-toggle');if(_briefMenu)_briefMenu.style.display='none';if(_briefToggle)_briefToggle.setAttribute('aria-expanded','false');
     refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
+    if(_omIsNew)restoreOMDraft();else{var _draftBanner=ge('om-draft-banner');if(_draftBanner&&_draftBanner.parentNode)_draftBanner.parentNode.removeChild(_draftBanner);updateOMDraftStatus('');}
     _omViewMode=_isView;
     if(_switchTab)_switchTab('info');
     if(_omInfoPanel){_omInfoPanel.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=_isView;el.style.opacity=_isView?'0.7':'';el.style.cursor=_isView?'default':'';el.style.background=_isView&&el.tagName!=='TEXTAREA'?'#f9fafb':'';});_omInfoPanel.querySelectorAll('button').forEach(function(b){if(b.getAttribute('data-link-btn')){b.disabled=false;b.style.opacity='';b.style.cursor='pointer';}else{b.disabled=_isView;b.style.opacity=_isView?'0.4':'';b.style.cursor=_isView?'not-allowed':'';}});}
@@ -4251,13 +4257,90 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
 });}var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
 }
 
-  function closeOM2(){if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
+  function closeOM2(){if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
 
   /* Keep this helper in the modal workflow scope.  The row renderer also has
      a private helper with the same name, but saveOM2/persistOMWorkflow run
      outside that renderer and must not depend on its nested scope. */
   function submitLinkValues(){var vals=[];for(var i=0;i<3;i++){var el=document.getElementById(i===0?'om-submitlink':'om-submitlink'+(i+1));if(el)vals.push((el.value||'').trim());}return vals;}
   function setOMSubmitFeedback(message,kind){var box=ge('om-submit-feedback');if(!box)return;box.textContent=message||'';box.style.display=message?'block':'none';box.style.background=kind==='error'?'#fef2f2':'#ecfdf5';box.style.border='1px solid '+(kind==='error'?'#fecaca':'#a7f3d0');box.style.color=kind==='error'?'#991b1b':'#176f4f';}
+
+  var OM_DRAFT_FIELDS=['om-name','om-prod','om-type','om-dl','om-st','om-mb','om-brief','om-sample-link','om-raw','om-sheet','om-footage','om-review','om-note','om-hook','om-hook2'];
+  function omDraftKey(){var who=(window._rbUser&&window._rbUser.name)||'guest';return 'rb_order_draft_v1_'+encodeURIComponent(who);}
+  function clearOMFieldError(id){
+    var el=ge(id);if(!el)return;
+    el.style.borderColor='#d1d5db';el.style.borderWidth='1px';el.removeAttribute('aria-invalid');
+    var wrap=el.parentNode;if(!wrap)return;var err=wrap.querySelector('[data-om-error-for="'+id+'"]');if(err&&err.parentNode)err.parentNode.removeChild(err);
+  }
+  function setOMFieldError(id,message){
+    var el=ge(id);if(!el)return;
+    clearOMFieldError(id);el.style.borderColor='#ef4444';el.style.borderWidth='2px';el.setAttribute('aria-invalid','true');
+    var err=document.createElement('div');err.setAttribute('data-om-error-for',id);err.setAttribute('role','alert');err.textContent=message;err.style.cssText='margin-top:4px;color:#b91c1c;font-size:10.5px;font-weight:600;';
+    if(el.parentNode)el.parentNode.appendChild(err);
+  }
+  function collectOMDraft(){
+    var fields={};OM_DRAFT_FIELDS.forEach(function(id){var el=ge(id);if(el)fields[id]=el.value||'';});
+    var clipCont=document.getElementById('om-clip-extra');
+    var clips=clipCont?Array.prototype.slice.call(clipCont.querySelectorAll('.om-clip-row input[type="text"]')).map(function(el){return(el.value||'').trim();}).filter(Boolean):[];
+    return{version:1,savedAt:Date.now(),fields:fields,submitLinks:submitLinkValues(),clipLinks:clips,hadImages:!!((_omImages&&_omImages.length)||(_omBriefImages&&_omBriefImages.length)||(_omErrorImages&&_omErrorImages.length)||(_omFixImages&&_omFixImages.length))};
+  }
+  function omDraftHasContent(d){
+    if(!d||!d.fields)return false;
+    var meaningful=['om-name','om-prod','om-type','om-dl','om-mb','om-brief','om-sample-link','om-raw','om-sheet','om-footage','om-review','om-note'];
+    return meaningful.some(function(id){return !!(d.fields[id]||'').trim();})||(d.submitLinks||[]).some(Boolean)||(d.clipLinks||[]).some(Boolean)||d.hadImages;
+  }
+  function updateOMDraftStatus(message){var box=ge('om-draft-status');if(!box)return;box.textContent=message||'';box.style.display=message?'block':'none';}
+  function saveOMDraftNow(){
+    clearTimeout(_omDraftTimer);_omDraftTimer=null;
+    if(!_omIsNew||_omDraftHydrating||!_OM2||_OM2.style.display==='none')return;
+    try{
+      var draft=collectOMDraft();
+      if(!omDraftHasContent(draft)){localStorage.removeItem(omDraftKey());updateOMDraftStatus('');return;}
+      localStorage.setItem(omDraftKey(),JSON.stringify(draft));
+      var tm=new Date(draft.savedAt);updateOMDraftStatus('บันทึกร่างอัตโนมัติแล้ว '+String(tm.getHours()).padStart(2,'0')+':'+String(tm.getMinutes()).padStart(2,'0'));
+    }catch(e){updateOMDraftStatus('ไม่สามารถบันทึกร่างในเครื่องนี้ได้');}
+  }
+  function scheduleOMDraftSave(){if(!_omIsNew||_omDraftHydrating)return;clearTimeout(_omDraftTimer);_omDraftTimer=setTimeout(saveOMDraftNow,450);}
+  function clearOMDraft(){clearTimeout(_omDraftTimer);_omDraftTimer=null;try{localStorage.removeItem(omDraftKey());}catch(e){}updateOMDraftStatus('');}
+  function showOMDraftBanner(draft){
+    var panel=ge('om2-p1-panel');if(!panel)return;var old=ge('om-draft-banner');if(old&&old.parentNode)old.parentNode.removeChild(old);
+    var banner=document.createElement('div');banner.id='om-draft-banner';banner.style.cssText='display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid #a7d8ba;border-radius:10px;background:#edf9f1;color:#1B4332;font-size:11px;';
+    var text=document.createElement('div');text.style.cssText='flex:1;min-width:0;';var when=new Date(draft.savedAt||Date.now());text.textContent='กู้คืนแบบร่างที่บันทึกไว้ '+when.toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'})+(draft.hadImages?' · กรุณาแนบรูปภาพใหม่':'');
+    var discard=document.createElement('button');discard.type='button';discard.textContent='ไม่ใช้แบบร่าง';discard.style.cssText='border:1px solid #95D5B2;border-radius:7px;background:var(--surface-card);color:#1B4332;padding:5px 9px;font-size:10.5px;font-weight:700;cursor:pointer;white-space:nowrap;';
+    discard.onclick=function(){clearOMDraft();openOM2();};banner.appendChild(text);banner.appendChild(discard);panel.insertBefore(banner,panel.firstChild);
+  }
+  function applyOMDraft(draft){
+    if(!draft||!draft.fields)return;_omDraftHydrating=true;
+    var product=draft.fields['om-prod']||'';if(ge('om-prod'))ge('om-prod').value=product;refreshOrderContentList(product);
+    if(ge('om-name')){ge('om-name').value=draft.fields['om-name']||'';ge('om-name').dispatchEvent(new Event('input',{bubbles:true}));}
+    OM_DRAFT_FIELDS.forEach(function(id){var el=ge(id);if(el&&Object.prototype.hasOwnProperty.call(draft.fields,id))el.value=draft.fields[id]||'';});
+    syncProductAssetLinks(product,false);
+    if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(Array.isArray(draft.submitLinks)?draft.submitLinks:[]);
+    var clipCont=document.getElementById('om-clip-extra');if(clipCont){clipCont.innerHTML='';(draft.clipLinks||[]).forEach(function(link){window._addClipRow&&window._addClipRow();var rows=clipCont.querySelectorAll('.om-clip-row');var input=rows.length?rows[rows.length-1].querySelector('input[type="text"]'):null;if(input)input.value=link||'';});}
+    if(window.rbRefreshOrderLeaveGuard)window.rbRefreshOrderLeaveGuard();
+    _omDraftHydrating=false;showOMDraftBanner(draft);updateOMDraftStatus('แบบร่างถูกกู้คืนแล้ว');
+  }
+  function restoreOMDraft(){
+    var old=ge('om-draft-banner');if(old&&old.parentNode)old.parentNode.removeChild(old);updateOMDraftStatus('');
+    try{var raw=localStorage.getItem(omDraftKey());if(!raw)return;var draft=JSON.parse(raw);if(!draft||Date.now()-(draft.savedAt||0)>7*24*60*60*1000){clearOMDraft();return;}if(omDraftHasContent(draft))applyOMDraft(draft);}catch(e){clearOMDraft();}
+  }
+  function omSummaryValue(id,fallback){var el=ge(id),value=(el&&String(el.value||'').trim())||'';return value||(arguments.length>1?fallback:'—');}
+  function showOMSummary(){
+    if(_omSummaryOpen)return;_omSummaryOpen=true;
+    var overlay=document.createElement('div');overlay.id='om-summary-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','ตรวจสอบข้อมูลก่อนสั่งงาน');overlay.style.cssText='position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(11,31,22,.62);';
+    var card=document.createElement('div');card.style.cssText='width:100%;max-width:560px;max-height:86vh;overflow:auto;border-radius:16px;background:var(--surface-card);box-shadow:0 22px 60px rgba(0,0,0,.35);';
+    var head=document.createElement('div');head.style.cssText='padding:15px 18px;background:#1B4332;color:#fff;border-radius:16px 16px 0 0;';var title=document.createElement('div');title.textContent='ตรวจสอบก่อนสั่งงาน';title.style.cssText='font-size:16px;font-weight:700;';var sub=document.createElement('div');sub.textContent='เช็กข้อมูลอีกครั้งก่อนบันทึกและแจ้งทีมงาน';sub.style.cssText='margin-top:3px;font-size:11px;opacity:.8;';head.appendChild(title);head.appendChild(sub);
+    var content=document.createElement('div');content.style.cssText='padding:16px 18px;';var grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;';
+    function add(label,value,wide){var row=document.createElement('div');row.style.cssText='padding:9px 10px;border-radius:9px;background:var(--auto-lc31);'+(wide?'grid-column:1/-1;':'');var lb=document.createElement('div');lb.textContent=label;lb.style.cssText='font-size:10px;color:var(--text-muted2);margin-bottom:3px;';var val=document.createElement('div');val.textContent=value||'—';val.style.cssText='font-size:12.5px;font-weight:700;color:var(--text-heading);word-break:break-word;';row.appendChild(lb);row.appendChild(val);grid.appendChild(row);}
+    var stEl=ge('om-st'),stText=stEl&&stEl.options[stEl.selectedIndex]?stEl.options[stEl.selectedIndex].text:omSummaryValue('om-st');
+    add('ชื่องาน',omSummaryValue('om-name'),true);add('สินค้า',omSummaryValue('om-prod'));add('ประเภทงาน',omSummaryValue('om-type'));add('ผู้รับผิดชอบ',omSummaryValue('om-mb','ยังไม่ระบุ'));add('Deadline',omSummaryValue('om-dl'));add('สถานะ',stText);
+    var brief=omSummaryValue('om-brief','ไม่ได้ระบุ');if(brief.length>180)brief=brief.slice(0,180)+'…';add('บรีฟงาน',brief,true);
+    var linkCount=['om-sample-link','om-raw','om-sheet','om-footage','om-review'].filter(function(id){return omSummaryValue(id,'')!=='';}).length+submitLinkValues().filter(Boolean).length;add('ลิงก์ที่แนบ',linkCount+' รายการ');add('รูปภาพ',((_omBriefImages||[]).length+(_omImages||[]).length)+' รูป');
+    content.appendChild(grid);
+    var actions=document.createElement('div');actions.style.cssText='display:flex;gap:9px;padding:0 18px 17px;';var edit=document.createElement('button');edit.type='button';edit.textContent='กลับไปแก้ไข';edit.style.cssText='flex:1;padding:11px;border:1px solid #b7d8c4;border-radius:10px;background:var(--surface-card);color:#1B4332;font-size:13px;font-weight:700;cursor:pointer;';var confirm=document.createElement('button');confirm.type='button';confirm.textContent='ยืนยันสั่งงาน';confirm.style.cssText='flex:1;padding:11px;border:0;border-radius:10px;background:#1B4332;color:#fff;font-size:13px;font-weight:700;cursor:pointer;';
+    function close(){_omSummaryOpen=false;if(overlay.parentNode)overlay.parentNode.removeChild(overlay);}
+    edit.onclick=close;confirm.onclick=function(){close();saveOM2(true);};overlay.onclick=function(e){if(e.target===overlay)close();};actions.appendChild(edit);actions.appendChild(confirm);card.appendChild(head);card.appendChild(content);card.appendChild(actions);overlay.appendChild(card);document.body.appendChild(overlay);setTimeout(function(){confirm.focus();},0);
+  }
 
   function persistOMWorkflow(order){
     if(!order)return order;
@@ -4273,7 +4356,7 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
     return order;
   }
 
-  function saveOM2(){
+  function saveOM2(confirmed){
     setOMSubmitFeedback('','');
     var id=ge('om-id').textContent;
     var title=(ge('om-name').value||'').trim();
@@ -4285,28 +4368,28 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
     if(guardResult.block){setOMSubmitFeedback('ยังสั่งงานไม่ได้: Deadline ตรงกับวันหยุด กรุณาเปลี่ยนวันที่แล้วลองอีกครั้ง','error');var guardBox=ge('om-leave-guard');if(guardBox){guardBox.scrollIntoView({behavior:'smooth',block:'center'});}var guardDate=ge('om-dl');if(guardDate){guardDate.style.borderColor='#ef4444';guardDate.style.borderWidth='2px';guardDate.focus();}return;}
     /* ── Validation ── */
     var valid=true;
-    function markField(elId,ok){
+    function markField(elId,ok,message){
       var el=ge(elId);
       if(!el)return;
-      el.style.borderColor=ok?'#d1d5db':'#ef4444';
-      el.style.borderWidth=ok?'1px':'2px';
+      if(ok)clearOMFieldError(elId);else setOMFieldError(elId,message);
     }
-    markField('om-name', !!title);if(!title)valid=false;
+    markField('om-name', !!title,'กรุณากรอกชื่องาน');if(!title)valid=false;
     var dlVal=ge('om-dl').value;
-    markField('om-dl', !!dlVal);if(!dlVal)valid=false;
+    markField('om-dl', !!dlVal,'กรุณาเลือกวันที่ Deadline');if(!dlVal)valid=false;
     var typeVal=ge('om-type').value;
-    markField('om-type', !!typeVal);if(!typeVal)valid=false;
+    markField('om-type', !!typeVal,'กรุณาเลือกประเภทงาน');if(!typeVal)valid=false;
     var stVal=(ge('om-st')&&ge('om-st').value)||'pending';
-    markField('om-st', !!stVal);if(!stVal)valid=false;
+    markField('om-st', !!stVal,'กรุณาเลือกสถานะ');if(!stVal)valid=false;
     var validationMsg=ge('om-validation-msg');
     if(!valid){
       if(!validationMsg){validationMsg=document.createElement('div');validationMsg.id='om-validation-msg';validationMsg.style.cssText='margin:0 0 12px;padding:10px 12px;border:1px solid #fecaca;border-radius:8px;background:#fef2f2;color:#991b1b;font-size:12px;font-weight:600;';var nameWrap=ge('om-name')&&ge('om-name').parentNode;if(nameWrap&&nameWrap.parentNode)nameWrap.parentNode.insertBefore(validationMsg,nameWrap);}
       var missing=[];if(!title)missing.push('ชื่องาน');if(!dlVal)missing.push('Deadline');if(!typeVal)missing.push('ประเภทงาน');if(!stVal)missing.push('สถานะ');
       validationMsg.textContent='กรุณากรอกข้อมูลให้ครบ: '+missing.join(', ');
       setOMSubmitFeedback('กรุณากรอกข้อมูลให้ครบ: '+missing.join(', '),'error');
-      var firstMissing=!title?ge('om-name'):!dlVal?ge('om-dl'):!typeVal?ge('om-type'):ge('om-st');if(firstMissing){firstMissing.focus();firstMissing.scrollIntoView({block:'center'});}return;
+      var firstMissing=!title?ge('om-name'):!dlVal?ge('om-dl'):!typeVal?ge('om-type'):ge('om-st');if(firstMissing){firstMissing.focus();firstMissing.scrollIntoView({behavior:'smooth',block:'center'});}return;
     }
     if(validationMsg&&validationMsg.parentNode)validationMsg.parentNode.removeChild(validationMsg);
+    if(_omIsNew&&confirmed!==true){showOMSummary();return;}
     try{
     setOMSubmitFeedback('กำลังบันทึกงาน...','success');
     var now=Date.now();
@@ -4325,6 +4408,7 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
       status:stVal,
       assignee:ge('om-mb').value||'',
       note:ge('om-note').value||'',
+      sampleLink:ge('om-sample-link').value||'',
       rawLink:ge('om-raw').value||'',
       sheetLink:ge('om-sheet').value||'',
       reviewLink:ge('om-review').value||'',
@@ -4362,6 +4446,7 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
     if(typeof renderOrderStats==='function')renderOrderStats();
     if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}
     (window._rbInitOP||function(){})();
+    if(_omIsNew){clearOMDraft();_omIsNew=false;}
     closeOM2();
     }catch(saveError){console.error('บันทึกงานไม่สำเร็จ',saveError);setOMSubmitFeedback('บันทึกงานไม่สำเร็จ กรุณาลองอีกครั้ง: '+(saveError&&saveError.message?saveError.message:'ข้อผิดพลาดไม่ทราบสาเหตุ'),'error');}
   }
