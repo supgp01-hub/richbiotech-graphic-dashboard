@@ -29,6 +29,8 @@ async function exercise(browser, machine) {
   await page.locator('.gsnav-btn').filter({ hasText: 'สั่งงาน' }).click({ timeout: 10000 });
   await page.waitForSelector('[data-sub="order"].gsp-active', { timeout: 10000 });
   console.log(`${machine}: orders clickable`);
+  await page.locator('.ord-tab-btn').filter({ hasText: 'ทีมงาน' }).click({ timeout: 10000 });
+  const supervisorTeamAddVisible = await page.locator('#ord-add-btn').isVisible();
   const result = await page.evaluate(({ machine, loginHidden, trackerDeferred, errors }) => ({
     machine,
     loginHidden,
@@ -37,6 +39,7 @@ async function exercise(browser, machine) {
     nodes: document.getElementsByTagName('*').length,
     errors,
   }), { machine, loginHidden, trackerDeferred, errors });
+  result.supervisorTeamAddVisible = supervisorTeamAddVisible;
   await context.close();
   return result;
 }
@@ -45,6 +48,6 @@ async function exercise(browser, machine) {
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   const results = await Promise.all([exercise(browser, 'A'), exercise(browser, 'B')]);
   console.log(JSON.stringify(results, null, 2));
-  if (results.some(item => !item.loginHidden || !item.trackerDeferred || !item.orderPageClickable || item.nodes > 4000 || item.errors.length)) process.exitCode = 1;
+  if (results.some(item => !item.loginHidden || !item.trackerDeferred || !item.orderPageClickable || !item.supervisorTeamAddVisible || item.nodes > 4000 || item.errors.length)) process.exitCode = 1;
   await browser.close();
 })().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

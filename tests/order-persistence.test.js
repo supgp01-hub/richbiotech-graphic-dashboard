@@ -36,5 +36,6 @@ assert.ok(html.includes("else if(_cr0==='audit')window._ordViewMode='audit'"), '
 assert.ok(html.includes("var isAuditRole=window._rbUser&&window._rbUser.role==='audit'"), 'the footer must recognize the Audit role explicitly');
 assert.ok(html.includes("_isAuditView&&id?'ตรวจออดิต '"), 'Audit orders must show an unambiguous Audit heading');
 assert.ok(html.includes("} else if(_isAuditView) {"), 'the normal order-save action must stay hidden in Audit mode');
+assert.ok(html.includes("k==='team'&&_tabRole!=='sup'"), 'Supervisor must keep the add-order button in team view');
 
 console.log('order-persistence: all tests passed');

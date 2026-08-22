@@ -3253,7 +3253,8 @@ function initOrderPanel(){
     });
     if(k==='team'){var _rbu2=window._rbUser;var _isGR=_rbu2&&_rbu2.role==='graphic';chipRow.style.display=_isGR?'none':'flex';renderOrders();}
     else{chipRow.style.display='none';_activeTeam='';var _rbu3=window._rbUser;if(!(_rbu3&&_rbu3.role==='graphic'))_OF.assignee='';renderOrders();}
-  ab.style.display=(k==='team')?'none':'';}
+  var _tabRole=window._rbUser&&window._rbUser.role;
+  ab.style.display=(k==='team'&&_tabRole!=='sup')?'none':'';}
   [['all','งานทั้งหมด'],['team','ทีมงาน']].forEach(function(t){
     var btn=document.createElement('button');btn.className='ord-tab-btn';btn.setAttribute('data-k',t[0]);btn.textContent=t[1];
     btn.style.cssText='background:none;border:none;border-bottom:2px solid transparent;padding:11px 20px;font-size:13px;cursor:pointer;color:var(--text-muted2);font-weight:500;transition:all .15s;white-space:nowrap;';
