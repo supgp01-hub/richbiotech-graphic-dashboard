@@ -32,7 +32,7 @@ async function exercise(browser,role,name){
   await editButtons.first().click();
   await page.waitForSelector('#om-primary-btn',{state:'attached'});
   if(role==='audit'){
-    await page.getByRole('button',{name:'ตรวจออดิต'}).last().click();
+    await page.getByRole('tab',{name:'ตรวจออดิต'}).click();
     await page.getByRole('button',{name:'เสร็จสมบูรณ์'}).click();
     const status=await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status);
     assert.strictEqual(status,'done','Audit must be able to approve an order');
