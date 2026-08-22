@@ -11,6 +11,6 @@ assert.ok(index.includes("ab.id='ord-add-btn'")&&index.includes("window.openOM(n
 ['localStorage','fbSet(','fetch(','removeItem(','innerHTML=\'\''].forEach(s=>assert.ok(!js.includes(s),`presentation module must not mutate app data: ${s}`));
 assert.ok(index.includes('snippets/unified-graphic-headers-v1.css?v=230'));
 assert.ok(index.includes('snippets/unified-graphic-headers-v1.js?v=230'));
-assert.ok(index.includes('<meta name="rb-build" content="fix231">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix232">'));
 assert.ok(index.includes('<div class="ct-title">Content Tracker')&&!index.includes('OLYMPPLUS Content Tracker'),'the Links title must omit the OLYMPPLUS prefix');
 console.log('unified-graphic-headers-v1: all tests passed');
