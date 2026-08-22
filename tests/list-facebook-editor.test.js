@@ -11,8 +11,8 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=215"), 'the deployed page must cache-bust the current Facebook editor');
-assert.ok(indexSource.includes('list-facebook-editor.css?v=215'), 'the deployed page must cache-bust the minimal Facebook layout');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=216"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('list-facebook-editor.css?v=216'), 'the deployed page must cache-bust the minimal Facebook layout');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');
 assert.ok(editorSource.includes('lfb-advanced-filters'), 'detailed filters must remain available without cluttering the page');
 assert.ok(editorSource.includes('colspan="7"'), 'the minimal table must use the reduced seven-column layout');
@@ -24,11 +24,12 @@ assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination 
 const csv = [
   'ประเภท,คอลัมน์ B,พนักงาน,สินค้า,คอลัมน์ E,สถานะ,ชื่อบัญชี,Facebook ID,รหัสผ่าน,Email,รหัส Email,2FA,คอลัมน์ M,คอลัมน์ N,ลิมิต/วัน,คอลัมน์ P,อัปเดตล่าสุด,ยอดเงิน,หมายเหตุ',
   'บัญชีเล็ก,,MOS,Liv CARE,,ใช้งาน,Naga Ontare,1000012345678901,FbPass123,demo@example.com,MailPass456,ABCDEF123456,,,5000,,21/08/2569 16:44,5456.15,บัญชีหลัก',
-  'บัญชีใหญ่,,DOM,Olymplus,,ว่าง,"ชื่อ, มีคอมมา",1000099999999999,P2,second@example.com,M2,ZXCVBN,,,12000,,20/08/2569 11:20,2052.30,"หมายเหตุ, ทดสอบ"'
+  'บัญชีใหญ่,,DOM,Olymplus,,ว่าง,"ชื่อ, มีคอมมา",1000099999999999,P2,second@example.com,M2,ZXCVBN,,,12000,,20/08/2569 11:20,2052.30,"หมายเหตุ, ทดสอบ"',
+  'บัญชีเล็ก,,VIEW,Liv CARE,,ว่าง,,,,,,,,,,,,,ข้อมูลยังไม่มีชื่อ'
 ].join('\n');
 
 const rows = window._lfbEditorTest.parseCsv(csv);
-assert.equal(rows.length, 2);
+assert.equal(rows.length, 3, 'rows with useful employee or status data must not be discarded when account credentials are incomplete');
 assert.equal(rows[0].fbid, '1000012345678901');
 assert.equal(rows[0].passFb, 'FbPass123');
 assert.equal(rows[0].email, 'demo@example.com');
@@ -37,19 +38,23 @@ assert.equal(rows[0].twofa, 'ABCDEF123456');
 assert.equal(rows[0].note, 'บัญชีหลัก');
 assert.equal(rows[1].name, 'ชื่อ, มีคอมมา');
 assert.equal(rows[1].note, 'หมายเหตุ, ทดสอบ');
+assert.equal(rows[2].emp, 'VIEW');
+assert.equal(rows[2].sourceRow, 4);
+assert.notEqual(window._lfbEditorTest.rowKey(rows[2]), window._lfbEditorTest.rowKey({ ...rows[2], sourceRow: 5 }), 'incomplete source rows must retain distinct stable identities');
+assert.deepEqual(window._lfbEditorTest.employeeValues(rows), ['DOM', 'MOS', 'VIEW']);
 
 const key = window._lfbEditorTest.rowKey(rows[0]);
 const merged = window._lfbEditorTest.applyStored(rows, { [key]: { note: 'แก้ไขแล้ว', bal: '6000' } }, [{ id: 'manual-1', name: 'บัญชีใหม่', fbid: '2000' }]);
-assert.equal(merged.length, 3);
+assert.equal(merged.length, 4);
 assert.equal(merged[0].note, 'แก้ไขแล้ว');
 assert.equal(merged[0].bal, '6000');
-assert.equal(merged[2]._source, 'manual');
+assert.equal(merged[3]._source, 'manual');
 
 const additive = window._lfbEditorTest.mergeRows(rows, [
   { ...rows[0], note: 'ข้อมูลใหม่จากต้นทาง' },
   { name: 'บัญชีเพิ่ม', fbid: '3000', email: 'new@example.com' }
 ]);
-assert.equal(additive.rows.length, 3, 'source refresh must keep old rows and append only new rows');
+assert.equal(additive.rows.length, 4, 'source refresh must keep old rows and append only new rows');
 assert.equal(additive.added, 1);
 assert.equal(additive.rows[0].note, 'ข้อมูลใหม่จากต้นทาง');
 const safe = window._lfbEditorTest.safeSnapshot(rows);

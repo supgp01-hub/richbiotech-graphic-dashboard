@@ -13,7 +13,11 @@
 #lfb-root .lfb-search-row{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}
 #lfb-root .lfb-search-row input{width:100%;padding:9px 12px;border:1px solid var(--surface-card-border);border-radius:8px;background:var(--surface-card);color:var(--text-heading);font-size:13px;box-sizing:border-box}
 #lfb-root .lfb-search-row .rb-icon-input-wrap{margin-bottom:0!important}
-#lfb-root .lfb-quick-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+#lfb-root .lfb-quick-filters{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;margin-bottom:8px;padding-bottom:3px;scrollbar-width:thin}
+#lfb-root .lfb-filter-label{flex:0 0 auto;font-size:10px;font-weight:700;color:var(--text-muted2)}
+#lfb-root .lfb-filter-divider{flex:0 0 auto;width:1px;height:22px;background:var(--surface-card-border);margin:0 3px}
+#lfb-root .lfb-dynamic-employees{display:flex;gap:6px;align-items:center;flex:0 0 auto}
+#lfb-root .lfb-quick-filters .lfb-filter-chip{flex:0 0 auto;white-space:nowrap}
 #lfb-root .lfb-filter-chip{padding:4px 11px;border:1px solid var(--surface-card-border);border-radius:999px;background:var(--surface-card);color:var(--text-heading);cursor:pointer;font-size:11px}
 #lfb-root .lfb-filter-chip.is-active{background:#1B4332;color:#fff;border-color:#1B4332}
 #lfb-root .lfb-advanced-filters{display:none;padding:12px;margin-bottom:10px;border-radius:10px;background:var(--surface-tint)}
