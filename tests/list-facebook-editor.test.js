@@ -9,10 +9,10 @@ global.localStorage = { getItem() { return null; }, setItem() {} };
 global.document = { getElementById() { return null; } };
 eval(editorSource);
 
-assert.ok(editorSource.includes("pageSize:80"), 'large Facebook lists must be paginated');
+assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=201"), 'the deployed page must cache-bust the current Facebook editor');
-assert.ok(indexSource.includes('filtered.slice(0,80).forEach'), 'the legacy fallback must not render the full Facebook list');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=204"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('var shown=filtered.slice(0,60)'), 'the legacy Facebook Pages fallback must not render the full list');
 assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 
 const csv = [
