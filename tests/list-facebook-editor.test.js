@@ -11,8 +11,8 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=217"), 'the deployed page must cache-bust the current Facebook editor');
-assert.ok(indexSource.includes('list-facebook-editor.css?v=217'), 'the deployed page must cache-bust the minimal Facebook layout');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=218"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('list-facebook-editor.css?v=218'), 'the deployed page must cache-bust the minimal Facebook layout');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');
 assert.ok(editorSource.includes('lfb-advanced-filters'), 'detailed filters must remain available without cluttering the page');
@@ -42,6 +42,7 @@ assert.equal(rows[1].note, 'หมายเหตุ, ทดสอบ');
 assert.equal(rows[2].emp, 'VIEW');
 assert.equal(rows[2].sourceRow, 4);
 assert.notEqual(window._lfbEditorTest.rowKey(rows[2]), window._lfbEditorTest.rowKey({ ...rows[2], sourceRow: 5 }), 'incomplete source rows must retain distinct stable identities');
+assert.notEqual(window._lfbEditorTest.rowKey(rows[0]), window._lfbEditorTest.rowKey({ ...rows[0], sourceRow: 99 }), 'intentional duplicate accounts on different source rows must remain separate');
 assert.deepEqual(window._lfbEditorTest.employeeValues(rows), ['DOM', 'MOS', 'VIEW']);
 
 const key = window._lfbEditorTest.rowKey(rows[0]);
