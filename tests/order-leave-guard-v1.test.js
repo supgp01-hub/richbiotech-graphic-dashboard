@@ -41,5 +41,5 @@ assert.strictEqual(dom['om-mb'].style.borderColor,'','the assignee field highlig
 assert.ok(index.includes("rbValidateOrderLeaveAssignment({assignee:guardAssignee"),'order save must enforce the leave guard before persistence');
 assert.ok(index.includes("id='om-leave-guard'")||index.includes("leaveGuard.id='om-leave-guard'"),'order modal must display the live leave status');
 assert.ok(index.includes('order-leave-guard-v1.js?v=226')&&index.includes('order-leave-guard-v1.css?v=226'),'deployed page must load the cache-busted leave guard assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix226">'),'deployed page must expose build fix226');
+assert.ok(index.includes('<meta name="rb-build" content="fix227">'),'deployed page must expose build fix227');
 console.log('order-leave-guard-v1: all tests passed');
