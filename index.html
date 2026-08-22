@@ -2664,8 +2664,13 @@ window._listfbFetch=function(){
 window._lfbFetch=function(){
   var updBtn=document.getElementById('lfb-upd');
   var tsEl=document.getElementById('lfb-ts');
+  var role=window._rbUser&&window._rbUser.role;
+  if(role!=='sup'&&role!=='spec'&&role!=='audit'){
+    if(tsEl)tsEl.textContent='ดูข้อมูลล่าสุดได้ แต่ไม่มีสิทธิ์อัปเดต';
+    return Promise.resolve(false);
+  }
   if(updBtn){updBtn.textContent='กำลังโหลด...';updBtn.disabled=true;}
-  fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345')
+  return fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345')
     .then(function(r){return r.text();})
     .then(function(csv){
       var lines=csv.split('\n').filter(function(l){return l.trim();});
@@ -2675,6 +2680,8 @@ window._lfbFetch=function(){
         cols.push(cur.trim());
         return{type:'',emp:cols[3]||'',own:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:'',flag:false,upd:'',bal:''};
       }).filter(function(r){return r.name&&(r.prod||r.emp||r.st);});
+      try{localStorage.setItem('rb_fbpages_cache_v1',JSON.stringify(window._lfbData));localStorage.setItem('rb_fbpages_refreshed_v1',String(Date.now()));}catch(e){}
+      var root=document.getElementById('fbl-root');if(root&&window._renderFbList)window._renderFbList(root,window._fpMerge?window._fpMerge(window._lfbData):window._lfbData);
       if(updBtn){updBtn.textContent='อัปเดตข้อมูลล่าสุด';updBtn.disabled=false;}
       if(tsEl){var now=new Date();tsEl.textContent='อัพเดท: '+now.toLocaleDateString('th-TH')+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
       
@@ -2691,11 +2698,10 @@ window._initFbList=function(){
   window._fblDone=true;
   var root=document.getElementById('fbl-root');
   if(!root)return;
-  root.innerHTML='<p style="text-align:center;padding:30px;color:#888">⏳ กำลังโหลดข้อมูลเพจ...</p>';
-  fetch('https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345')
-    .then(function(r){return r.text();})
-    .then(function(csv){window._renderFbList(root,window._fpMerge((function(csv){var lines=csv.split('\n').filter(function(l){return l.trim();});return lines.slice(1).map(function(line){var cols=[],inQ=false,cur='';for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else{cur+=c;}}cols.push(cur);return{type:'',emp:cols[3]||'',own:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:cols[14]||'',upd:cols[16]||'',bal:cols[17]||''};}).filter(function(r){return r.name;})})(csv)));})
-    .catch(function(){root.innerHTML='<p style="text-align:center;padding:20px;color:#e00">❌ โหลดข้อมูลไม่สำเร็จ</p>';});
+  var cached=[];try{cached=JSON.parse(localStorage.getItem('rb_fbpages_cache_v1')||'[]')||[];}catch(e){}
+  if(cached.length&&window._renderFbList)window._renderFbList(root,window._fpMerge?window._fpMerge(cached):cached);
+  else root.innerHTML='<div class="rb-heavy-empty">ยังไม่มีข้อมูลที่บันทึกไว้<br><span>ผู้มีสิทธิ์กด “อัปเดตข้อมูลล่าสุด” เพื่อโหลดข้อมูล</span></div>';
+  if(window.rbApplyHeavyRefreshPermissions)window.rbApplyHeavyRefreshPermissions();
 };
 window._parseFbCsv=function(csv){
   var lines=csv.split('\n').filter(function(l){return l.trim();});

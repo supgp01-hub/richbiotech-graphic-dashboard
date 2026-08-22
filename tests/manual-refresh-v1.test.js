@@ -13,5 +13,7 @@ assert.ok(source.includes('function installOverrides()'), 'manual Facebook funct
 assert.ok(source.includes("style.setProperty('display'"), 'refresh permissions must override legacy important button styles');
 assert.ok(editor.includes('window.rbCanRefreshHeavy&&!window.rbCanRefreshHeavy()'), 'List Facebook refresh must enforce permissions in the action itself');
 assert.ok(index.includes('Show the page immediately. Network synchronization must never block the click.'), 'the order screen must render before cloud synchronization');
+assert.ok(index.includes("role!=='sup'&&role!=='spec'&&role!=='audit'"), 'the primary Facebook refresh function must enforce permissions itself');
+assert.ok(index.includes("localStorage.getItem('rb_fbpages_cache_v1')"), 'the primary Facebook page must open from cache');
 
 console.log('manual-refresh-v1: all tests passed');
