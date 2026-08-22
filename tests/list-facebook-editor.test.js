@@ -11,9 +11,11 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=219"), 'the deployed page must cache-bust the current Facebook editor');
-assert.ok(indexSource.includes('list-facebook-editor.css?v=219'), 'the deployed page must cache-bust the minimal Facebook layout');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix219">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=220"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes('list-facebook-editor.css?v=220'), 'the deployed page must cache-bust the Facebook editor layout');
+assert.ok(indexSource.includes('list-facebook-followup.css?v=220'), 'the deployed page must load the follow-up workspace layout');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=220"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix220">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');
@@ -25,8 +27,8 @@ assert.ok(indexSource.includes('var shown=filtered.slice(0,60)'), 'the legacy Fa
 assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 
 const csv = [
-  'ประเภท,คอลัมน์ B,พนักงาน,สินค้า,คอลัมน์ E,สถานะ,ชื่อบัญชี,Facebook ID,รหัสผ่าน,Email,รหัส Email,2FA,คอลัมน์ M,คอลัมน์ N,ลิมิต/วัน,คอลัมน์ P,อัปเดตล่าสุด,ยอดเงิน,หมายเหตุ',
-  'บัญชีเล็ก,,MOS,Liv CARE,,ใช้งาน,Naga Ontare,1000012345678901,FbPass123,demo@example.com,MailPass456,ABCDEF123456,,,5000,,21/08/2569 16:44,5456.15,บัญชีหลัก',
+  'ประเภท,คอลัมน์ B,พนักงาน,สินค้า,คอลัมน์ E,สถานะ,ชื่อบัญชี,Facebook ID,รหัสผ่าน,Email,รหัส Email,2FA,คอลัมน์ M,คอลัมน์ N,ลิมิต/วัน,📌 ต้องติดตาม,อัปเดตล่าสุด,ยอดเงิน,หมายเหตุ',
+  'บัญชีเล็ก,,MOS,Liv CARE,,ใช้งาน,Naga Ontare,1000012345678901,FbPass123,demo@example.com,MailPass456,ABCDEF123456,,,5000,ติดตาม,21/08/2569 16:44,5456.15,บัญชีหลัก',
   'บัญชีใหญ่,,DOM,Olymplus,,ว่าง,"ชื่อ, มีคอมมา",1000099999999999,P2,second@example.com,M2,ZXCVBN,,,12000,,20/08/2569 11:20,2052.30,"หมายเหตุ, ทดสอบ"',
   'บัญชีเล็ก,,VIEW,Liv CARE,,ว่าง,,,,,,,,,,,,,ข้อมูลยังไม่มีชื่อ'
 ].join('\n');
@@ -38,6 +40,7 @@ assert.equal(rows[0].passFb, 'FbPass123');
 assert.equal(rows[0].email, 'demo@example.com');
 assert.equal(rows[0].emailPass, 'MailPass456');
 assert.equal(rows[0].twofa, 'ABCDEF123456');
+assert.equal(rows[0].follow, 'ติดตาม');
 assert.equal(rows[0].note, 'บัญชีหลัก');
 assert.equal(rows[1].name, 'ชื่อ, มีคอมมา');
 assert.equal(rows[1].note, 'หมายเหตุ, ทดสอบ');
