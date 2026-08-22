@@ -32,7 +32,7 @@ async function exercise(browser, role) {
   await page.waitForTimeout(300);
   const afterPagesManual = sheetRequests;
   await page.locator('.gsnav-btn').filter({ hasText: 'List Facebook' }).click();
-  await page.waitForSelector('#lfb2-upd');
+  await page.locator('#lfb2-upd').waitFor({ state: 'attached', timeout: 30000 });
   await page.waitForTimeout(250);
   const listButtonVisible = await page.locator('#lfb2-upd').isVisible();
   const afterListOpen = sheetRequests;
