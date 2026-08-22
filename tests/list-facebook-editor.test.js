@@ -11,7 +11,7 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=213"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=214"), 'the deployed page must cache-bust the current Facebook editor');
 assert.equal(editorSource.includes('activateEditor();\nsetTimeout(activateEditor'), false, 'the large Facebook table must not initialize in the background');
 assert.equal(editorSource.includes('refreshData();window._listfbFetch();'), false, 'opening Graphic must not automatically download the Facebook sheet');
 assert.ok(indexSource.includes('var shown=filtered.slice(0,60)'), 'the legacy Facebook Pages fallback must not render the full list');
