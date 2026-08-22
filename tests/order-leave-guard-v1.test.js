@@ -9,7 +9,7 @@ const data={
   '2026-8-26':[{empId:'dom',type:'sick'}]
 };
 const dom={
-  'om-mb':{value:'NUNE',style:{}},
+  'om-mb':{value:'NUNE',style:{},disabled:false},
   'om-dl':{value:'2026-08-24',style:{}},
   'om-leave-guard':{className:'',innerHTML:''}
 };
@@ -18,28 +18,31 @@ vm.runInNewContext(source,context);
 const api=context._rbOrderLeaveGuardTest;
 assert.ok(api,'leave guard API must be available');
 let result=api.validate({assignee:'NUNE',deadline:'2026-08-24',now:new Date(2026,7,22,9),data,enforce:true});
-assert.strictEqual(result.block,true,'new work must be blocked when Nune is off today');
-assert.strictEqual(result.offToday,true,'today conflict must be identified');
+assert.strictEqual(result.block,false,'today leave must not block a different working deadline');
+assert.strictEqual(result.offToday,false,'the guard must check the deadline only');
 result=api.validate({assignee:'MOS',deadline:'2026-08-25',now:new Date(2026,7,22,9),data,enforce:true});
-assert.strictEqual(result.block,true,'assignment must be blocked when Moss is off on the deadline');
+assert.strictEqual(result.block,true,'saving must pause when the deadline is an employee leave day');
 assert.strictEqual(result.offDeadline,true,'deadline conflict must be identified');
 result=api.validate({assignee:'TER',deadline:'2026-08-25',now:new Date(2026,7,22,9),data,enforce:true});
-assert.strictEqual(result.block,false,'working employees must remain assignable');
+assert.strictEqual(result.block,false,'working deadlines must remain assignable');
 result=api.validate({assignee:'DOM',deadline:'2026-08-26',now:new Date(2026,7,22,9),data,enforce:false});
 assert.strictEqual(result.block,false,'an unchanged existing assignment must remain editable');
-assert.strictEqual(result.conflicts.length,1,'existing assignments must still display their leave warning');
+assert.strictEqual(result.conflicts.length,1,'existing assignments must still display their deadline warning');
 dom['om-mb'].value='MOS';
 dom['om-dl'].value='2026-08-25';
 context.rbRefreshOrderLeaveGuard();
-assert.strictEqual(dom['om-leave-guard'].className,'rb-order-leave-guard is-blocked','the order modal must show a blocked warning');
-assert.ok(dom['om-leave-guard'].innerHTML.includes('Moss')&&dom['om-leave-guard'].innerHTML.includes('ไม่สามารถมอบหมายงาน'),'the warning must identify the unavailable employee');
-assert.strictEqual(dom['om-mb'].style.borderColor,'#ef4444','the unavailable assignee field must be highlighted');
+assert.strictEqual(dom['om-leave-guard'].className,'rb-order-leave-guard is-blocked','the order modal must show a deadline warning');
+assert.ok(dom['om-leave-guard'].innerHTML.includes('Moss')&&dom['om-leave-guard'].innerHTML.includes('กรุณาเปลี่ยนวันที่ Deadline ใหม่'),'the warning must identify the employee and tell the user to change the deadline');
+assert.strictEqual(dom['om-dl'].style.borderColor,'#ef4444','only the conflicting deadline field must be highlighted');
+assert.strictEqual(dom['om-mb'].style.borderColor,'','the assignee field must remain selectable and unhighlighted');
+assert.strictEqual(dom['om-mb'].disabled,false,'the assignee dropdown must never be disabled by the guard');
 dom['om-mb'].value='TER';
 context.rbRefreshOrderLeaveGuard();
 assert.strictEqual(dom['om-leave-guard'].className,'rb-order-leave-guard is-available','changing to an available employee must clear the warning');
-assert.strictEqual(dom['om-mb'].style.borderColor,'','the assignee field highlight must reset after choosing an available employee');
-assert.ok(index.includes("rbValidateOrderLeaveAssignment({assignee:guardAssignee"),'order save must enforce the leave guard before persistence');
-assert.ok(index.includes("id='om-leave-guard'")||index.includes("leaveGuard.id='om-leave-guard'"),'order modal must display the live leave status');
-assert.ok(index.includes('order-leave-guard-v1.js?v=226')&&index.includes('order-leave-guard-v1.css?v=226'),'deployed page must load the cache-busted leave guard assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix227">'),'deployed page must expose build fix227');
+assert.strictEqual(dom['om-dl'].style.borderColor,'','the deadline highlight must reset after the conflict is resolved');
+assert.ok(index.includes("rbValidateOrderLeaveAssignment({assignee:guardAssignee"),'order save must validate the deadline before persistence');
+assert.ok(index.includes("var guardDate=ge('om-dl')"),'a conflict must return focus to the deadline field, not the employee dropdown');
+assert.ok(index.includes("id='om-leave-guard'")||index.includes("leaveGuard.id='om-leave-guard'"),'order modal must display the live deadline status');
+assert.ok(index.includes('order-leave-guard-v1.js?v=228')&&index.includes('order-leave-guard-v1.css?v=228'),'deployed page must load the cache-busted deadline guard assets');
+assert.ok(index.includes('<meta name="rb-build" content="fix228">'),'deployed page must expose build fix228');
 console.log('order-leave-guard-v1: all tests passed');
