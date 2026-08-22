@@ -51,6 +51,6 @@ assert.equal(additive.rows[0].note, 'ข้อมูลใหม่จากต�
 const safe = window._lfbEditorTest.safeSnapshot(rows);
 assert.equal('passFb' in safe[0], false, 'shared snapshot must not duplicate Facebook passwords');
 assert.equal('emailPass' in safe[0], false, 'shared snapshot must not duplicate email passwords');
-assert.equal('twofa' in safe[0], false, 'shared snapshot must not duplicate 2FA secrets');
+assert.equal(safe[0].twofa, 'ABCDEF123456', 'shared snapshot includes 2FA after explicit authorization');
 
 console.log('list-facebook-editor: all tests passed');
