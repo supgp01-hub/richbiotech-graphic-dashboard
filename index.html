@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix233">
+<meta name="rb-build" content="fix236">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2812,7 +2812,51 @@ renameGraphicBtn();
 if(localStorage.getItem("rb_tab")==="channels")setTimeout(hookSocial,200);
 if(localStorage.getItem("rb_tab")==="team")setTimeout(function(){renameGraphicBtn();initGraphicTab();},300);
 })();
-</script><script>
+</script>
+<style id="rb-order-modal-theme-v2">
+#rb-order-modal{padding:18px!important;background:rgba(12,31,24,.64)!important;backdrop-filter:blur(3px)}
+#rb-order-modal .rb-om-window{width:100%!important;max-width:820px!important;max-height:92vh!important;border:1px solid rgba(169,207,183,.72);border-radius:20px!important;background:var(--surface-card)!important;box-shadow:0 26px 72px rgba(8,35,25,.38)!important}
+#rb-order-modal .rb-om-header{gap:12px;padding:16px 20px!important;background:#174d3a!important}
+#rb-order-modal .rb-om-brand-icon{display:grid;width:40px;height:40px;place-items:center;flex:0 0 40px;border:1px solid rgba(255,255,255,.24);border-radius:11px;color:#e8f8ee;background:rgba(255,255,255,.1);font-size:19px}
+#rb-order-modal .rb-om-title-column{min-width:0;flex:1}
+#rb-order-modal .rb-order-title{display:block!important;font-size:16px!important;font-weight:700!important;line-height:1.25;color:#fff!important}
+#rb-order-modal .rb-om-subtitle{display:block;margin-top:3px;color:#cce7d9;font-size:10.5px}
+#rb-order-modal .rb-om-header-action{min-height:36px;padding:0 13px!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:10px!important;background:rgba(255,255,255,.12)!important;font-weight:600}
+#rb-order-modal .rb-om-header-close{color:#fff!important}
+#rb-order-modal .rb-om-header-close .rb-om-close-mark{color:#ff7777;margin-right:5px}
+#rb-order-modal .rb-om-idrow{justify-content:space-between;padding:9px 20px!important;border-bottom:1px solid #cfe3d6!important;background:var(--auto-lc31)!important}
+#rb-order-modal .rb-om-id-badge{margin-left:auto;padding:4px 10px;border:1px solid #c6decf;border-radius:999px;color:#237459;background:var(--surface-card);font-size:10.5px}
+#rb-order-modal .rb-om-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));padding:0 18px!important;border-bottom:1px solid #d8e5dc!important;background:var(--auto-lc12)!important;overflow:visible!important}
+#rb-order-modal .rb-om-tab{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-height:58px!important;padding:8px 10px!important;border:0!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:var(--text-muted2)!important;background:transparent!important;font-size:13px!important;font-weight:600!important;white-space:nowrap!important}
+#rb-order-modal .rb-om-tab.is-active{border-bottom-color:#237459!important;color:#174d3a!important;background:linear-gradient(180deg,rgba(232,248,238,.26),rgba(216,243,220,.72))!important}
+#rb-order-modal .rb-om-tab-icon{display:grid;width:28px;height:28px;place-items:center;border:1px solid #c9ddd0;border-radius:50%;color:#237459;background:var(--surface-card);font-size:14px}
+#rb-order-modal .rb-om-tab.is-active .rb-om-tab-icon{border-color:#40916c;color:#fff;background:#40916c}
+#rb-order-modal .rb-om-body{background:linear-gradient(180deg,var(--auto-lc31),var(--surface-card) 84px)!important;scrollbar-color:#89a397 transparent;scrollbar-width:thin}
+#rb-order-modal .rb-om-panel{padding:18px 20px 22px!important}
+#rb-order-modal .rb-om-panel-heading{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #dce9e1}
+#rb-order-modal .rb-om-panel-heading-icon{display:grid;width:36px;height:36px;place-items:center;flex:0 0 36px;border:1px solid #b9dcc7;border-radius:10px;color:#237459;background:#eaf8ef;font-size:17px}
+#rb-order-modal .rb-om-panel-heading strong{display:block;color:var(--text-heading);font-size:14px}
+#rb-order-modal .rb-om-panel-heading small{display:block;margin-top:2px;color:var(--text-muted2);font-size:10.5px}
+#rb-order-modal .rb-om-section{padding:16px;border:1px solid #d7e6dc;border-radius:14px;background:var(--surface-card);box-shadow:0 5px 18px rgba(27,67,50,.055)}
+#rb-order-modal .rb-om-panel> .rb-om-section + .rb-om-section{margin-top:14px}
+#rb-order-modal .rb-om-section input:not([type=file]),#rb-order-modal .rb-om-section select,#rb-order-modal .rb-om-section textarea{border-color:#c5d7cc!important;border-radius:10px!important;background:var(--surface-card)!important;color:var(--text-heading)!important;outline:none;transition:border-color .16s,box-shadow .16s}
+#rb-order-modal .rb-om-section input:not([type=file]):focus,#rb-order-modal .rb-om-section select:focus,#rb-order-modal .rb-om-section textarea:focus{border-color:#52ad81!important;box-shadow:0 0 0 3px rgba(82,173,129,.14)!important}
+#rb-order-modal .rb-om-section textarea{min-height:82px}
+#rb-order-modal .rb-order-leave-guard{border-radius:10px!important}
+#rb-order-modal #om-brief-wrap,#rb-order-modal #om-submitlinks-section{border-radius:12px!important}
+#rb-order-modal .rb-om-audit-evidence{display:grid!important;grid-template-columns:1fr 1fr;gap:14px!important;margin-top:14px!important;padding-top:14px!important;border-top:1px solid #e3ebe6!important}
+#rb-order-modal .rb-om-audit-evidence>div{padding:12px;border:1px dashed #cddfd3;border-radius:11px;background:var(--auto-lc12)}
+#rb-order-modal .rb-om-upload-zone{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px dashed #67b888;border-radius:12px;background:var(--auto-lc31)}
+#rb-order-modal .rb-om-upload-copy strong{display:block;color:var(--text-heading);font-size:13px}
+#rb-order-modal .rb-om-upload-copy small{display:block;margin-top:3px;color:var(--text-muted2);font-size:10.5px}
+#rb-order-modal .rb-om-footer{padding:13px 20px!important;border-top:1px solid #d4e4da!important;background:var(--auto-lc31)!important}
+#rb-order-modal .rb-om-footer-row{justify-content:flex-end!important}
+#rb-order-modal .rb-om-primary-action,#rb-order-modal .rb-om-secondary-action,#rb-order-modal #om-audit-btns button,#rb-order-modal #om-resend-btn{min-height:43px!important;border-radius:10px!important;padding:0 20px!important;font-size:13px!important;font-weight:700!important}
+#rb-order-modal .rb-om-primary-action{max-width:230px;background:#174d3a!important}
+#rb-order-modal .rb-om-secondary-action{background:#40916c!important}
+html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#d8f3dc!important;background:rgba(64,145,108,.18)!important}
+@media(max-width:680px){#rb-order-modal{padding:7px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:17px 17px 0 0!important}#rb-order-modal .rb-om-header{padding:13px 14px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-save{display:none!important}#rb-order-modal .rb-om-idrow{padding:8px 14px!important}#rb-order-modal .rb-om-tabs{padding:0 6px!important}#rb-order-modal .rb-om-tab{min-height:54px!important;font-size:12px!important;gap:5px!important}#rb-order-modal .rb-om-tab-icon{width:25px;height:25px}#rb-order-modal .rb-om-panel{padding:12px!important}#rb-order-modal .rb-om-section{padding:12px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-footer{padding:10px 12px!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}}
+</style><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -3897,44 +3941,59 @@ window.gAS=function(){
   function buildOM2(){
     if(_OM2)return;
     _OM2=document.createElement('div');
+    _OM2.id='rb-order-modal';
     _OM2.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
     _OM2.onclick=function(e){if(e.target===_OM2)closeOM2();};
     var box=document.createElement('div');
+    box.className='rb-om-window';
     box.style.cssText='background:var(--surface-card);border-radius:16px;width:100%;max-width:660px;display:flex;flex-direction:column;max-height:90vh;box-shadow:0 24px 64px rgba(0,0,0,.35);overflow:hidden;';
     var hdr=document.createElement('div');
+    hdr.className='rb-om-header';
     hdr.style.cssText='background:#1B4332;padding:14px 20px;display:flex;align-items:center;flex-shrink:0;';
     var ti=document.createElement('span');ti.id='om-hd';ti.className='rb-order-title';
     ti.style.cssText='font-size:15px;font-weight:700;color:white;flex:1;';
     var cl=document.createElement('button');cl.type='button';
+    cl.className='rb-om-header-action rb-om-header-close';
     cl.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 14px;color:white;cursor:pointer;font-size:13px;';
-    cl.textContent='✕ ปิด';cl.onclick=closeOM2;
-    hdr.appendChild(ti);var sv=document.createElement('button');sv.textContent='✓ บันทึก';sv.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 14px;color:white;cursor:pointer;font-size:13px;margin-right:8px;';sv.onclick=saveOM2;hdr.appendChild(sv);hdr.appendChild(cl);
+    cl.innerHTML='<span class="rb-om-close-mark">✕</span> ปิด';cl.onclick=closeOM2;
+    var brandIcon=document.createElement('span');brandIcon.className='rb-om-brand-icon';brandIcon.textContent='▤';
+    var titleColumn=document.createElement('div');titleColumn.className='rb-om-title-column';
+    var titleSub=document.createElement('small');titleSub.className='rb-om-subtitle';titleSub.textContent='จัดการรายละเอียดงานและไฟล์ในหน้าต่างเดียว';
+    titleColumn.appendChild(ti);titleColumn.appendChild(titleSub);
+    hdr.appendChild(brandIcon);hdr.appendChild(titleColumn);var sv=document.createElement('button');sv.className='rb-om-header-action rb-om-header-save';sv.textContent='✓ บันทึก';sv.style.cssText='background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 14px;color:white;cursor:pointer;font-size:13px;margin-right:8px;';sv.onclick=saveOM2;hdr.appendChild(sv);hdr.appendChild(cl);
     var idRow=document.createElement('div');
+    idRow.className='rb-om-idrow';
     idRow.style.cssText='background:var(--auto-lc31);padding:6px 20px;font-size:13px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid #e5e7eb;';
     var idLbl=document.createElement('span');idLbl.textContent='เลขงาน:';idLbl.style.fontWeight='700';
     var idVal=document.createElement('span');idVal.id='om-id';
     idVal.style.cssText='font-family:monospace;font-weight:700;color:var(--text-heading);font-size:15px;';
-    idRow.appendChild(idLbl);idRow.appendChild(idVal);
+    var idBadge=document.createElement('span');idBadge.className='rb-om-id-badge';idBadge.textContent='งานใหม่';
+    idRow.appendChild(idLbl);idRow.appendChild(idVal);idRow.appendChild(idBadge);
     var TABS=[{k:'info',lbl:'ประเภทงาน'},{k:'links',lbl:'ตรวจออดิต'},{k:'imgs',lbl:'ส่งงานภาพ'}];
     var tabBar=document.createElement('div');
+    tabBar.className='rb-om-tabs';
     tabBar.style.cssText='display:flex;background:var(--auto-lc12);border-bottom:2px solid #e5e7eb;flex-shrink:0;overflow-x:auto;';
     var tabBtns={};var tabPanels={};
     function switchTab(k){
       TABS.forEach(function(t){
         var on=t.k===k;
-        tabBtns[t.k].style.cssText='padding:10px 18px;border:none;background:'+(on?'white':'transparent')+';color:'+(on?'#1B4332':'#6b7280')+';font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;border-bottom:'+(on?'2px solid #1B4332':'2px solid transparent')+';flex-shrink:0;';
+        tabBtns[t.k].classList.toggle('is-active',on);
+        tabBtns[t.k].setAttribute('aria-selected',on?'true':'false');
         tabPanels[t.k].style.display=on?'block':'none';
       });
       if(_omUpdateFooter)_omUpdateFooter(k);
     }
     TABS.forEach(function(t){
-      var b=document.createElement('button');b.type='button';b.textContent=t.lbl;
+      var b=document.createElement('button');b.type='button';b.className='rb-om-tab';b.setAttribute('role','tab');b.innerHTML='<span class="rb-om-tab-icon">'+(t.k==='info'?'▤':t.k==='links'?'⌕':'▧')+'</span><span>'+t.lbl+'</span>';
       tabBtns[t.k]=b;b.onclick=function(){switchTab(t.k);};tabBar.appendChild(b);
     });
     _switchTab=switchTab;
     var body=document.createElement('div');
+    body.className='rb-om-body';
     body.style.cssText='overflow-y:auto;flex:1;min-height:0;';
-    var p1=document.createElement('div');p1.style.cssText='padding:18px 20px;';p1.id='om2-p1-panel';
+    function panelHeading(icon,title,description){var h=document.createElement('div');h.className='rb-om-panel-heading';h.innerHTML='<span class="rb-om-panel-heading-icon">'+icon+'</span><span><strong>'+title+'</strong><small>'+description+'</small></span>';return h;}
+    function decoratePanel(panel,icon,title,description){var section=document.createElement('div');section.className='rb-om-section';while(panel.firstChild)section.appendChild(panel.firstChild);panel.appendChild(panelHeading(icon,title,description));panel.appendChild(section);}
+    var p1=document.createElement('div');p1.className='rb-om-panel rb-om-panel-info';p1.style.cssText='padding:18px 20px;';p1.id='om2-p1-panel';
     var _ni=mkI('om-name','ชื่องาน *');_ni.setAttribute('list','om-name-list');p1.appendChild(mkF('ชื่องาน *',_ni));_ni.oninput=function(){var nm=this.value;var brand=document.getElementById('om-prod')?document.getElementById('om-prod').value:'';var rows=orderContentRows();var matches=[];for(var i=0;i<rows.length;i++){var r=rows[i];if(r.name===nm&&(!brand||r.brand===brand))matches.push(r);}var hookEl=document.getElementById('om-hook');if(hookEl){hookEl.innerHTML='';var defOpt=document.createElement('option');defOpt.value='';defOpt.textContent='-- เลือก Hook --';hookEl.appendChild(defOpt);matches.forEach(function(r){var o=document.createElement('option');o.value=r.hook||'';o.textContent=r.hook||'';hookEl.appendChild(o);});}var hookEl2=document.getElementById('om-hook2');if(!hookEl2){hookEl2=document.createElement('select');hookEl2.id='om-hook2';var h1s=document.getElementById('om-hook');if(h1s){hookEl2.style.cssText=h1s.style.cssText;if(h1s.parentNode)h1s.parentNode.insertBefore(hookEl2,h1s.nextSibling);}}if(hookEl2){hookEl2.innerHTML='';var defOpt2=document.createElement('option');defOpt2.value='';defOpt2.textContent='-- Hook 2 --';hookEl2.appendChild(defOpt2);matches.forEach(function(r){var o2=document.createElement('option');o2.value=r.hook||'';o2.textContent=r.hook||'';hookEl2.appendChild(o2);});}if(matches.length){var match=matches[0],rawEl=document.getElementById('om-raw'),sheetEl=document.getElementById('om-sheet');if(rawEl&&match.link)rawEl.value=match.link;if(sheetEl&&match.script)sheetEl.value=match.script;}};if(!document.getElementById('om-name-list')){var _dl=document.createElement('datalist');_dl.id='om-name-list';document.body.appendChild(_dl);}refreshOrderContentList('');
     var PRODS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
     var prodSel=mkS('om-prod',[['','-- เลือกสินค้า --']].concat(PRODS.map(function(p){return[p,p];})));
@@ -4006,6 +4065,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     window._renderSubmitLinkRows=function(values){values=Array.isArray(values)?values.slice(0,3):[];submitLinksRows.innerHTML='';values.forEach(function(value,i){var row=document.createElement('div');row.className='om-submitlink-row';row.style.cssText='display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;';var label=document.createElement('div');label.className='om-submitlink-label';label.textContent=submitLinkLabels[i];label.style.cssText='font-size:12px;font-weight:800;color:'+(i===2?'#9a5b00':'#176f4f')+';text-align:center;padding:7px 6px;border-radius:7px;background:'+(i===2?'#fff4db':'#e8f7ed')+';';var linkWrap=mkLink(i===0?'om-submitlink':'om-submitlink'+(i+1));var input=linkWrap.querySelector('input');input.value=value||'';input.placeholder='วางลิงก์ '+submitLinkLabels[i];input.addEventListener('input',window._refreshSubmitLinkDisplay);var remove=document.createElement('button');remove.type='button';remove.title='ลบช่องนี้';remove.textContent='×';remove.style.cssText='width:30px;height:30px;border:1px solid #f1a4a8;border-radius:7px;background:#fff;color:#dc3545;font-size:18px;cursor:pointer;';remove.onclick=function(){var current=submitLinkValues();current.splice(i,1);window._renderSubmitLinkRows(current);};row.appendChild(label);row.appendChild(linkWrap);row.appendChild(remove);submitLinksRows.appendChild(row);});submitLinksAdd.disabled=values.length>=3;submitLinksAdd.style.opacity=values.length>=3?'.45':'1';submitLinksAdd.textContent=values.length>=3?'เพิ่มครบ 3 ลิงก์แล้ว':'+ เพิ่มลิงก์ส่งงาน';window._refreshSubmitLinkDisplay();};
     submitLinksAdd.onclick=function(){var vals=submitLinkValues();if(vals.length>=3)return;vals.push('');window._renderSubmitLinkRows(vals);var id=vals.length===1?'om-submitlink':'om-submitlink'+vals.length;var el=document.getElementById(id);if(el)el.focus();};
     
+    decoratePanel(p1,'▤','รายละเอียดประเภทงาน','ระบุข้อมูลงาน มอบหมายผู้รับผิดชอบ บรีฟ และลิงก์ประกอบ');
     tabPanels['info']=p1;_omInfoPanel=p1;body.appendChild(p1);
     function mkStatus(id){
       var s=document.createElement('select');
@@ -4021,7 +4081,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
       s._applyStyle=applyStyle;
       return s;
     }
-        var p2=document.createElement('div');p2.id='om2-p2-panel';p2.style.cssText='padding:18px 20px;display:none;';
+        var p2=document.createElement('div');p2.className='rb-om-panel rb-om-panel-audit';p2.id='om2-p2-panel';p2.style.cssText='padding:18px 20px;display:none;';
     var glFb=document.createElement('div');glFb.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
     glFb.appendChild(mkF('ชื่อเฟสบุ๊ค',mkI('om-fbname','ชื่อเพจเฟสบุ๊ค...')));
     glFb.appendChild(mkF('ชื่อเพจ',mkI('om-pagename','ชื่อเพจ...')));
@@ -4058,10 +4118,11 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     fImgInpR.onchange=function(){handleImgUpload(this.files,'fix');this.value='';};
     var fGalR=document.createElement('div');fGalR.id='om-fix-gallery';fGalR.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;';
     fSect.appendChild(fHd);fSect.appendChild(fImgBtnR);fSect.appendChild(fImgInpR);fSect.appendChild(fGalR);
-    revImgSection.appendChild(eSect);revImgSection.appendChild(fSect);
+    revImgSection.className='rb-om-audit-evidence';revImgSection.appendChild(eSect);revImgSection.appendChild(fSect);
     p2.appendChild(revImgSection);
+    decoratePanel(p2,'⌕','ตรวจออดิต','บันทึกผลตรวจ แคมเปญ และหลักฐานก่อนเปลี่ยนสถานะงาน');
     tabPanels['links']=p2;body.appendChild(p2);
-    var p4=document.createElement('div');p4.style.cssText='padding:18px 20px;display:none;';p4.id='om2-p4-panel';
+    var p4=document.createElement('div');p4.className='rb-om-panel rb-om-panel-images';p4.style.cssText='padding:18px 20px;display:none;';p4.id='om2-p4-panel';
     var subLinkBox=document.createElement('div');subLinkBox.id='om-submitlink-box';subLinkBox.style.cssText='margin-bottom:14px;padding:10px 14px;border-radius:10px;background:var(--auto-lc31);border:1.5px solid #40916C;display:none;align-items:flex-start;gap:10px;';
     var subLinkIcon=document.createElement('span');subLinkIcon.textContent='🔗';subLinkIcon.style.cssText='font-size:18px;flex-shrink:0;';
     var subLinkText=document.createElement('div');subLinkText.style.cssText='flex:1;min-width:0;';
@@ -4076,20 +4137,22 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     mImgBtn.onclick=function(){mImgInp.click();};
     mImgInp.onchange=function(){handleImgUpload(this.files,'main');this.value='';};
     var mGal=document.createElement('div');mGal.id='om-img-gallery';mGal.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
-    p4.appendChild(mImgBtn);p4.appendChild(mImgInp);p4.appendChild(mGal);
+    var uploadZone=document.createElement('div');uploadZone.className='rb-om-upload-zone';var uploadCopy=document.createElement('div');uploadCopy.className='rb-om-upload-copy';uploadCopy.innerHTML='<strong>อัปโหลดรูปงาน</strong><small>รองรับ JPG, PNG และเลือกได้หลายไฟล์</small>';uploadZone.appendChild(uploadCopy);uploadZone.appendChild(mImgBtn);p4.appendChild(uploadZone);p4.appendChild(mImgInp);p4.appendChild(mGal);
     p4.appendChild(mkF('หมายเหตุ',mkTA('om-imgs-note','หมายเหตุ...')));
+    decoratePanel(p4,'▧','ส่งงานภาพ','ตรวจลิงก์ส่งงาน อัปโหลดรูป และฝากหมายเหตุถึงผู้ตรวจ');
     tabPanels['imgs']=p4;body.appendChild(p4);
     var foot=document.createElement('div');
+    foot.className='rb-om-footer';
     foot.style.cssText='padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;background:var(--surface-card);';
-    var sBtn=document.createElement('button');sBtn.type='button';sBtn.id='om-primary-btn';sBtn.textContent='บันทึกงาน';_omSaveBtn=sBtn;
+    var sBtn=document.createElement('button');sBtn.type='button';sBtn.id='om-primary-btn';sBtn.className='rb-om-primary-action';sBtn.textContent='บันทึกงาน';_omSaveBtn=sBtn;
     sBtn.style.cssText='flex:1;background:#1B4332;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .15s;';
     sBtn.onclick=saveOM2;
     var submitFeedback=document.createElement('div');submitFeedback.id='om-submit-feedback';submitFeedback.setAttribute('role','status');submitFeedback.style.cssText='display:none;margin:0 0 9px;padding:9px 12px;border-radius:9px;font-size:12px;font-weight:700;';
     var draftStatus=document.createElement('div');draftStatus.id='om-draft-status';draftStatus.setAttribute('role','status');draftStatus.style.cssText='display:none;margin:0 0 8px;color:var(--text-muted2);font-size:10.5px;text-align:right;';
     foot.appendChild(draftStatus);
     foot.appendChild(submitFeedback);
-    var ftRow=document.createElement('div');ftRow.style.cssText='display:flex;gap:8px;';
-    var saveBtn2=document.createElement('button');saveBtn2.type='button';saveBtn2.id='om-save-btn';saveBtn2.textContent='💾 บันทึก';
+    var ftRow=document.createElement('div');ftRow.className='rb-om-footer-row';ftRow.style.cssText='display:flex;gap:8px;';
+    var saveBtn2=document.createElement('button');saveBtn2.type='button';saveBtn2.id='om-save-btn';saveBtn2.className='rb-om-secondary-action';saveBtn2.textContent='💾 บันทึกร่าง';
     saveBtn2.style.cssText='padding:10px 20px;background:#40916C;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;';
     saveBtn2.onclick=saveOM2;
     ftRow.appendChild(sBtn);ftRow.appendChild(saveBtn2);
@@ -4104,7 +4167,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
     var resendBtn=document.createElement('button');resendBtn.id='om-resend-btn';resendBtn.style.cssText='display:none;padding:10px 22px;background:#D97706;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;margin-left:8px;box-shadow:0 4px 12px rgba(217,119,6,.3);transition:opacity .15s;';resendBtn.textContent='🔁 ส่งตรวจอีกครั้ง';resendBtn.onclick=function(){var cid=ge('om-id')?ge('om-id').textContent.trim():'';if(!cid)return;var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');var ix=ords.findIndex(function(o){return o.id===cid;});if(ix>=0){persistOMWorkflow(ords[ix]);ords[ix].status='review';ords[ix].updatedAt=new Date().toISOString();}if(typeof spORD==='function')spORD(ords);else localStorage.setItem('rb_orders_v1',JSON.stringify(ords));if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',cid+' → รอตรวจ',(function(){var _x=ords.find(function(x){return x.id===cid;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());closeOM2();if(window._OF){window._OF.status='review';window._OF.dl='';window._OF.activeCard='review';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();};foot.appendChild(resendBtn);
-    _omUpdateFooter=function(tabKey){var isAudit=tabKey==='links'||tabKey==='imgs';var isAuditRole=window._rbUser&&window._rbUser.role==='audit';var saveBtn2=ge('om-save-btn');var resendBtn=ge('om-resend-btn');var revD=ge('om-rev-imgs');var cst=ge('om-st')&&ge('om-st').value;var isRev=cst==='revision';if(saveBtn2)saveBtn2.style.display='none';if(isAudit){_omSaveBtn.style.display='none';if(isRev){auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';}else{auditRow.style.display='flex';if(resendBtn)resendBtn.style.display='none';}if(revD)revD.style.display='block';}else if(isAuditRole){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}else if(!_omViewMode&&isRev){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';if(revD)revD.style.display='block';}else{_omSaveBtn.style.display='';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}};
+    _omUpdateFooter=function(tabKey){var isAuditTab=tabKey==='links';var isImageTab=tabKey==='imgs';var isAuditRole=window._rbUser&&window._rbUser.role==='audit';var saveBtn2=ge('om-save-btn');var resendBtn=ge('om-resend-btn');var revD=ge('om-rev-imgs');var cst=ge('om-st')&&ge('om-st').value;var isRev=cst==='revision';if(saveBtn2)saveBtn2.style.display=tabKey==='info'?'':'none';if(isAuditTab){_omSaveBtn.style.display='none';if(isRev){auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';}else{auditRow.style.display='flex';if(resendBtn)resendBtn.style.display='none';}if(revD)revD.style.display='block';return;}if(isImageTab){auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';if(isAuditRole){_omSaveBtn.style.display='none';}else{_omSaveBtn.style.display='';_omSaveBtn.textContent='▧ บันทึกส่งงานภาพ';}return;}if(isAuditRole){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}else if(!_omViewMode&&isRev){_omSaveBtn.style.display='none';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='inline-flex';if(revD)revD.style.display='block';}else{_omSaveBtn.style.display='';_omSaveBtn.textContent=_omIsNew?'▤ สั่งงาน':'▤ บันทึกงาน';auditRow.style.display='none';if(resendBtn)resendBtn.style.display='none';if(revD)revD.style.display='none';}};
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
     _OM2.appendChild(box);document.body.appendChild(_OM2);
     _OM2.addEventListener('input',function(e){if(e&&e.target&&e.target.id)clearOMFieldError(e.target.id);scheduleOMDraftSave();},true);
@@ -4144,7 +4207,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     _omBriefImages=(o&&o.briefImages)?JSON.parse(JSON.stringify(o.briefImages)):[];
     _omErrorImages=(o&&o.errorImages)?JSON.parse(JSON.stringify(o.errorImages)):[];
     _omFixImages=(o&&o.fixImages)?JSON.parse(JSON.stringify(o.fixImages)):[];
-    var _isView=!!id&&window._ordViewMode==='team';var _isAuditView=window._ordViewMode==='audit'||(window._rbUser&&window._rbUser.role==='audit');ge('om-hd').textContent=_isAuditView&&id?'ตรวจออดิต '+id:_isView&&id?'สรุปงาน '+id:id?'แก้ไขงาน '+id:'เพิ่มงานใหม่';
+    var _isView=!!id&&window._ordViewMode==='team';var _isAuditView=window._ordViewMode==='audit'||(window._rbUser&&window._rbUser.role==='audit');ge('om-hd').textContent=_isAuditView&&id?'ตรวจออดิต '+id:_isView&&id?'สรุปงาน '+id:id?'แก้ไขงาน '+id:'เพิ่มงานใหม่';var _modeBadge=_OM2.querySelector('.rb-om-id-badge');if(_modeBadge)_modeBadge.textContent=id?'งานในระบบ':'งานใหม่';
     ge('om-id').textContent=id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));
     ge('om-name').value=o?(o.name||o.title||''):'';
     ge('om-prod').value=o?(o.product||''):'';
