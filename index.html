@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix232">
+<meta name="rb-build" content="fix233">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3205,6 +3205,8 @@ function genId(){var o=lpORD();var m=o.reduce(function(x,r){var n=parseInt((r.id
 function dlSt(dl){if(!dl)return null;var n=new Date();n.setHours(0,0,0,0);var d=new Date(dl);d.setHours(0,0,0,0);var df=Math.ceil((d-n)/86400000);return df<0?'over':df<=3?'soon':'ok';}
 function fmtD(dl){if(!dl)return'—';var p=dl.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function rbOrderAssigneeCode(name){var key=String(name||'').trim().toLowerCase();var map={'มอส':'MOS','moss':'MOS','ดอม':'DOM','dom':'DOM','เตอร์':'TER','ter':'TER','แจ๋ม':'JAM','jam':'JAM','นุ่น':'NUNE','nune':'NUNE','บอล':'BALL','ball':'BALL','วิว':'VIEW','view':'VIEW','นุ้ย':'NUI','nui':'NUI','มายด์':'MIND','mind':'MIND'};return map[key]||'';}
+window.rbOrderAssigneeCode=rbOrderAssigneeCode;
 
 var _OF={status:'',type:'',search:'',dl:'',assignee:'',date:'',activeCard:'all',sort:'priority'};
 var _OM=null;
@@ -3214,8 +3216,7 @@ function initOrderPanel(){
   if(!panel)return;
   var _rbu=window._rbUser;
   if(_rbu&&_rbu.role==='graphic'){
-    var _ordN2C={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};
-    _OF.assignee=_ordN2C[_rbu.name]||'__none__';
+    _OF.assignee=rbOrderAssigneeCode(_rbu.name)||'__none__';
     var _ocr=document.getElementById('ord-chip-row');if(_ocr)_ocr.style.display='none';
   }
   if(panel.getAttribute('data-order-init')){renderOrderStats();renderOrders();return;}
@@ -3279,8 +3280,8 @@ function initOrderPanel(){
   var resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='ล้างตัวกรอง';resetBtn.title='แสดงงานทั้งหมด';resetBtn.style.cssText='border:1px solid #d1d5db;background:var(--surface-card);color:#4b5563;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;';
   resetBtn.onclick=function(){
     _OF.status='';_OF.type='';_OF.search='';_OF.dl='';_OF.date='';_OF.activeCard='all';_OF.sort='priority';
-    var _cu=window._rbUser;var _map={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};
-    _OF.assignee=_cu&&_cu.role==='graphic'?(_map[_cu.name]||'__none__'):'';
+    var _cu=window._rbUser;
+    _OF.assignee=_cu&&_cu.role==='graphic'?(rbOrderAssigneeCode(_cu.name)||'__none__'):'';
     si.value='';dtI.value='';dtClr.style.display='none';tys.value='';sortSel.value='priority';_activeTeam='';
     chipRow.querySelectorAll('button').forEach(function(c){c.style.background='white';c.style.color='#374151';c.style.borderColor='#d1d5db';});
     renderOrderStats();renderOrders();
@@ -3312,7 +3313,7 @@ function renderOrderStats(){
   var sr=document.getElementById('ord-stats');if(!sr)return;sr.innerHTML='';
   var orders=lpORD();
 
-  var _rbuS=window._rbUser;if(_rbuS&&_rbuS.role==='graphic'){var _ordN2C2={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};var _myCode2=_ordN2C2[_rbuS.name]||'__none__';orders=orders.filter(function(o){return (o.assignee||'')===_myCode2;});}  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
+  var _rbuS=window._rbUser;if(_rbuS&&_rbuS.role==='graphic'){var _myCode2=rbOrderAssigneeCode(_rbuS.name)||'__none__';orders=orders.filter(function(o){return (o.assignee||'')===_myCode2;});}  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
   orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
   [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'มอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
     var isAct=_OF.activeCard===card.k;
@@ -3351,7 +3352,7 @@ function renderOrders(){
     return urgency(a)-urgency(b)||ordDl(a.deadline)-ordDl(b.deadline)||ordTs(b.updatedAt)-ordTs(a.updatedAt);
   });
   var sum=document.getElementById('ord-result-summary');
-  if(sum){var sortNames={priority:'งานด่วนก่อน',deadline:'Deadline ใกล้ก่อน',newest:'แก้ไขล่าสุด',oldest:'งานเก่าก่อน',name:'ชื่องาน ก-ฮ'};var _sumUser=window._rbUser;var _sumIsGraphic=_sumUser&&_sumUser.role==='graphic';var _sumTotal=orders.length;if(_sumIsGraphic){var _sumMap={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};var _sumCode=_sumMap[_sumUser.name]||'__none__';_sumTotal=orders.filter(function(o){return(o.assignee||'')===_sumCode;}).length;}var hasFilter=!!(_OF.status||_OF.type||_OF.search||_OF.dl||_OF.date||(_OF.assignee&&!_sumIsGraphic));sum.innerHTML='<span>แสดง <strong>'+f.length+'</strong> จาก '+_sumTotal+' งาน'+(_sumIsGraphic?'ของฉัน':'')+' · เรียง '+(sortNames[_OF.sort]||sortNames.priority)+'</span>'+(hasFilter?'<button type="button" class="ord-reset-link" onclick="document.querySelector(\'#ord-type-filter\')&&document.querySelector(\'#ord-type-filter\').parentNode.querySelector(\'button[title=&quot;แสดงงานทั้งหมด&quot;]\').click()">ล้างตัวกรองทั้งหมด</button>':'');}
+  if(sum){var sortNames={priority:'งานด่วนก่อน',deadline:'Deadline ใกล้ก่อน',newest:'แก้ไขล่าสุด',oldest:'งานเก่าก่อน',name:'ชื่องาน ก-ฮ'};var _sumUser=window._rbUser;var _sumIsGraphic=_sumUser&&_sumUser.role==='graphic';var _sumTotal=orders.length;if(_sumIsGraphic){var _sumCode=rbOrderAssigneeCode(_sumUser.name)||'__none__';_sumTotal=orders.filter(function(o){return(o.assignee||'')===_sumCode;}).length;}var hasFilter=!!(_OF.status||_OF.type||_OF.search||_OF.dl||_OF.date||(_OF.assignee&&!_sumIsGraphic));sum.innerHTML='<span>แสดง <strong>'+f.length+'</strong> จาก '+_sumTotal+' งาน'+(_sumIsGraphic?'ของฉัน':'')+' · เรียง '+(sortNames[_OF.sort]||sortNames.priority)+'</span>'+(hasFilter?'<button type="button" class="ord-reset-link" onclick="document.querySelector(\'#ord-type-filter\')&&document.querySelector(\'#ord-type-filter\').parentNode.querySelector(\'button[title=&quot;แสดงงานทั้งหมด&quot;]\').click()">ล้างตัวกรองทั้งหมด</button>':'');}
   wrap.innerHTML='';
   if(f.length===0){var em=document.createElement('div');em.textContent='ไม่พบรายการงาน';em.style.cssText='padding:40px;text-align:center;color:var(--text-muted2);font-size:14px;font-style:italic;';wrap.appendChild(em);return;}
   var tbl=document.createElement('table');tbl.className='ord-table';tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;';
@@ -4069,6 +4070,8 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     var sBtn=document.createElement('button');sBtn.type='button';sBtn.id='om-primary-btn';sBtn.textContent='บันทึกงาน';_omSaveBtn=sBtn;
     sBtn.style.cssText='flex:1;background:#1B4332;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .15s;';
     sBtn.onclick=saveOM2;
+    var submitFeedback=document.createElement('div');submitFeedback.id='om-submit-feedback';submitFeedback.setAttribute('role','status');submitFeedback.style.cssText='display:none;margin:0 0 9px;padding:9px 12px;border-radius:9px;font-size:12px;font-weight:700;';
+    foot.appendChild(submitFeedback);
     var ftRow=document.createElement('div');ftRow.style.cssText='display:flex;gap:8px;';
     var saveBtn2=document.createElement('button');saveBtn2.type='button';saveBtn2.id='om-save-btn';saveBtn2.textContent='💾 บันทึก';
     saveBtn2.style.cssText='padding:10px 20px;background:#40916C;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;';
@@ -4132,7 +4135,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     var OT_=typeof OT!=='undefined'?OT:[];
     ge('om-type').value=o?(o.type||''):'';
     ge('om-dl').value=o?o.deadline:'';
-    ge('om-st').value=o?(o.status||''):'';var rb=ge('om-resend-btn');if(rb)rb.style.display=o&&o.status==='revision'?'inline-flex':'none';
+    ge('om-st').value=o?(o.status||''):'pending';var rb=ge('om-resend-btn');if(rb)rb.style.display=o&&o.status==='revision'?'inline-flex':'none';
     ge('om-mb').value=o?(o.assignee||''):'';
     _OM2.setAttribute('data-order-mode',_omIsNew?'new':'edit');
     _OM2.setAttribute('data-original-assignee',o?(o.assignee||''):'');
@@ -4236,6 +4239,12 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
 
   function closeOM2(){if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
 
+  /* Keep this helper in the modal workflow scope.  The row renderer also has
+     a private helper with the same name, but saveOM2/persistOMWorkflow run
+     outside that renderer and must not depend on its nested scope. */
+  function submitLinkValues(){var vals=[];for(var i=0;i<3;i++){var el=document.getElementById(i===0?'om-submitlink':'om-submitlink'+(i+1));if(el)vals.push((el.value||'').trim());}return vals;}
+  function setOMSubmitFeedback(message,kind){var box=ge('om-submit-feedback');if(!box)return;box.textContent=message||'';box.style.display=message?'block':'none';box.style.background=kind==='error'?'#fef2f2':'#ecfdf5';box.style.border='1px solid '+(kind==='error'?'#fecaca':'#a7f3d0');box.style.color=kind==='error'?'#991b1b':'#176f4f';}
+
   function persistOMWorkflow(order){
     if(!order)return order;
     var clipCont=document.getElementById('om-clip-extra');
@@ -4251,6 +4260,7 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
   }
 
   function saveOM2(){
+    setOMSubmitFeedback('','');
     var id=ge('om-id').textContent;
     var title=(ge('om-name').value||'').trim();
     var guardAssignee=(ge('om-mb')&&ge('om-mb').value)||'',guardDeadline=(ge('om-dl')&&ge('om-dl').value)||'';
@@ -4258,7 +4268,7 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
     var guardEnforce=_omIsNew||guardAssignee!==guardOriginalAssignee||guardDeadline!==guardOriginalDeadline;
     var guardResult=window.rbValidateOrderLeaveAssignment?window.rbValidateOrderLeaveAssignment({assignee:guardAssignee,deadline:guardDeadline,enforce:guardEnforce}):{block:false};
     if(window.rbRefreshOrderLeaveGuard)window.rbRefreshOrderLeaveGuard();
-    if(guardResult.block){var guardBox=ge('om-leave-guard');if(guardBox){guardBox.scrollIntoView({behavior:'smooth',block:'center'});}var guardDate=ge('om-dl');if(guardDate){guardDate.style.borderColor='#ef4444';guardDate.style.borderWidth='2px';guardDate.focus();}return;}
+    if(guardResult.block){setOMSubmitFeedback('ยังสั่งงานไม่ได้: Deadline ตรงกับวันหยุด กรุณาเปลี่ยนวันที่แล้วลองอีกครั้ง','error');var guardBox=ge('om-leave-guard');if(guardBox){guardBox.scrollIntoView({behavior:'smooth',block:'center'});}var guardDate=ge('om-dl');if(guardDate){guardDate.style.borderColor='#ef4444';guardDate.style.borderWidth='2px';guardDate.focus();}return;}
     /* ── Validation ── */
     var valid=true;
     function markField(elId,ok){
@@ -4279,9 +4289,12 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
       if(!validationMsg){validationMsg=document.createElement('div');validationMsg.id='om-validation-msg';validationMsg.style.cssText='margin:0 0 12px;padding:10px 12px;border:1px solid #fecaca;border-radius:8px;background:#fef2f2;color:#991b1b;font-size:12px;font-weight:600;';var nameWrap=ge('om-name')&&ge('om-name').parentNode;if(nameWrap&&nameWrap.parentNode)nameWrap.parentNode.insertBefore(validationMsg,nameWrap);}
       var missing=[];if(!title)missing.push('ชื่องาน');if(!dlVal)missing.push('Deadline');if(!typeVal)missing.push('ประเภทงาน');if(!stVal)missing.push('สถานะ');
       validationMsg.textContent='กรุณากรอกข้อมูลให้ครบ: '+missing.join(', ');
+      setOMSubmitFeedback('กรุณากรอกข้อมูลให้ครบ: '+missing.join(', '),'error');
       var firstMissing=!title?ge('om-name'):!dlVal?ge('om-dl'):!typeVal?ge('om-type'):ge('om-st');if(firstMissing){firstMissing.focus();firstMissing.scrollIntoView({block:'center'});}return;
     }
     if(validationMsg&&validationMsg.parentNode)validationMsg.parentNode.removeChild(validationMsg);
+    try{
+    setOMSubmitFeedback('กำลังบันทึกงาน...','success');
     var now=Date.now();
     var orders=typeof lpORD==='function'?lpORD():[];
     var idx=orders.findIndex(function(x){return x.id===id;});
@@ -4336,6 +4349,7 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
     if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}
     (window._rbInitOP||function(){})();
     closeOM2();
+    }catch(saveError){console.error('บันทึกงานไม่สำเร็จ',saveError);setOMSubmitFeedback('บันทึกงานไม่สำเร็จ กรุณาลองอีกครั้ง: '+(saveError&&saveError.message?saveError.message:'ข้อผิดพลาดไม่ทราบสาเหตุ'),'error');}
   }
   try{
     Object.defineProperty(window,'openOM',{get:function(){return openOM2;},set:function(){},configurable:false,enumerable:true});
@@ -4911,7 +4925,6 @@ window._rbRenderMyWork = function(){
   var u = window._rbUser;
   if(!u){ wrap.innerHTML = '<div class="mywork-empty">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</div>'; return; }
   if(typeof LV_EMPS==='undefined' || typeof lpORD!=='function' || typeof lvGetCycle!=='function' || typeof lvCycleStart!=='function' || typeof lvGetDay!=='function'){ wrap.innerHTML=''; return; }
-  var NAME2CODE = {'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};
   var STAT_MAP = {
     pending:{l:'มอบหมาย',col:'#6b7280',bg:'#f3f4f6'},
     inprogress:{l:'กำลังดำเนินการ',col:'#1d4ed8',bg:'#dbeafe'},
@@ -4970,7 +4983,7 @@ window._rbRenderMyWork = function(){
   }
   var html = '';
   targets.forEach(function(emp){
-    var code = NAME2CODE[emp.name];
+    var code = rbOrderAssigneeCode(emp.name);
     var myOrders = code ? orders.filter(function(o){ return o.assignee===code; }) : [];
     var pending = myOrders.filter(function(o){ return o.status==='pending'; });
     var doneAll = myOrders.filter(function(o){ return o.status==='done'; });
@@ -4990,7 +5003,7 @@ window._rbRenderMyWork = function(){
 };
 window._rbHomeGoOrder=function(key){if(window._OF){window._OF.dl='';window._OF.status='';window._OF.date='';window._OF.activeCard=key;if(key==='soon'||key==='over'){window._OF.dl=key;}else if(key!=='all'){window._OF.status=key;}}var navBtn=Array.prototype.slice.call(document.querySelectorAll('nav button')).find(function(b){return b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf("'team'")>=0;});if(navBtn&&typeof window.showTab==='function'){window.showTab('team',navBtn);}var tries=0;var iv=setInterval(function(){tries++;var subBtn=Array.prototype.slice.call(document.querySelectorAll('.gsnav-btn')).find(function(b){return b.textContent.indexOf('สั่งงาน')>=0;});if(subBtn){clearInterval(iv);subBtn.click();}else if(tries>100){clearInterval(iv);window.renderOrderStats&&window.renderOrderStats();window._rbInitOP&&window._rbInitOP();}},50);};
 window._rbHomeGoTeamSub=function(subLabel){var navBtn=Array.prototype.slice.call(document.querySelectorAll('nav button')).find(function(b){return b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf("'team'")>=0;});if(navBtn&&typeof window.showTab==='function'){window.showTab('team',navBtn);}var tries=0;var iv=setInterval(function(){tries++;var subBtn=Array.prototype.slice.call(document.querySelectorAll('.gsnav-btn')).find(function(b){return b.textContent.indexOf(subLabel)>=0;});if(subBtn){clearInterval(iv);subBtn.click();}else if(tries>100){clearInterval(iv);}},50);};
-window._rbRenderHomeStats=function(){try{var orders=window.lpORD?window.lpORD():[];var _rbuH=window._rbUser;if(_rbuH&&_rbuH.role==='graphic'){var _ordN2C3={'มอส':'MOS','ดอม':'DOM','เตอร์':'TER','แจ๋ม':'JAM','นุ่น':'NUNE','บอล':'BALL'};var _myCode3=_ordN2C3[_rbuH.name]||'__none__';orders=orders.filter(function(o){return (o.assignee||'')===_myCode3;});}var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0};orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'&&o.deadline){var n=new Date();n.setHours(0,0,0,0);var d=new Date(o.deadline);d.setHours(0,0,0,0);var df=Math.ceil((d-n)/86400000);if(df>=0&&df<=3)c.soon++;}});['all','pending','inprogress','review','revision','done','soon'].forEach(function(k){var el=document.getElementById('stc-'+k+'-v');if(el)el.textContent=c[k];});}catch(e){}};
+window._rbRenderHomeStats=function(){try{var orders=window.lpORD?window.lpORD():[];var _rbuH=window._rbUser;if(_rbuH&&_rbuH.role==='graphic'){var _myCode3=rbOrderAssigneeCode(_rbuH.name)||'__none__';orders=orders.filter(function(o){return (o.assignee||'')===_myCode3;});}var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0};orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'&&o.deadline){var n=new Date();n.setHours(0,0,0,0);var d=new Date(o.deadline);d.setHours(0,0,0,0);var df=Math.ceil((d-n)/86400000);if(df>=0&&df<=3)c.soon++;}});['all','pending','inprogress','review','revision','done','soon'].forEach(function(k){var el=document.getElementById('stc-'+k+'-v');if(el)el.textContent=c[k];});}catch(e){}};
 window.addEventListener('load',function(){window._rbRenderHomeStats&&window._rbRenderHomeStats();});
 window.addEventListener('load', function(){ window._rbRenderMyWork && window._rbRenderMyWork(); });
 window.addEventListener('load',function(){setTimeout(function(){if(window.fbRefreshOrders){window.fbRefreshOrders(function(){window._rbRefreshOrderViews&&window._rbRefreshOrderViews();});}if(window.fbSyncStart)window.fbSyncStart();},50);});

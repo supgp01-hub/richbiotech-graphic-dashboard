@@ -7,5 +7,6 @@ assert.ok(index.includes("if(vals.length>=3)return"),'delivery links must stop a
 assert.ok(index.includes("submitLinks:submitLinkValues(),"),'all delivery-link slots must be saved with the order');
 assert.ok(index.includes("o&&Array.isArray(o.submitLinks)?o.submitLinks.slice(0,3):(o&&o.submitLink?[o.submitLink]:[])"),'legacy delivery links must reopen as VER 1 without data loss');
 assert.ok(index.includes("order.submitLinks=submitLinkValues();order.submitLink=order.submitLinks[0]||'';"),'status workflow saves must preserve the new links and legacy first-link field');
-assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix232\">"),'deployed page must expose build fix232');
+assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix233\">"),'deployed page must expose build fix233');
+assert.ok(index.includes('function submitLinkValues(){var vals=[];for(var i=0;i<3;i++)'),'the save workflow must own a submit-link reader outside the nested row renderer');
 console.log('order-submit-links-v1: all tests passed');
