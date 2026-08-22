@@ -1,9 +1,9 @@
 (function(){
 'use strict';
 var CSV_URL='https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=1166630130';
-var LS_BASE='rb_listfacebook_base_v1',LS_EDITS='rb_listfacebook_edits_v1',LS_MANUAL='rb_listfacebook_manual_v1',LS_REFRESHED='rb_listfacebook_refreshed_v1',LS_SOURCE_SCHEMA='rb_listfacebook_source_schema_v2';
+var LS_BASE='rb_listfacebook_base_v1',LS_EDITS='rb_listfacebook_edits_v1',LS_MANUAL='rb_listfacebook_manual_v1',LS_REFRESHED='rb_listfacebook_refreshed_v1',LS_SOURCE_SCHEMA='rb_listfacebook_source_schema_v3';
 var CLOUD_BASE='/listfacebook_base_snapshot';
-var SOURCE_SCHEMA_VERSION=2;
+var SOURCE_SCHEMA_VERSION=3;
 var baseRows=[],edits={},manualRows=[];
 var centralLoadPromise=null;
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
@@ -37,7 +37,7 @@ function migrateSourceSnapshot(snapshot){
     return Promise.resolve(true);
   }
   return fetch(CSV_URL).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.text();}).then(function(csv){
-    var merged=mergeRows(baseRows,parseCsv(csv));baseRows=merged.rows;markSourceSchema();saveLocal();refreshData();
+    baseRows=parseCsv(csv);markSourceSchema();saveLocal();refreshData();
     var now=Date.now();try{localStorage.setItem(LS_REFRESHED,String(now));}catch(e){}
     if(window.rbHeavyRefreshStatus)window.rbHeavyRefreshStatus('lfb2-ts',LS_REFRESHED);
     if(window.rbCanRefreshHeavy&&window.rbCanRefreshHeavy())return publishSourceSnapshot(now);
