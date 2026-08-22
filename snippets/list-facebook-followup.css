@@ -32,9 +32,18 @@
 #lfb-root .lfb-hybrid-view-filter.is-active{border-color:#1B4332;background:#1B4332;color:#fff}
 #lfb-root .lfb-hybrid-table-wrap{overflow:auto;max-height:490px;border:1px solid var(--surface-card-border);border-radius:10px}
 #lfb-root .lfb-hybrid-table{width:100%;min-width:670px;border-collapse:collapse;font-size:11px}
+#lfb-root .lfb-hybrid-table .lfb-col-account{width:31%}
+#lfb-root .lfb-hybrid-table .lfb-col-employee{width:14%}
+#lfb-root .lfb-hybrid-table .lfb-col-status{width:25%}
+#lfb-root .lfb-hybrid-table .lfb-col-stage{width:15%}
+#lfb-root .lfb-hybrid-table .lfb-col-updated{width:15%}
 #lfb-root .lfb-hybrid-table thead{position:sticky;top:0;z-index:2;background:#1B4332;color:#fff}
 #lfb-root .lfb-hybrid-table th{padding:9px;text-align:left;font-size:10px}
 #lfb-root .lfb-hybrid-table td{padding:9px;border-bottom:1px solid var(--surface-card-border);color:var(--text-heading);vertical-align:middle}
+#lfb-root .lfb-hybrid-table .lfb-table-center{text-align:center}
+#lfb-root .lfb-hybrid-table .lfb-status-cell{line-height:1.45;overflow-wrap:anywhere}
+#lfb-root .lfb-hybrid-table .lfb-stage-cell{white-space:nowrap}
+#lfb-root .lfb-hybrid-table .lfb-updated{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text-muted2)}
 #lfb-root .lfb-follow-row{cursor:pointer}
 #lfb-root .lfb-follow-row:nth-child(even){background:color-mix(in srgb,var(--surface-tint) 45%,transparent)}
 #lfb-root .lfb-follow-row:hover,#lfb-root .lfb-follow-row.is-selected{background:color-mix(in srgb,#dff3e6 62%,var(--surface-card))}
