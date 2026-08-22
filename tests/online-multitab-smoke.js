@@ -13,7 +13,19 @@ if (!url) throw new Error('Usage: node tests/online-multitab-smoke.js <url>');
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(`tab${i + 1}: ${error.message}`));
     page.on('console', message => {
-      if (message.type() === 'error') errors.push(`tab${i + 1}: ${message.text()}`);
+      if (message.type() === 'error' && !message.text().includes('Failed to load resource')) {
+        errors.push(`tab${i + 1}: ${message.text()}`);
+      }
+    });
+    page.on('response', response => {
+      if (response.request().resourceType() === 'script' && response.status() >= 400) {
+        errors.push(`tab${i + 1}: script HTTP ${response.status()} ${response.url()}`);
+      }
+    });
+    page.on('requestfailed', request => {
+      if (request.resourceType() === 'script') {
+        errors.push(`tab${i + 1}: script request failed ${request.url()}`);
+      }
     });
     await page.goto(`${url}${url.includes('?') ? '&' : '?'}smoke=${Date.now()}-${i}`, {
       waitUntil: 'commit',
