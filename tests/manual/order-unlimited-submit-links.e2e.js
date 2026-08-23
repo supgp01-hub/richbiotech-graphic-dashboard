@@ -1,0 +1,43 @@
+const {chromium}=require('playwright');
+const assert=require('assert');
+
+(async()=>{
+  const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix248-unlimited';
+  const originalLinks=Array.from({length:5},(_,i)=>`https://example.com/submission-${i+1}`);
+  const order={id:'GR998',name:'Unlimited link test',product:'WOLF+',type:'กราฟิก',deadline:'2026-08-25',status:'inprogress',assignee:'DOM',submitLinks:originalLinks,createdAt:Date.now(),updatedAt:Date.now()};
+  const browser=await chromium.launch({headless:true,channel:'chrome'});
+  const context=await browser.newContext();
+  await context.addInitScript(order=>{
+    localStorage.setItem('rb_session',JSON.stringify({name:'Dom',role:'graphic',expiresAt:Date.now()+3600000}));
+    localStorage.setItem('rb_orders_v1',JSON.stringify([order]));
+  },order);
+  await context.route(/firebaseio\.com/,route=>route.abort('blockedbyclient'));
+  await context.route('https://**',route=>route.abort('blockedbyclient'));
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.goto(target,{waitUntil:'commit',timeout:60000});
+  await page.waitForSelector('#sidebar',{timeout:90000});
+  await page.waitForFunction(()=>typeof window.openOM==='function'&&typeof window._rbInitOP==='function',null,{timeout:90000});
+  await page.locator('#sidebar button').filter({hasText:'Graphic'}).click();
+  await page.locator('.gsnav-btn').filter({hasText:'สั่งงาน'}).click();
+  await page.waitForSelector('[data-sub="order"].gsp-active');
+  await page.getByRole('button',{name:'แก้ไขงาน'}).first().click();
+  await page.waitForSelector('#rb-order-modal',{state:'visible'});
+  assert.strictEqual(await page.locator('#om-submitlinks-rows input').count(),5,'all saved links must reopen');
+  await page.locator('#om-add-submitlink').click();
+  await page.locator('#om-add-submitlink').click();
+  assert.strictEqual(await page.locator('#om-submitlinks-rows input').count(),7,'add-link must not stop at three');
+  assert.strictEqual(await page.locator('.om-submitlink-label').last().innerText(),'เทสส่วนตัว 5');
+  await page.locator('#om-submitlinks-rows input').nth(5).fill('https://example.com/personal-4');
+  await page.locator('#om-submitlinks-rows input').nth(6).fill('https://example.com/personal-5');
+  await page.getByRole('tab',{name:'ตรวจออดิต'}).click();
+  assert.strictEqual(await page.locator('#om-audit-submitlink-list a').count(),7,'Audit must receive every submitted link');
+  await page.getByRole('tab',{name:'ประเภทงาน'}).click();
+  await page.locator('#om-primary-btn').click();
+  await page.waitForTimeout(300);
+  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0]);
+  assert.strictEqual(saved.submitLinks.length,7,'save must preserve every submitted link');
+  assert.deepStrictEqual(errors,[],'no JavaScript errors are allowed');
+  await browser.close();
+  console.log('order unlimited submit links: passed');
+})().catch(error=>{console.error(error);process.exit(1);});
