@@ -1,0 +1,40 @@
+#rb-order-modal #rb-revision-view-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 14px;
+  padding: 11px 12px;
+  border: 1px solid #aebdc4;
+  border-radius: 10px;
+  background: #edf4f4;
+}
+#rb-order-modal .rb-revision-view-toolbar-copy strong,
+#rb-order-modal .rb-revision-view-toolbar-copy small { display: block; }
+#rb-order-modal .rb-revision-view-toolbar-copy strong { color: #263f49; font-size: 12.5px; }
+#rb-order-modal .rb-revision-view-toolbar-copy small { margin-top: 2px; color: #62777e; font-size: 10.5px; }
+#rb-order-modal .rb-revision-edit-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #087f7b;
+  border-radius: 8px;
+  background: #087f7b;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#rb-order-modal .rb-revision-edit-toggle span { font-size: 15px; }
+#rb-order-modal .rb-revision-edit-toggle b { font-size: 11.5px; }
+#rb-order-modal.rb-revision-edit-mode #rb-revision-view-toolbar { border-color: #c7d4d8; background: #f7f9fa; }
+#rb-order-modal.rb-revision-edit-mode .rb-revision-edit-toggle { background: #fff; color: #087f7b; }
+html[data-theme="dark"] #rb-order-modal #rb-revision-view-toolbar { border-color: #2c7155; background: #10382b; }
+html[data-theme="dark"] #rb-order-modal .rb-revision-view-toolbar-copy strong { color: #effff7; }
+html[data-theme="dark"] #rb-order-modal .rb-revision-view-toolbar-copy small { color: #a8d6c1; }
+@media (max-width: 640px) {
+  #rb-order-modal #rb-revision-view-toolbar { align-items: stretch; flex-direction: column; }
+  #rb-order-modal .rb-revision-edit-toggle { width: 100%; }
+}

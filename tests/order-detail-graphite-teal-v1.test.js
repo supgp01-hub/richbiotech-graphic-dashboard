@@ -17,7 +17,11 @@ assert(source.includes("revisionLinkGroup('ลิงก์งาน',workLinks[0
 assert(source.includes("revisionLinkGroup('ลิงก์ FOOTAGE',order.footageLink"), 'Footage links must remain');
 assert(source.includes("revisionLinkGroup('INSERT / REVIEW',order.reviewLink"), 'Insert / Review links must remain');
 assert(source.includes('grid-template-columns:125px minmax(0,1fr) 42px 42px'), 'label/copy/open columns are not aligned');
-assert(source.includes("var _structuredTeamView=!!(o&&_orderRole==='graphic'&&_isView)"), 'structured detail must be shown for every Graphic team job');
+assert(source.includes('var _structuredDetailView=!!o'), 'structured detail must be shown for every existing job and every user role');
+assert(source.includes("var canEditOriginal=role==='sup'||role==='spec'"), 'Supervisor and Specialist must retain an explicit edit mode');
+assert(source.includes("edit.innerHTML='<span aria-hidden=\"true\">✎</span><b>แก้ไขข้อมูล</b>'"), 'structured manager view must expose the edit-mode control');
+assert(source.includes("_OM2.classList.add('rb-revision-edit-mode')"), 'manager edit mode must preserve the original editable form');
+assert(source.includes('snippets/order-detail-all-users-v1.css'), 'all-user structured detail stylesheet is not loaded');
 assert(source.includes("if(order.status==='revision')"), 'revision warning must only appear for revision jobs');
 assert(source.includes("statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'}"), 'structured detail must show the actual workflow status');
 assert(source.includes(':not(#om-clip-extra):not(#om-add-clip-wrap):not(#om-p1fix-hdr)'), 'team ad-link and fix-image controls must remain editable');
