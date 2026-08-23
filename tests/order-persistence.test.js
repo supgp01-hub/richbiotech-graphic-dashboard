@@ -23,14 +23,14 @@ assert.ok(!syncSave.includes('byId[row.id]'), 'visible GR numbers must not selec
 
 assert.ok(html.includes('if(_omIsNew&&idx>=0)'), 'a stale new-order form must not replace an existing visible GR number');
 
-const workflowStart = html.indexOf('function persistOMWorkflow(order)');
+const workflowStart = html.indexOf('function persistOMWorkflow(order,options)');
 const workflowEnd = html.indexOf('\n  function saveOM2()', workflowStart);
 const workflowSave = html.slice(workflowStart, workflowEnd);
 assert.ok(workflowSave.includes('order.clipLinks='), 'employee clip links must be copied into the order before status changes');
 assert.ok(workflowSave.includes('order.fixImages='), 'employee fix images must be copied into the order before status changes');
 assert.ok(workflowSave.includes('order.errorImages='), 'audit images must be copied into the order before status changes');
-assert.ok((html.match(/persistOMWorkflow\(orders\[idx\]\)/g)||[]).length >= 3, 'review actions must persist modal data before changing status');
-assert.ok(html.includes('persistOMWorkflow(ords[ix]);ords[ix].status=\'review\''), 'resubmission must save its latest attachments');
+assert.ok((html.match(/persistOMWorkflow\(orders\[idx\]\)/g)||[]).length >= 2, 'audit review actions must persist modal data before changing status');
+assert.ok(html.includes("persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst"), 'resubmission must append its latest attachments without overwriting the original links');
 
 assert.ok(html.includes("else if(_cr0==='audit')window._ordViewMode='audit'"), 'Audit users must not be opened in employee/team mode');
 assert.ok(html.includes("isAuditRole=role==='audit',canAudit=role==='sup'||isAuditRole"), 'the footer must recognize the Audit role explicitly');

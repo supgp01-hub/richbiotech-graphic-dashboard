@@ -6,7 +6,8 @@ assert.ok(index.includes("submitLinksAdd.onclick=function()"),'the order form mu
 assert.ok(index.includes("if(vals.length>=3)return"),'delivery links must stop after the three named slots');
 assert.ok(index.includes("submitLinks:submitLinkValues(),"),'all delivery-link slots must be saved with the order');
 assert.ok(index.includes("o&&Array.isArray(o.submitLinks)?o.submitLinks.slice(0,3):(o&&o.submitLink?[o.submitLink]:[])"),'legacy delivery links must reopen as VER 1 without data loss');
-assert.ok(index.includes("order.submitLinks=submitLinkValues();order.submitLink=order.submitLinks[0]||'';"),'status workflow saves must preserve the new links and legacy first-link field');
-assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix241\">"),'deployed page must expose build fix241');
+assert.ok(index.includes("order.submitLinks=currentSubmitLinks;order.submitLink=order.submitLinks[0]||'';"),'normal status workflow saves must preserve delivery links and the legacy first-link field');
+assert.ok(index.includes('order.revisionSubmissions.push({links:currentSubmitLinks.slice()'),'revision delivery links must append to history without overwriting the original');
+assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix242\">"),'deployed page must expose build fix242');
 assert.ok(index.includes('function submitLinkValues(){var vals=[];for(var i=0;i<3;i++)'),'the save workflow must own a submit-link reader outside the nested row renderer');
 console.log('order-submit-links-v1: all tests passed');

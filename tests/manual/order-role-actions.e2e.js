@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
-const target=process.argv[2]||'http://127.0.0.1:8011/index.html?v=fix241';
+const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix242';
 const seedOrder={id:'GR901',_fbKey:'qa_role_order',name:'Role action test',product:'Liv CARE',type:'กราฟิก',deadline:'2026-08-23',status:'pending',assignee:'DOM',note:'',createdAt:Date.now(),updatedAt:Date.now()};
 
 async function waitRuntime(page){

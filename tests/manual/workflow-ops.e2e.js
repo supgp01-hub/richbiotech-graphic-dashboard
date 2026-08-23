@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
-const target=process.argv[2]||'http://127.0.0.1:8011/index.html?v=fix241-ops';
+const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix242-ops';
 const screenshotPath=process.argv[3]||'';
 const seed=[
   {id:'GR981',_fbKey:'ops_a',name:'งานใหม่ทดสอบ',product:'Liv CARE',type:'ยิงแอด',deadline:'2026-08-30',status:'pending',assignee:'DOM',createdAt:Date.now(),updatedAt:Date.now()},
