@@ -1,0 +1,26 @@
+const fs=require('fs');
+const assert=require('assert');
+const source=fs.readFileSync('index.html','utf8');
+const theme=fs.readFileSync('snippets/order-modal-graphite-teal-v1.css','utf8');
+
+assert(source.includes('snippets/order-modal-graphite-teal-v1.css'), 'Graphite Teal stylesheet is not loaded');
+assert(theme.includes('html:not([data-theme=dark]) #rb-order-modal .rb-om-header{background:#22333c!important}'), 'Graphite Teal modal theme is missing');
+assert(source.includes('.rb-revision-ref-copy'), 'reference-link copy control styles are missing');
+assert(source.includes('function revisionCopyUrl(url,button)'), 'reference-link copy behavior is missing');
+assert(source.includes('revisionImageGroup(order)'), 'all uploaded order images must render in the combined image gallery');
+assert(source.includes("['briefImages','รูปตัวอย่าง'],['images','รูปส่งงาน'],['errorImages','รูปข้อผิดพลาด'],['fixImages','รูปแก้ไข']"), 'combined image gallery must include every image category');
+assert(source.includes("revisionLinkGroup('ลิงก์ตัวอย่าง',order.sampleLink"), 'sample URL must remain a separate link field');
+assert(source.includes("title.textContent='รวมภาพ'"), 'combined image gallery title is missing');
+assert(source.includes("empty.textContent='ยังไม่มีภาพในงานนี้'"), 'empty combined gallery state is missing');
+assert(source.includes("revisionLinkGroup('ลิงก์คลิป',clipLinks[0]"), 'clip links are missing from detail view');
+assert(source.includes("revisionLinkGroup('ลิงก์งาน',workLinks[0]"), 'work links are missing from detail view');
+assert(source.includes("revisionLinkGroup('ลิงก์ FOOTAGE',order.footageLink"), 'Footage links must remain');
+assert(source.includes("revisionLinkGroup('INSERT / REVIEW',order.reviewLink"), 'Insert / Review links must remain');
+assert(source.includes('grid-template-columns:125px minmax(0,1fr) 42px 42px'), 'label/copy/open columns are not aligned');
+assert(source.includes("var _structuredTeamView=!!(o&&_orderRole==='graphic'&&_isView)"), 'structured detail must be shown for every Graphic team job');
+assert(source.includes("if(order.status==='revision')"), 'revision warning must only appear for revision jobs');
+assert(source.includes("statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'}"), 'structured detail must show the actual workflow status');
+assert(source.includes(':not(#om-clip-extra):not(#om-add-clip-wrap):not(#om-p1fix-hdr)'), 'team ad-link and fix-image controls must remain editable');
+assert(source.includes(':not(#om-submitlinks-section)'), 'team submit-link workspace must remain editable');
+
+console.log('order detail Graphite Teal tests passed');
