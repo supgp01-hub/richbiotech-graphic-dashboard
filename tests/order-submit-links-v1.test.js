@@ -11,6 +11,7 @@ assert.ok(index.includes("order.submitLinks=currentSubmitLinks;order.submitLink=
 assert.ok(index.includes('order.revisionSubmissions.push({links:currentSubmitLinks.slice()'),'revision delivery links must append to history without overwriting the original');
 assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix243\">"),'deployed page must expose build fix243');
 assert.ok(index.includes("document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input')"),'the save workflow must collect every delivery-link row');
-assert.ok(index.includes('id="om-audit-submitlink-list"'),'the Audit tab must receive the complete delivery-link list');
+assert.ok(!index.includes('id="om-audit-submitlink-list"'),'the Audit tab must not duplicate submitted links in a separate text block');
+assert.ok(index.includes("i===0?'om-uplink':i===1?'om-ad':'om-link'+(i+1)"),'submitted links must populate Link Ver 1, Link Ver 2, and every additional Link Ver field');
 assert.ok(index.includes("workNodes=workIds.map(function(id){return document.getElementById(id);}).filter(Boolean)"),'team controls must be preserved when another user reopens a job');
 console.log('order-submit-links-v1: all tests passed');

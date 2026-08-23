@@ -53,8 +53,8 @@ async function ready(page){
   const second=await context.newPage();await ready(second);await second.locator('#sidebar button').filter({hasText:'Graphic'}).click();await second.locator('.gsnav-btn').filter({hasText:'สั่งงาน'}).click();
   await page.evaluate(()=>window.openOM('GR981'));await page.waitForSelector('#rb-order-modal',{state:'visible'});await page.waitForTimeout(250);
   await second.evaluate(()=>window.openOM('GR981'));await second.waitForSelector('#rb-order-modal',{state:'visible'});await second.waitForTimeout(350);
-  assert.strictEqual(await second.locator('#rb-order-modal').getAttribute('data-rb-locked'),'1','second tab must open the same job in protected read-only mode');
-  assert.ok(await second.locator('.rb-ops-lock-banner').count()===1,'locked job must clearly identify the active editor');
+  assert.strictEqual(await second.locator('#rb-order-modal').getAttribute('data-rb-lock-warning'),'1','second tab must warn that the same job is active elsewhere');
+  assert.ok(await second.locator('.rb-ops-lock-banner').count()===1,'concurrent job must clearly identify the active editor and recheck before save');
   assert.deepStrictEqual(errors,[],`browser errors: ${errors.join(' | ')}`);
   await context.close();await browser.close();console.log('workflow operations: inbox, bulk, timeline, notifications, health, snapshot and multitab lock passed');
 })().catch(e=>{console.error(e);process.exit(1)});
