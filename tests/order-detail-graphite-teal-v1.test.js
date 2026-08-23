@@ -9,14 +9,15 @@ assert(source.includes('.rb-revision-ref-copy'), 'reference-link copy control st
 assert(source.includes('function revisionCopyUrl(url,button)'), 'reference-link copy behavior is missing');
 assert(source.includes('revisionImageGroup(order)'), 'all uploaded order images must render in the combined image gallery');
 assert(source.includes("['briefImages','รูปตัวอย่าง'],['images','รูปส่งงาน'],['errorImages','รูปข้อผิดพลาด'],['fixImages','รูปแก้ไข']"), 'combined image gallery must include every image category');
-assert(source.includes("revisionLinkGroup('ลิงก์ตัวอย่าง',order.sampleLink"), 'sample URL must remain a separate link field');
+assert(source.includes("revisionUniformLinkRows('ลิงก์ตัวอย่าง',[order.sampleLink]"), 'sample URL must remain a separate link field');
 assert(source.includes("title.textContent='รวมภาพ'"), 'combined image gallery title is missing');
 assert(source.includes("empty.textContent='ยังไม่มีภาพในงานนี้'"), 'empty combined gallery state is missing');
-assert(source.includes("revisionLinkGroup('ลิงก์คลิป',clipLinks[0]"), 'clip links are missing from detail view');
-assert(source.includes("revisionLinkGroup('ลิงก์งาน',workLinks[0]"), 'work links are missing from detail view');
-assert(source.includes("revisionLinkGroup('ลิงก์ FOOTAGE',order.footageLink"), 'Footage links must remain');
-assert(source.includes("revisionLinkGroup('INSERT / REVIEW',order.reviewLink"), 'Insert / Review links must remain');
-assert(source.includes('grid-template-columns:125px minmax(0,1fr) 42px 42px'), 'label/copy/open columns are not aligned');
+assert(source.includes("revisionUniformLinkRows('ลิงก์คลิป',clipLinks"), 'clip links are missing from detail view');
+assert(source.includes("revisionUniformLinkRows('ลิงก์งาน',workLinks"), 'work links are missing from detail view');
+assert(source.includes("revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[])"), 'Footage links must remain and be deduplicated');
+assert(source.includes("revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[])"), 'Insert / Review links must remain and be deduplicated');
+assert(source.includes('snippets/order-detail-unified-v1.css'), 'unified detail link stylesheet is not loaded');
+assert(source.includes("sv.innerHTML='<span class=\"rb-om-save-mark\" aria-hidden=\"true\">✓</span>'"), 'sticky header save icon is missing');
 assert(source.includes('var _structuredDetailView=!!o'), 'structured detail must be shown for every existing job and every user role');
 assert(source.includes("var canEditOriginal=role==='sup'||role==='spec'"), 'Supervisor and Specialist must retain an explicit edit mode');
 assert(source.includes("edit.innerHTML='<span aria-hidden=\"true\">✎</span><b>แก้ไขข้อมูล</b>'"), 'structured manager view must expose the edit-mode control');
@@ -24,7 +25,8 @@ assert(source.includes("_OM2.classList.add('rb-revision-edit-mode')"), 'manager 
 assert(source.includes('snippets/order-detail-all-users-v1.css'), 'all-user structured detail stylesheet is not loaded');
 assert(source.includes("if(order.status==='revision')"), 'revision warning must only appear for revision jobs');
 assert(source.includes("statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'}"), 'structured detail must show the actual workflow status');
-assert(source.includes(':not(#om-clip-extra):not(#om-add-clip-wrap):not(#om-p1fix-hdr)'), 'team ad-link and fix-image controls must remain editable');
-assert(source.includes(':not(#om-submitlinks-section)'), 'team submit-link workspace must remain editable');
+assert(source.includes("['om-clip-hdr','om-add-clip-wrap','om-clip-extra','om-p1fix-hdr'"), 'team ad-link and fix-image controls must remain editable');
+assert(source.includes(':not(#rb-revision-team-workspace)'), 'team submit-link workspace must remain editable');
+assert(source.includes("teamWorkspace.id='rb-revision-team-workspace'"), 'team edit controls must stay grouped in one workspace');
 
 console.log('order detail Graphite Teal tests passed');
