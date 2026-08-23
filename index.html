@@ -3981,14 +3981,18 @@ window.gAS=function(){
     var input=document.createElement('textarea');input.value=url;input.style.position='fixed';input.style.opacity='0';document.body.appendChild(input);input.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(input);
   }
   function revisionUniqueLinks(values){
-    var seen={};return (values||[]).reduce(function(list,value){value=value==null?'':String(value).trim();if(!value||seen[value])return list;seen[value]=true;list.push(value);return list;},[]);
+    var seen={};return (values||[]).reduce(function(list,value){
+      value=value==null?'':String(value).trim();
+      var key=value.replace(/[?#].*$/,'').replace(/\/+$/,'').toLowerCase();
+      if(!value||seen[key])return list;seen[key]=true;list.push(value);return list;
+    },[]);
   }
   function revisionUniformLinkRows(label,values,wide){
     var urls=revisionUniqueLinks(values),group=document.createElement('div');group.className='rb-revision-ref-group rb-revision-uniform-links'+(wide?' is-wide':'');
     if(!urls.length)urls=[''];
     urls.forEach(function(url,index){
       var row=document.createElement('div');row.className='rb-revision-ref-field rb-revision-uniform-row'+(url?'':' is-empty');
-      var rowLabel=document.createElement('div');rowLabel.className='rb-revision-ref-field-label';rowLabel.textContent=urls.length>1?label+' '+(index+1):label;
+      var rowLabel=document.createElement('div');rowLabel.className='rb-revision-ref-field-label';var alwaysNumber=label==='FOOTAGE'||label==='INSERT / REVIEW';rowLabel.textContent=(urls.length>1||alwaysNumber)?label+' '+(index+1):label;
       var value=document.createElement('div');value.className='rb-revision-ref-value';value.textContent=url||'ไม่มีลิงก์';value.title=url||'';
       var copy=document.createElement('button');copy.type='button';copy.className='rb-revision-ref-copy'+(url?'':' is-empty');copy.title='คัดลอกลิงก์';copy.setAttribute('aria-label','คัดลอก '+rowLabel.textContent);copy.innerHTML=url?revisionCopyIcon():'—';if(url)copy.onclick=function(){revisionCopyUrl(url,copy);};
       var open=document.createElement('a');open.className='rb-revision-ref-open'+(url?'':' is-empty');open.innerHTML=url?revisionOpenIcon():'—';open.title='เปิดลิงก์';open.setAttribute('aria-label','เปิด '+rowLabel.textContent);if(url){open.href=url;open.target='_blank';open.rel='noopener';open.setAttribute('data-link-btn','1');}

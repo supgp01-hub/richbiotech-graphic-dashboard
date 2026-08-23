@@ -16,6 +16,8 @@ assert(source.includes("revisionUniformLinkRows('ลิงก์คลิป',cl
 assert(source.includes("revisionUniformLinkRows('ลิงก์งาน',workLinks"), 'work links are missing from detail view');
 assert(source.includes("revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[])"), 'Footage links must remain and be deduplicated');
 assert(source.includes("revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[])"), 'Insert / Review links must remain and be deduplicated');
+assert(source.includes("value.replace(/[?#].*$/,'').replace(/\\/+$/,'').toLowerCase()"), 'equivalent Drive links with query strings must be deduplicated');
+assert(source.includes("var alwaysNumber=label==='FOOTAGE'||label==='INSERT / REVIEW'"), 'Footage and review links must always use numbered labels');
 assert(source.includes('snippets/order-detail-unified-v1.css'), 'unified detail link stylesheet is not loaded');
 assert(source.includes("sv.innerHTML='<span class=\"rb-om-save-mark\" aria-hidden=\"true\">✓</span>'"), 'sticky header save icon is missing');
 assert(source.includes('var _structuredDetailView=!!o'), 'structured detail must be shown for every existing job and every user role');
