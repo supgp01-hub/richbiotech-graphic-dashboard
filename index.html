@@ -8,7 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix239">
+<meta name="rb-build" content="fix241">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -613,7 +613,7 @@
 </style>
 <script src="snippets/multitab-stability-v1.js?v=205"></script>
 <link rel="stylesheet" href="snippets/list-facebook-editor.css?v=223">
-<link rel="stylesheet" href="snippets/list-facebook-followup.css?v=223">
+<link rel="stylesheet" href="snippets/list-facebook-followup.css?v=224">
 <script>window._lfbEditorBoot='waiting';document.documentElement.setAttribute('data-lfb-boot','waiting');window.addEventListener('error',function(event){if(String(event.filename||'').indexOf('list-facebook')===-1)return;document.documentElement.setAttribute('data-lfb-boot','runtime-error');document.documentElement.setAttribute('data-lfb-error',String(event.message||'unknown error'));});</script>
 </head>
 <body>
@@ -2881,7 +2881,9 @@ if(localStorage.getItem("rb_tab")==="team")setTimeout(function(){renameGraphicBt
 #rb-order-modal .rb-om-footer-row{justify-content:flex-end!important}
 #rb-order-modal .rb-om-secondary-action{display:none!important}
 #rb-order-modal .rb-om-primary-action,#rb-order-modal #om-audit-btns button,#rb-order-modal #om-resend-btn{min-height:42px!important;border-radius:9px!important;padding:0 18px!important;font-size:12.5px!important;font-weight:700!important}
+#rb-order-modal .rb-om-primary-action,#rb-order-modal #om-audit-btns button,#rb-order-modal #om-resend-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;box-sizing:border-box!important;line-height:1.2!important;text-align:center!important;white-space:nowrap!important}
 #rb-order-modal .rb-om-primary-action{max-width:190px!important;background:#174d3a!important;box-shadow:0 6px 14px rgba(23,77,58,.16)!important}
+#rb-order-modal #om-resend-btn{width:190px!important;max-width:190px!important;margin:0!important}
 #rb-order-modal #om-audit-btns{margin-left:auto;max-width:390px}
 #rb-order-modal[data-active-tab="links"] #om-draft-status,#rb-order-modal[data-active-tab="links"] .rb-om-footer-hint{display:none!important}
 #rb-order-modal[data-active-tab="links"] #om-audit-btns{width:100%;max-width:none;margin:0;gap:12px!important}
@@ -3893,8 +3895,10 @@ window.gAS=function(){
     choose.appendChild(name);choose.appendChild(address);
     choose.onclick=function(){var input=document.getElementById(id);if(input){input.value=url;input.dispatchEvent(new Event('input',{bubbles:true}));}};
     var copy=document.createElement('button');copy.type='button';copy.title='คัดลอกลิงก์';copy.setAttribute('aria-label','คัดลอก '+name.textContent);copy.textContent='⧉';copy.style.cssText='width:30px;height:30px;border:1px solid #b7dfc5;border-radius:8px;background:var(--surface-card);color:#2D6A4F;cursor:pointer;font-size:15px;';
+    copy.setAttribute('data-link-btn','1');
     copy.onclick=function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){copy.textContent='✓';setTimeout(function(){copy.textContent='⧉';},1200);}).catch(function(){copy.textContent='⧉';});}};
     var open=document.createElement('button');open.type='button';open.title='เปิดลิงก์';open.setAttribute('aria-label','เปิด '+name.textContent);open.textContent='↗';open.style.cssText='width:30px;height:30px;border:1px solid #40916C;border-radius:8px;background:#2D6A4F;color:#fff;cursor:pointer;font-size:14px;';
+    open.setAttribute('data-link-btn','1');
     open.onclick=function(){window.open(url,'_blank');};
     row.appendChild(choose);row.appendChild(copy);row.appendChild(open);return row;
   }
@@ -4267,7 +4271,43 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     ge('om-name').value=o?(o.name||o.title||''):'';
     ge('om-prod').value=o?(o.product||''):'';
     refreshOrderContentList(ge('om-prod').value);
-    refreshOrderContentFromCloud(ge('om-prod').value);
+    var _hookCloudRefresh=refreshOrderContentFromCloud(ge('om-prod').value);
+    /* Restore the saved HOOK independently from Content Tracker.  Older jobs
+       must keep showing their original value even when the source row was
+       renamed, removed, or has not finished loading from the cloud yet. */
+    function restoreStoredHook(selectId,value,placeholder){
+      value=value==null?'':String(value);
+      var select=ge(selectId);
+      if(!select&&selectId==='om-hook2'&&value){
+        var hook1=ge('om-hook');
+        select=document.createElement('select');select.id='om-hook2';
+        if(hook1){select.style.cssText=hook1.style.cssText;if(hook1.parentNode)hook1.parentNode.insertBefore(select,hook1.nextSibling);}
+      }
+      if(!select)return;
+      select.innerHTML='';
+      var empty=document.createElement('option');empty.value='';empty.textContent=placeholder;select.appendChild(empty);
+      var seen={},available=[];
+      var rows=typeof orderContentRows==='function'?orderContentRows():[];
+      rows.forEach(function(row){
+        if((row.name||'')!==(ge('om-name').value||''))return;
+        if(ge('om-prod').value&&row.brand&&row.brand!==ge('om-prod').value)return;
+        var hook=row.hook==null?'':String(row.hook);if(!hook||seen[hook])return;
+        seen[hook]=1;available.push(hook);var option=document.createElement('option');option.value=hook;option.textContent=hook;select.appendChild(option);
+      });
+      /* Recover an older blank order only when the exact job/product pair has
+         one unambiguous HOOK in Content Tracker. */
+      if(!value&&available.length===1)value=available[0];
+      if(value&&!seen[value]){var stored=document.createElement('option');stored.value=value;stored.textContent=value;stored.setAttribute('data-stored-hook','1');select.appendChild(stored);}
+      select.value=value;
+      select.setAttribute('data-original-hook',value);
+    }
+    restoreStoredHook('om-hook',o?(o.hook||''):'','-- เลือก Hook --');
+    restoreStoredHook('om-hook2',o?(o.hook2||''):'','-- Hook 2 --');
+    if(_hookCloudRefresh&&typeof _hookCloudRefresh.then==='function')_hookCloudRefresh.then(function(){
+      if(!_OM2||_OM2.style.display==='none'||ge('om-id').textContent!==(id||ge('om-id').textContent))return;
+      var hookEl=ge('om-hook');if(hookEl&&!hookEl.value)restoreStoredHook('om-hook',o?(o.hook||''):'','-- เลือก Hook --');
+      var hook2El=ge('om-hook2');if(hook2El&&!hook2El.value)restoreStoredHook('om-hook2',o?(o.hook2||''):'','-- Hook 2 --');
+    }).catch(function(){});
     var OT_=typeof OT!=='undefined'?OT:[];
     ge('om-type').value=o?(o.type||''):'';
     ge('om-dl').value=o?o.deadline:'';
@@ -4325,7 +4365,8 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
                 }
               }
               var _hasFix=typeof _omFixImages!=='undefined'&&_omFixImages&&_omFixImages.length>0;
-              if(!_hasClip&&!_hasFix){
+              var _hasSubmit=typeof submitLinkValues==='function'&&submitLinkValues().some(function(v){return !!v;});
+              if(!_hasClip&&!_hasFix&&!_hasSubmit){
                 if(typeof _rbShowSendWarn==='function')_rbShowSendWarn();
                 return;
               }
@@ -4372,7 +4413,21 @@ var chIsLink=ch.hasAttribute('data-link-btn');
 if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!(lock&&!chIsLink);if(lock&&chIsLink){ch.style.pointerEvents='auto';}}if(tag==='BUTTON'&&!(lock&&!chIsLink)){ch.style.cursor='pointer';}
 var fields=ch.querySelectorAll('input,textarea,select,button');
 for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}if(f.tagName==='BUTTON'&&!(lock&&!fIsLink)){f.style.cursor='pointer';}}
-});}var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
+});
+var _detailSection=_p1el.querySelector('.rb-om-section');if(_detailSection)_detailSection.style.pointerEvents='auto';
+var _revisionSubmit=document.getElementById('om-submitlinks-section');var _allowRevisionSubmit=!!(_isView&&_cr==='graphic'&&ge('om-st')&&ge('om-st').value==='revision');
+if(_revisionSubmit){
+  _revisionSubmit.classList.toggle('rb-revision-submit-active',_allowRevisionSubmit);
+  _revisionSubmit.style.pointerEvents=_allowRevisionSubmit?'auto':'';
+  if(_allowRevisionSubmit&&!_revisionSubmit.querySelector('input')&&typeof window._renderSubmitLinkRows==='function')window._renderSubmitLinkRows(['']);
+  var _revisionTitle=_revisionSubmit.querySelector('#om-submitlinks-title')||_revisionSubmit.firstElementChild&&_revisionSubmit.firstElementChild.firstElementChild;
+  if(_revisionTitle)_revisionTitle.textContent=_allowRevisionSubmit?'ลิงก์ส่งตรวจรอบใหม่':'ลิงก์ส่งงาน';
+  var _revisionFields=_revisionSubmit.querySelectorAll('input,textarea,button');
+  for(var _rf=0;_rf<_revisionFields.length;_rf++){
+    if(_allowRevisionSubmit){_revisionFields[_rf].disabled=false;_revisionFields[_rf].style.pointerEvents='auto';_revisionFields[_rf].style.opacity='1';_revisionFields[_rf].style.cursor='pointer';}
+  }
+}
+}var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
 }
 
   function closeOM2(){if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
@@ -4553,8 +4608,8 @@ for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('dat
       errorImages:JSON.parse(JSON.stringify(_omErrorImages)),
       fixImages:JSON.parse(JSON.stringify(_omFixImages)),
       createdAt:idx>=0?orders[idx].createdAt:now,
-      hook:ge('om-hook')?ge('om-hook').value:'',
-      hook2:ge('om-hook2')?ge('om-hook2').value:'',
+      hook:(function(){var el=ge('om-hook'),old=idx>=0?orders[idx]:null;return el&&el.value!==''?el.value:(old&&old.hook?old.hook:'');})(),
+      hook2:(function(){var el=ge('om-hook2'),old=idx>=0?orders[idx]:null;return el&&el.value!==''?el.value:(old&&old.hook2?old.hook2:'');})(),
       updatedAt:now
     };
     if(idx>=0){Object.keys(orders[idx]).forEach(function(k){if(!(k in entry))entry[k]=orders[idx][k];});}
@@ -5330,6 +5385,8 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 </script>
 <link rel="stylesheet" href="snippets/login-reliability-v1.css?v=207">
 <script src="snippets/login-reliability-v1.js?v=207"></script>
+<link rel="stylesheet" href="snippets/workflow-ops-v1.css?v=241">
+<script src="snippets/workflow-ops-v1.js?v=241"></script>
 <style id="rb-global-dropdown-v5-css">
 select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:30px!important;border-radius:8px;cursor:pointer;transition:box-shadow .16s,border-color .16s,transform .16s}
 select.rb-dd-native:not([multiple]):hover{border-color:#52B788!important;box-shadow:0 3px 10px rgba(27,67,50,.10)}
@@ -5711,8 +5768,8 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=230"></script>
-<script src="snippets/list-facebook-editor.js?v=223"></script>
-<script src="snippets/list-facebook-followup.js?v=223"></script>
+<script src="snippets/list-facebook-editor.js?v=224"></script>
+<script src="snippets/list-facebook-followup.js?v=224"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>
 <script>window._lfbEditorBoot=window._lfbEditorTest&&window._lfbFollowupTest?'ready':'module-error';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);</script>
 <style id="rb-dark-theme-deep-teal-v1">

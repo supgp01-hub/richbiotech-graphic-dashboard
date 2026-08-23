@@ -18,6 +18,7 @@ assert.ok(index.includes("localStorage.getItem('rb_fbpages_cache_v1')"), 'the pr
 assert.ok(source.includes("FB_CLOUD='/fbpages_base_snapshot'"), 'Facebook Pages must persist a shared internal snapshot');
 assert.ok(source.includes('mergePages(stored,parsePages(res[0]))'), 'Facebook Pages refresh must add/update without replacing old data');
 assert.ok(editor.includes("CLOUD_BASE='/listfacebook_base_snapshot'"), 'List Facebook must persist a shared internal snapshot');
-assert.ok(editor.includes('mergeRows(stored,parseCsv(res[0]))'), 'List Facebook refresh must add/update without replacing old data');
+assert.ok(editor.includes('current=replaceSourceRows(parseCsv(res[0]))'), 'List Facebook refresh must use the latest sheet snapshot as the authoritative count');
+assert.equal(editor.includes('mergeRows(stored,parseCsv(res[0]))'), false, 'List Facebook refresh must not keep source rows that no longer exist in the sheet');
 
 console.log('manual-refresh-v1: all tests passed');

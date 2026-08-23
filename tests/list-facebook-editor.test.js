@@ -11,11 +11,11 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=223"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=224"), 'the deployed page must cache-bust the current Facebook editor');
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
-assert.ok(indexSource.includes('list-facebook-followup.css?v=223'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=223"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix239">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes('list-facebook-followup.css?v=224'), 'the deployed page must load the follow-up workspace layout');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=224"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix241">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');
@@ -26,6 +26,8 @@ assert.equal(editorSource.includes('refreshData();window._listfbFetch();'), fals
 assert.ok(indexSource.includes('var shown=filtered.slice(0,60)'), 'the legacy Facebook Pages fallback must not render the full list');
 assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 assert.ok(editorSource.includes('baseRows=parseCsv(csv);markSourceSchema()'), 'one-time migration must replace the stale sheet snapshot instead of appending duplicate source rows');
+assert.ok(editorSource.includes('baseRows=current'), 'manual refresh must replace the stale source snapshot with the latest sheet rows');
+assert.equal(editorSource.includes('mergeRows(stored,parseCsv(res[0]))'), false, 'manual refresh must not accumulate deleted historical sheet rows');
 
 const csv = [
   'ประเภท,คอลัมน์ B,พนักงาน,สินค้า,คอลัมน์ E,สถานะ,ชื่อบัญชี,Facebook ID,รหัสผ่าน,Email,รหัส Email,2FA,คอลัมน์ M,คอลัมน์ N,ลิมิต/วัน,📌 ต้องติดตาม,อัปเดตล่าสุด,ยอดเงิน,หมายเหตุ',
@@ -70,7 +72,11 @@ const authoritative = window._lfbEditorTest.mergeRows(rows, [
 ]);
 assert.equal(authoritative.rows[0].st, 'รหัส 2FA ผิด', 'the current sheet status must replace the stale snapshot status');
 assert.equal(authoritative.rows[0].follow, '', 'removing a follow-up mark in the source sheet must clear the stale mark');
-assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 3 }), true, 'the migrated shared snapshot must expose its schema version');
+const replacement = window._lfbEditorTest.replaceSourceRows([rows[1], rows[1]]);
+assert.equal(replacement.length, 1, 'the latest sheet snapshot must be deduplicated without retaining stale previous rows');
+assert.equal(replacement[0].name, rows[1].name);
+assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 4 }), true, 'the migrated shared snapshot must expose its schema version');
+assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 3 }), false, 'the additive v3 snapshot must be migrated to the authoritative source model');
 assert.equal(window._lfbEditorTest.sourceSchemaCurrent({}), false, 'old shared snapshots must trigger a one-time source migration');
 const safe = window._lfbEditorTest.safeSnapshot(rows);
 assert.equal('passFb' in safe[0], false, 'shared snapshot must not duplicate Facebook passwords');

@@ -1,7 +1,7 @@
 const { chromium }=require('playwright');
 const assert=require('assert');
 (async()=>{
-  const targetUrl=process.argv[2]||'http://127.0.0.1:8011/index.html?v=fix239';
+  const targetUrl=process.argv[2]||'http://127.0.0.1:8011/index.html?v=fix241';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const page=await browser.newPage();
   const browserErrors=[];
