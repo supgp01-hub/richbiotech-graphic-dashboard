@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
-const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix242';
+const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243';
 const seedOrder={id:'GR901',_fbKey:'qa_role_order',name:'Role action test',product:'Liv CARE',type:'กราฟิก',deadline:'2026-08-23',status:'pending',assignee:'DOM',note:'',createdAt:Date.now(),updatedAt:Date.now()};
 
 async function waitRuntime(page){
@@ -48,9 +48,14 @@ async function setRole(page,role,name){
     assert.ok(await rowActions.count()>=1,`${role} must have an order action button`);
     await rowActions.first().click();await page.waitForSelector('#om-primary-btn',{state:'attached'});
     if(role==='audit'){
+      assert.strictEqual(await page.locator('#om-add-clip-btn').isDisabled(),true,'Audit must not edit employee delivery links');
+      assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),true,'Audit must not upload employee revision images');
       await page.getByRole('tab',{name:'ตรวจออดิต'}).click();await page.getByRole('button',{name:'เสร็จสมบูรณ์'}).click();
       assert.strictEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status),'done','Audit must approve an order');
     }else{
+      assert.strictEqual(await page.locator('#om-add-clip-btn').isDisabled(),false,`${role} must be able to add delivery/ad links`);
+      assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),false,`${role} must be able to upload corrected work`);
+      assert.strictEqual(await page.locator('#om-add-submitlink').isDisabled(),false,`${role} must be able to add a submission link`);
       await page.locator('#om-primary-btn').click();await page.waitForTimeout(180);
       assert.strictEqual(await page.locator('#om-primary-btn').isVisible(),false,`${role} action must close the modal`);
       if(role==='graphic')assert.strictEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status),'inprogress','Graphic must start assigned work');

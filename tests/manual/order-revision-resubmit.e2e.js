@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 const assert=require('assert');
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix242';
+  const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243';
   const order={
     id:'GR902',name:'Revision link test',product:'WOLF+',type:'กราฟิก',
     deadline:'2026-08-25',status:'revision',assignee:'DOM',

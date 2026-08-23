@@ -8,7 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix242">
+<meta name="rb-build" content="fix243">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4476,8 +4476,9 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
 var _p1el=document.getElementById('om2-p1-panel');if(_p1el){
 var _keep={'rb-revision-detail-view':1,'om-submitlinks-section':1,'om-clip-hdr':1,'om-clip-extra':1,'om-add-clip-btn':1,'om-add-clip-wrap':1,'om-p1fix-hdr':1,'om-p1fix-gallery':1,'om-p1fix-btn':1,'om-p1fix-inp':1,'om-p1fix-wrap':1};
 var _roCardMap={'om-brief-wrap':{bg:'#EFF6FF',bd:'#BFDBFE'},'om-note-wrap':{bg:'#FFFBEB',bd:'#FDE68A'},'om-sample-wrap':{bg:'#F0FDF4',bd:'#BBF7D0'}};
-Array.prototype.forEach.call(_p1el.children,function(ch){
-var lock=(_isView||_cr==='audit')&&!_keep[ch.id];
+var _detailSection=_p1el.querySelector('.rb-om-section');var _detailChildren=_detailSection?_detailSection.children:_p1el.children;var _canWorkOutput=!!(_isView&&_cr!=='audit'&&_cr!=='ads');
+Array.prototype.forEach.call(_detailChildren,function(ch){
+var lock=(_isView||_cr==='audit')&&!(_canWorkOutput&&_keep[ch.id]);
 var _roCfg=_roCardMap[ch.id];
 ch.style.pointerEvents=lock?'none':'';
 ch.style.opacity=(lock&&!_roCfg)?'0.55':'1';
@@ -4495,8 +4496,8 @@ if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=
 var fields=ch.querySelectorAll('input,textarea,select,button');
 for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}if(f.tagName==='BUTTON'&&!(lock&&!fIsLink)){f.style.cursor='pointer';}}
 });
-var _detailSection=_p1el.querySelector('.rb-om-section');if(_detailSection)_detailSection.style.pointerEvents='auto';
-var _revisionSubmit=document.getElementById('om-submitlinks-section');var _allowRevisionSubmit=!!(_isView&&_cr==='graphic'&&ge('om-st')&&ge('om-st').value==='revision');
+if(_detailSection)_detailSection.style.pointerEvents='auto';
+var _revisionSubmit=document.getElementById('om-submitlinks-section');var _allowRevisionSubmit=!!(_canWorkOutput&&ge('om-st')&&ge('om-st').value==='revision');
 if(_revisionSubmit){
   _revisionSubmit.classList.toggle('rb-revision-submit-active',_allowRevisionSubmit);
   _revisionSubmit.classList.toggle('rb-revision-history-view',!!(_latestRevision&&!_allowRevisionSubmit));
