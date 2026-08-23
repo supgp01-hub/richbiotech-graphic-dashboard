@@ -20,5 +20,11 @@ assert(source.includes("rb_order_write_queue_v1"),'health center must expose the
 assert(source.includes("workflow_snapshots/latest"),'Supervisor snapshot must have a shared latest backup');
 assert(source.includes("workflow_locks"),'editing locks must cover multiple devices');
 assert(source.includes("X-Firebase-ETag")&&source.includes("If-Match"),'cloud edit locks must use conditional writes');
+const lockStart=source.indexOf('function blockModal('),lockEnd=source.indexOf('\nfunction lockModal(',lockStart),lockBlock=source.slice(lockStart,lockEnd);
+assert(lockBlock.includes("data-rb-lock-warning"),'concurrent editing must show an advisory warning');
+assert(!lockBlock.includes('el.disabled=true'),'a stale or remote lock must never disable the modal controls');
+const validateStart=source.indexOf('function validateModal('),validateEnd=source.indexOf('\nfunction hookSp(',validateStart),validateBlock=source.slice(validateStart,validateEnd);
+assert(validateBlock.includes("button.id==='om-primary-btn'"),'validation must be scoped to the primary workflow action');
+assert(!validateBlock.includes("data-rb-lock-checking')==='1"),'lock lookup latency must not block buttons for any user');
 assert(source.includes("ตรวจสอบและยืนยัน"),'bulk changes must require an explicit review action');
 console.log('workflow-ops-v1: all tests passed');
