@@ -9,8 +9,15 @@ assert.ok(!js.includes('rb-unified-original-action')&&!css.includes('rb-unified-
 assert.ok(!js.includes('live.click()'),'the presentation module must not proxy or replace existing button behavior');
 assert.ok(index.includes("ab.id='ord-add-btn'")&&index.includes("window.openOM(null)"),'the original Add new order button must continue opening the order form directly');
 ['localStorage','fbSet(','fetch(','removeItem(','innerHTML=\'\''].forEach(s=>assert.ok(!js.includes(s),`presentation module must not mutate app data: ${s}`));
+['order','links','commission','audit','fblist','idcard'].forEach(k=>assert.ok(css.includes(`.gsp.gsp-active[data-sub="${k}"]`),`missing spacing for ${k}`));
+assert.ok(!css.includes('.gsp.gsp-active[data-sub="listfb"]'),'List Facebook spacing/layout must remain untouched');
+assert.ok(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'desktop summaries must use a four-column grid');
+assert.ok(css.includes('.rb-unified-graphic-section[data-sub="order"] #ord-stats'),'the order summary must use the shared grid without changing its live cards');
+assert.ok(!css.includes('>*:not(.rb-unified-section-banner)'),'existing content spacing must not be rewritten');
+assert.ok(index.includes('rb-fbp-summary-grid')&&index.includes("['start','ต้องเริ่มแก้'")&&index.includes("['fixed','แก้แล้ว'"),'Facebook Pages must have the second follow-up summary row');
+assert.ok(index.includes('window._fbRefreshPageSummary'),'Facebook Pages follow-up totals must refresh after status changes');
 assert.ok(index.includes('snippets/unified-graphic-headers-v1.css?v=230'));
 assert.ok(index.includes('snippets/unified-graphic-headers-v1.js?v=230'));
-assert.ok(index.includes('<meta name="rb-build" content="fix238">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix239">'));
 assert.ok(index.includes('<div class="ct-title">Content Tracker')&&!index.includes('OLYMPPLUS Content Tracker'),'the Links title must omit the OLYMPPLUS prefix');
 console.log('unified-graphic-headers-v1: all tests passed');

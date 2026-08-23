@@ -1,20 +1,23 @@
 const { chromium }=require('playwright');
 const assert=require('assert');
 (async()=>{
+  const targetUrl=process.argv[2]||'http://127.0.0.1:8011/index.html?v=fix239';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const page=await browser.newPage();
   const browserErrors=[];
   page.on('pageerror',error=>browserErrors.push('pageerror: '+error.message));
-  page.on('console',message=>{if(message.type()==='error')browserErrors.push('console: '+message.text());});
+  page.on('console',message=>{if(message.type()==='error'&&!/Failed to load resource/.test(message.text()))browserErrors.push('console: '+message.text());});
   await page.route('https://richbiotech-graphic-ads-default-rtdb.firebaseio.com/**',route=>route.abort());
+  await page.route('https://**',route=>route.abort('blockedbyclient'));
   await page.addInitScript(()=>{
     const session={name:'วิว',role:'sup',expiresAt:Date.now()+3600000};
     localStorage.setItem('rb_session',JSON.stringify(session));
     localStorage.setItem('rb_users',JSON.stringify([{name:'วิว',role:'sup',pin:'1111',pinChanged:true}]));
     localStorage.setItem('lv_dash_v5',JSON.stringify({d:{'2026-8-22':[{empId:'ter',type:'hol'}]}}));
+    localStorage.setItem('rb_theme','dark');
   });
-  await page.goto('http://127.0.0.1:8011/index.html?v=fix233',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>typeof window.showTab==='function'&&typeof window.openOM==='function');
+  await page.goto(targetUrl,{waitUntil:'commit',timeout:60000});
+  await page.waitForFunction(()=>typeof window.showTab==='function'&&typeof window.openOM==='function'&&typeof window.rbRefreshOrderLeaveGuard==='function',null,{timeout:90000});
   await page.evaluate(()=>{
     const team=[...document.querySelectorAll('nav button')].find(b=>(b.getAttribute('onclick')||'').includes("'team'"));
     window.showTab('team',team);
@@ -35,6 +38,8 @@ const assert=require('assert');
   assert.match(guard,/ใช้งานได้/,'August 23 must be allowed when Ter is off on August 22');
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1')||'[]').length);
   await page.locator('#om-primary-btn').click();
+  await page.getByRole('button',{name:'ยืนยันสั่งงาน'}).waitFor({state:'visible'});
+  await page.getByRole('button',{name:'ยืนยันสั่งงาน'}).click();
   await page.waitForTimeout(500);
   const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1')||'[]').length);
   if(after!==before+1){
