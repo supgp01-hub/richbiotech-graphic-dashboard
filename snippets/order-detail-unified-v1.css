@@ -2,7 +2,7 @@
 #rb-order-modal .rb-om-header-save:hover{background:rgba(64,145,108,.52)!important;transform:translateY(-1px)}
 #rb-order-modal .rb-om-header-save:active{transform:translateY(0)}
 #rb-order-modal .rb-om-header-save:before{display:none!important;content:none!important}
-#rb-order-modal .rb-om-save-mark{display:grid;width:20px;height:20px;place-items:center;font-size:20px;font-weight:800;line-height:1}
+#rb-order-modal .rb-om-save-mark{display:grid;width:20px;height:20px;place-items:center;font-size:20px;font-weight:800;line-height:1}#rb-order-modal .rb-om-save-mark svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 #rb-order-modal .rb-om-header-close{width:38px!important;min-width:38px!important;height:38px!important;padding:0!important;display:grid!important;place-items:center!important;border-radius:10px!important}
 #rb-order-modal .rb-revision-uniform-links{display:grid;gap:7px}
 #rb-order-modal .rb-revision-uniform-row{display:grid!important;grid-template-columns:minmax(116px,150px) minmax(0,1fr) 42px 42px!important;min-height:46px!important;overflow:hidden!important;border-radius:9px!important}

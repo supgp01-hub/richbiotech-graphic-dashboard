@@ -19,7 +19,8 @@ assert(source.includes("revisionUniformLinkRows('INSERT / REVIEW',[order.reviewL
 assert(source.includes("value.replace(/[?#].*$/,'').replace(/\\/+$/,'').toLowerCase()"), 'equivalent Drive links with query strings must be deduplicated');
 assert(source.includes("var alwaysNumber=label==='FOOTAGE'||label==='INSERT / REVIEW'"), 'Footage and review links must always use numbered labels');
 assert(source.includes('snippets/order-detail-unified-v1.css'), 'unified detail link stylesheet is not loaded');
-assert(source.includes("sv.innerHTML='<span class=\"rb-om-save-mark\" aria-hidden=\"true\">✓</span>'"), 'sticky header save icon is missing');
+assert(source.includes("sv.setAttribute('data-rb-leading-icon','1')"), 'sticky save icon must be protected from the global icon converter');
+assert(source.includes('m5 12 4 4L19 6'), 'sticky header check icon is missing');
 assert(source.includes('var _structuredDetailView=!!o'), 'structured detail must be shown for every existing job and every user role');
 assert(source.includes("var canEditOriginal=role==='sup'||role==='spec'"), 'Supervisor and Specialist must retain an explicit edit mode');
 assert(source.includes("edit.innerHTML='<span aria-hidden=\"true\">✎</span><b>แก้ไขข้อมูล</b>'"), 'structured manager view must expose the edit-mode control');
@@ -27,7 +28,8 @@ assert(source.includes("_OM2.classList.add('rb-revision-edit-mode')"), 'manager 
 assert(source.includes('snippets/order-detail-all-users-v1.css'), 'all-user structured detail stylesheet is not loaded');
 assert(source.includes("if(order.status==='revision')"), 'revision warning must only appear for revision jobs');
 assert(source.includes("statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'}"), 'structured detail must show the actual workflow status');
-assert(source.includes("['om-clip-hdr','om-add-clip-wrap','om-clip-extra','om-p1fix-hdr'"), 'team ad-link and fix-image controls must remain editable');
+assert(source.includes("var workIds=['om-p1fix-hdr','om-p1fix-gallery','om-p1fix-wrap','om-p1fix-inp','om-submitlinks-section']"), 'team workspace must contain only fix-image and current submission controls');
+assert(source.includes("<small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์ส่งงาน</small>"), 'team workspace subtitle must match the visible controls');
 assert(source.includes(':not(#rb-revision-team-workspace)'), 'team submit-link workspace must remain editable');
 assert(source.includes("teamWorkspace.id='rb-revision-team-workspace'"), 'team edit controls must stay grouped in one workspace');
 

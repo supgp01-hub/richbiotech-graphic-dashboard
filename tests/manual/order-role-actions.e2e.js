@@ -47,13 +47,16 @@ async function setRole(page,role,name){
     const editButtons=page.getByRole('button',{name:'แก้ไขงาน'}),rowActions=page.locator('.rb-order-edit-btn,.rb-order-view-btn,[data-order-action]');
     assert.ok(await rowActions.count()>=1,`${role} must have an order action button`);
     await rowActions.first().click();await page.waitForSelector('#om-primary-btn',{state:'attached'});
+    assert.strictEqual(await page.locator('#om-header-draft .rb-om-save-mark svg path[d="m5 12 4 4L19 6"]').count(),1,'header save control must use the approved check icon');
+    assert.ok(['none',''].includes(await page.locator('#om-header-draft').evaluate(e=>getComputedStyle(e,'::before').content.replace(/["']/g,''))),'obsolete header pseudo-icon must be disabled');
+    assert.strictEqual(await page.locator('#om-add-clip-wrap').isVisible(),false,'legacy ad-link editor must stay hidden from the detail workspace');
     if(role==='audit'){
-      assert.strictEqual(await page.locator('#om-add-clip-btn').isDisabled(),true,'Audit must not edit employee delivery links');
+      assert.strictEqual(await page.locator('#rb-revision-team-workspace #om-add-clip-btn').count(),0,'legacy ad-link control must not be duplicated in the team workspace');
       assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),true,'Audit must not upload employee revision images');
       await page.getByRole('tab',{name:'ตรวจออดิต'}).click();await page.getByRole('button',{name:'เสร็จสมบูรณ์'}).click();
       assert.strictEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status),'done','Audit must approve an order');
     }else{
-      assert.strictEqual(await page.locator('#om-add-clip-btn').isDisabled(),false,`${role} must be able to add delivery/ad links`);
+      assert.strictEqual(await page.locator('#rb-revision-team-workspace #om-add-clip-btn').count(),0,'legacy ad-link control must not be duplicated in the team workspace');
       assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),false,`${role} must be able to upload corrected work`);
       assert.strictEqual(await page.locator('#om-add-submitlink').isDisabled(),false,`${role} must be able to add a submission link`);
       await page.locator('#om-primary-btn').click();await page.waitForTimeout(180);
