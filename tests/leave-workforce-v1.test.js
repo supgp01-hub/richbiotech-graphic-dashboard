@@ -5,14 +5,14 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=255'));
-assert.ok(html.includes('leave-workforce-v1.js?v=255'));
+assert.ok(html.includes('leave-workforce-v1.css?v=257'));
+assert.ok(html.includes('leave-workforce-v1.js?v=257'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
 [
-  '14 วันข้างหน้า', 'เฉพาะของฉัน', 'กำลังคนไม่พอ', 'เพิ่มวันหยุดหลายวัน',
-  'Deadline', 'งานรอตรวจ', 'ว่างรับงาน', 'ประวัติการแก้ไข',
+  'เฉพาะของฉัน', 'เพิ่มวันหยุดหลายวัน',
+  'Deadline', 'ว่างรับงาน', 'ประวัติการแก้ไข',
   'แก้ไขวันทำงานพิเศษ', 'คืนค่า'
 ].forEach(text => assert.ok(source.includes(text), `missing feature: ${text}`));
 
@@ -30,10 +30,16 @@ assert.ok(source.includes("fbSet('/leave_history'"));
 assert.ok(source.includes('lvValidate(id,r.y,r.m,r.d,type'));
 assert.ok(source.includes('disabled>ยืนยันบันทึก'));
 
-assert.ok(css.includes('.lvw-outlook-grid'));
+assert.ok(!source.includes('id="lvw-outlook"'));
+assert.ok(!source.includes('id="lvw-f-short"'));
 assert.ok(css.includes('.lvw-day-panel'));
 assert.ok(css.includes('.lvw-row-actions'));
 assert.ok(css.includes('.lvw-calendar-stage'));
+assert.ok(css.includes('.lvw-accordion'));
+assert.ok(css.includes('.lvw-special-grid'));
+assert.ok(css.includes('grid-auto-rows:minmax(72px'));
+assert.ok(source.includes('function openSpecialAdd(cat,dateKey)'));
+assert.ok(source.includes('3. วันทำงานพิเศษ'));
 assert.ok(css.includes('.lvw-summary-grid'));
 assert.ok(css.includes('Keep the monthly calendar in its original light palette'));
 assert.ok(css.includes('restore the original light dashboard palette across'));
