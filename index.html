@@ -1621,6 +1621,7 @@ var SW_LS='rb_specialwork_v1';
 var SW_SYNCED_KEY='rb_specialwork_synced_v1';
 var SW_DATA=[];
 var SW_SEL={cat:null, days:{}};
+window._swGetState=function(){return SW_SEL;};
 function swLoad(){try{return JSON.parse(localStorage.getItem(SW_LS)||'[]');}catch(e){return [];}}
 function swSaveLocal(a){localStorage.setItem(SW_LS,JSON.stringify(a));}
 function swPersist(a){swSaveLocal(a);window.fbSet&&window.fbSet('/specialwork',a);}
@@ -2059,7 +2060,7 @@ function lvRefreshEList(){
     var emp=lvFindEmp(e.empId);
     var nm=emp?emp.name:'?';
     var pos=emp?emp.pos:'';
-    var uid=e.uid; var canEdit=_cu&&(_cu.role==='sup'||_cu.name===nm);
+    var uid=e.uid; var canEdit=window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId):(_cu&&(_cu.role==='sup'||_cu.name===nm));
     h+='<div class="lv-erow">';
     h+='<div class="lv-erow-top">';
     h+='<div><span class="lv-ename">'+nm+'</span> <span class="lv-epos">'+pos+'</span></div>';
@@ -5890,6 +5891,8 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=230"></script>
+<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=251">
+<script src="snippets/leave-workforce-v1.js?v=251"></script>
 <script src="snippets/list-facebook-editor.js?v=224"></script>
 <script src="snippets/list-facebook-followup.js?v=224"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>
