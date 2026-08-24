@@ -185,3 +185,39 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 
 @media(max-width:1180px){#tab-schedule .lvw-calendar-stage{grid-template-columns:minmax(540px,1.75fr) minmax(300px,.85fr)}#tab-schedule .lv-cal-body{grid-auto-rows:minmax(68px,1fr)}}
 @media(max-width:900px){#tab-schedule .lvw-calendar-stage{grid-template-columns:1fr}#tab-schedule .lvw-day-panel{position:static}#tab-schedule .lv-cal-body{grid-auto-rows:minmax(76px,1fr)}}
+
+/* v1.3 — date details now open in one focused popup */
+#tab-schedule .lvw-calendar-stage{grid-template-columns:minmax(0,1fr)!important}
+#tab-schedule .lvw-day-panel{display:none!important}
+#lv-modal{padding:24px 12px;align-items:flex-start}
+#lv-modal .lvw-combined-box{width:min(900px,96vw);max-height:calc(100vh - 48px);overflow:auto;border:1px solid #aed3bd;border-radius:18px;background:#fff;box-shadow:0 28px 80px rgba(6,35,25,.28)}
+#lv-modal .lvw-combined-tools{position:relative;padding:14px 18px 0;background:#f6fbf8;border-bottom:1px solid #d8e9df}
+#lv-modal .lvw-combined-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#lv-modal .lvw-combined-summary>div{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:51px;padding:9px 12px;border:1px solid #c9e2d3;border-radius:11px;background:#fff;color:#174d3a}
+#lv-modal .lvw-combined-summary small{font-size:10.5px;color:#72897d}
+#lv-modal .lvw-combined-summary b{font-size:14px;white-space:nowrap}
+#lv-modal .lvw-combined-context{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0;color:#49685a;font-size:10.5px}
+#lv-modal .lvw-combined-context>span{padding:8px 10px;border:1px solid #d9e9df;border-radius:9px;background:#fff}
+#lv-modal .lvw-combined-jobs span{display:block;margin-top:3px}
+#lv-modal .lvw-combined-tabs{display:grid;grid-template-columns:1fr 1fr;margin:0 -18px}
+#lv-modal .lvw-combined-tabs button{min-height:43px;border:0;border-top:1px solid #d8e9df;background:#f8fbf9;color:#5d7468;font:700 12px inherit;cursor:pointer}
+#lv-modal .lvw-combined-tabs button.active{background:#e7f7ee;color:#176b48;box-shadow:inset 0 -3px #2aa66d}
+#lv-modal .lvw-combined-pane{padding:16px 18px 18px}
+#lv-modal .lvw-combined-box[data-lvw-mode="leave"] #lvw-combined-special{display:none}
+#lv-modal .lvw-combined-box[data-lvw-mode="special"] #lvw-combined-leave{display:none}
+#lv-modal .lvw-combined-leave-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 10px;padding:10px;border:1px solid #d0e5d8;border-radius:10px;background:#f5fbf7}
+#lv-modal .lvw-combined-leave-dates label{display:block;margin-bottom:5px;color:#315846;font-size:10.5px;font-weight:700}
+#lv-modal .lvw-combined-leave-dates input{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #c5d9cd;border-radius:8px;background:#fff;color:#183e2e;font:500 11.5px inherit}
+#lv-modal .lvw-combined-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #d8e9df;color:#174d3a}
+#lv-modal .lvw-combined-section-head b{font-size:13px}
+#lv-modal .lvw-combined-section-head small{display:block;margin-top:3px;color:#71887c;font-size:10px}
+#lv-modal .lvw-combined-existing{display:grid;gap:7px;margin-bottom:12px}
+#lv-modal .lvw-combined-existing-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 9px;border:1px solid #d2e6da;border-left:4px solid var(--sw-color,#2aa66d);border-radius:10px;background:#f8fcfa;color:#234d3a}
+#lv-modal .lvw-combined-existing-row small{display:block;margin-top:2px;color:#71887c;font-size:10px}
+#lv-modal .lvw-combined-existing-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:var(--sw-bg,#e6f7ed);color:var(--sw-color,#2aa66d)}
+#lv-modal .lvw-combined-row-actions{display:flex;gap:5px}
+#lv-modal .lvw-combined-row-actions button{padding:6px 9px;border:1px solid #c5ded0;border-radius:7px;background:#fff;color:#176b48;font:700 10px inherit;cursor:pointer}
+#lv-modal .lvw-combined-special-form{padding:12px;border:1px solid #d0e5d8;border-radius:11px;background:#f5fbf7}
+#lv-modal .lvw-combined-pane .lvw-preview{margin-top:10px}
+#lv-modal .lvw-combined-pane .lvw-modal-actions{position:static;padding:0;background:transparent}
+@media(max-width:650px){#lv-modal{padding:8px}#lv-modal .lvw-combined-box{width:100%;max-height:calc(100vh - 16px);border-radius:14px}#lv-modal .lvw-combined-summary{grid-template-columns:1fr 1fr}#lv-modal .lvw-combined-context{grid-template-columns:1fr}#lv-modal .lvw-form-grid,#lv-modal .lvw-combined-leave-dates{grid-template-columns:1fr}#lv-modal .lvw-combined-existing-row{grid-template-columns:32px minmax(0,1fr)}#lv-modal .lvw-combined-row-actions{grid-column:2}}

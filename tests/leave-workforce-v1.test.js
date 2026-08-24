@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=259'));
-assert.ok(html.includes('leave-workforce-v1.js?v=259'));
+assert.ok(html.includes('leave-workforce-v1.css?v=260'));
+assert.ok(html.includes('leave-workforce-v1.js?v=260'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -47,6 +47,12 @@ assert.ok(css.includes('Keep the monthly calendar in its original light palette'
 assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
+assert.ok(source.includes("var VERSION='1.3.0'"));
+assert.ok(source.includes('function enhanceCombinedDay(y,m,d)'));
+assert.ok(source.includes('function saveCombinedLeave(p)'));
+assert.ok(source.includes('บันทึกวันทำงานพิเศษ'));
+assert.ok(css.includes('.lvw-combined-tabs'));
+assert.ok(css.includes('.lvw-day-panel{display:none!important}'));
 assert.ok(css.includes('html[data-theme="dark"]'));
 assert.ok(css.includes('@media(max-width:600px)'));
 
