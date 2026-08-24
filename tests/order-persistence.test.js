@@ -20,6 +20,7 @@ assert.ok(oldSave.includes('Object.assign({},old,entry)'), 'editing must retain 
 const syncStart = html.indexOf('function spORD(d)');
 const syncEnd = html.indexOf('\nfunction lpTL()', syncStart);
 const syncSave = html.slice(syncStart, syncEnd);
+assert.ok(syncSave.includes('loadOrderSnapshot(LS_ORD)'), 'order and Audit saves must diff against the last committed snapshot, not the already-mutated live array');
 assert.ok(syncSave.includes("if(!row._fbKey)row._fbKey='ord_'"), 'new rows need collision-safe internal keys');
 assert.ok(!syncSave.includes('byId[row.id]'), 'visible GR numbers must not select a database record to overwrite');
 

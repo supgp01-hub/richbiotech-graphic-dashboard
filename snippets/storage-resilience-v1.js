@@ -2,6 +2,7 @@
 'use strict';
 var storage=root.localStorage;
 var ORDER_MEMORY_KEY='__rbOrdersMemoryV1';
+var ORDER_SNAPSHOT_KEY='__rbOrdersSnapshotV1';
 
 function quotaError(error){
   if(!error)return false;
@@ -84,8 +85,12 @@ function storeTimeline(rows,key){
 }
 function storeOrders(rows,key){
   key=key||'rb_orders_v1';rows=Array.isArray(rows)?rows:[];
-  root[ORDER_MEMORY_KEY]=rows;
   var full=JSON.stringify(rows),result=writeString(key,full);
+  /* Keep an immutable copy of the last committed order state.  The live
+     in-memory array is intentionally mutable for rendering speed, so it must
+     never be used as the "before" value when building a Firebase patch. */
+  root[ORDER_SNAPSHOT_KEY]=full;
+  root[ORDER_MEMORY_KEY]=rows;
   if(result.ok)return{ok:true,compact:false,memory:true};
   if(quotaError(result.error)){
     relieve();
@@ -100,9 +105,17 @@ function storeOrders(rows,key){
 function loadOrders(key){
   key=key||'rb_orders_v1';
   if(Array.isArray(root[ORDER_MEMORY_KEY]))return root[ORDER_MEMORY_KEY];
-  var rows=readJson(key,[]);return Array.isArray(rows)?rows:[];
+  var rows=readJson(key,[]);rows=Array.isArray(rows)?rows:[];
+  try{root[ORDER_SNAPSHOT_KEY]=JSON.stringify(rows);}catch(error){}
+  return rows;
 }
-function clearOrderMemory(){root[ORDER_MEMORY_KEY]=null;}
+function loadOrderSnapshot(key){
+  key=key||'rb_orders_v1';
+  var raw=root[ORDER_SNAPSHOT_KEY];
+  if(typeof raw==='string')try{var rows=JSON.parse(raw);return Array.isArray(rows)?rows:[];}catch(error){}
+  var persisted=readJson(key,[]);return Array.isArray(persisted)?persisted:[];
+}
+function clearOrderMemory(){root[ORDER_MEMORY_KEY]=null;root[ORDER_SNAPSHOT_KEY]=null;}
 
 root.rbStorageResilience={
   isQuotaError:quotaError,
@@ -111,6 +124,7 @@ root.rbStorageResilience={
   storeTimeline:storeTimeline,
   storeOrders:storeOrders,
   loadOrders:loadOrders,
+  loadOrderSnapshot:loadOrderSnapshot,
   clearOrderMemory:clearOrderMemory,
   relieve:relieve,
   ensureHeadroom:ensureHeadroom

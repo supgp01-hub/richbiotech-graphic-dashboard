@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix272">
+<meta name="rb-build" content="fix273">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2936,7 +2936,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix249"><script src="snippets/order-audit-persistence-v1.js?v=fix252"></script><script src="snippets/storage-resilience-v1.js?v=fix269"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix249"><script src="snippets/order-audit-persistence-v1.js?v=fix252"></script><script src="snippets/storage-resilience-v1.js?v=fix273"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -3205,7 +3205,11 @@ function refreshOrderViews(){
   window._rbRenderMyWork&&window._rbRenderMyWork();
 }
 function spORD(d){
-  var before=lpORD(),after=Array.isArray(d)?d:[],byKey={},active={};
+  /* lpORD may return the same mutable in-memory array that a form has already
+     edited.  Compare against the immutable last-committed snapshot instead;
+     otherwise a new order or Audit edit looks unchanged and never reaches
+     the Firebase write queue. */
+  var before=window.rbStorageResilience&&window.rbStorageResilience.loadOrderSnapshot?window.rbStorageResilience.loadOrderSnapshot(LS_ORD):lpORD(),after=Array.isArray(d)?d:[],byKey={},active={};
   if(before.length)fbRememberOrders(before);
   before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=String(idx);byKey[row._fbKey]=row;});
   after.forEach(function(row){

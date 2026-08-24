@@ -36,6 +36,8 @@ const orders=[{id:'GR001',name:'งานทดสอบ',images:[{name:'large.p
 const orderResult=api.storeOrders(orders,'rb_orders_v1');
 assert.strictEqual(orderResult.ok,true,'orders must fall back to a compact cache when quota is tight');
 assert.strictEqual(api.loadOrders('rb_orders_v1')[0].images[0].data.length,8000,'full order remains available in memory for the current session');
+orders[0].status='review';
+assert.strictEqual(api.loadOrderSnapshot('rb_orders_v1')[0].status,undefined,'the committed snapshot must not change when the live order array is mutated');
 const cached=JSON.parse(storage.getItem('rb_orders_v1'));
 assert.strictEqual(cached[0]._rbCacheCompacted,true,'local fallback must be marked compact');
 assert.strictEqual(cached[0].images[0].data,undefined,'large image payload must not fill localStorage');
