@@ -161,7 +161,7 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 #tab-schedule .lv-sw-save-btn{background:#40916c!important;color:#fff!important}
 
 /* Leave Workforce v1.3 — compact calendar + approved accordion side panel. */
-#tab-schedule .lvw-calendar-stage{grid-template-columns:minmax(620px,2.15fr) minmax(330px,.85fr);gap:14px;align-items:start}
+#tab-schedule .lvw-calendar-stage{grid-template-columns:minmax(0,2.15fr) minmax(300px,.85fr);gap:14px;align-items:start}
 #tab-schedule .lv-cal{min-width:0}
 #tab-schedule .lv-cal-body{grid-auto-rows:minmax(72px,calc((min(68vh,620px) - 58px)/6))}
 #tab-schedule .lv-day{min-height:0;height:auto;overflow:hidden}

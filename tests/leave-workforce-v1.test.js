@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=258'));
-assert.ok(html.includes('leave-workforce-v1.js?v=258'));
+assert.ok(html.includes('leave-workforce-v1.css?v=259'));
+assert.ok(html.includes('leave-workforce-v1.js?v=259'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -35,6 +35,7 @@ assert.ok(!source.includes('id="lvw-f-short"'));
 assert.ok(css.includes('.lvw-day-panel'));
 assert.ok(css.includes('.lvw-row-actions'));
 assert.ok(css.includes('.lvw-calendar-stage'));
+assert.ok(css.includes('grid-template-columns:minmax(0,2.15fr) minmax(300px,.85fr)'));
 assert.ok(css.includes('.lvw-accordion'));
 assert.ok(css.includes('.lvw-special-grid'));
 assert.ok(css.includes('#tab-schedule .lv-sw-wrap{display:none!important}'));
