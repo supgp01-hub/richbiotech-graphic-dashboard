@@ -1763,8 +1763,7 @@ window._swSave=function(){
 </script><!-- Modal -->
   <div id="lv-modal" onclick="if(event.target===this)lvCloseModal()">
     <div class="lv-mbox">
-      <div class="lv
--mhead">
+      <div class="lv-mhead">
         <div class="lv-mtitle" id="lv-mtitle"></div>
         <div style="font-size:10px;color:var(--basil);font-weight:700;margin-top:2px" id="lv-mcycle"></div>
         <button class="lv-mclose" onclick="lvCloseModal()">✕</button>
@@ -1773,7 +1772,7 @@ window._swSave=function(){
       <div class="lv-elist" id="lv-elist"></div>
       <hr class="lv-add-divider">
       <!-- Add form -->
-      <div class="lv-add-title">➕ เพิ่มการลา</div>
+      <div class="lv-add-title">เพิ่มการลา</div>
       <div class="lv-form-row">
         <select class="lv-fsel" id="lv-f-emp" onchange="lvCheckAdd()">
           <option value="">— เลือกพนักงาน —</option>
@@ -2110,7 +2109,7 @@ function lvSaveRow(uid){
   if(v&&v.block){alert('⚠️ '+v.msg+(v.bypassable?' — กรุณาใส่หมายเหตุก่อนบันทึก':''));return;}
   entry.updatedAt=Date.now();
   lvSaveDay(y,m,d,es);
-  lvRenderCal();lvRenderSum();lvRefreshEList();
+  lvRenderCal();lvRenderSum();lvRefreshEList();lvCloseModal();
 }
 
 function lvDelEntry(uid){
@@ -5890,8 +5889,8 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=230"></script>
-<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=263">
-<script src="snippets/leave-workforce-v1.js?v=263"></script>
+<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=264">
+<script src="snippets/leave-workforce-v1.js?v=264"></script>
 <script src="snippets/list-facebook-editor.js?v=224"></script>
 <script src="snippets/list-facebook-followup.js?v=224"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>

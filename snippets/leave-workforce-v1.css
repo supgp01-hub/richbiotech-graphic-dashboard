@@ -249,3 +249,12 @@ html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0
 #tab-schedule .lvw-special-ribbon-outing{justify-content:center}
 #tab-schedule .lvw-special-mini-avatar,#tab-schedule .lvw-special-ribbon time,#tab-schedule .lvw-special-more{display:none!important}
 @media(max-width:720px){#tab-schedule .lv-cal-body{grid-auto-rows:minmax(104px,auto)!important}#tab-schedule .lv-day,#tab-schedule .lv-day-empty{min-height:104px!important;height:auto!important;max-height:none!important;overflow:hidden!important}#tab-schedule .lv-day{padding:0 3px 5px!important}#tab-schedule .lvw-special-ribbons{margin:0 -3px!important}#tab-schedule .lvw-special-ribbon{padding:3px 4px!important;font-size:7.5px!important}#tab-schedule .lv-chips{margin-top:4px}#tab-schedule .lv-chips.lv-chips-grid2{grid-auto-rows:37px;gap:3px 2px}#tab-schedule .lv-emp-chip{width:38px!important}#tab-schedule .lv-emp-avatar{width:20px!important;height:20px!important;font-size:8px!important}#tab-schedule .lv-emp-name{max-width:38px!important;font-size:7px!important}}
+
+/* v1.6 — keep the original selected-date title and use one clear close action. */
+#lv-modal .lv-mbox{padding:0!important;overflow:hidden!important}
+#lv-modal .lv-mhead{position:relative;display:block!important;margin:0!important;padding:15px 54px 14px 18px!important;background:#174d3a!important}
+#lv-modal .lv-mtitle{color:#fff!important;font-size:15px!important;line-height:1.35!important}
+#lv-modal #lv-mcycle{color:#a9dfbd!important;margin-top:3px!important}
+#lv-modal .lv-mclose{position:absolute!important;top:50%!important;right:16px!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border-radius:8px!important;background:rgba(255,255,255,.13)!important;color:#ff858a!important}
+#lv-modal .lv-mhead>button:not(.lv-mclose){display:none!important}
+#lv-modal .lvw-combined-tools,#lv-modal .lvw-combined-pane{margin-left:16px!important;margin-right:16px!important}
