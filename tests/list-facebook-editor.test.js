@@ -13,9 +13,9 @@ assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be pa
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
 assert.ok(indexSource.includes("list-facebook-editor.js?v=224"), 'the deployed page must cache-bust the current Facebook editor');
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
-assert.ok(indexSource.includes('list-facebook-followup.css?v=224'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=266"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix243">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes('list-facebook-followup.css?v=268'), 'the deployed page must load the follow-up workspace layout');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=268"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix268">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
 assert.ok(editorSource.includes('lfb-min-stats'), 'the selected minimal layout must use the compact three-state summary');

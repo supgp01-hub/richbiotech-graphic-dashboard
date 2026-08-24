@@ -7,6 +7,7 @@ var FOLLOW_LOCAL_KEY='rb_listfacebook_followups_v1';
 var FOLLOW_CLOUD_PATH='/listfacebook_followups';
 var PAGE_SIZE=40;
 var legacyInit=window._lfbInit;
+var legacyActivate=window._lfbEditorActivate;
 var followups=readLocal();
 var selectedKey='';
 var syncPromise=null;
@@ -86,6 +87,10 @@ function formatDateValue(value){
   return new Date(timestamp).toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 function automaticNextDate(timestamp){return addDaysValue(timestamp||Date.now(),7);}
+function defaultListView(){
+  window._lfbFilter={stage:'new',followView:'all',fE:'ALL',fStatus:'ALL',q:'',page:1};
+  selectedKey='';
+}
 function followupTiming(saved,now){
   saved=saved||{};now=now||Date.now();
   if(saved.stage==='done')return{level:0,className:'',daysLeft:null,nextDate:'',label:'เสร็จแล้ว'};
@@ -102,7 +107,7 @@ function hybridHtml(overlay){
   html+='<div id="lfb-follow-source-warning" class="lfb-follow-source-warning" hidden>ข้อมูลเดิมยังไม่มีคอลัมน์ “ต้องติดตาม” · กดอัปเดตข้อมูลล่าสุด 1 ครั้งเพื่อดึงค่าจากชีต</div>';
   html+='<div id="lfb-follow-stats" class="lfb-follow-stats"></div>';
   html+='<div id="lfb-follow-stages" class="lfb-follow-stages"></div>';
-  html+='<div class="lfb-hybrid-main"><section class="lfb-hybrid-list"><div class="lfb-hybrid-toolbar"><input id="lfb-q" type="search" placeholder="ค้นหาชื่อบัญชี / Facebook ID / สถานะ"><select id="lfb-hybrid-status" class="lfb-status-filter" aria-label="กรองสถานะ"><option value="ALL">สถานะทั้งหมด</option></select><select id="lfb-hybrid-employee" aria-label="กรองพนักงาน"><option value="ALL">พนักงานทั้งหมด</option></select><button id="lfb-filter-toggle" class="lfb-editor-btn" type="button" aria-expanded="false">ตัวกรอง</button></div><div id="lfb-advanced-filters" class="lfb-advanced-filters"><div class="lfb-filter-group"><span>มุมมอง</span><button type="button" class="lfb-hybrid-view-filter is-active" data-view="stage">ตามขั้นตอน</button><button type="button" class="lfb-hybrid-view-filter" data-view="marked">ทีมมาร์คติดตาม</button><button type="button" class="lfb-hybrid-view-filter" data-view="recommended">ระบบแนะนำ</button><button type="button" class="lfb-hybrid-view-filter" data-view="all">บัญชีทั้งหมด</button></div></div><div id="lfb-cnt" class="lfb-result-note"></div><div class="lfb-hybrid-table-wrap"><table class="lfb-hybrid-table"><colgroup><col class="lfb-col-account"><col class="lfb-col-employee"><col class="lfb-col-status"><col class="lfb-col-stage"><col class="lfb-col-updated"></colgroup><thead><tr><th>ชื่อบัญชี</th><th class="lfb-table-center">พนักงาน</th><th class="lfb-table-center">สถานะ Facebook</th><th class="lfb-table-center">ขั้นตอน</th><th class="lfb-table-center">ติดตามครั้งถัดไป</th></tr></thead><tbody id="lfb-body"></tbody></table></div><div class="lfb-pager-row"><div id="lfb-pager"></div></div></section><aside id="lfb-follow-detail" class="lfb-follow-detail"><div class="lfb-follow-empty">เลือกรายการบัญชีเพื่อดูและบันทึกการติดตาม</div></aside></div>';
+  html+='<div class="lfb-hybrid-main"><section class="lfb-hybrid-list"><div class="lfb-hybrid-toolbar"><input id="lfb-q" type="search" placeholder="ค้นหาชื่อบัญชี / Facebook ID / สถานะ"><select id="lfb-hybrid-status" class="lfb-status-filter" aria-label="กรองสถานะ"><option value="ALL">สถานะทั้งหมด</option></select><select id="lfb-hybrid-employee" aria-label="กรองพนักงาน"><option value="ALL">พนักงานทั้งหมด</option></select><button id="lfb-filter-toggle" class="lfb-editor-btn" type="button" aria-expanded="false">ตัวกรอง</button></div><div id="lfb-advanced-filters" class="lfb-advanced-filters"><div class="lfb-filter-group"><span>มุมมอง</span><button type="button" class="lfb-hybrid-view-filter" data-view="stage">ตามขั้นตอน</button><button type="button" class="lfb-hybrid-view-filter" data-view="marked">ทีมมาร์คติดตาม</button><button type="button" class="lfb-hybrid-view-filter" data-view="recommended">ระบบแนะนำ</button><button type="button" class="lfb-hybrid-view-filter is-active" data-view="all" aria-pressed="true">บัญชีทั้งหมด</button></div></div><div id="lfb-cnt" class="lfb-result-note"></div><div class="lfb-hybrid-table-wrap"><table class="lfb-hybrid-table"><colgroup><col class="lfb-col-account"><col class="lfb-col-employee"><col class="lfb-col-status"><col class="lfb-col-stage"><col class="lfb-col-updated"></colgroup><thead><tr><th>ชื่อบัญชี</th><th class="lfb-table-center">พนักงาน</th><th class="lfb-table-center">สถานะ Facebook</th><th class="lfb-table-center">ขั้นตอน</th><th class="lfb-table-center">ติดตามครั้งถัดไป</th></tr></thead><tbody id="lfb-body"></tbody></table></div><div class="lfb-pager-row"><div id="lfb-pager"></div></div></section><aside id="lfb-follow-detail" class="lfb-follow-detail"><div class="lfb-follow-empty">เลือกรายการบัญชีเพื่อดูและบันทึกการติดตาม</div></aside></div>';
   html+='</section>';
   var root=document.getElementById('lfb-root');
   root.innerHTML=html;
@@ -118,19 +123,24 @@ function employeeOptions(data){
 function statusOptions(){var select=document.getElementById('lfb-hybrid-status');if(!select)return;var current=window._lfbFilter&&window._lfbFilter.fStatus||'ALL';if(window.rbSetFacebookStatusOptions)window.rbSetFacebookStatusOptions(select,current,true);select.value=current;}
 function renderStats(data,counts){
   var host=document.getElementById('lfb-follow-stats');if(!host)return;
-  var done=counts.done;
-  host.innerHTML='<button type="button" class="lfb-follow-stat" data-summary="all"><strong>'+data.length+'</strong><span>บัญชีทั้งหมด</span></button><button type="button" class="lfb-follow-stat is-danger" data-summary="marked"><strong>'+counts.marked+'</strong><span>ทีมมาร์ค “ติดตาม”</span></button><button type="button" class="lfb-follow-stat is-warning" data-summary="recommended"><strong>'+counts.recommended+'</strong><span>ระบบแนะนำให้ตรวจ</span></button><button type="button" class="lfb-follow-stat is-success" data-summary="done"><strong>'+done+'</strong><span>แก้สำเร็จ</span></button>';
+  var done=counts.done,view=window._lfbFilter&&window._lfbFilter.followView||'all';
+  function card(name,classes,count,label){var active=view===name;return'<button type="button" class="lfb-follow-stat '+classes+(active?' is-active':'')+'" data-summary="'+name+'" aria-pressed="'+(active?'true':'false')+'"><strong>'+count+'</strong><span>'+label+'</span>'+(active?'<em>กำลังดู</em>':'')+'</button>';}
+  host.innerHTML=card('all','',data.length,'บัญชีทั้งหมด')+card('marked','is-danger ',counts.marked,'ทีมมาร์ค “ติดตาม”')+card('recommended','is-warning ',counts.recommended,'ระบบแนะนำให้ตรวจ')+card('done','is-success ',done,'แก้สำเร็จ');
 }
 function renderStages(counts){
   var host=document.getElementById('lfb-follow-stages');if(!host)return;
-  var current=window._lfbFilter&&window._lfbFilter.stage||'new';
+  var filter=window._lfbFilter||{},current=filter.stage||'new',stageView=filter.followView==='stage';
   var stages=[['new','ต้องเริ่มแก้','รายการที่ทีมมาร์คไว้'],['working','กำลังแก้','มีผู้รับผิดชอบแล้ว'],['waiting','รอ Facebook','รอยืนยันหรือตรวจสอบ'],['done','แก้แล้ว','เก็บประวัติไว้']];
-  host.innerHTML=stages.map(function(stage){return'<button type="button" class="lfb-follow-stage '+(stage[0]===current?'is-active':'')+'" data-stage="'+stage[0]+'"><span><b>'+stage[1]+'</b><em>'+counts[stage[0]]+'</em></span><small>'+stage[2]+'</small></button>';}).join('');
+  host.innerHTML=stages.map(function(stage){var active=stageView&&stage[0]===current;return'<button type="button" class="lfb-follow-stage '+(active?'is-active':'')+'" data-stage="'+stage[0]+'" aria-pressed="'+(active?'true':'false')+'"><span><b>'+stage[1]+'</b><em>'+counts[stage[0]]+'</em></span><small>'+stage[2]+'</small></button>';}).join('');
+}
+function renderViewButtons(){
+  var view=window._lfbFilter&&window._lfbFilter.followView||'all';
+  document.querySelectorAll('#lfb-root .lfb-hybrid-view-filter').forEach(function(button){var active=button.getAttribute('data-view')===view;button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',active?'true':'false');});
 }
 function filteredRows(data){
   var filter=window._lfbFilter||{},query=String(filter.q||'').trim().toLowerCase();
   return data.filter(function(row){
-    var meta=rowMeta(row),view=filter.followView||'stage';
+    var meta=rowMeta(row),view=filter.followView||'all';
     if(query)return [row.name,row.fbid,row.email,row.emp,row.st,row.note,meta.saved.note].join(' ').toLowerCase().indexOf(query)!==-1;
     if(filter.fStatus&&filter.fStatus!=='ALL'&&String(row.st||'')!==filter.fStatus)return false;
     if(view==='stage'&&meta.stage!==filter.stage)return false;
@@ -160,8 +170,9 @@ function renderDetail(){
 function renderAll(){
   var data=window._listfbData||[];
   if(!window._lfbFilter)window._lfbFilter={};
-  var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='stage';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;
-  var counts=stageCounts(data);employeeOptions(data);statusOptions();renderStats(data,counts);renderStages(counts);renderRows(data);renderDetail();
+  var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='all';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;
+  var query=document.getElementById('lfb-q');if(query&&query.value!==String(filter.q||''))query.value=String(filter.q||'');
+  var counts=stageCounts(data);employeeOptions(data);statusOptions();renderStats(data,counts);renderStages(counts);renderViewButtons();renderRows(data);renderDetail();
   var warning=document.getElementById('lfb-follow-source-warning');if(warning)warning.hidden=!data.length||data.some(function(row){return Object.prototype.hasOwnProperty.call(row,'follow');});
 }
 function syncFollowups(){
@@ -185,7 +196,7 @@ function bindHybrid(root){
   root.addEventListener('click',function(event){
     var stage=event.target.closest('.lfb-follow-stage');if(stage){window._lfbFilter.stage=stage.getAttribute('data-stage');window._lfbFilter.followView='stage';window._lfbFilter.page=1;renderAll();return;}
     var summary=event.target.closest('.lfb-follow-stat');if(summary){var view=summary.getAttribute('data-summary');window._lfbFilter.followView=view==='done'?'done':view;window._lfbFilter.page=1;renderAll();return;}
-    var viewButton=event.target.closest('.lfb-hybrid-view-filter');if(viewButton){window._lfbFilter.followView=viewButton.getAttribute('data-view');window._lfbFilter.page=1;root.querySelectorAll('.lfb-hybrid-view-filter').forEach(function(button){button.classList.toggle('is-active',button===viewButton);});renderAll();return;}
+    var viewButton=event.target.closest('.lfb-hybrid-view-filter');if(viewButton){window._lfbFilter.followView=viewButton.getAttribute('data-view');window._lfbFilter.page=1;renderAll();return;}
     var row=event.target.closest('.lfb-follow-row');if(row&&!event.target.closest('.lfb-name-btn')){selectedKey=row.getAttribute('data-key');renderAll();return;}
     var pager=event.target.closest('[data-page]');if(pager){window._lfbFilter.page+=Number(pager.getAttribute('data-page'))||0;renderAll();return;}
     if(event.target.closest('#lfb-follow-save')){persistSelected();return;}
@@ -205,17 +216,18 @@ function hybridInit(){
   if(typeof legacyInit==='function')legacyInit();
   var overlay=document.getElementById('lfb-editor-overlay');if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);
   hybridHtml(overlay);root.setAttribute('data-followup-hybrid','1');
-  window._lfbFilter={stage:'new',followView:'stage',fE:'ALL',fStatus:'ALL',q:'',page:1};
+  defaultListView();
   bindHybrid(root);renderAll();syncFollowups();
   if(window.rbApplyHeavyRefreshPermissions)window.rbApplyHeavyRefreshPermissions();
 }
 window._lfbInit=hybridInit;
 window._lfbRender=renderAll;
+window._lfbEditorActivate=function(){if(typeof legacyActivate==='function')legacyActivate();defaultListView();hybridInit();return true;};
 window._lfbFollowupTest={isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,automaticNextDate:automaticNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue};
 document.addEventListener('click',function(event){
   var button=event.target.closest&&event.target.closest('.gsnav-btn');
   if(!button||button.textContent.indexOf('List Facebook')===-1||button.textContent.indexOf('Pages')!==-1)return;
-  setTimeout(hybridInit,0);
+  setTimeout(function(){defaultListView();hybridInit();},0);
 },true);
 window.addEventListener('storage',function(event){if(event.key===FOLLOW_LOCAL_KEY){followups=readLocal();renderAll();}});
 })();

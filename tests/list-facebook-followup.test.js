@@ -54,5 +54,10 @@ assert.ok(source.includes('window._lfbOpenEditor(selectedKey)'), 'the full accou
 assert.ok(source.includes('class="lfb-table-center lfb-status-cell"'), 'status, workflow and update columns must use the centered table layout');
 assert.equal(source.includes('setInterval('), false, 'the workflow must not add background polling that can destabilize multiple tabs');
 assert.ok(source.includes("nextDate=stage==='done'?'':automaticNextDate(Date.now())"), 'saving must not require the team to pick the seven-day follow-up date manually');
+assert.ok(source.includes("followView:'all'"), 'List Facebook must open on all accounts by default');
+assert.ok(source.includes("defaultListView();hybridInit()"), 'returning to List Facebook must reset the workflow view to all accounts');
+assert.ok(source.includes('aria-pressed="'), 'summary and workflow buttons must expose their selected state');
+assert.ok(source.includes('<em>กำลังดู</em>'), 'the selected summary must visibly identify the current view');
+assert.ok(source.includes("query.value=String(filter.q||'')"), 'returning to List Facebook must visibly clear a stale search query');
 
 console.log('list-facebook-followup: all tests passed');
