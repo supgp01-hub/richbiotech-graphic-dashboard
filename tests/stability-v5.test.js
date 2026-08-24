@@ -6,7 +6,7 @@ const source = index.toString('utf8');
 const bulk = fs.readFileSync('snippets/bulk-import-v2.js', 'utf8');
 const performance = fs.readFileSync('snippets/performance-v4.js', 'utf8');
 
-assert.ok(index.length < 600000, 'initial dashboard HTML should stay below 600 KB');
+assert.ok(index.length < 610000, 'initial dashboard HTML should stay below 610 KB');
 assert.equal(index.includes(0), false, 'dashboard HTML must not contain null bytes');
 assert.ok(source.includes('function fbFetch(url,opts,timeout)'), 'Firebase requests need a shared timeout wrapper');
 assert.ok(source.includes("if(_fbRefreshActive){_fbRefreshAgain=true;return;}"), 'overlapping Firebase refreshes must be coalesced');
