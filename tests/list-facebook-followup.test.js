@@ -51,6 +51,8 @@ assert.equal(api.followupTiming({ stage: 'done', updatedAt: baseNow }, baseNow +
 assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follow-up data must use a separate cloud path');
 assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
 assert.ok(source.includes('<h3>แก้ไขข้อมูลบัญชี</h3>'), 'the full account editor must be permanently visible in the right panel');
+assert.ok(source.includes('แก้ไขล่าสุด: '), 'the account editor header must show the latest edit date and time');
+assert.ok(source.includes('accountUpdatedWhen(row)'), 'the visible latest-edit time must use the saved account timestamp');
 assert.ok(source.includes("event.stopImmediatePropagation();\n    openFollowupModal(nameButton.getAttribute('data-key'))"), 'clicking an account name must open only the follow-up popup and suppress the legacy account popup');
 assert.ok(source.includes('id="lfb-followup-title">แก้ไขข้อมูลติดตาม'), 'the tracking popup must have a clear edit-follow-up title');
 assert.ok(source.includes('window._lfbSaveAccountRecord(selectedKey,values)'), 'right-panel edits must use the existing account persistence path');
