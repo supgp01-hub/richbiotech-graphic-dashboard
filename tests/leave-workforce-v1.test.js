@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=262'));
-assert.ok(html.includes('leave-workforce-v1.js?v=262'));
+assert.ok(html.includes('leave-workforce-v1.css?v=263'));
+assert.ok(html.includes('leave-workforce-v1.js?v=263'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -66,6 +66,7 @@ assert.ok(css.includes('approved employee grid and compact activity bars'));
 assert.ok(css.includes('grid-auto-rows:minmax(98px,auto)!important'));
 assert.ok(css.includes('.lvw-special-ribbon-outing{justify-content:center}'));
 assert.ok(css.includes('.lv-emp-name{display:block;max-width:48px!important;overflow:visible!important'));
+assert.ok(css.includes('border-bottom:0!important'));
 assert.ok(css.includes('html[data-theme="dark"]'));
 assert.ok(css.includes('@media(max-width:600px)'));
 

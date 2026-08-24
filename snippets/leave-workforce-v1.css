@@ -236,7 +236,7 @@ html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0
 /* v1.5 — approved employee grid and compact activity bars. */
 #tab-schedule .lv-cal-body{grid-auto-rows:minmax(98px,auto)!important}
 #tab-schedule .lv-day{display:flex;flex-direction:column;min-height:98px!important;height:auto!important;max-height:none!important;padding:0 7px 7px!important;overflow:hidden!important}
-#tab-schedule .lv-day-num{display:flex;align-items:center;flex:0 0 25px;height:25px;margin:0!important;padding-top:2px;border-bottom:1px solid #e4f0e8;line-height:1!important}
+#tab-schedule .lv-day-num{display:flex;align-items:center;flex:0 0 25px;height:25px;margin:0!important;padding-top:2px;border-bottom:0!important;line-height:1!important}
 #tab-schedule .lv-chips{align-content:start;margin-top:6px;min-height:0}
 #tab-schedule .lv-chips.lv-chips-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:39px;gap:5px 4px;align-items:start;width:100%}
 #tab-schedule .lv-chips-grid2 .lv-emp-chip{justify-self:center}
@@ -248,5 +248,4 @@ html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0
 #tab-schedule .lvw-special-ribbon b{display:block;overflow:visible;text-overflow:clip;white-space:nowrap}
 #tab-schedule .lvw-special-ribbon-outing{justify-content:center}
 #tab-schedule .lvw-special-mini-avatar,#tab-schedule .lvw-special-ribbon time,#tab-schedule .lvw-special-more{display:none!important}
-html[data-theme="dark"] #tab-schedule .lv-day-num{border-bottom-color:#21443e}
 @media(max-width:720px){#tab-schedule .lv-cal-body{grid-auto-rows:minmax(104px,auto)!important}#tab-schedule .lv-day,#tab-schedule .lv-day-empty{min-height:104px!important;height:auto!important;max-height:none!important;overflow:hidden!important}#tab-schedule .lv-day{padding:0 3px 5px!important}#tab-schedule .lvw-special-ribbons{margin:0 -3px!important}#tab-schedule .lvw-special-ribbon{padding:3px 4px!important;font-size:7.5px!important}#tab-schedule .lv-chips{margin-top:4px}#tab-schedule .lv-chips.lv-chips-grid2{grid-auto-rows:37px;gap:3px 2px}#tab-schedule .lv-emp-chip{width:38px!important}#tab-schedule .lv-emp-avatar{width:20px!important;height:20px!important;font-size:8px!important}#tab-schedule .lv-emp-name{max-width:38px!important;font-size:7px!important}}
