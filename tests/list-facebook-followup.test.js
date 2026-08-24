@@ -2,6 +2,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const source = fs.readFileSync('snippets/list-facebook-followup.js', 'utf8');
+assert.ok(source.includes('<strong>ติดตามบัญชี Facebook</strong>'));
+assert.ok(!source.includes('<strong>ศูนย์ติดตามบัญชี Facebook</strong>'));
 
 global.window = global;
 global.localStorage = { getItem() { return null; }, setItem() {} };

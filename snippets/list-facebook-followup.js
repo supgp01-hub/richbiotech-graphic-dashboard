@@ -98,7 +98,7 @@ function followupTiming(saved,now){
 function hybridHtml(overlay){
   var html='';
   html+='<section class="lfb-hybrid-app">';
-  html+='<header class="lfb-hybrid-head"><div class="lfb-hybrid-brand"><span class="lfb-hybrid-icon">☑</span><div><strong>ศูนย์ติดตามบัญชี Facebook</strong><small>คิวงานและรายละเอียดบัญชีในหน้าเดียว</small></div></div><div class="lfb-hybrid-head-actions"><span id="lfb2-ts">ใช้ข้อมูลที่บันทึกไว้</span><button class="lfb-editor-btn lfb-status-guide-btn" type="button" onclick="window.rbOpenFacebookStatusGuide()">? คู่มือสถานะ</button><button id="lfb2-upd" class="lfb-editor-btn" type="button">↻ อัปเดตข้อมูลล่าสุด</button><button id="lfb-add" class="lfb-editor-btn lfb-editor-btn-primary" type="button">＋ เพิ่มบัญชี</button></div></header>';
+  html+='<header class="lfb-hybrid-head"><div class="lfb-hybrid-brand"><span class="lfb-hybrid-icon">☑</span><div><strong>ติดตามบัญชี Facebook</strong><small>คิวงานและรายละเอียดบัญชีในหน้าเดียว</small></div></div><div class="lfb-hybrid-head-actions"><span id="lfb2-ts">ใช้ข้อมูลที่บันทึกไว้</span><button class="lfb-editor-btn lfb-status-guide-btn" type="button" onclick="window.rbOpenFacebookStatusGuide()">? คู่มือสถานะ</button><button id="lfb2-upd" class="lfb-editor-btn" type="button">↻ อัปเดตข้อมูลล่าสุด</button><button id="lfb-add" class="lfb-editor-btn lfb-editor-btn-primary" type="button">＋ เพิ่มบัญชี</button></div></header>';
   html+='<div id="lfb-follow-source-warning" class="lfb-follow-source-warning" hidden>ข้อมูลเดิมยังไม่มีคอลัมน์ “ต้องติดตาม” · กดอัปเดตข้อมูลล่าสุด 1 ครั้งเพื่อดึงค่าจากชีต</div>';
   html+='<div id="lfb-follow-stats" class="lfb-follow-stats"></div>';
   html+='<div id="lfb-follow-stages" class="lfb-follow-stages"></div>';
