@@ -75,6 +75,21 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 #tab-schedule .lv-day-num{color:var(--lvw-text)!important}
 #tab-schedule .lv-job-badge{background:#243f58;color:#c7dcf6}.lv-job-badge.review{background:#4d3920;color:#ffd27d}.lv-job-badge.short{background:#4b2529;color:#ffadb7}
 
+/* Keep the monthly calendar in its original light palette. The surrounding
+   workforce planner can stay graphite; employee identity colors stay inline. */
+#tab-schedule .lv-cal{border-color:#d7ecdf;background:#f4fcf7}
+#tab-schedule .lv-cal-hdr>div{background:#1b4f3b;color:#fff!important}
+#tab-schedule .lv-cal-hdr>div:first-child{color:#fca5a5!important}
+#tab-schedule .lv-day{border-color:#d7ecdf;background:#fff;color:#163d31}
+#tab-schedule .lv-day:hover{border-color:#52b788;background:#f1fbf5}
+#tab-schedule .lv-day.lvw-selected{border-color:#40916c;background:#e8f8ee;box-shadow:inset 0 0 0 2px #52b788}
+#tab-schedule .lv-day-other{border-color:#e3f1e8!important;background:#f4f9f5!important;color:#a3b8aa!important}
+#tab-schedule .lv-day-num{color:#173f32!important}
+#tab-schedule .lv-day-sun .lv-day-num{color:#dc2626!important}
+#tab-schedule .lv-day-today{border-color:#40916c;background:#eefaf2}
+#tab-schedule .lv-emp-name{color:#5c6b60!important}
+#tab-schedule .lv-chip-badge,#tab-schedule .lv-emp-badge{border-color:#d7ecdf;background:#fff}
+
 #tab-schedule .lvw-day-panel{display:block!important;margin:0;border-color:var(--lvw-line);border-radius:13px;background:var(--lvw-panel);box-shadow:none;overflow:hidden}
 #tab-schedule .lvw-day-placeholder{display:flex;min-height:100%;box-sizing:border-box;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:24px;text-align:center;color:var(--lvw-sub)}
 #tab-schedule .lvw-day-placeholder strong{color:var(--lvw-text);font-size:14px}.lvw-day-placeholder span{font-size:10px;line-height:1.6}
