@@ -221,3 +221,14 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 #lv-modal .lvw-combined-pane .lvw-preview{margin-top:10px}
 #lv-modal .lvw-combined-pane .lvw-modal-actions{position:static;padding:0;background:transparent}
 @media(max-width:650px){#lv-modal{padding:8px}#lv-modal .lvw-combined-box{width:100%;max-height:calc(100vh - 16px);border-radius:14px}#lv-modal .lvw-combined-summary{grid-template-columns:1fr 1fr}#lv-modal .lvw-combined-context{grid-template-columns:1fr}#lv-modal .lvw-form-grid,#lv-modal .lvw-combined-leave-dates{grid-template-columns:1fr}#lv-modal .lvw-combined-existing-row{grid-template-columns:32px minmax(0,1fr)}#lv-modal .lvw-combined-row-actions{grid-column:2}}
+
+/* v1.4 — special-work ribbon, approved option 2 */
+#tab-schedule .lvw-special-ribbons{display:grid;gap:3px;margin:4px -3px 5px}
+#tab-schedule .lvw-special-ribbon{display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0;padding:4px 6px;border-radius:6px;background:var(--sw-bg,#eee9ff);color:var(--sw-color,#8067d8);font-size:8.5px;font-weight:700;line-height:1.15}
+#tab-schedule .lvw-special-ribbon>span{display:flex;align-items:center;gap:4px;min-width:0}
+#tab-schedule .lvw-special-ribbon b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tab-schedule .lvw-special-ribbon time{flex:none;font-size:8px;font-weight:600;opacity:.82;white-space:nowrap}
+#tab-schedule .lvw-special-mini-avatar{display:grid;place-items:center;flex:none;width:17px;height:17px;border-radius:50%;color:#fff;font-size:7.5px;font-style:normal;font-weight:800}
+#tab-schedule .lvw-special-more{padding:2px 6px;color:#667b70;font-size:8px;font-weight:700;text-align:right}
+html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sw-color) 38%,transparent)}
+@media(max-width:720px){#tab-schedule .lvw-special-ribbon{padding:3px 4px}#tab-schedule .lvw-special-ribbon time{display:none}}
