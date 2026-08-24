@@ -111,3 +111,51 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 
 @media(max-width:1100px){#tab-schedule .lvw-outlook-grid{grid-template-columns:repeat(7,minmax(0,1fr))}#tab-schedule .lvw-calendar-stage{grid-template-columns:1fr}#tab-schedule .lvw-day-panel{min-height:260px}}
 @media(max-width:720px){#tab-schedule{padding:9px!important;border-radius:12px}#tab-schedule .lvw-summary-grid{grid-template-columns:1fr 1fr}.lvw-summary-card.status{grid-column:1/-1}#tab-schedule .lvw-outlook-grid{grid-template-columns:repeat(4,minmax(0,1fr))}#tab-schedule .lvw-filters{grid-template-columns:1fr 1fr}#tab-schedule .lvw-topbar{align-items:flex-start}#tab-schedule .lvw-calendar-stage{display:block}#tab-schedule .lvw-day-panel{margin-top:10px}#tab-schedule .lv-day{min-height:82px}}
+
+/* Leave Workforce v1.2 — restore the original light dashboard palette across
+   the entire leave page while keeping the approved planner layout. */
+#tab-schedule{--lvw-bg:#eefbf3;--lvw-panel:#fff;--lvw-panel-2:#f4fbf6;--lvw-line:#cfe8d7;--lvw-mint:#40916c;--lvw-text:#173f32;--lvw-sub:#667b70;--lvw-soft:#e7f6ec;background:#eefbf3!important}
+#tab-schedule .lv-wrap{color:#173f32}
+#tab-schedule .lvw-topbar{border-color:#2d6a4f;background:#1b4f3b;box-shadow:0 5px 16px rgba(27,79,59,.12)}
+#tab-schedule .lvw-title-icon{background:#356f59;color:#e7f8ee}
+#tab-schedule .lvw-topbar-copy strong{color:#fff}
+#tab-schedule .lvw-topbar-copy small{color:#c9e5d4}
+#tab-schedule .lvw-btn{border-color:#79aa8e;background:#fff;color:#24563f}
+#tab-schedule .lvw-btn.primary{border-color:#52b788;background:#52b788;color:#fff}
+#tab-schedule .lvw-today-summary,#tab-schedule .lvw-outlook,#tab-schedule .lvw-filters{border-color:#cfe8d7;background:#fff;box-shadow:0 3px 12px rgba(27,67,50,.055)}
+#tab-schedule .lvw-summary-head,#tab-schedule .lvw-outlook-head span{color:#72877c!important}
+#tab-schedule .lvw-summary-head strong,#tab-schedule .lvw-outlook-head strong{color:#173f32!important}
+#tab-schedule .lvw-summary-card{background:#e7f6ec;color:#49695a}
+#tab-schedule .lvw-summary-card b{color:#16865e}
+#tab-schedule .lvw-summary-card.leave{background:#fff0f2}.lvw-summary-card.leave b{color:#d9455f!important}
+#tab-schedule .lvw-summary-card.free{background:#eef5ff}.lvw-summary-card.free b{color:#316fbe!important}
+#tab-schedule .lvw-summary-card.deadline{background:#fff7df}.lvw-summary-card.deadline b{color:#b77500!important}
+#tab-schedule .lvw-summary-card.status{background:#fff1e9}.lvw-summary-card.status b{color:#c45b2d!important}
+#tab-schedule .lvw-alert{border-color:#f2d17a;background:#fff7d9;color:#875f00}
+#tab-schedule .lvw-alert.danger{border-color:#f2b9be;background:#fff0f1;color:#ad2831}
+#tab-schedule .lvw-alert.ok{border-color:#a9ddbc;background:#edf9f1;color:#167449}
+#tab-schedule .lvw-outlook-day{color:#173f32}
+#tab-schedule .lvw-outlook-day:hover{border-color:#52b788;background:#eff9f2}
+#tab-schedule .lvw-outlook-day.is-risk{background:#fff8e6}.lvw-outlook-day.is-short{background:#fff0f1}
+#tab-schedule .lvw-outlook-date,#tab-schedule .lvw-outlook-meta{color:#667b70}
+#tab-schedule .lvw-outlook-load{background:#dcefe3}
+#tab-schedule .lvw-filter label{color:#60766a}.lvw-filter-checks label{color:#385a49!important}
+#tab-schedule .lvw-filter select{border-color:#bddcc8;background:#fff;color:#173f32}
+#tab-schedule .lv-nav{color:#173f32}
+#tab-schedule .lv-nav-btn{background:#1b4f3b;color:#fff}.lv-month-lbl{color:#173f32!important}
+#tab-schedule .lv-legend{color:#526b5f!important}
+#tab-schedule .lvw-day-panel{border-color:#cfe8d7;background:#fff;box-shadow:0 4px 14px rgba(27,67,50,.07)}
+#tab-schedule .lvw-day-placeholder{color:#71867a}
+#tab-schedule .lvw-day-placeholder strong{color:#173f32}
+#tab-schedule .lvw-day-head{background:#dff3e6;color:#173f32}.lvw-day-head small{color:#607c6e}
+#tab-schedule .lvw-metric{border-color:#d7ecdf;background:#f7fcf8}.lvw-metric b{color:#173f32}.lvw-metric span{color:#6d8277}
+#tab-schedule .lvw-metric.warn{border-color:#f1d58e;background:#fff9e8}.lvw-metric.bad{border-color:#efbdc1;background:#fff1f2}
+#tab-schedule .lvw-row{border-color:#d7ecdf;background:#f8fcf9;color:#173f32}.lvw-row span:last-child{color:#6b8075}
+#tab-schedule .lvw-side{border-color:#d7ecdf;background:#f8fcf9}.lvw-side h4{color:#173f32!important}
+#tab-schedule .lvw-side-actions button{border-color:#b8d9c4;background:#fff;color:#24563f}#tab-schedule .lvw-side-actions button.primary{border-color:#40916c;background:#40916c;color:#fff}
+#tab-schedule .lvw-day-close{background:#fff;color:#d33b47}
+#tab-schedule .lv-sum-wrap{color:#173f32}
+#tab-schedule .lv-sw-wrap{border-color:#cfe8d7!important;background:#fff!important;color:#173f32;box-shadow:0 3px 12px rgba(27,67,50,.055)}
+#tab-schedule .lv-sw-title{color:#173f32!important}
+#tab-schedule .lv-sw-day-cell,#tab-schedule .lv-sw-note,#tab-schedule .lv-sw-employee-row select,#tab-schedule .lv-sw-employee-row input{border-color:#bddcc8!important;background:#fff!important;color:#173f32!important}
+#tab-schedule .lv-sw-save-btn{background:#40916c!important;color:#fff!important}

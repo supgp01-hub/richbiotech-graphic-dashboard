@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=254'));
-assert.ok(html.includes('leave-workforce-v1.js?v=254'));
+assert.ok(html.includes('leave-workforce-v1.css?v=255'));
+assert.ok(html.includes('leave-workforce-v1.js?v=255'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -36,6 +36,7 @@ assert.ok(css.includes('.lvw-row-actions'));
 assert.ok(css.includes('.lvw-calendar-stage'));
 assert.ok(css.includes('.lvw-summary-grid'));
 assert.ok(css.includes('Keep the monthly calendar in its original light palette'));
+assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
 assert.ok(css.includes('html[data-theme="dark"]'));
