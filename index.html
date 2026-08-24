@@ -2939,7 +2939,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix249"><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix249"><script src="snippets/order-audit-persistence-v1.js?v=fix252"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -4638,8 +4638,7 @@ if(_revisionSubmit){
     }
     order.errorImages=JSON.parse(JSON.stringify(_omErrorImages||[]));
     order.fixImages=JSON.parse(JSON.stringify(_omFixImages||[]));
-    var fields={upLink:'om-uplink',adLink:'om-ad',auditNote:'om-audit-note',auditError:'om-audit-error',auditFixed:'om-audit-fixed',imgsNote:'om-imgs-note'};
-    Object.keys(fields).forEach(function(k){var el=ge(fields[k]);if(el)order[k]=el.value||'';});
+    if(window.rbPersistAuditFields)window.rbPersistAuditFields(order,ge,document);
     var currentSubmitLinks=submitLinkValues();
     if(options.revisionSubmit){
       var revisionNoteEl=ge('om-revision-note'),revisionNote=revisionNoteEl?(revisionNoteEl.value||'').trim():'';
@@ -5891,8 +5890,8 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=230"></script>
-<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=251">
-<script src="snippets/leave-workforce-v1.js?v=251"></script>
+<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=253">
+<script src="snippets/leave-workforce-v1.js?v=253"></script>
 <script src="snippets/list-facebook-editor.js?v=224"></script>
 <script src="snippets/list-facebook-followup.js?v=224"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>

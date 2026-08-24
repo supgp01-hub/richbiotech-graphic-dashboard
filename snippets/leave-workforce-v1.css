@@ -15,3 +15,84 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 @media(max-width:900px){.lvw-outlook-grid{grid-template-columns:repeat(4,1fr)}.lvw-filters{grid-template-columns:1fr 1fr}.lvw-filter-checks{grid-column:1/-1}.lvw-day-body{grid-template-columns:1fr}.lvw-metrics{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.lvw-topbar{align-items:flex-start;flex-direction:column}.lvw-outlook-grid{grid-template-columns:repeat(2,1fr)}.lvw-filters,.lvw-form-grid,.lv-sw-employee-row{grid-template-columns:1fr}.lvw-metrics{grid-template-columns:1fr 1fr}.lvw-day-body{padding:10px}.lvw-topbar-actions{width:100%}.lvw-topbar-actions .lvw-btn{flex:1}.lvw-filter-checks{align-items:flex-start;flex-direction:column}}
 .lvw-row-actions{display:inline-flex;gap:5px;margin-left:8px}.lvw-row-actions button{min-height:26px;padding:0 8px;border:1px solid #b9d6c5;border-radius:7px;background:var(--surface-card);color:#176b48;font:700 9.5px inherit;cursor:pointer}.lvw-row-actions button:last-child{border-color:#f0b2b6;color:#b72a34}
+
+/* Leave Workforce v1.1 — approved hybrid of capacity-first + 14-day planner.
+   Employee identity colors remain owned by LV_COLOR and are intentionally untouched. */
+#tab-schedule{--lvw-bg:#071918;--lvw-panel:#0d2927;--lvw-panel-2:#10312e;--lvw-line:#28524b;--lvw-mint:#31c59a;--lvw-text:#e9f7f2;--lvw-sub:#9fbbb3;--lvw-soft:#163a35;background:var(--lvw-bg)!important;padding:18px!important;border-radius:18px}
+#tab-schedule>.section-title{display:none!important}
+#tab-schedule .lv-wrap{max-width:none;padding:0;color:var(--lvw-text)}
+#tab-schedule .lvw-topbar{margin:0 0 12px;padding:12px 16px;border-color:var(--lvw-line);border-radius:13px;background:#0e302c;box-shadow:none}
+#tab-schedule .lvw-topbar-copy{display:flex;align-items:center;gap:12px;min-width:0}
+#tab-schedule .lvw-title-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:10px;background:#17483e;color:#9ce7cf;font-size:17px}
+#tab-schedule .lvw-topbar-copy strong{color:#f4fffb;font-size:16px}
+#tab-schedule .lvw-topbar-copy small{color:#a8c7bd;font-size:10px}
+#tab-schedule .lvw-btn{min-height:34px;border-color:#3e6d63;background:#17443e;color:#e9f7f2}
+#tab-schedule .lvw-btn.primary{border-color:var(--lvw-mint);background:var(--lvw-mint);color:#06201c}
+
+#tab-schedule .lvw-today-summary{margin:0 0 12px;padding:11px 14px 13px;border:1px solid var(--lvw-line);border-radius:13px;background:var(--lvw-panel)}
+#tab-schedule .lvw-summary-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;color:var(--lvw-sub);font-size:9.5px}
+#tab-schedule .lvw-summary-head strong{color:var(--lvw-text);font-size:12px}
+#tab-schedule .lvw-summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+#tab-schedule .lvw-summary-card{display:flex;align-items:center;justify-content:space-between;min-height:38px;padding:0 12px;border-radius:8px;background:#163d36;color:#9fbbb3;font-size:9.5px}
+#tab-schedule .lvw-summary-card b{color:#72e0bc;font-size:15px}
+#tab-schedule .lvw-summary-card.leave{background:#3d292d}.lvw-summary-card.leave b{color:#ff99ad!important}
+#tab-schedule .lvw-summary-card.free{background:#173447}.lvw-summary-card.free b{color:#9cc8f4!important}
+#tab-schedule .lvw-summary-card.deadline{background:#44361f}.lvw-summary-card.deadline b{color:#ffd27d!important}
+#tab-schedule .lvw-summary-card.status{background:#472e24}.lvw-summary-card.status b{color:#ffad85!important}
+
+#tab-schedule .lvw-alerts{margin:0 0 9px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+#tab-schedule .lvw-alert{padding:7px 10px;border-color:#69551d;background:#28220d;color:#f1d578}
+#tab-schedule .lvw-alert.danger{border-color:#74353b;background:#2d1518;color:#ff9ca3}
+#tab-schedule .lvw-alert.ok{border-color:#285d45;background:#0c2b20;color:#7bdeb1}
+#tab-schedule .lvw-outlook{margin:0 0 12px;padding:11px 14px;border-color:var(--lvw-line);border-radius:13px;background:var(--lvw-panel)}
+#tab-schedule .lvw-outlook-head{margin-bottom:8px}.lvw-outlook-head strong{color:var(--lvw-text)!important}.lvw-outlook-head span{color:var(--lvw-sub)!important}
+#tab-schedule .lvw-outlook-grid{grid-template-columns:repeat(14,minmax(0,1fr));gap:7px}
+#tab-schedule .lvw-outlook-day{min-height:54px;padding:5px 4px;border-color:transparent;border-radius:7px;background:transparent;color:var(--lvw-text)}
+#tab-schedule .lvw-outlook-day:hover{border-color:var(--lvw-mint);background:#102f2c}
+#tab-schedule .lvw-outlook-day.is-risk{background:#2c2618}.lvw-outlook-day.is-short{background:#301d20}
+#tab-schedule .lvw-outlook-date{font-size:8.5px;color:var(--lvw-sub)}
+#tab-schedule .lvw-outlook-load{height:7px;margin:6px 0;border-radius:999px;background:#163a35;overflow:hidden}
+#tab-schedule .lvw-outlook-load i{display:block;height:100%;border-radius:inherit;background:var(--lvw-mint)}
+#tab-schedule .lvw-outlook-day.is-risk .lvw-outlook-load i,#tab-schedule .lvw-outlook-day.is-short .lvw-outlook-load i{background:#e3a73f}
+#tab-schedule .lvw-outlook-meta{display:flex;justify-content:space-between;gap:3px;margin:0;color:#a8c7bd;font-size:7.5px}
+
+#tab-schedule .lvw-filters{margin:0 0 10px;padding:9px 11px;border-color:var(--lvw-line);border-radius:11px;background:var(--lvw-panel);grid-template-columns:1.2fr 1fr 1fr auto}
+#tab-schedule .lvw-filter label{color:#789f94}.lvw-filter-checks label{color:#cce1da!important}
+#tab-schedule .lvw-filter select{height:33px;border-color:#315c54;background:#0b2321;color:var(--lvw-text)}
+#tab-schedule .lv-nav{margin:4px 0 8px;color:var(--lvw-text)}
+#tab-schedule .lv-nav-btn{background:#17483e;color:#9ce7cf}.lv-month-lbl{color:var(--lvw-text)!important}
+#tab-schedule .lv-legend{margin-bottom:8px;color:var(--lvw-sub)!important}
+
+#tab-schedule .lvw-calendar-stage{display:grid;grid-template-columns:minmax(0,2.25fr) minmax(300px,.95fr);gap:12px;align-items:stretch}
+#tab-schedule .lv-cal{padding:10px;border:1px solid var(--lvw-line);border-radius:13px;background:var(--lvw-panel);overflow:hidden}
+#tab-schedule .lv-cal-hdr{gap:5px;background:transparent}
+#tab-schedule .lv-cal-hdr>div{padding:8px 3px;border-radius:7px;background:#123532;color:#a8c7bd!important}
+#tab-schedule .lv-cal-body{gap:5px!important;background:transparent}
+#tab-schedule .lv-day{min-height:96px;padding:7px;border:1px solid var(--lvw-line);border-radius:8px;background:#0f2b29;color:var(--lvw-text)}
+#tab-schedule .lv-day:hover{border-color:var(--lvw-mint);background:#12342f}
+#tab-schedule .lv-day.lvw-selected{background:#17483e;box-shadow:inset 0 0 0 2px var(--lvw-mint)}
+#tab-schedule .lv-day-other{background:#0b2321!important;color:#56766e!important}
+#tab-schedule .lv-day-num{color:var(--lvw-text)!important}
+#tab-schedule .lv-job-badge{background:#243f58;color:#c7dcf6}.lv-job-badge.review{background:#4d3920;color:#ffd27d}.lv-job-badge.short{background:#4b2529;color:#ffadb7}
+
+#tab-schedule .lvw-day-panel{display:block!important;margin:0;border-color:var(--lvw-line);border-radius:13px;background:var(--lvw-panel);box-shadow:none;overflow:hidden}
+#tab-schedule .lvw-day-placeholder{display:flex;min-height:100%;box-sizing:border-box;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:24px;text-align:center;color:var(--lvw-sub)}
+#tab-schedule .lvw-day-placeholder strong{color:var(--lvw-text);font-size:14px}.lvw-day-placeholder span{font-size:10px;line-height:1.6}
+#tab-schedule .lvw-day-head{padding:12px 14px;background:#113b35}.lvw-day-head strong{font-size:13px}.lvw-day-head small{color:#9bc0b5}
+#tab-schedule .lvw-day-body{grid-template-columns:1fr;gap:10px;padding:11px;max-height:520px;overflow:auto}
+#tab-schedule .lvw-metrics{grid-template-columns:1fr 1fr;gap:7px}
+#tab-schedule .lvw-metric{padding:9px;border-color:var(--lvw-line);background:#0f2b29}.lvw-metric b{color:var(--lvw-text);font-size:17px}.lvw-metric span{color:var(--lvw-sub)}
+#tab-schedule .lvw-metric.warn{background:#2c2618;border-color:#7b6030}.lvw-metric.bad{background:#301d20;border-color:#764148}
+#tab-schedule .lvw-row{border-color:var(--lvw-line);background:#0f2b29;color:var(--lvw-text)}.lvw-row span:last-child{color:var(--lvw-sub)}
+#tab-schedule .lvw-side{border-color:var(--lvw-line);background:#0f2b29}.lvw-side h4{color:var(--lvw-text)!important}
+#tab-schedule .lvw-side-actions button{border-color:#37675d;background:#123a35;color:var(--lvw-text)}#tab-schedule .lvw-side-actions button.primary{background:var(--lvw-mint);border-color:var(--lvw-mint);color:#06201c}
+#tab-schedule .lvw-day-close{background:#234b44;color:#ff8791}
+
+#tab-schedule .lv-sum-wrap{margin-top:12px;color:var(--lvw-text)}
+#tab-schedule .lv-sw-wrap{margin-top:14px;border-color:var(--lvw-line)!important;background:var(--lvw-panel)!important;color:var(--lvw-text)}
+#tab-schedule .lv-sw-title{color:var(--lvw-text)!important}
+#tab-schedule .lv-sw-day-cell,#tab-schedule .lv-sw-note,#tab-schedule .lv-sw-employee-row select,#tab-schedule .lv-sw-employee-row input{border-color:#315c54!important;background:#0b2321!important;color:var(--lvw-text)!important}
+#tab-schedule .lv-sw-save-btn{background:var(--lvw-mint)!important;color:#06201c!important}
+
+@media(max-width:1100px){#tab-schedule .lvw-outlook-grid{grid-template-columns:repeat(7,minmax(0,1fr))}#tab-schedule .lvw-calendar-stage{grid-template-columns:1fr}#tab-schedule .lvw-day-panel{min-height:260px}}
+@media(max-width:720px){#tab-schedule{padding:9px!important;border-radius:12px}#tab-schedule .lvw-summary-grid{grid-template-columns:1fr 1fr}.lvw-summary-card.status{grid-column:1/-1}#tab-schedule .lvw-outlook-grid{grid-template-columns:repeat(4,minmax(0,1fr))}#tab-schedule .lvw-filters{grid-template-columns:1fr 1fr}#tab-schedule .lvw-topbar{align-items:flex-start}#tab-schedule .lvw-calendar-stage{display:block}#tab-schedule .lvw-day-panel{margin-top:10px}#tab-schedule .lv-day{min-height:82px}}
