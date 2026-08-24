@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>List Facebook swap smoke test</title>
+  <link rel="stylesheet" href="../../snippets/list-facebook-editor.css?v=270">
+  <link rel="stylesheet" href="../../snippets/list-facebook-followup.css?v=270">
+  <style>
+    :root{--surface-card:#fff;--surface-page:#f0fbf4;--surface-card-border:#b7dcc5;--text-heading:#173f31;--text-body:#33443d;--text-muted2:#728078}
+    body{margin:0;padding:24px;background:#eefaf2;font-family:Arial,"Noto Sans Thai",sans-serif;color:#173f31}
+  </style>
+</head>
+<body>
+  <main id="lfb-root"></main>
+  <script>
+    window._rbUser={name:'View',role:'sup'};
+    window.fbGet=function(path,callback){callback(null,{});};
+    window.fbSet=function(){return Promise.resolve(true);};
+    window.rbApplyHeavyRefreshPermissions=function(){};
+    window.rbHeavyRefreshStatus=function(){};
+    window.rbCanRefreshHeavy=function(){return true;};
+  </script>
+  <script src="../../snippets/list-facebook-editor.js?v=270"></script>
+  <script src="../../snippets/list-facebook-followup.js?v=270"></script>
+  <script>
+    window.addEventListener('load',function(){
+      window._lfbEditorActivate();
+      window._listfbData=[
+        {_key:'account-1',type:'บัญชีเล็ก',name:'Test Account A',emp:'TER',prod:'WOLF+',st:'รหัส 2FA ผิด',fbid:'100001',passFb:'facebook-pass',email:'test-a@example.com',emailPass:'email-pass',twofa:'AAAA BBBB CCCC',limit:'500',bal:'1200',note:'ทดสอบแบบฟอร์ม',follow:'ติดตาม',upd:'24/08/2569'},
+        {_key:'account-2',type:'บัญชีใหญ่',name:'Test Account B',emp:'MOS',prod:'Liv CARE',st:'ใช้งาน',fbid:'100002',passFb:'facebook-pass-2',email:'test-b@example.com',emailPass:'email-pass-2',twofa:'DDDD EEEE FFFF',limit:'800',bal:'2500',note:'บัญชีปกติ',follow:'',upd:'24/08/2569'}
+      ];
+      window._lfbRender();
+    });
+  </script>
+</body>
+</html>

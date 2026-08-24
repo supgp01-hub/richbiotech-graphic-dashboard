@@ -50,7 +50,10 @@ assert.equal(api.followupTiming({ stage: 'done', updatedAt: baseNow }, baseNow +
 
 assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follow-up data must use a separate cloud path');
 assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
-assert.ok(source.includes('window._lfbOpenEditor(selectedKey)'), 'the full account editor must remain available');
+assert.ok(source.includes('<h3>แก้ไขข้อมูลบัญชี</h3>'), 'the full account editor must be permanently visible in the right panel');
+assert.ok(source.includes('openFollowupModal(nameButton.getAttribute'), 'clicking an account name must open the follow-up popup');
+assert.ok(source.includes('id="lfb-followup-title">แก้ไขข้อมูลติดตาม'), 'the tracking popup must have a clear edit-follow-up title');
+assert.ok(source.includes('window._lfbSaveAccountRecord(selectedKey,values)'), 'right-panel edits must use the existing account persistence path');
 assert.ok(source.includes('class="lfb-table-center lfb-status-cell"'), 'status, workflow and update columns must use the centered table layout');
 assert.equal(source.includes('setInterval('), false, 'the workflow must not add background polling that can destabilize multiple tabs');
 assert.ok(source.includes("nextDate=stage==='done'?'':automaticNextDate(Date.now())"), 'saving must not require the team to pick the seven-day follow-up date manually');
