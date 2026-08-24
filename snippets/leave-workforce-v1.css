@@ -258,3 +258,9 @@ html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0
 #lv-modal .lv-mclose{position:absolute!important;top:50%!important;right:16px!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border-radius:8px!important;background:rgba(255,255,255,.13)!important;color:#ff858a!important}
 #lv-modal .lv-mhead>button:not(.lv-mclose){display:none!important}
 #lv-modal .lvw-combined-tools,#lv-modal .lvw-combined-pane{margin-left:16px!important;margin-right:16px!important}
+
+/* v1.7 — force a real close icon; global icon decorators must not turn it into a plus. */
+#lv-modal .lv-mclose{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;font-size:0!important;border:1px solid rgba(255,255,255,.08)!important}
+#lv-modal .lv-mclose::before,#lv-modal .lv-mclose::after{content:none!important;display:none!important}
+#lv-modal .lv-mclose-icon{display:block!important;width:17px!important;height:17px!important;overflow:visible!important;pointer-events:none!important}
+#lv-modal .lv-mclose-icon path{fill:none!important;stroke:#ff737b!important;stroke-width:2.25!important;stroke-linecap:round!important}

@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 const assert=require('assert');
 
 (async()=>{
-  const targetUrl=process.argv[2]||'http://127.0.0.1:8025/index.html?v=fix264';
+  const targetUrl=process.argv[2]||'http://127.0.0.1:8025/index.html?v=fix265';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1280,height:900}});
   await context.addInitScript(()=>{
@@ -29,7 +29,10 @@ const assert=require('assert');
     background:getComputedStyle(document.querySelector('#lv-modal .lv-mhead')).backgroundColor,
     hasHeaderRule:[...document.styleSheets].some(sheet=>{try{return [...sheet.cssRules].some(rule=>rule.cssText.includes('#lv-modal .lv-mhead'))}catch(error){return false}}),
     extraHeaderButtons:document.querySelectorAll('#lv-modal .lv-mhead>button:not(.lv-mclose)').length,
-    addTitle:document.querySelector('#lv-modal .lv-add-title').textContent.trim()
+    addTitle:document.querySelector('#lv-modal .lv-add-title').textContent.trim(),
+    closeLabel:document.querySelector('#lv-modal .lv-mclose').getAttribute('aria-label'),
+    closeIcon:!!document.querySelector('#lv-modal .lv-mclose .lv-mclose-icon'),
+    closePath:getComputedStyle(document.querySelector('#lv-modal .lv-mclose-icon path')).stroke
   }));
   assert.match(header.title,/^📅 วัน/);
   assert.match(header.cycle,/^รอบ: 26 /);
@@ -37,6 +40,9 @@ const assert=require('assert');
   assert.strictEqual(header.background,'rgb(23, 77, 58)');
   assert.strictEqual(header.extraHeaderButtons,0);
   assert.strictEqual(header.addTitle,'เพิ่มการลา');
+  assert.strictEqual(header.closeLabel,'ปิด');
+  assert.strictEqual(header.closeIcon,true);
+  assert.strictEqual(header.closePath,'rgb(255, 115, 123)');
 
   await page.selectOption('#lv-f-emp','wiw');
   await page.selectOption('#lv-f-type','vac');

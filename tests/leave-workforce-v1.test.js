@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=264'));
-assert.ok(html.includes('leave-workforce-v1.js?v=264'));
+assert.ok(html.includes('leave-workforce-v1.css?v=265'));
+assert.ok(html.includes('leave-workforce-v1.js?v=265'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -47,7 +47,7 @@ assert.ok(css.includes('Keep the monthly calendar in its original light palette'
 assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
-assert.ok(source.includes("var VERSION='1.6.0'"));
+assert.ok(source.includes("var VERSION='1.7.0'"));
 assert.ok(source.includes('function enhanceCombinedDay(y,m,d)'));
 assert.ok(source.includes('function saveCombinedLeave(p)'));
 assert.ok(source.includes('บันทึกวันทำงานพิเศษ'));
@@ -70,6 +70,9 @@ assert.ok(css.includes('border-bottom:0!important'));
 assert.ok(css.includes('keep the original selected-date title and use one clear close action'));
 assert.ok(css.includes('#lv-modal .lv-mtitle{color:#fff!important'));
 assert.ok(css.includes('#lv-modal .lv-mhead>button:not(.lv-mclose){display:none!important}'));
+assert.ok(css.includes('#lv-modal .lv-mclose-icon path{fill:none!important;stroke:#ff737b!important'));
+assert.ok(html.includes('class="lv-mclose-icon"'));
+assert.ok(html.includes('aria-label="ปิด"'));
 assert.ok(html.includes("document.getElementById('lv-mtitle').textContent='📅 วัน'+dayName"));
 assert.ok(html.includes("document.getElementById('lv-mcycle').textContent='รอบ: 26 '"));
 assert.ok(!html.includes('<div class="lv-add-title">➕ เพิ่มการลา</div>'));

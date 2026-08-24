@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  var VERSION='1.6.0',HISTORY_KEY='rb_leave_history_v1',SPECIAL_KEY='rb_specialwork_v1';
+  var VERSION='1.7.0',HISTORY_KEY='rb_leave_history_v1',SPECIAL_KEY='rb_specialwork_v1';
   var FILTER={emp:'',type:'',group:'',mine:false};
   var selectedDate='',key='';
   var SPECIAL={training:{label:'อบรม',icon:'📚',color:'#8067d8',bg:'#eee9ff'},office:{label:'เข้าออฟฟิศ',icon:'🏢',color:'#e88935',bg:'#ffead6'},wfh:{label:'WFH',icon:'🏠',color:'#d5a500',bg:'#fff5c7'},outing:{label:'OUTING',icon:'🚗',color:'#d85b91',bg:'#ffe3ef'}};
