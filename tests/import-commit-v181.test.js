@@ -43,12 +43,14 @@ const analysis = window._ctImportV3Test.load(rows, 'So Pink');
 assert.equal(analysis.selected, 68);
 
 window.ctImportCommit();
-const saved = JSON.parse(storage.get('rb_olympplus_v1'));
-assert.equal(saved.length, 68, 'ต้องบันทึกรายการที่เลือกครบทุกแถวก่อนซิงก์');
-assert.equal(saved[0].brand, 'So Pink');
-assert.equal(saved[67].script, 'script-68');
-assert.equal(ui['cti-bar'].style.width, '100%');
-assert.match(ui['cti-progress-text'].textContent, /บันทึกสำเร็จ 68 รายการ/);
-assert.ok(timers.some(timer => timer.ms === 250), 'ต้องตั้งเวลาปิดหน้าต่างโดยไม่รอ Firebase');
-
-console.log('import-commit-v181: all tests passed');
+Promise.resolve().then(() => {
+  const saved = JSON.parse(storage.get('rb_olympplus_v1'));
+  assert.equal(saved.length, 68, 'ต้องบันทึกรายการที่เลือกครบทุกแถวก่อนซิงก์');
+  assert.equal(saved[0].brand, 'So Pink');
+  assert.equal(saved[67].script, 'script-68');
+  assert.equal(ui['cti-bar'].style.width, '100%');
+  assert.match(ui['cti-progress-text'].textContent, /บันทึกสำเร็จ 68 รายการ/);
+  assert.ok(timers.some(timer => timer.ms === 250), 'ต้องตั้งเวลาปิดหน้าต่างโดยไม่รอ Firebase');
+  assert.ok(fs.readFileSync('index.html', 'utf8').includes('snippets/bulk-import-v3.js?v=267'), 'หน้าเว็บต้องโหลดตัวแก้นำเข้าเวอร์ชันล่าสุด');
+  console.log('import-commit-v181: all tests passed');
+}).catch(error => { console.error(error); process.exitCode = 1; });
