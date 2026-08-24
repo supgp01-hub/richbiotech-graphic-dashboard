@@ -15,7 +15,7 @@ assert.ok(indexSource.includes("list-facebook-editor.js?v=224"), 'the deployed p
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
 assert.ok(indexSource.includes('list-facebook-followup.css?v=272'), 'the deployed page must load the follow-up workspace layout');
 assert.ok(indexSource.includes("list-facebook-followup.js?v=272"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix274">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix275-mobile-interactions">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(editorSource.includes('window._lfbSaveAccountRecord=function'), 'the permanent account editor must save through the existing account data store');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
