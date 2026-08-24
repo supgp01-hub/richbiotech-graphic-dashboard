@@ -223,7 +223,13 @@ function persistSelected(){
 }
 function bindHybrid(root){
   root.addEventListener('click',function(event){
-    var nameButton=event.target.closest('.lfb-name-btn');if(nameButton){openFollowupModal(nameButton.getAttribute('data-key'));return;}
+    var nameButton=event.target.closest('.lfb-name-btn');
+    if(!nameButton)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openFollowupModal(nameButton.getAttribute('data-key'));
+  },true);
+  root.addEventListener('click',function(event){
     var stage=event.target.closest('.lfb-follow-stage');if(stage){window._lfbFilter.stage=stage.getAttribute('data-stage');window._lfbFilter.followView='stage';window._lfbFilter.page=1;renderAll();return;}
     var summary=event.target.closest('.lfb-follow-stat');if(summary){var view=summary.getAttribute('data-summary');window._lfbFilter.followView=view==='done'?'done':view;window._lfbFilter.page=1;renderAll();return;}
     var viewButton=event.target.closest('.lfb-hybrid-view-filter');if(viewButton){window._lfbFilter.followView=viewButton.getAttribute('data-view');window._lfbFilter.page=1;renderAll();return;}

@@ -48,5 +48,5 @@ assert.ok(index.includes("rbValidateOrderLeaveAssignment({assignee:guardAssignee
 assert.ok(index.includes("var guardDate=ge('om-dl')"),'a conflict must return focus to the deadline field, not the employee dropdown');
 assert.ok(index.includes("id='om-leave-guard'")||index.includes("leaveGuard.id='om-leave-guard'"),'order modal must display the live deadline status');
 assert.ok(index.includes('order-leave-guard-v1.js?v=230')&&index.includes('order-leave-guard-v1.css?v=230'),'deployed page must load the cache-busted deadline guard assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix270">'),'deployed page must expose build fix270');
+assert.ok(index.includes('<meta name="rb-build" content="fix271">'),'deployed page must expose build fix271');
 console.log('order-leave-guard-v1: all tests passed');
