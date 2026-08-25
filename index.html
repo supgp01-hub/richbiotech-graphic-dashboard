@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix279-list-facebook-full-credentials">
+<meta name="rb-build" content="fix280-order-image-submit-links">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -536,7 +536,6 @@
 .sp-btn:hover{background:#2D6A4F;}
 
 
-/* ═══════════════ MOBILE RESPONSIVE — bottom tab bar + reflow (Fix #130) ═══════════════ */
 #rb-bottom-nav{display:none;}
 @media (max-width: 900px) {
   #sidebar{display:none!important;}
@@ -2941,7 +2940,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix249"><script src="snippets/order-audit-persistence-v1.js?v=fix252"></script><script src="snippets/storage-resilience-v1.js?v=fix274"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix249"><script src="snippets/order-audit-persistence-v1.js?v=fix280"></script><script src="snippets/storage-resilience-v1.js?v=fix274"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -4028,8 +4027,8 @@ window.gAS=function(){
     function addMeta(label,value,wide){var item=document.createElement('div');item.className='rb-revision-meta-item'+(wide?' is-wide':'');var small=document.createElement('small');small.textContent=label;var bold=document.createElement('b');bold.textContent=revisionText(value);item.appendChild(small);item.appendChild(bold);meta.appendChild(item);}
     var statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'};addMeta('ชื่องาน',order.name||order.title,true);addMeta('สินค้า',order.product);addMeta('ประเภทงาน',order.type);addMeta('HOOK',revisionText(order.hook)+(order.hook2?' • '+order.hook2:''));addMeta('Deadline',order.deadline);addMeta('ผู้รับผิดชอบ',order.assignee);addMeta('สถานะ',statusLabels[order.status]||order.status);addMeta('บรีฟงาน / สไตล์ที่ต้องการ',order.brief,true);if(order.note)addMeta('หมายเหตุ',order.note,true);info.appendChild(meta);view.appendChild(info);
     var refs=document.createElement('div');refs.className='rb-revision-block';var refsHead=document.createElement('div');refsHead.className='rb-revision-block-head';refsHead.innerHTML='<strong>รายละเอียดงานและลิงก์อ้างอิง</strong><span>แยกสถานะลิงก์ที่แก้ไขได้และข้อมูลที่ดูอย่างเดียว</span>';refs.appendChild(refsHead);var grid=document.createElement('div');grid.className='rb-revision-ref-grid';var productAssets=PRODUCT_ASSET_LINKS[order.product]||{};
-    var clipLinks=Array.isArray(order.clipLinks)?order.clipLinks.filter(Boolean):[],workLinks=Array.isArray(order.submitLinks)?order.submitLinks.filter(Boolean):(order.submitLink?[order.submitLink]:[]);
-    grid.appendChild(revisionUniformLinkRows('CREATIVE',[order.rawLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์สคริป',[order.sheetLink],false));grid.appendChild(revisionImageGroup(order));grid.appendChild(revisionUniformLinkRows('ลิงก์ตัวอย่าง',[order.sampleLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์คลิป',clipLinks,false));grid.appendChild(revisionUniformLinkRows('ลิงก์งาน',workLinks,true));grid.appendChild(revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[]),true));grid.appendChild(revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[]),true));refs.appendChild(grid);view.appendChild(refs);
+    var clipLinks=Array.isArray(order.clipLinks)?order.clipLinks.filter(Boolean):[],workLinks=Array.isArray(order.submitLinks)?order.submitLinks.filter(Boolean):(order.submitLink?[order.submitLink]:[]),imageWorkLinks=Array.isArray(order.latestRevisionImageLinks)?order.latestRevisionImageLinks.filter(Boolean):(Array.isArray(order.imageSubmitLinks)?order.imageSubmitLinks.filter(Boolean):[]);
+    grid.appendChild(revisionUniformLinkRows('CREATIVE',[order.rawLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์สคริป',[order.sheetLink],false));grid.appendChild(revisionImageGroup(order));grid.appendChild(revisionUniformLinkRows('ลิงก์ตัวอย่าง',[order.sampleLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์คลิป',clipLinks,false));grid.appendChild(revisionUniformLinkRows('ลิงก์งาน',workLinks,true));grid.appendChild(revisionUniformLinkRows('ลิงก์ส่งงานภาพ',imageWorkLinks,true));grid.appendChild(revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[]),true));grid.appendChild(revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[]),true));refs.appendChild(grid);view.appendChild(refs);
     section.insertBefore(view,section.firstChild);
     var workIds=['om-p1fix-hdr','om-p1fix-gallery','om-p1fix-wrap','om-p1fix-inp','om-submitlinks-section'],workNodes=workIds.map(function(id){return document.getElementById(id);}).filter(Boolean),priorWorkspace=document.getElementById('rb-revision-team-workspace');if(priorWorkspace&&priorWorkspace.parentNode)priorWorkspace.parentNode.removeChild(priorWorkspace);
     var teamWorkspace=document.createElement('section');teamWorkspace.id='rb-revision-team-workspace';teamWorkspace.className='rb-revision-team-workspace';var teamHead=document.createElement('div');teamHead.className='rb-revision-team-head';teamHead.innerHTML='<div><strong>พื้นที่ส่งผลงานของทีม</strong><small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์ส่งงาน</small></div>';teamWorkspace.appendChild(teamHead);
@@ -4133,6 +4132,7 @@ window.gAS=function(){
         tabPanels[t.k].style.display=on?'block':'none';
       });
       if(_omUpdateFooter)_omUpdateFooter(k);
+      if(k==='imgs'&&window.rbSyncOrderDeliveryLinks)setTimeout(window.rbSyncOrderDeliveryLinks,0);
     }
     var tabSvg={info:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path><path d="M8 8h8M8 12h8M8 16h5"></path></svg>',links:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4M11 8v6M8 11h6"></path></svg>',imgs:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m21 15-5-5L5 20"></path></svg>'};
     TABS.forEach(function(t){
@@ -4209,19 +4209,30 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     function submitLinkLabel(index){return index<2?submitLinkLabels[index]:submitLinkLabels[2]+' '+(index-1);}
     var submitLinksSection=document.createElement('div');submitLinksSection.id='om-submitlinks-section';submitLinksSection.style.cssText='margin:4px 0 12px;padding:11px;border:1px solid #b7ddc5;border-radius:10px;background:rgba(230,247,236,.48);';
     var submitLinksHead=document.createElement('div');submitLinksHead.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;';
-    var submitLinksTitle=document.createElement('div');submitLinksTitle.id='om-submitlinks-title';submitLinksTitle.style.cssText='font-size:12px;font-weight:800;color:var(--text-heading);';submitLinksTitle.textContent='ลิงก์ส่งงาน';
+    var submitLinksTitle=document.createElement('div');submitLinksTitle.id='om-submitlinks-title';submitLinksTitle.style.cssText='font-size:12px;font-weight:800;color:var(--text-heading);';submitLinksTitle.textContent='ช่องส่งผลงาน';
+    var submitTypeTabs=document.createElement('div');submitTypeTabs.id='om-submit-type-tabs';submitTypeTabs.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;margin-bottom:10px;border-radius:9px;background:var(--auto-lc31)';
+    var submitWorkTab=document.createElement('button');submitWorkTab.type='button';submitWorkTab.id='om-submit-work-tab';submitWorkTab.setAttribute('role','tab');submitWorkTab.textContent='🔗 ลิงก์ส่งงาน';
+    var submitImageTab=document.createElement('button');submitImageTab.type='button';submitImageTab.id='om-submit-image-tab';submitImageTab.setAttribute('role','tab');submitImageTab.textContent='▧ ลิงก์ส่งงานภาพ';
+    [submitWorkTab,submitImageTab].forEach(function(btn){btn.style.cssText='min-height:34px;border:0;border-radius:7px;padding:7px 9px;font-size:12px;font-weight:800;cursor:pointer;';});
     var submitLinksAdd=document.createElement('button');submitLinksAdd.type='button';submitLinksAdd.id='om-add-submitlink';submitLinksAdd.textContent='+ เพิ่มลิงก์ส่งงาน';submitLinksAdd.style.cssText='background:#ecf9f0;color:#14804f;border:1px dashed #2ca66f;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;';
+    var imageSubmitLinksAdd=document.createElement('button');imageSubmitLinksAdd.type='button';imageSubmitLinksAdd.id='om-add-image-submitlink';imageSubmitLinksAdd.textContent='+ เพิ่มลิงก์ส่งงานภาพ';imageSubmitLinksAdd.style.cssText=submitLinksAdd.style.cssText;
     var submitLinksRows=document.createElement('div');submitLinksRows.id='om-submitlinks-rows';
+    var imageSubmitLinksRows=document.createElement('div');imageSubmitLinksRows.id='om-image-submitlinks-rows';imageSubmitLinksRows.style.display='none';
     var revisionHelp=document.createElement('div');revisionHelp.id='om-revision-help';revisionHelp.textContent='กรอกลิงก์งานรอบใหม่ โดยระบบจะเก็บลิงก์เดิมไว้ในประวัติงาน';revisionHelp.style.cssText='display:none;margin:-2px 0 11px;color:var(--text-muted2);font-size:10.5px;';
     var revisionNoteWrap=document.createElement('div');revisionNoteWrap.id='om-revision-note-wrap';revisionNoteWrap.style.cssText='display:none;margin-top:10px;';
     var revisionNoteLabel=document.createElement('label');revisionNoteLabel.htmlFor='om-revision-note';revisionNoteLabel.textContent='หมายเหตุถึงผู้ตรวจ';revisionNoteLabel.style.cssText='display:block;margin-bottom:5px;font-size:11.5px;font-weight:800;color:var(--text-heading);';
     var revisionNote=document.createElement('textarea');revisionNote.id='om-revision-note';revisionNote.placeholder='สรุปสิ่งที่แก้ไข...';revisionNote.style.cssText='width:100%;min-height:74px;box-sizing:border-box;border:1px solid #c8d8ce;border-radius:9px;padding:9px 11px;font-size:12px;resize:vertical;';
     revisionNoteWrap.appendChild(revisionNoteLabel);revisionNoteWrap.appendChild(revisionNote);
-    submitLinksHead.appendChild(submitLinksTitle);submitLinksHead.appendChild(submitLinksAdd);submitLinksSection.appendChild(submitLinksHead);submitLinksSection.appendChild(revisionHelp);submitLinksSection.appendChild(submitLinksRows);submitLinksSection.appendChild(revisionNoteWrap);p1.appendChild(submitLinksSection);
+    submitLinksHead.appendChild(submitLinksTitle);submitLinksSection.appendChild(submitLinksHead);submitTypeTabs.appendChild(submitWorkTab);submitTypeTabs.appendChild(submitImageTab);submitLinksSection.appendChild(submitTypeTabs);submitLinksSection.appendChild(revisionHelp);submitLinksSection.appendChild(submitLinksRows);submitLinksSection.appendChild(imageSubmitLinksRows);submitLinksSection.appendChild(submitLinksAdd);submitLinksSection.appendChild(imageSubmitLinksAdd);submitLinksSection.appendChild(revisionNoteWrap);p1.appendChild(submitLinksSection);
     function submitLinkValues(){return Array.prototype.slice.call(submitLinksRows.querySelectorAll('.om-submitlink-row input')).map(function(el){return(el.value||'').trim();});}
     window._refreshSubmitLinkDisplay=function(){var vals=submitLinkValues(),has=vals.some(Boolean);if(has){var x=ge('om-camp-extra'),n=Math.max(0,vals.length-2),h=x?x.querySelectorAll('.om-camp-row').length:0;while(h++<n)window._addCampRow();vals.forEach(function(v,i){var e=ge(i===0?'om-uplink':i===1?'om-ad':'om-link'+(i+1));if(e)e.value=v||'';});}function render(list){if(!list)return;list.innerHTML='';vals.forEach(function(v,i){if(!v)return;var row=document.createElement('div'),label=document.createElement('b'),link=document.createElement('a');row.style.cssText='display:flex;gap:8px';label.textContent=submitLinkLabel(i);link.href=v;link.target='_blank';link.rel='noopener';link.setAttribute('data-link-btn','1');link.textContent=v;link.style.wordBreak='break-all';row.appendChild(label);row.appendChild(link);list.appendChild(row);});}render(ge('om-submitlink-list'));var box=ge('om-submitlink-box');if(box)box.style.display=has?'flex':'none';};
-    window._renderSubmitLinkRows=function(values){values=Array.isArray(values)?values.slice():[];submitLinksRows.innerHTML='';values.forEach(function(value,i){var row=document.createElement('div');row.className='om-submitlink-row';row.style.cssText='display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px;';var label=document.createElement('div');label.className='om-submitlink-label';label.textContent=submitLinkLabel(i);label.style.cssText='font-size:12px;font-weight:800;color:'+(i>=2?'#9a5b00':'#176f4f')+';text-align:center;padding:7px 6px;border-radius:7px;background:'+(i>=2?'#fff4db':'#e8f7ed')+';';var linkWrap=mkLink(i===0?'om-submitlink':'om-submitlink'+(i+1));var input=linkWrap.querySelector('input');input.value=value||'';input.placeholder='วางลิงก์ '+submitLinkLabel(i);input.addEventListener('input',window._refreshSubmitLinkDisplay);var remove=document.createElement('button');remove.type='button';remove.title='ลบช่องนี้';remove.textContent='×';remove.style.cssText='width:30px;height:30px;border:1px solid #f1a4a8;border-radius:7px;background:#fff;color:#dc3545;font-size:18px;cursor:pointer;';remove.onclick=function(){var current=submitLinkValues();current.splice(i,1);window._renderSubmitLinkRows(current);};row.appendChild(label);row.appendChild(linkWrap);row.appendChild(remove);submitLinksRows.appendChild(row);});submitLinksAdd.textContent='+ เพิ่มลิงก์ส่งงาน';window._refreshSubmitLinkDisplay();};
+    function renderDeliveryRows(kind,values){var image=kind==='image',rows=image?imageSubmitLinksRows:submitLinksRows,read=image?imageSubmitLinkValues:submitLinkValues,render=image?window._renderImageSubmitLinkRows:window._renderSubmitLinkRows;values=Array.isArray(values)?values.slice():[];if(image&&!values.length)values=[''];rows.innerHTML='';values.forEach(function(value,i){var labelText=image?'ภาพ '+(i+1):submitLinkLabel(i),row=document.createElement('div'),label=document.createElement('div'),linkWrap=mkLink(image?'om-image-submitlink'+(i+1):(i?'om-submitlink'+(i+1):'om-submitlink')),input=linkWrap.querySelector('input'),remove=document.createElement('button');row.className=image?'om-image-submitlink-row':'om-submitlink-row';row.style.cssText='display:grid;grid-template-columns:'+(image?'110px':'90px')+' minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px';label.className=image?'om-image-submitlink-label':'om-submitlink-label';label.textContent=labelText;label.style.cssText='font-size:12px;font-weight:800;color:'+(image||i<2?'#176f4f':'#9a5b00')+';text-align:center;padding:7px 6px;border-radius:7px;background:'+(image||i<2?'#e8f7ed':'#fff4db');input.value=value||'';input.placeholder='วางลิงก์ '+(image?'ส่งงานภาพ '+(i+1):labelText);if(!image)input.addEventListener('input',window._refreshSubmitLinkDisplay);remove.type='button';remove.title='ลบช่องนี้';remove.textContent='×';remove.style.cssText='width:30px;height:30px;border:1px solid #f1a4a8;border-radius:7px;background:#fff;color:#dc3545;font-size:18px;cursor:pointer';remove.onclick=function(){var current=read();current.splice(i,1);render(current)};row.append(label,linkWrap,remove);rows.appendChild(row)});if(!image)window._refreshSubmitLinkDisplay()}
+    window._renderSubmitLinkRows=function(values){renderDeliveryRows('work',values)};
+    window._renderImageSubmitLinkRows=function(values){renderDeliveryRows('image',values)};
+    function switchSubmitType(type){var image=type==='image';submitWorkTab.style.background=image?'transparent':'#1B4332';submitWorkTab.style.color=image?'var(--text-muted2)':'#fff';submitImageTab.style.background=image?'#1B4332':'transparent';submitImageTab.style.color=image?'#fff':'var(--text-muted2)';submitLinksRows.style.display=image?'none':'block';imageSubmitLinksRows.style.display=image?'block':'none';submitLinksAdd.style.display=image?'none':'inline-flex';imageSubmitLinksAdd.style.display=image?'inline-flex':'none';}
     submitLinksAdd.onclick=function(){var vals=submitLinkValues();vals.push('');window._renderSubmitLinkRows(vals);var id=vals.length===1?'om-submitlink':'om-submitlink'+vals.length;var el=document.getElementById(id);if(el)el.focus();};
+    imageSubmitLinksAdd.onclick=function(){var vals=imageSubmitLinkValues();vals.push('');window._renderImageSubmitLinkRows(vals);var el=document.getElementById('om-image-submitlink'+vals.length);if(el)el.focus();};
+    submitWorkTab.onclick=function(){switchSubmitType('work');};submitImageTab.onclick=function(){switchSubmitType('image');};switchSubmitType('work');
     
     decoratePanel(p1,'▤','รายละเอียดประเภทงาน','ระบุข้อมูลงาน มอบหมายผู้รับผิดชอบ บรีฟ และลิงก์ประกอบ');
     tabPanels['info']=p1;_omInfoPanel=p1;body.appendChild(p1);
@@ -4454,7 +4465,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
     var _clipEx=document.getElementById('om-clip-extra');if(_clipEx){_clipEx.innerHTML='';if(o&&o.clipLinks&&o.clipLinks.length){o.clipLinks.forEach(function(link){window._addClipRow&&window._addClipRow();var rows=_clipEx.querySelectorAll('.om-clip-row');var lastInp=rows[rows.length-1]?rows[rows.length-1].querySelector('input[type="text"]'):null;if(lastInp)lastInp.value=link||'';});}}
     window._syncClipToVer&&window._syncClipToVer();ge('om-uplink').value=o?(o.upLink||''):'';ge('om-imgs-note').value=o?(o.imgsNote||''):'';
     ge('om-ad').value=o?(o.adLink||''):'';ge('om-audit-note').value=o?(o.auditNote||''):'';
-    var _revHistory=o&&Array.isArray(o.revisionSubmissions)?o.revisionSubmissions:[];var _latestRevision=_revHistory.length?_revHistory[_revHistory.length-1]:null;var _writingRevision=!!(o&&o.status==='revision'&&_orderRole==='graphic'&&_isView);var _structuredDetailView=!!o;var _slvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.links)?_latestRevision.links.slice():(o&&Array.isArray(o.submitLinks)?o.submitLinks.slice():(o&&o.submitLink?[o.submitLink]:[]));if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(_slvs);var _revisionNoteEl=ge('om-revision-note');if(_revisionNoteEl)_revisionNoteEl.value=_writingRevision?'':(_latestRevision&&_latestRevision.note||o&&o.revisionNote||'');if(window._omRenderRevisionDetailView)window._omRenderRevisionDetailView(o,_structuredDetailView);
+    var _revHistory=o&&Array.isArray(o.revisionSubmissions)?o.revisionSubmissions:[];var _latestRevision=_revHistory.length?_revHistory[_revHistory.length-1]:null;var _writingRevision=!!(o&&o.status==='revision'&&_orderRole==='graphic'&&_isView);var _structuredDetailView=!!o;var _slvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.links)?_latestRevision.links.slice():(o&&Array.isArray(o.submitLinks)?o.submitLinks.slice():(o&&o.submitLink?[o.submitLink]:[]));var _islvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.imageLinks)?_latestRevision.imageLinks.slice():(o&&Array.isArray(o.imageSubmitLinks)?o.imageSubmitLinks.slice():[]);if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(_slvs);if(window._renderImageSubmitLinkRows)window._renderImageSubmitLinkRows(_islvs);var _revisionNoteEl=ge('om-revision-note');if(_revisionNoteEl)_revisionNoteEl.value=_writingRevision?'':(_latestRevision&&_latestRevision.note||o&&o.revisionNote||'');if(window._omRenderRevisionDetailView)window._omRenderRevisionDetailView(o,_structuredDetailView);
     ge('om-brief').value=o?(o.brief||''):'';var _briefMenu=ge('om-brief-menu'),_briefToggle=ge('om-brief-toggle');if(_briefMenu)_briefMenu.style.display='none';if(_briefToggle)_briefToggle.setAttribute('aria-expanded','false');
     refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
     if(_omIsNew)restoreOMDraft();else{var _draftBanner=ge('om-draft-banner');if(_draftBanner&&_draftBanner.parentNode)_draftBanner.parentNode.removeChild(_draftBanner);updateOMDraftStatus('');}
@@ -4484,7 +4495,7 @@ p1.appendChild(clipExDiv);window._syncClipToVer=function(){var cont=document.get
                 }
               }
               var _hasFix=typeof _omFixImages!=='undefined'&&_omFixImages&&_omFixImages.length>0;
-              var _hasSubmit=typeof submitLinkValues==='function'&&submitLinkValues().some(function(v){return !!v;});
+              var _hasSubmit=(typeof submitLinkValues==='function'&&submitLinkValues().some(function(v){return !!v;}))||(typeof imageSubmitLinkValues==='function'&&imageSubmitLinkValues().some(function(v){return !!v;}));
               if((_cst==='revision'&&!_hasSubmit)||(_cst!=='revision'&&!_hasClip&&!_hasFix&&!_hasSubmit)){
                 if(typeof _rbShowSendWarn==='function')_rbShowSendWarn();
                 return;
@@ -4558,6 +4569,7 @@ if(_revisionSubmit){
   function closeOM2(){if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
 
   function submitLinkValues(){var rows=document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
+  function imageSubmitLinkValues(){var rows=document.querySelectorAll('#om-image-submitlinks-rows .om-image-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
   function setOMSubmitFeedback(message,kind){var box=ge('om-submit-feedback');if(!box)return;box.textContent=message||'';box.style.display=message?'block':'none';box.style.background=kind==='error'?'#fef2f2':'#ecfdf5';box.style.border='1px solid '+(kind==='error'?'#fecaca':'#a7f3d0');box.style.color=kind==='error'?'#991b1b':'#176f4f';}
 
   var OM_DRAFT_FIELDS=['om-name','om-prod','om-type','om-dl','om-st','om-mb','om-brief','om-sample-link','om-raw','om-sheet','om-footage','om-review','om-note','om-hook','om-hook2'];
@@ -4577,12 +4589,12 @@ if(_revisionSubmit){
     var fields={};OM_DRAFT_FIELDS.forEach(function(id){var el=ge(id);if(el)fields[id]=el.value||'';});
     var clipCont=document.getElementById('om-clip-extra');
     var clips=clipCont?Array.prototype.slice.call(clipCont.querySelectorAll('.om-clip-row input[type="text"]')).map(function(el){return(el.value||'').trim();}).filter(Boolean):[];
-    return{version:1,savedAt:Date.now(),fields:fields,submitLinks:submitLinkValues(),clipLinks:clips,hadImages:!!((_omImages&&_omImages.length)||(_omBriefImages&&_omBriefImages.length)||(_omErrorImages&&_omErrorImages.length)||(_omFixImages&&_omFixImages.length))};
+    return{version:2,savedAt:Date.now(),fields:fields,submitLinks:submitLinkValues(),imageSubmitLinks:imageSubmitLinkValues(),clipLinks:clips,hadImages:!!((_omImages&&_omImages.length)||(_omBriefImages&&_omBriefImages.length)||(_omErrorImages&&_omErrorImages.length)||(_omFixImages&&_omFixImages.length))};
   }
   function omDraftHasContent(d){
     if(!d||!d.fields)return false;
     var meaningful=['om-name','om-prod','om-type','om-dl','om-mb','om-brief','om-sample-link','om-raw','om-sheet','om-footage','om-review','om-note'];
-    return meaningful.some(function(id){return !!(d.fields[id]||'').trim();})||(d.submitLinks||[]).some(Boolean)||(d.clipLinks||[]).some(Boolean)||d.hadImages;
+    return meaningful.some(function(id){return !!(d.fields[id]||'').trim();})||(d.submitLinks||[]).some(Boolean)||(d.imageSubmitLinks||[]).some(Boolean)||(d.clipLinks||[]).some(Boolean)||d.hadImages;
   }
   function updateOMDraftStatus(message){var box=ge('om-draft-status'),head=ge('om-header-draft');if(box){box.textContent=message||'';box.style.display=message?'block':'none';}if(head){head.title=message||'บันทึก';head.setAttribute('aria-label',message||'บันทึกข้อมูล');}}
   function saveOMDraftNow(){
@@ -4610,7 +4622,7 @@ if(_revisionSubmit){
     if(ge('om-name')){ge('om-name').value=draft.fields['om-name']||'';ge('om-name').dispatchEvent(new Event('input',{bubbles:true}));}
     OM_DRAFT_FIELDS.forEach(function(id){var el=ge(id);if(el&&Object.prototype.hasOwnProperty.call(draft.fields,id))el.value=draft.fields[id]||'';});
     syncProductAssetLinks(product,false);
-    if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(Array.isArray(draft.submitLinks)?draft.submitLinks:[]);
+    if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(Array.isArray(draft.submitLinks)?draft.submitLinks:[]);if(window._renderImageSubmitLinkRows)window._renderImageSubmitLinkRows(Array.isArray(draft.imageSubmitLinks)?draft.imageSubmitLinks:[]);
     var clipCont=document.getElementById('om-clip-extra');if(clipCont){clipCont.innerHTML='';(draft.clipLinks||[]).forEach(function(link){window._addClipRow&&window._addClipRow();var rows=clipCont.querySelectorAll('.om-clip-row');var input=rows.length?rows[rows.length-1].querySelector('input[type="text"]'):null;if(input)input.value=link||'';});}
     if(window.rbRefreshOrderLeaveGuard)window.rbRefreshOrderLeaveGuard();
     _omDraftHydrating=false;showOMDraftBanner(draft);updateOMDraftStatus('แบบร่างถูกกู้คืนแล้ว');
@@ -4630,7 +4642,7 @@ if(_revisionSubmit){
     var stEl=ge('om-st'),stText=stEl&&stEl.options[stEl.selectedIndex]?stEl.options[stEl.selectedIndex].text:omSummaryValue('om-st');
     add('ชื่องาน',omSummaryValue('om-name'),true);add('สินค้า',omSummaryValue('om-prod'));add('ประเภทงาน',omSummaryValue('om-type'));add('ผู้รับผิดชอบ',omSummaryValue('om-mb','ยังไม่ระบุ'));add('Deadline',omSummaryValue('om-dl'));add('สถานะ',stText);
     var brief=omSummaryValue('om-brief','ไม่ได้ระบุ');if(brief.length>180)brief=brief.slice(0,180)+'…';add('บรีฟงาน',brief,true);
-    var linkCount=['om-sample-link','om-raw','om-sheet','om-footage','om-review'].filter(function(id){return omSummaryValue(id,'')!=='';}).length+submitLinkValues().filter(Boolean).length;add('ลิงก์ที่แนบ',linkCount+' รายการ');add('รูปภาพ',((_omBriefImages||[]).length+(_omImages||[]).length)+' รูป');
+    var linkCount=['om-sample-link','om-raw','om-sheet','om-footage','om-review'].filter(function(id){return omSummaryValue(id,'')!=='';}).length+submitLinkValues().filter(Boolean).length+imageSubmitLinkValues().filter(Boolean).length;add('ลิงก์ที่แนบ',linkCount+' รายการ');add('รูปภาพ',((_omBriefImages||[]).length+(_omImages||[]).length)+' รูป');
     content.appendChild(grid);
     var actions=document.createElement('div');actions.style.cssText='display:flex;gap:9px;padding:0 18px 17px;';var edit=document.createElement('button');edit.type='button';edit.textContent='กลับไปแก้ไข';edit.style.cssText='flex:1;padding:11px;border:1px solid #b7d8c4;border-radius:10px;background:var(--surface-card);color:#1B4332;font-size:13px;font-weight:700;cursor:pointer;';var confirm=document.createElement('button');confirm.type='button';confirm.textContent='ยืนยันสั่งงาน';confirm.style.cssText='flex:1;padding:11px;border:0;border-radius:10px;background:#1B4332;color:#fff;font-size:13px;font-weight:700;cursor:pointer;';
     function close(){_omSummaryOpen=false;if(overlay.parentNode)overlay.parentNode.removeChild(overlay);}
@@ -4647,14 +4659,14 @@ if(_revisionSubmit){
     order.errorImages=JSON.parse(JSON.stringify(_omErrorImages||[]));
     order.fixImages=JSON.parse(JSON.stringify(_omFixImages||[]));
     if(window.rbPersistAuditFields)window.rbPersistAuditFields(order,ge,document);
-    var currentSubmitLinks=submitLinkValues();
+    var currentSubmitLinks=submitLinkValues(),currentImageSubmitLinks=imageSubmitLinkValues();
     if(options.revisionSubmit){
       var revisionNoteEl=ge('om-revision-note'),revisionNote=revisionNoteEl?(revisionNoteEl.value||'').trim():'';
       order.revisionSubmissions=Array.isArray(order.revisionSubmissions)?order.revisionSubmissions.slice():[];
-      order.revisionSubmissions.push({links:currentSubmitLinks.slice(),note:revisionNote,by:window._rbUser&&window._rbUser.name||'',at:Date.now()});
-      order.latestRevisionLinks=currentSubmitLinks.slice();order.revisionNote=revisionNote;
+      order.revisionSubmissions.push({links:currentSubmitLinks.slice(),imageLinks:currentImageSubmitLinks.slice(),note:revisionNote,by:window._rbUser&&window._rbUser.name||'',at:Date.now()});
+      order.latestRevisionLinks=currentSubmitLinks.slice();order.latestRevisionImageLinks=currentImageSubmitLinks.slice();order.revisionNote=revisionNote;
     }else{
-      order.submitLinks=currentSubmitLinks;order.submitLink=order.submitLinks[0]||'';
+      order.submitLinks=currentSubmitLinks;order.submitLink=order.submitLinks[0]||'';order.imageSubmitLinks=currentImageSubmitLinks;
     }
     return order;
   }
@@ -4732,6 +4744,7 @@ if(_revisionSubmit){
       auditFixed:ge('om-audit-fixed')?ge('om-audit-fixed').value:'',
       submitLinks:submitLinkValues(),
       submitLink:(submitLinkValues()[0]||''),
+      imageSubmitLinks:imageSubmitLinkValues(),
       brief:ge('om-brief').value||'',
       images:JSON.parse(JSON.stringify(_omImages)),
       briefImages:JSON.parse(JSON.stringify(_omBriefImages)),

@@ -29,7 +29,7 @@ const assert=require('assert');
   await page.waitForSelector('#sidebar',{timeout:90000});
   await page.locator('#sidebar button').filter({hasText:'ตารางวันหยุด'}).click();
   await page.waitForSelector('#tab-schedule.active .lv-day');
-  await page.waitForTimeout(500);
+  await page.waitForFunction(()=>!!window._lvwTest&&document.querySelectorAll('#tab-schedule .lvw-special-ribbon').length>0,null,{timeout:15000});
 
   const result=await page.evaluate(()=>{
     const allowed=['WFH','เข้าออฟฟิศ','อบรม','OUTING'];
@@ -61,7 +61,7 @@ const assert=require('assert');
         if(Math.abs(r[0].top-r[1].top)>2||r[2].top<=r[0].top+2||Math.abs(r[2].left-r[0].left)>5) failures.push(`day ${index+1}: three-person layout is not 2 + 1 left`);
       }
     });
-    return {failures,threePersonDays,ribbonCount:document.querySelectorAll('#tab-schedule .lvw-special-ribbon').length,gridCount:document.querySelectorAll('#tab-schedule .lv-chips-grid2').length,specialStored:localStorage.getItem('rb_specialwork_v1'),moduleVersion:window.__RB_LEAVE_WORKFORCE_VERSION__||''};
+    return {failures,threePersonDays,ribbonCount:document.querySelectorAll('#tab-schedule .lvw-special-ribbon').length,gridCount:document.querySelectorAll('#tab-schedule .lv-chips-grid2').length,specialStored:localStorage.getItem('rb_specialwork_v1'),moduleVersion:window._lvwTest&&window._lvwTest.version||''};
   });
   assert.deepStrictEqual(result.failures,[],result.failures.join(' | '));
   assert.ok(result.gridCount>0,'Expected at least one 2–4 person calendar grid');

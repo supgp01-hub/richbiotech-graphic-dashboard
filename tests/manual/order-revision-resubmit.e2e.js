@@ -53,7 +53,7 @@ const assert=require('assert');
   assert.strictEqual(layout.align,'center');
   assert.strictEqual(layout.justify,'center');
 
-  await page.getByRole('tab',{name:'ส่งงานภาพ'}).click();
+  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
   assert.match(await primary.innerText(),/บันทึกส่งงานภาพ/,'image tab must expose only its image-save action');
   assert.strictEqual(await page.locator('#om-audit-btns').isVisible(),false,'audit actions must stay hidden on image tab');
   assert.strictEqual(await page.locator('.rb-om-footer button:visible').count(),1,'image tab must not show duplicate footer actions');

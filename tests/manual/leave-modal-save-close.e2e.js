@@ -10,7 +10,7 @@ const assert=require('assert');
     localStorage.setItem('rb_theme','light');
     localStorage.removeItem('lv_dash_v5');
   });
-  await context.route(/^https?:\/\/(?!127\.0\.0\.1:8025)/,route=>route.abort('blockedbyclient'));
+  await context.route(/^https?:\/\/(?!127\.0\.0\.1(?::\d+)?\/)/,route=>route.abort('blockedbyclient'));
   const page=await context.newPage();
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));

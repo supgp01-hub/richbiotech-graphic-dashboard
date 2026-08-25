@@ -36,8 +36,10 @@ const assert=require('assert');
   assert.strictEqual(saved.hook,order.hook,'an uninitialized/blank HOOK control must not erase the saved HOOK');
   assert.strictEqual(saved.hook2,order.hook2,'an uninitialized/blank HOOK 2 control must not erase the saved HOOK 2');
   assert.strictEqual(saved.brief,order.brief,'unrelated order data must remain unchanged');
+  await page.evaluate(()=>window.closeOM&&window.closeOM());
   await page.evaluate(()=>{
     const orders=JSON.parse(localStorage.getItem('rb_orders_v1'));orders[0].hook='';orders[0].hook2='';localStorage.setItem('rb_orders_v1',JSON.stringify(orders));
+    if(window.rbStorageResilience)window.rbStorageResilience.clearOrderMemory();
     localStorage.setItem('rb_olympplus_v1',JSON.stringify([{id:'ct_hook_recovery',brand:'WOLF+',episode:'Hook persistence test',ready:'HOOK กู้คืนจากข้อมูลต้นทาง'}]));
     window._rbInitOP();
   });
