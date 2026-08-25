@@ -56,6 +56,11 @@ assert.ok(source.includes('accountUpdatedWhen(row)'), 'the visible latest-edit t
 assert.ok(source.includes("event.stopImmediatePropagation();\n    openFollowupModal(nameButton.getAttribute('data-key'))"), 'clicking an account name must open only the follow-up popup and suppress the legacy account popup');
 assert.ok(source.includes('id="lfb-followup-title">แก้ไขข้อมูลติดตาม'), 'the tracking popup must have a clear edit-follow-up title');
 assert.ok(source.includes('window._lfbSaveAccountRecord(selectedKey,values)'), 'right-panel edits must use the existing account persistence path');
+assert.ok(source.includes('id="lfb-credentials-open"'), 'the permanent account editor must expose a clear more-information control');
+assert.ok(source.includes('id="lfb-credentials-drawer"'), 'login details must live in the compact left drawer instead of the permanent form');
+assert.ok(source.includes('id="lfb-credentials-edit"'), 'the credentials drawer must require an explicit edit action');
+assert.ok(source.includes('id="lfb-credentials-cancel"') && source.includes('id="lfb-credentials-save"'), 'credential editing must support safe cancel and save actions');
+assert.ok(source.indexOf('<section class="lfb-account-section"><strong>ข้อมูลเข้าสู่ระบบ</strong>')===-1, 'login details must not consume permanent right-panel space');
 assert.ok(source.includes('class="lfb-table-center lfb-status-cell"'), 'status, workflow and update columns must use the centered table layout');
 assert.equal(source.includes('setInterval('), false, 'the workflow must not add background polling that can destabilize multiple tabs');
 assert.ok(source.includes("nextDate=stage==='done'?'':automaticNextDate(Date.now())"), 'saving must not require the team to pick the seven-day follow-up date manually');

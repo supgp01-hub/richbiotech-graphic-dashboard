@@ -97,12 +97,13 @@
 #lfb-root .lfb-follow-no-history{color:var(--text-muted2);font-size:10px}
 #lfb-root .lfb-follow-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 #lfb-root .lfb-follow-save-state{min-height:18px;margin-top:7px;color:#27815f;font-size:10px;text-align:center}
-#lfb-root .lfb-account-detail{max-height:620px;overflow:auto}
+#lfb-root .lfb-account-detail{position:relative;max-height:620px;overflow:auto}
 #lfb-root .lfb-account-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:13px;padding-bottom:11px;border-bottom:1px solid var(--surface-card-border)}
 #lfb-root .lfb-account-head h3{margin:0;color:var(--text-heading);font-size:15px}
 #lfb-root .lfb-account-head p{display:flex;align-items:center;flex-wrap:wrap;gap:3px 9px;margin:3px 0 0;color:var(--text-muted2);font-size:10px}
 #lfb-root .lfb-account-updated{color:#26785a;font-weight:700;white-space:nowrap}
-#lfb-root .lfb-account-head>span{flex:0 0 auto;padding:4px 7px;border-radius:999px;background:#e8f8ee;color:#1f805b;font-size:8px;font-weight:700}
+#lfb-root .lfb-account-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+#lfb-root .lfb-account-head-actions>span{flex:0 0 auto;padding:4px 7px;border-radius:999px;background:#e8f8ee;color:#1f805b;font-size:8px;font-weight:700}
 #lfb-root .lfb-account-section{padding:11px;border:1px solid var(--surface-card-border);border-radius:11px;background:var(--surface-card)}
 #lfb-root .lfb-account-section+.lfb-account-section{margin-top:9px}
 #lfb-root .lfb-account-section>strong{display:block;margin-bottom:9px;color:var(--text-heading);font-size:11px}
@@ -113,7 +114,23 @@
 #lfb-root .lfb-account-field input,#lfb-root .lfb-account-field select,#lfb-root .lfb-account-field textarea{width:100%;min-width:0;box-sizing:border-box;padding:8px;border:1px solid var(--surface-card-border);border-radius:8px;background:var(--surface-card);color:var(--text-heading);font-size:11px;outline:none}
 #lfb-root .lfb-account-field textarea{min-height:60px;resize:vertical}
 #lfb-root .lfb-account-field input:focus,#lfb-root .lfb-account-field select:focus,#lfb-root .lfb-account-field textarea:focus{border-color:#40916c;box-shadow:0 0 0 3px rgba(64,145,108,.12)}
-#lfb-root .lfb-account-visible-note{margin-bottom:8px;padding:7px 8px;border-radius:7px;background:#e8f5ee;color:#17603f;font-size:9px}
+#lfb-root .lfb-credentials-drawer{position:absolute;top:0;left:0;z-index:8;display:flex;visibility:hidden;flex-direction:column;width:min(370px,88%);height:auto;max-height:calc(100% - 12px);overflow:auto;border:1px solid var(--surface-card-border);border-width:0 1px 1px 0;border-radius:0 0 14px 0;background:var(--surface-card);box-shadow:12px 14px 28px rgba(11,49,37,.2);opacity:0;transform:translateX(-104%);transition:transform .2s ease,opacity .2s ease,visibility .2s}
+#lfb-root .lfb-credentials-drawer.is-open{visibility:visible;opacity:1;transform:translateX(0)}
+#lfb-root .lfb-credentials-drawer>header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;background:#1b4332;color:#fff}
+#lfb-root .lfb-credentials-drawer>header strong,#lfb-root .lfb-credentials-drawer>header small{display:block}
+#lfb-root .lfb-credentials-drawer>header strong{font-size:12px}
+#lfb-root .lfb-credentials-drawer>header small{margin-top:2px;color:rgba(255,255,255,.68);font-size:8px}
+#lfb-root .lfb-credentials-head-actions{display:flex;align-items:center;gap:5px}
+#lfb-root .lfb-credentials-drawer>header .lfb-editor-btn{padding:6px 8px;border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:9px}
+#lfb-root .lfb-credentials-read{padding:0 12px}
+#lfb-root .lfb-credential-read-row{padding:10px 2px;border-bottom:1px solid var(--surface-card-border)}
+#lfb-root .lfb-credential-read-row:last-child{border-bottom:0}
+#lfb-root .lfb-credential-read-row span,#lfb-root .lfb-credential-read-row strong{display:block;overflow-wrap:anywhere}
+#lfb-root .lfb-credential-read-row span{margin-bottom:3px;color:var(--text-muted2);font-size:9px}
+#lfb-root .lfb-credential-read-row strong{color:var(--text-heading);font-size:11px;font-weight:700}
+#lfb-root .lfb-credentials-edit{padding:12px}
+#lfb-root .lfb-credentials-edit-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--surface-card-border)}
+#lfb-root .lfb-credentials-edit-actions>span{margin-right:auto;color:#27815f;font-size:9px}
 #lfb-root .lfb-account-status-help{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:6px;padding:7px 8px;border-radius:7px;font-size:9px}
 #lfb-root .lfb-account-status-help.is-follow{background:#fff0f0;color:#a62e35}
 #lfb-root .lfb-account-status-help.is-safe{background:#e8f8ee;color:#187a55}

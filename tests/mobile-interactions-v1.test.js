@@ -9,7 +9,7 @@ function expect(pattern, message) {
   if (!pattern.test(html)) throw new Error(message);
 }
 
-expect(/content="fix277-page-size-pagination"/, 'mobile interaction build marker is missing');
+expect(/content="fix278-list-facebook-credentials-drawer"/, 'mobile interaction build marker is missing');
 expect(/\(!e\.pointerType\|\|e\.pointerType==='mouse'\)&&e\.button!==0/, 'touch pointer must not be rejected by the mouse-button guard');
 expect(/Mobile WebViews may emit click without a usable pointerdown/, 'click-only mobile fallback is missing');
 expect(/suppressClickUntil=Date\.now\(\)\+500/, 'pointerdown/click double event guard is missing');
