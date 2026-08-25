@@ -1,0 +1,6 @@
+.ic-save-toast{position:fixed;left:50%;bottom:26px;z-index:10020;max-width:min(520px,calc(100vw - 28px));transform:translate(-50%,18px);opacity:0;padding:11px 16px;border-radius:10px;background:#1b4332;color:#fff;font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(15,36,26,.24);transition:opacity .2s,transform .2s;pointer-events:none;text-align:center}
+.ic-save-toast.ic-save-toast-show{opacity:1;transform:translate(-50%,0)}
+.ic-save-toast.ic-save-error{background:#991b1b}.ic-save-toast.ic-save-warning{background:#92400e}.ic-save-toast.ic-save-success{background:#166534}
+.ic-add-help{margin:-4px 0 10px;padding:7px 9px;border-radius:7px;background:rgba(64,145,108,.12);color:var(--text-sub,#40916c);font-size:11px;line-height:1.45}
+#ic-add-panel button:disabled{opacity:.62;cursor:wait}
+@media(max-width:720px){.ic-add-panel{padding:11px}.ic-add-row{grid-template-columns:1fr 1fr;gap:7px}.ic-add-row[style*="font-size:11px"]{display:none}.ic-add-row>label{min-height:38px}.ic-add-row>.ic-del-btn{justify-self:end}.ic-add-panel>div:last-child{position:sticky;bottom:0;z-index:2;padding-top:9px;background:var(--surface-tint);flex-wrap:wrap}.ic-add-panel>div:last-child .ic-bulkbtn{min-height:42px;flex:1 1 120px}.ic-save-toast{bottom:calc(78px + env(safe-area-inset-bottom,0px))}}
