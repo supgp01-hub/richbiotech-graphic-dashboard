@@ -50,6 +50,13 @@ async function setRole(page,role,name){
     assert.strictEqual(await page.locator('#om-header-draft .rb-om-save-mark svg path[d="m5 12 4 4L19 6"]').count(),1,'header save control must use the approved check icon');
     assert.ok(['none',''].includes(await page.locator('#om-header-draft').evaluate(e=>getComputedStyle(e,'::before').content.replace(/["']/g,''))),'obsolete header pseudo-icon must be disabled');
     assert.strictEqual(await page.locator('#om-add-clip-wrap').isVisible(),false,'legacy ad-link editor must stay hidden from the detail workspace');
+    if(role==='sup'||role==='spec'){
+      const managerEdit=page.locator('.rb-revision-edit-toggle');
+      assert.strictEqual(await managerEdit.isEnabled(),true,`${role} manager edit control must be clickable`);
+      await managerEdit.click();
+      assert.strictEqual(await page.locator('#om-name').isEnabled(),true,`${role} must be able to edit original order fields`);
+      await managerEdit.click();
+    }
     if(role==='audit'){
       assert.strictEqual(await page.locator('#rb-revision-team-workspace #om-add-clip-btn').count(),0,'legacy ad-link control must not be duplicated in the team workspace');
       assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),true,'Audit must not upload employee revision images');

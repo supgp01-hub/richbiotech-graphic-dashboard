@@ -20,6 +20,7 @@ html[data-theme=dark] #rb-order-modal .rb-revision-uniform-row .rb-revision-ref-
 #rb-order-modal .rb-revision-team-head strong{font-size:13px}#rb-order-modal .rb-revision-team-head small{margin-top:2px;font-size:10.5px;color:#52777b}
 #rb-order-modal .rb-revision-team-workspace #om-clip-hdr,#rb-order-modal .rb-revision-team-workspace #om-p1fix-hdr{margin:2px 0 0!important;color:#176b4d!important;font-size:11.5px!important}
 #rb-order-modal .rb-revision-team-workspace #om-add-clip-wrap,#rb-order-modal .rb-revision-team-workspace #om-p1fix-wrap{display:inline-flex}
+#rb-order-modal[data-order-mode="edit"] #om-add-clip-wrap{display:none!important}
 #rb-order-modal .rb-revision-team-workspace #om-submitlinks-section{margin:0!important;background:#f7fcfb!important}
 html[data-theme=dark] #rb-order-modal .rb-revision-team-workspace{border-color:#2e9f7c;background:#0d3026}html[data-theme=dark] #rb-order-modal .rb-revision-team-head{border-color:#2b6b55;color:#d9f8e9}html[data-theme=dark] #rb-order-modal .rb-revision-team-head small{color:#9acdb6}html[data-theme=dark] #rb-order-modal .rb-revision-team-workspace #om-submitlinks-section{background:#12392e!important}
 @media(max-width:680px){#rb-order-modal .rb-revision-uniform-row{grid-template-columns:96px minmax(0,1fr) 38px 38px!important}#rb-order-modal .rb-revision-uniform-row .rb-revision-ref-field-label{padding:8px!important;font-size:10px!important}#rb-order-modal .rb-revision-uniform-row .rb-revision-ref-value{padding:8px 9px!important;font-size:10.5px!important}}

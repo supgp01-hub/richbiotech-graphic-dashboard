@@ -1,6 +1,8 @@
 (function(window){
   'use strict';
 
+  window._rbEnableOrderManagerEdit=function(section){if(!section)return;Array.prototype.forEach.call(section.children,function(el){el.style.pointerEvents='auto';el.style.opacity='1';});section.querySelectorAll('input,select,textarea,button').forEach(function(el){el.disabled=false;el.style.pointerEvents='auto';el.style.opacity='1';});};
+
   window.rbPersistAuditFields=function(order,getElement,root){
     if(!order||typeof getElement!=='function')return order;
     root=root||document;

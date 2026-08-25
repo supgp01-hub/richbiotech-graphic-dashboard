@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 const assert=require('assert');
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix280-order-image-submit-links';
+  const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix281-order-detail-edit';
   const order={id:'GR999',name:'Image delivery link test',product:'WOLF+',type:'กราฟิก',deadline:'2026-08-26',status:'inprogress',assignee:'DOM',submitLinks:['https://example.com/work-1'],imageSubmitLinks:['https://example.com/image-1'],createdAt:Date.now(),updatedAt:Date.now()};
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:390,height:844}});

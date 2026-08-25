@@ -17,7 +17,7 @@ assert.ok(auditSync.includes("label.textContent='ภาพ '+(index+1)"),'image 
 assert.ok(auditSync.includes("makeAction('คัดลอกลิงก์'"),'every synchronized image link must be copyable');
 assert.ok(auditSync.includes("makeAction('เปิดลิงก์'"),'every synchronized image link must remain openable');
 assert.ok(index.includes('(d.imageSubmitLinks||[]).some(Boolean)'),'draft recovery must retain image-delivery links');
-assert.ok(index.includes('<meta name="rb-build" content="fix280-order-image-submit-links">'),'the deployed page must expose the image-delivery build');
-assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix280'),'the image-delivery helper must use the current cache version');
+assert.ok(index.includes('<meta name="rb-build" content="fix281-order-detail-edit">'),'the deployed page must expose the image-delivery build');
+assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix281'),'the image-delivery helper must use the current cache version');
 
 console.log('order-image-submit-links-v1: all tests passed');
