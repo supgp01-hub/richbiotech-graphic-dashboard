@@ -56,7 +56,8 @@ assert.ok(index.includes('SSTTL=12*60*60*1000'), 'login should persist across ta
 assert.ok(index.includes('localStorage.getItem(SS)||sessionStorage.getItem(SS)'), 'all tabs should share the active login session');
 assert.ok(index.includes('if(e.key!==SS)return;var cross=getS()'), 'login and logout changes must propagate to open tabs');
 assert.ok(listEditor.includes('pageSize:50'), 'List Facebook should render at most 50 rows per page');
-assert.ok(tracker.includes('_ctMainPageSize||50'), 'Content Tracker should render 50 rows per page');
+assert.ok(tracker.includes("rbPageSizeGet?window.rbPageSizeGet('links')"), 'Content Tracker should restore its remembered page size');
+assert.ok(tracker.includes("[50,100,200].indexOf(n)>=0"), 'Content Tracker must restrict page sizes to approved values');
 assert.ok(tracker.includes("window.rbMultiTab&&!window.rbMultiTab.isLeader()"), 'Content Tracker writes must be serialized by the leader tab');
 assert.ok(bulk.includes("window.rbMultiTab&&!window.rbMultiTab.isLeader()"), 'Content Tracker realtime must run only in the leader tab');
 

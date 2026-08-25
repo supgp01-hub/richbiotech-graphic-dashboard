@@ -15,7 +15,7 @@ assert.ok(indexSource.includes("list-facebook-editor.js?v=224"), 'the deployed p
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
 assert.ok(indexSource.includes('list-facebook-followup.css?v=272'), 'the deployed page must load the follow-up workspace layout');
 assert.ok(indexSource.includes("list-facebook-followup.js?v=272"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix276-idcard-save-audit">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix277-page-size-pagination">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(editorSource.includes('window._lfbSaveAccountRecord=function'), 'the permanent account editor must save through the existing account data store');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
@@ -24,7 +24,8 @@ assert.ok(editorSource.includes('lfb-advanced-filters'), 'detailed filters must 
 assert.ok(editorSource.includes('colspan="7"'), 'the minimal table must use the reduced seven-column layout');
 assert.equal(editorSource.includes('activateEditor();\nsetTimeout(activateEditor'), false, 'the large Facebook table must not initialize in the background');
 assert.equal(editorSource.includes('refreshData();window._listfbFetch();'), false, 'opening Graphic must not automatically download the Facebook sheet');
-assert.ok(indexSource.includes('var shown=filtered.slice(0,60)'), 'the legacy Facebook Pages fallback must not render the full list');
+assert.ok(indexSource.includes('shown=filtered.slice(fStart,fStart+fSize)'), 'Facebook Pages must render only the selected page size');
+assert.ok(indexSource.includes("rbPageSizeMarkup('fblist'"), 'Facebook Pages must expose the shared page-size selector');
 assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 assert.ok(editorSource.includes('baseRows=parseCsv(csv);markSourceSchema()'), 'one-time migration must replace the stale sheet snapshot instead of appending duplicate source rows');
 assert.ok(editorSource.includes('baseRows=current'), 'manual refresh must replace the stale source snapshot with the latest sheet rows');

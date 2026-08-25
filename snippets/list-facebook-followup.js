@@ -5,7 +5,7 @@ window._lfbFollowupHybridLoaded=true;
 
 var FOLLOW_LOCAL_KEY='rb_listfacebook_followups_v1';
 var FOLLOW_CLOUD_PATH='/listfacebook_followups';
-var PAGE_SIZE=40;
+var PAGE_SIZES=[50,100,200];
 var legacyInit=window._lfbInit;
 var legacyActivate=window._lfbEditorActivate;
 var followups=readLocal();
@@ -20,6 +20,19 @@ function readLocal(){
 }
 function saveLocal(){
   try{localStorage.setItem(FOLLOW_LOCAL_KEY,JSON.stringify(followups));}catch(error){}
+}
+function listPageSize(){
+  var value=window._lfbFilter&&window._lfbFilter.pageSize;
+  if(PAGE_SIZES.indexOf(Number(value))>=0)return Number(value);
+  if(window.rbPageSizeGet)value=window.rbPageSizeGet('listfb');
+  else try{value=(JSON.parse(localStorage.getItem('rb_page_sizes_v1')||'{}')||{}).listfb;}catch(error){value=50;}
+  return PAGE_SIZES.indexOf(Number(value))>=0?Number(value):50;
+}
+function saveListPageSize(value){
+  value=PAGE_SIZES.indexOf(Number(value))>=0?Number(value):50;
+  if(window.rbPageSizeSet)window.rbPageSizeSet('listfb',value);
+  else try{var all=JSON.parse(localStorage.getItem('rb_page_sizes_v1')||'{}');all.listfb=value;localStorage.setItem('rb_page_sizes_v1',JSON.stringify(all));}catch(error){}
+  return value;
 }
 function objectMap(value){
   if(!value)return{};
@@ -103,7 +116,7 @@ function formatDateValue(value){
 }
 function automaticNextDate(timestamp){return addDaysValue(timestamp||Date.now(),7);}
 function defaultListView(){
-  window._lfbFilter={stage:'new',followView:'all',fE:'ALL',fStatus:'ALL',q:'',page:1};
+  window._lfbFilter={stage:'new',followView:'all',fE:'ALL',fStatus:'ALL',q:'',page:1,pageSize:listPageSize()};
   selectedKey='';
 }
 function followupTiming(saved,now){
@@ -169,11 +182,11 @@ function filteredRows(data){
   }).sort(function(a,b){var ma=rowMeta(a),mb=rowMeta(b),ta=ma.saved.updatedAt||0,tb=mb.saved.updatedAt||0;if(ta!==tb)return tb-ta;return String(a.upd||'').localeCompare(String(b.upd||''));});
 }
 function renderRows(data){
-  var filter=window._lfbFilter,filtered=filteredRows(data),pages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));filter.page=Math.max(1,Math.min(filter.page||1,pages));var start=(filter.page-1)*PAGE_SIZE,visible=filtered.slice(start,start+PAGE_SIZE);
+  var filter=window._lfbFilter,size=listPageSize(),filtered=filteredRows(data),pages=Math.max(1,Math.ceil(filtered.length/size));filter.pageSize=size;filter.page=Math.max(1,Math.min(filter.page||1,pages));var start=(filter.page-1)*size,visible=filtered.slice(start,start+size);
   var body=document.getElementById('lfb-body');if(!body)return;
   body.innerHTML=visible.map(function(row){var meta=rowMeta(row),timing=followupTiming(meta.saved),status=window.rbFacebookStatusBadge?window.rbFacebookStatusBadge(row.st||'ยังไม่ระบุ'):esc(row.st||'ยังไม่ระบุ');return'<tr class="lfb-follow-row '+(selectedKey===row._key?'is-selected':'')+'" data-key="'+esc(row._key)+'"><td><button type="button" class="lfb-name-btn" data-key="'+esc(row._key)+'">'+esc(row.name||'-')+'</button><div class="lfb-follow-row-meta">'+esc(sourceLabel(row,meta))+(row.type?' · '+esc(row.type):'')+'</div></td><td class="lfb-table-center lfb-employee">'+esc(row.emp||'-')+'</td><td class="lfb-table-center lfb-status-cell">'+status+'</td><td class="lfb-table-center lfb-stage-cell"><span class="lfb-follow-badge is-'+stageClass(meta.stage)+' '+timing.className+'" title="'+esc(timing.label)+'">'+esc(stageLabel(meta.stage))+'</span></td><td class="lfb-table-center lfb-updated"><strong>'+esc(formatDateValue(timing.nextDate))+'</strong><small>'+esc(timing.label)+'</small></td></tr>';}).join('')||'<tr><td colspan="5" class="lfb-empty-row">ไม่พบรายการในมุมมองนี้</td></tr>';
-  var count=document.getElementById('lfb-cnt');if(count)count.textContent=filtered.length?'แสดง '+(start+1)+'–'+Math.min(start+PAGE_SIZE,filtered.length)+' จาก '+filtered.length+' บัญชี':'0 ผลลัพธ์';
-  var pager=document.getElementById('lfb-pager');if(pager)pager.innerHTML='<button type="button" class="lfb-editor-btn" data-page="-1" '+(filter.page<=1?'disabled':'')+'>‹ ก่อนหน้า</button><span>หน้า '+filter.page+' / '+pages+'</span><button type="button" class="lfb-editor-btn" data-page="1" '+(filter.page>=pages?'disabled':'')+'>ถัดไป ›</button>';
+  var count=document.getElementById('lfb-cnt');if(count)count.textContent=filtered.length?'แสดง '+(start+1)+'–'+Math.min(start+size,filtered.length)+' จาก '+filtered.length+' บัญชี':'0 ผลลัพธ์';
+  var pager=document.getElementById('lfb-pager');if(pager)pager.className='rbps-pager';if(pager)pager.innerHTML=window.rbPageSizeMarkup?window.rbPageSizeMarkup('listfb',filtered.length,filter.page,size):'<button type="button" class="lfb-editor-btn" data-page="-1" '+(filter.page<=1?'disabled':'')+'>‹ ก่อนหน้า</button><span>หน้า '+filter.page+' / '+pages+'</span><button type="button" class="lfb-editor-btn" data-page="1" '+(filter.page>=pages?'disabled':'')+'>ถัดไป ›</button><select data-lfb-page-size><option value="50"'+(size===50?' selected':'')+'>50/หน้า</option><option value="100"'+(size===100?' selected':'')+'>100/หน้า</option><option value="200"'+(size===200?' selected':'')+'>200/หน้า</option></select>';
 if((!selectedKey||!rowByKey(selectedKey))&&visible[0])selectedKey=visible[0]._key;
 }
 function renderAccountDetail(){
@@ -203,7 +216,7 @@ function persistAccountDetail(){
 function renderAll(){
   var data=window._listfbData||[];
   if(!window._lfbFilter)window._lfbFilter={};
-  var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='all';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;
+  var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='all';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;if(!filter.pageSize)filter.pageSize=listPageSize();
   var query=document.getElementById('lfb-q');if(query&&query.value!==String(filter.q||''))query.value=String(filter.q||'');
   var counts=stageCounts(data);employeeOptions(data);statusOptions();renderStats(data,counts);renderStages(counts);renderViewButtons();renderRows(data);renderAccountDetail();
   var warning=document.getElementById('lfb-follow-source-warning');if(warning)warning.hidden=!data.length||data.some(function(row){return Object.prototype.hasOwnProperty.call(row,'follow');});
@@ -238,12 +251,16 @@ function bindHybrid(root){
     var summary=event.target.closest('.lfb-follow-stat');if(summary){var view=summary.getAttribute('data-summary');window._lfbFilter.followView=view==='done'?'done':view;window._lfbFilter.page=1;renderAll();return;}
     var viewButton=event.target.closest('.lfb-hybrid-view-filter');if(viewButton){window._lfbFilter.followView=viewButton.getAttribute('data-view');window._lfbFilter.page=1;renderAll();return;}
     var row=event.target.closest('.lfb-follow-row');if(row&&!event.target.closest('.lfb-name-btn')){selectedKey=row.getAttribute('data-key');renderAll();return;}
+    var directPage=event.target.closest('[data-rbps-page]');if(directPage){window._lfbFilter.page=Math.max(1,Number(directPage.getAttribute('data-rbps-page'))||1);renderAll();return;}
     var pager=event.target.closest('[data-page]');if(pager){window._lfbFilter.page+=Number(pager.getAttribute('data-page'))||0;renderAll();return;}
     if(event.target.closest('#lfb-follow-save')){persistSelected();return;}
     if(event.target.closest('#lfb-account-save')){persistAccountDetail();return;}
     if(event.target.closest('.lfb-followup-close')){closeFollowupModal();return;}
   });
-  root.addEventListener('change',function(event){if(event.target&&event.target.id==='lfbi-st')inlineStatusHelp(event.target.value);});
+  root.addEventListener('change',function(event){
+    if(event.target&&event.target.id==='lfbi-st')inlineStatusHelp(event.target.value);
+    if(event.target&&event.target.matches('[data-rbps-size],[data-lfb-page-size]')){window._lfbFilter.pageSize=saveListPageSize(event.target.value);window._lfbFilter.page=1;renderAll();}
+  });
   var followOverlay=document.getElementById('lfb-followup-overlay');if(followOverlay)followOverlay.addEventListener('click',function(event){if(event.target===followOverlay)closeFollowupModal();});
   document.getElementById('lfb2-upd').addEventListener('click',function(){Promise.resolve(window._listfbFetch()).then(function(){syncFollowups();renderAll();});});
   document.getElementById('lfb-add').addEventListener('click',function(){window._lfbOpenEditor('');});
