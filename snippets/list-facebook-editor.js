@@ -1,9 +1,9 @@
 (function(){
 'use strict';
 var CSV_URL='https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=1166630130';
-var LS_BASE='rb_listfacebook_base_v1',LS_EDITS='rb_listfacebook_edits_v1',LS_MANUAL='rb_listfacebook_manual_v1',LS_REFRESHED='rb_listfacebook_refreshed_v1',LS_SOURCE_SCHEMA='rb_listfacebook_source_schema_v4';
+var LS_BASE='rb_listfacebook_base_v1',LS_EDITS='rb_listfacebook_edits_v1',LS_MANUAL='rb_listfacebook_manual_v1',LS_REFRESHED='rb_listfacebook_refreshed_v1',LS_SOURCE_SCHEMA='rb_listfacebook_source_schema_v5';
 var CLOUD_BASE='/listfacebook_base_snapshot';
-var SOURCE_SCHEMA_VERSION=4;
+var SOURCE_SCHEMA_VERSION=5;
 var baseRows=[],edits={},manualRows=[];
 var centralLoadPromise=null;
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
@@ -26,7 +26,7 @@ function refreshData(){window._listfbData=applyStored(baseRows,edits,manualRows)
 function cloudGet(path){return new Promise(function(resolve){if(typeof window.fbGet!=='function'){resolve(null);return;}window.fbGet(path,function(err,data){resolve(err?null:data);});});}
 function cloudSet(path,value){if(typeof window.fbSet!=='function')return Promise.resolve(false);return Promise.resolve(window.fbSet(path,value));}
 function snapshotRows(value){if(Array.isArray(value))return value.filter(Boolean);if(value&&value.items)return objectValues(value.items);return[];}
-function safeSnapshot(rows){return(rows||[]).map(function(src){var row={};Object.keys(src).forEach(function(k){if(k!=='passFb'&&k!=='emailPass'&&k.charAt(0)!=='_')row[k]=src[k];});return row;});}
+function safeSnapshot(rows){return(rows||[]).map(function(src){var row={};Object.keys(src).forEach(function(k){if(k.charAt(0)!=='_')row[k]=src[k];});return row;});}
 function sourceSchemaCurrent(snapshot){return !!(snapshot&&Number(snapshot.schemaVersion)>=SOURCE_SCHEMA_VERSION);}
 function markSourceSchema(){try{localStorage.setItem(LS_SOURCE_SCHEMA,String(SOURCE_SCHEMA_VERSION));}catch(e){}}
 function publishSourceSnapshot(updatedAt){return cloudSet(CLOUD_BASE,{items:safeSnapshot(baseRows),schemaVersion:SOURCE_SCHEMA_VERSION,updatedAt:updatedAt||Date.now(),updatedBy:window._rbUser?window._rbUser.name:''});}

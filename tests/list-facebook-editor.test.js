@@ -11,11 +11,11 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=224"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=279"), 'the deployed page must cache-bust the current Facebook editor');
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
 assert.ok(indexSource.includes('list-facebook-followup.css?v=278'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=278"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix278-list-facebook-credentials-drawer">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=279"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix279-list-facebook-full-credentials">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(editorSource.includes('window._lfbSaveAccountRecord=function'), 'the permanent account editor must save through the existing account data store');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
 assert.ok(indexSource.includes('if(s.k==="listfb")setTimeout(function(){if(window._lfbEditorActivate)window._lfbEditorActivate();},0)'), 'the List Facebook tab must activate the complete editor directly');
@@ -77,12 +77,12 @@ assert.equal(authoritative.rows[0].follow, '', 'removing a follow-up mark in the
 const replacement = window._lfbEditorTest.replaceSourceRows([rows[1], rows[1]]);
 assert.equal(replacement.length, 1, 'the latest sheet snapshot must be deduplicated without retaining stale previous rows');
 assert.equal(replacement[0].name, rows[1].name);
-assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 4 }), true, 'the migrated shared snapshot must expose its schema version');
-assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 3 }), false, 'the additive v3 snapshot must be migrated to the authoritative source model');
+assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 5 }), true, 'the migrated shared snapshot must expose its schema version');
+assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 4 }), false, 'snapshots without complete credentials must be migrated from the source sheet');
 assert.equal(window._lfbEditorTest.sourceSchemaCurrent({}), false, 'old shared snapshots must trigger a one-time source migration');
 const safe = window._lfbEditorTest.safeSnapshot(rows);
-assert.equal('passFb' in safe[0], false, 'shared snapshot must not duplicate Facebook passwords');
-assert.equal('emailPass' in safe[0], false, 'shared snapshot must not duplicate email passwords');
+assert.equal(safe[0].passFb, 'FbPass123', 'shared snapshot includes the full Facebook password after explicit authorization');
+assert.equal(safe[0].emailPass, 'MailPass456', 'shared snapshot includes the full email password after explicit authorization');
 assert.equal(safe[0].twofa, 'ABCDEF123456', 'shared snapshot includes 2FA after explicit authorization');
 
 console.log('list-facebook-editor: all tests passed');
