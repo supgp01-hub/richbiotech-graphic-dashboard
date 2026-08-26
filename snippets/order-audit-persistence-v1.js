@@ -22,6 +22,10 @@
       var number=index+3,name=getElement('om-camp'+number),link=getElement('om-link'+number);
       return{name:name?name.value||'':'',link:link?link.value||'':''};
     });
+    var workflow=root.querySelector&&root.querySelector('#rb-audit-version-workflow');
+    if(workflow&&typeof window.rbCollectAuditVersionWorkflow==='function'){
+      order.auditVersions=window.rbCollectAuditVersionWorkflow(workflow);
+    }
     return order;
   };
 
