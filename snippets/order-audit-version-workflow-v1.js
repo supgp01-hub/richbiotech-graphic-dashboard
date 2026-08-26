@@ -73,7 +73,25 @@
   }
 
   function syncSourceStatus(){
-    ['om-fbuplist','om-contentuplist'].forEach(function(id){var field=document.getElementById(id);if(!field)return;var option=Array.prototype.slice.call(field.options).find(function(item){return item.value==='ยังไม่ได้อัพ';});if(option)option.textContent='✕ ยังไม่ได้อัพ';});
+    ['om-fbuplist','om-contentuplist'].forEach(function(id){
+      var field=document.getElementById(id);if(!field)return;
+      Array.prototype.slice.call(field.options).forEach(function(option){
+        if(option.value==='ยังไม่ได้อัพ')option.textContent='✕ ยังไม่ได้อัพ';
+        if(option.value==='อัพแล้วเรียบร้อย')option.textContent='✓ อัพแล้ว';
+      });
+      function applySourceStatus(){
+        var isMissing=field.value==='ยังไม่ได้อัพ',isUploaded=field.value==='อัพแล้วเรียบร้อย';
+        field.classList.toggle('rb-source-status-missing',isMissing);
+        field.classList.toggle('rb-source-status-pass',isUploaded);
+        field.classList.toggle('rb-source-status-empty',!isMissing&&!isUploaded);
+      }
+      if(field._applyStyle){field._applyStyle();}
+      applySourceStatus();
+      if(field.getAttribute('data-rb-source-status-bound')!=='1'){
+        field.addEventListener('change',applySourceStatus);
+        field.setAttribute('data-rb-source-status-bound','1');
+      }
+    });
   }
   function saveEmployee(section){
     var order=currentOrder();if(!order)return;order.auditVersions=window.rbCollectAuditVersionWorkflow(section);if(order.status==='revision')order.status='review';order.updatedAt=Date.now();order.auditProofSubmittedAt=Date.now();order.auditProofSubmittedBy=actor();var orders=window.lpORD(),index=orders.findIndex(function(item){return item.id===order.id;});if(index>=0)orders[index]=order;if(typeof window.spORD==='function')window.spORD(orders);if(typeof window.logTL==='function')window.logTL('📋 สั่งงาน','ส่งหลักฐานแก้ไข',order.id+' ส่งตรวจอีกครั้ง',{jn:order.name||order.title||'',jt:order.type||'',as:order.assignee||''});var message=section.querySelector('.rb-av-save-message');if(message){message.textContent='✓ บันทึกหลักฐานและส่งกลับให้ Audit ตรวจแล้ว';message.hidden=false;}if(typeof window.renderOrderStats==='function')window.renderOrderStats();

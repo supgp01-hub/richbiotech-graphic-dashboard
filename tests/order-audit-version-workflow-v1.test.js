@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix282'),'the version audit layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix282'),'the version audit runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix283'),'the version audit layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix283'),'the version audit runtime must be cache-busted');
 assert.ok(index.includes('✕ ยังไม่ได้อัพ'),'missing source data must be explicit in the Audit status fields');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the evidence resubmission view');
@@ -24,5 +24,12 @@ assert.ok(index.includes("fbName:'om-fbname'")||persistence.includes("fbName:'om
 assert.ok(index.includes('om-audit-note'),'the existing Audit note must remain');
 assert.ok(css.includes('.rb-av-evidence-grid'),'Audit and employee evidence must be visually separated');
 assert.ok(css.includes('@media(max-width:720px)'),'the workflow must have a mobile layout');
+assert.ok(workflow.includes("option.textContent='✓ อัพแล้ว'"),'uploaded source data must use the concise green label');
+assert.ok(workflow.includes("rb-source-status-missing"),'missing source data must receive an explicit state class');
+assert.ok(workflow.includes("rb-source-status-pass"),'uploaded source data must receive an explicit state class');
+assert.ok(css.includes('select.rb-source-status-missing{background:#fff0f2!important;color:#c81e3a!important'),'missing source data must be red and readable');
+assert.ok(css.includes('select.rb-source-status-pass{background:#e9f9f0!important;color:#087443!important'),'uploaded source data must be green and readable');
+assert.ok(css.includes('.rb-av-card-head b{color:#123d31!important'),'version headings must have strong contrast in light mode');
+assert.ok(css.includes('.rb-av-card-head b{color:#fff!important'),'version headings must have strong contrast in dark mode');
 
 console.log('order-audit-version-workflow-v1: all tests passed');

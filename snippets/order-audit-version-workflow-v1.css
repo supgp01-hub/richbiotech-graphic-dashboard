@@ -21,3 +21,20 @@
 #rb-order-modal .mode-employee .rb-av-audit-fields,#rb-order-modal .mode-readonly .rb-av-audit-fields{grid-template-columns:1fr}
 html[data-theme=dark] #rb-order-modal .rb-audit-version-workflow{border-color:#285f4b;background:#0d2c24;color:#d8f3e6}html[data-theme=dark] #rb-order-modal .rb-av-section-head h3,html[data-theme=dark] #rb-order-modal .rb-av-card-head b{color:#e3faef}html[data-theme=dark] #rb-order-modal .rb-av-card{border-color:#295744;background:#12372d}html[data-theme=dark] #rb-order-modal .rb-av-link,html[data-theme=dark] #rb-order-modal .rb-av-evidence-grid>section{border-color:#2b6250;background:#0d2e25}html[data-theme=dark] #rb-order-modal .rb-av-link span{color:#c2e2d5}html[data-theme=dark] #rb-order-modal .rb-av-audit-fields select,html[data-theme=dark] #rb-order-modal .rb-av-audit-fields textarea{border-color:#37715d;background:#0c2b22;color:#e1f8ed}
 @media(max-width:720px){#rb-order-modal .rb-av-audit-fields{grid-template-columns:1fr}#rb-order-modal .rb-av-evidence-grid{grid-template-columns:1fr}#rb-order-modal .rb-av-card-head{align-items:flex-start}#rb-order-modal .rb-av-card-head>div{display:grid;gap:2px}#rb-order-modal .rb-av-section-head p{max-width:220px}}
+
+/* Audit status and version-header contrast */
+#rb-order-modal select.rb-source-status-missing{background:#fff0f2!important;color:#c81e3a!important;border-color:#ef4d5b!important;font-weight:800!important;box-shadow:0 0 0 1px rgba(239,77,91,.08)}
+#rb-order-modal select.rb-source-status-pass{background:#e9f9f0!important;color:#087443!important;border-color:#20ae78!important;font-weight:800!important;box-shadow:0 0 0 1px rgba(32,174,120,.08)}
+#rb-order-modal select.rb-source-status-empty{background:#fff!important;color:#52645e!important;border-color:#cbd8d2!important}
+#rb-order-modal .rb-av-card-head{margin:-12px -12px 10px!important;padding:10px 12px!important;border-radius:10px 10px 0 0;background:#edf6f2!important;border-bottom:1px solid #c9ddd4!important}
+#rb-order-modal .rb-av-card.is-pass .rb-av-card-head{background:#e6f8ee!important;border-bottom-color:#b9e5cf!important}
+#rb-order-modal .rb-av-card.is-issue .rb-av-card-head{background:#fff0f2!important;border-bottom-color:#f5c6cd!important}
+#rb-order-modal .rb-av-card.is-pending .rb-av-card-head{background:#eef3f1!important;border-bottom-color:#d2ddda!important}
+#rb-order-modal .rb-av-card-head b{color:#123d31!important;font-weight:850!important;letter-spacing:.01em}
+#rb-order-modal .rb-av-card-head div span{color:#365d51!important;font-weight:650!important;opacity:1!important}
+html[data-theme=dark] #rb-order-modal select.rb-source-status-missing{background:#3b171d!important;color:#ff9dac!important;border-color:#e75a69!important}
+html[data-theme=dark] #rb-order-modal select.rb-source-status-pass{background:#123d2f!important;color:#80e7b4!important;border-color:#31b67f!important}
+html[data-theme=dark] #rb-order-modal select.rb-source-status-empty{background:#0c2b22!important;color:#c4dcd2!important;border-color:#37715d!important}
+html[data-theme=dark] #rb-order-modal .rb-av-card-head,html[data-theme=dark] #rb-order-modal .rb-av-card.is-pass .rb-av-card-head,html[data-theme=dark] #rb-order-modal .rb-av-card.is-issue .rb-av-card-head,html[data-theme=dark] #rb-order-modal .rb-av-card.is-pending .rb-av-card-head{background:#164638!important;border-bottom-color:#2f6a56!important}
+html[data-theme=dark] #rb-order-modal .rb-av-card-head b{color:#fff!important}
+html[data-theme=dark] #rb-order-modal .rb-av-card-head div span{color:#d7f2e6!important}
