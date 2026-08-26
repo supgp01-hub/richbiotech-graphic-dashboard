@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix283'),'the version audit layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix283'),'the version audit runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix284'),'the version audit layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix284'),'the version audit runtime must be cache-busted');
 assert.ok(index.includes('✕ ยังไม่ได้อัพ'),'missing source data must be explicit in the Audit status fields');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the evidence resubmission view');
@@ -27,6 +27,9 @@ assert.ok(css.includes('@media(max-width:720px)'),'the workflow must have a mobi
 assert.ok(workflow.includes("option.textContent='✓ อัพแล้ว'"),'uploaded source data must use the concise green label');
 assert.ok(workflow.includes("rb-source-status-missing"),'missing source data must receive an explicit state class');
 assert.ok(workflow.includes("rb-source-status-pass"),'uploaded source data must receive an explicit state class');
+assert.ok(workflow.includes('window.rbSyncAuditSourceStatus=syncSourceStatus'),'the status refresher must be callable after existing order values load');
+assert.ok(workflow.includes("{syncSourceStatus();return;}"),'cached workflow renders must still refresh loaded Audit status colors');
+assert.ok(workflow.includes("field.style.setProperty('background'"),'runtime styling must not rely only on a late CSS class');
 assert.ok(css.includes('select.rb-source-status-missing{background:#fff0f2!important;color:#c81e3a!important'),'missing source data must be red and readable');
 assert.ok(css.includes('select.rb-source-status-pass{background:#e9f9f0!important;color:#087443!important'),'uploaded source data must be green and readable');
 assert.ok(css.includes('.rb-av-card-head b{color:#123d31!important'),'version headings must have strong contrast in light mode');

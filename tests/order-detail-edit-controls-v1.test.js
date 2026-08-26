@@ -10,6 +10,6 @@ const detailCss=fs.readFileSync('snippets/order-detail-unified-v1.css','utf8');
 assert.ok(auditSync.includes("section.querySelectorAll('input,select,textarea,button')"),'manager edit helper must unlock the original controls');
 assert.ok(detailCss.includes('#rb-order-modal[data-order-mode="edit"] #om-add-clip-wrap{display:none!important}'),'existing order detail must hide the obsolete standalone ad-link button');
 assert.ok(index.includes("_syncClipToVer"),'hiding the duplicate control must not remove stored ad-link synchronization');
-assert.ok(index.includes('<meta name="rb-build" content="fix283-audit-contrast">'),'the page must expose the audit workflow build');
+assert.ok(index.includes('<meta name="rb-build" content="fix284-audit-status-runtime">'),'the page must expose the audit workflow build');
 
 console.log('order-detail-edit-controls-v1: all tests passed');

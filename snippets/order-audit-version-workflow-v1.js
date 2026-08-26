@@ -80,10 +80,15 @@
         if(option.value==='อัพแล้วเรียบร้อย')option.textContent='✓ อัพแล้ว';
       });
       function applySourceStatus(){
-        var isMissing=field.value==='ยังไม่ได้อัพ',isUploaded=field.value==='อัพแล้วเรียบร้อย';
+        var value=String(field.value||'').replace(/[✕✓]/g,'').trim();
+        var isMissing=value==='ยังไม่ได้อัพ',isUploaded=value==='อัพแล้วเรียบร้อย'||value==='อัพแล้ว';
         field.classList.toggle('rb-source-status-missing',isMissing);
         field.classList.toggle('rb-source-status-pass',isUploaded);
         field.classList.toggle('rb-source-status-empty',!isMissing&&!isUploaded);
+        field.style.setProperty('background',isMissing?'#fff0f2':isUploaded?'#e9f9f0':'#fff','important');
+        field.style.setProperty('color',isMissing?'#c81e3a':isUploaded?'#087443':'#374151','important');
+        field.style.setProperty('border-color',isMissing?'#ef4d5b':isUploaded?'#20ae78':'#d1d5db','important');
+        field.style.setProperty('font-weight',isMissing||isUploaded?'800':'400','important');
       }
       if(field._applyStyle){field._applyStyle();}
       applySourceStatus();
@@ -93,6 +98,7 @@
       }
     });
   }
+  window.rbSyncAuditSourceStatus=syncSourceStatus;
   function saveEmployee(section){
     var order=currentOrder();if(!order)return;order.auditVersions=window.rbCollectAuditVersionWorkflow(section);if(order.status==='revision')order.status='review';order.updatedAt=Date.now();order.auditProofSubmittedAt=Date.now();order.auditProofSubmittedBy=actor();var orders=window.lpORD(),index=orders.findIndex(function(item){return item.id===order.id;});if(index>=0)orders[index]=order;if(typeof window.spORD==='function')window.spORD(orders);if(typeof window.logTL==='function')window.logTL('📋 สั่งงาน','ส่งหลักฐานแก้ไข',order.id+' ส่งตรวจอีกครั้ง',{jn:order.name||order.title||'',jt:order.type||'',as:order.assignee||''});var message=section.querySelector('.rb-av-save-message');if(message){message.textContent='✓ บันทึกหลักฐานและส่งกลับให้ Audit ตรวจแล้ว';message.hidden=false;}if(typeof window.renderOrderStats==='function')window.renderOrderStats();
   }
@@ -103,7 +109,7 @@
   window.rbRenderAuditVersionWorkflow=function(order,force){
     var panel=document.getElementById('om2-p2-panel'),id=document.getElementById('om-id');if(!panel||!id)return;
     var signature=id.textContent+'|'+role()+'|'+document.querySelectorAll('#om-camp-extra .om-camp-row').length,old=document.getElementById('rb-audit-version-workflow');
-    if(old&&old.getAttribute('data-signature')===signature&&!force)return;
+    if(old&&old.getAttribute('data-signature')===signature&&!force){syncSourceStatus();return;}
     var carried=old&&Array.isArray(old._rbState)?window.rbCollectAuditVersionWorkflow(old):null;if(old)old.remove();
     order=order||currentOrder()||{};var states=carried||initialVersions(order),mode=canAudit()?'audit':isEmployee()?'employee':'readonly';
     var section=document.createElement('section');section.id='rb-audit-version-workflow';section.className='rb-audit-version-workflow mode-'+mode;section.setAttribute('data-signature',signature);section._rbState=states;
@@ -125,7 +131,7 @@
     section.querySelectorAll('input,select,textarea,button,label,a').forEach(function(control){control.style.pointerEvents='auto';if(mode!=='readonly'&&(control.tagName==='INPUT'||control.tagName==='SELECT'||control.tagName==='TEXTAREA'||control.tagName==='BUTTON'))control.disabled=false;});
     syncSourceStatus();
   };
-  function schedule(force){[0,80,260].forEach(function(delay){setTimeout(function(){var modal=document.getElementById('rb-order-modal');if(modal&&modal.style.display!=='none')window.rbRenderAuditVersionWorkflow(currentOrder(),force);},delay);});}
+  function schedule(force){[0,80,260,600].forEach(function(delay){setTimeout(function(){var modal=document.getElementById('rb-order-modal');if(modal&&modal.style.display!=='none'){syncSourceStatus();window.rbRenderAuditVersionWorkflow(currentOrder(),force);syncSourceStatus();}},delay);});}
   document.addEventListener('click',function(event){if(event.target&&event.target.closest&&event.target.closest('#rb-order-modal'))schedule(!!event.target.closest('#om-camp-extra'));},true);
   document.addEventListener('input',function(event){if(event.target&&event.target.closest&&event.target.closest('#om-camp-extra'))schedule(true);});
   document.addEventListener('change',function(event){if(event.target&&event.target.closest&&event.target.closest('#om-camp-extra'))schedule(true);});
