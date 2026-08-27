@@ -9,7 +9,7 @@ assert(source.includes('.rb-revision-ref-copy'), 'reference-link copy control st
 assert(source.includes('function revisionCopyUrl(url,button)'), 'reference-link copy behavior is missing');
 assert(source.includes('revisionImageGroup(order)'), 'all uploaded order images must render in the combined image gallery');
 assert(source.includes("['briefImages','รูปตัวอย่าง'],['images','รูปส่งงาน'],['errorImages','รูปข้อผิดพลาด'],['fixImages','รูปแก้ไข']"), 'combined image gallery must include every image category');
-assert(source.includes("revisionUniformLinkRows('ลิงก์ตัวอย่าง',[order.sampleLink]"), 'sample URL must remain a separate link field');
+assert(source.includes("revisionUniformLinkRows('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน',[order.sampleLink]"), 'sample/detail URL must remain a separate link field');
 assert(source.includes("title.textContent='รวมภาพ'"), 'combined image gallery title is missing');
 assert(source.includes("empty.textContent='ยังไม่มีภาพในงานนี้'"), 'empty combined gallery state is missing');
 assert(source.includes("revisionUniformLinkRows('ลิงก์คลิป',clipLinks"), 'clip links are missing from detail view');
