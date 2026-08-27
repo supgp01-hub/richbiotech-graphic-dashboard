@@ -32,7 +32,7 @@ const workflowSave = html.slice(workflowStart, workflowEnd);
 assert.ok(workflowSave.includes('order.clipLinks='), 'employee clip links must be copied into the order before status changes');
 assert.ok(workflowSave.includes('order.fixImages='), 'employee fix images must be copied into the order before status changes');
 assert.ok(workflowSave.includes('order.errorImages='), 'audit images must be copied into the order before status changes');
-assert.ok(html.includes('snippets/order-audit-persistence-v1.js?v=fix282'), 'Audit persistence helper must load before the order modal');
+assert.ok(html.includes('snippets/order-audit-persistence-v1.js?v=fix286'), 'Audit persistence helper must load before the order modal');
 assert.ok(workflowSave.includes('window.rbPersistAuditFields(order,ge,document)'), 'every Audit status action must collect the full Audit form');
 
 const fakeFields = {
@@ -62,6 +62,19 @@ assert.equal(savedAudit.auditNote, 'Audit note');
 assert.equal(savedAudit.campExtra.length, 1);
 assert.equal(savedAudit.campExtra[0].name, 'Campaign 3');
 assert.equal(savedAudit.campExtra[0].link, 'https://example.com/ver-3');
+
+let collected = 0;
+sandbox.window.rbCollectAuditVersionWorkflow = () => { collected += 1; return [{jobId:'GR001',version:1}]; };
+const mismatchedWorkflow = {getAttribute: (name) => name === 'data-job-id' ? 'GR001' : ''};
+const mismatchedRoot = {querySelectorAll: () => [], querySelector: () => mismatchedWorkflow};
+const differentJob = {id:'GR002',auditVersions:[{jobId:'GR002',version:1,result:'issue'}]};
+sandbox.window.rbPersistAuditFields(differentJob, () => null, mismatchedRoot);
+assert.equal(collected, 0, 'a stale visible panel must not be collected for a different job');
+assert.equal(differentJob.auditVersions[0].jobId, 'GR002', 'mismatched panel state must not overwrite the order audit state');
+const matchingJob = {id:'GR001'};
+sandbox.window.rbPersistAuditFields(matchingJob, () => null, mismatchedRoot);
+assert.equal(collected, 1, 'the exact matching job panel must still be collected');
+assert.equal(matchingJob.auditVersions[0].jobId, 'GR001');
 assert.ok((html.match(/persistOMWorkflow\(orders\[idx\]\)/g)||[]).length >= 2, 'audit review actions must persist modal data before changing status');
 assert.ok(html.includes("persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst"), 'resubmission must append its latest attachments without overwriting the original links');
 

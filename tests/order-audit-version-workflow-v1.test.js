@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix284'),'the version audit layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix284'),'the version audit runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix286'),'the version audit layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix286'),'the version audit runtime must be cache-busted');
 assert.ok(index.includes('✕ ยังไม่ได้อัพ'),'missing source data must be explicit in the Audit status fields');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the evidence resubmission view');
@@ -28,11 +28,20 @@ assert.ok(workflow.includes("option.textContent='✓ อัพแล้ว'"),'u
 assert.ok(workflow.includes("rb-source-status-missing"),'missing source data must receive an explicit state class');
 assert.ok(workflow.includes("rb-source-status-pass"),'uploaded source data must receive an explicit state class');
 assert.ok(workflow.includes('window.rbSyncAuditSourceStatus=syncSourceStatus'),'the status refresher must be callable after existing order values load');
-assert.ok(workflow.includes("{syncSourceStatus();return;}"),'cached workflow renders must still refresh loaded Audit status colors');
+assert.ok(workflow.includes('syncSourceStatus();return;'),'cached workflow renders must still refresh loaded Audit status colors');
 assert.ok(workflow.includes("field.style.setProperty('background'"),'runtime styling must not rely only on a late CSS class');
 assert.ok(css.includes('select.rb-source-status-missing{background:#fff0f2!important;color:#c81e3a!important'),'missing source data must be red and readable');
 assert.ok(css.includes('select.rb-source-status-pass{background:#e9f9f0!important;color:#087443!important'),'uploaded source data must be green and readable');
 assert.ok(css.includes('.rb-av-card-head b{color:#123d31!important'),'version headings must have strong contrast in light mode');
 assert.ok(css.includes('.rb-av-card-head b{color:#fff!important'),'version headings must have strong contrast in dark mode');
+assert.ok(workflow.includes("item.versionKey=versionKey(id,index+1)"),'each saved audit version must be keyed by job id and VER');
+assert.ok(workflow.includes("old.getAttribute('data-job-id')===currentJobId"),'runtime state must only carry across renders of the same job');
+assert.ok(workflow.includes('if(!itemJob&&!itemKey)owned=sameSource(item,values[version-1])'),'unscoped legacy Audit state must not be accepted by unrelated jobs');
+assert.ok(workflow.includes('previous.versionKey===state.versionKey&&previous.name===state.name&&previous.link===state.link'),'a cached panel must refresh when current-job source fields finish loading');
+assert.ok(persistence.includes('workflowJob===orderJob'),'saving must never copy the visible Audit panel into a different job');
+assert.ok(workflow.includes("name:String(source.name||''),link:String(source.link||'')"),'campaign names and links must come only from the current job source fields');
+assert.ok(workflow.includes('var states=initialVersions(order,carried)'),'same-job rerenders must preserve audit results while refreshing source values');
+assert.ok(workflow.includes('rb-av-column-head'),'the selected compact professional layout must show clear column labels');
+assert.ok(css.includes('grid-template-columns:68px minmax(150px,.85fr) minmax(210px,1.15fr) 92px'),'desktop version rows must use the selected compact four-column layout');
 
 console.log('order-audit-version-workflow-v1: all tests passed');

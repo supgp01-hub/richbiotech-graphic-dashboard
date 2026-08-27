@@ -23,7 +23,11 @@
       return{name:name?name.value||'':'',link:link?link.value||'':''};
     });
     var workflow=root.querySelector&&root.querySelector('#rb-audit-version-workflow');
-    if(workflow&&typeof window.rbCollectAuditVersionWorkflow==='function'){
+    var workflowJob=workflow&&String(workflow.getAttribute('data-job-id')||'').trim();
+    var orderJob=String(order.id||'').trim();
+    /* A modal can briefly contain the previous job's rendered Audit cards while
+       the next job is loading. Never copy that DOM state into another order. */
+    if(workflow&&workflowJob&&orderJob&&workflowJob===orderJob&&typeof window.rbCollectAuditVersionWorkflow==='function'){
       order.auditVersions=window.rbCollectAuditVersionWorkflow(workflow);
     }
     return order;
