@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix294">
+</head>
+<body>
+  <div><button id="ord-add-btn" type="button">+ เพิ่มงานใหม่</button></div>
+  <script>
+    window._rbUser = { name: 'ผู้ทดสอบ', role: new URLSearchParams(location.search).get('role') || 'sup' };
+    window.MB_GR = ['MOS', 'DOM', 'TER', 'JAM', 'NUNE', 'BALL'];
+    window.OT = ['กราฟิก', 'รูปภาพ', 'ยิงแอด', 'เทสส่วนตัว', 'คัดคลิป', 'Reels', 'สร้างเพจ', 'Retarget'];
+    window.fbSet = function () { return Promise.resolve(true); };
+    window.fbGet = function (path, callback) { callback(null, null); };
+    window.lpORD = function () { return []; };
+    window.lvGetDay = function () { return []; };
+  </script>
+  <script src="../../snippets/order-planner-v1.js?v=fix294"></script>
+</body>
+</html>

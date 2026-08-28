@@ -73,6 +73,47 @@
 #rb-order-planner .rbp-feedback.show{display:block}
 #ord-planner-btn{background:#0b8f83!important;color:#fff!important;border:none!important;border-radius:8px!important;padding:8px 14px!important;font-size:12px!important;font-weight:700!important;white-space:nowrap!important;cursor:pointer!important}
 body.rb-not-sup #ord-planner-btn{display:none!important}
+#rb-order-planner .rbp-sync-strip{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:12px;padding:9px 11px;border-left:4px solid #d99a1a;border-radius:7px;background:#fff2d6;color:#81570d;font-size:10.5px}
+#rb-order-planner .rbp-sync-strip b{margin-right:2px}
+#rb-order-planner .rbp-sync-strip span{padding:3px 7px;border:1px solid rgba(129,87,13,.35);border-radius:999px;background:rgba(255,255,255,.38)}
+#rb-order-planner .rbp-drafts-layout{display:grid;grid-template-columns:minmax(245px,.72fr) minmax(0,1.85fr);gap:12px;min-height:470px}
+#rb-order-planner .rbp-draft-list,#rb-order-planner .rbp-detail-editor{border:1px solid var(--surface-card-border);border-radius:11px;background:var(--surface-card)}
+#rb-order-planner .rbp-draft-list{align-self:start;overflow:hidden}
+#rb-order-planner .rbp-list-head{padding:11px 12px;background:var(--surface-tint);border-bottom:1px solid var(--surface-card-border)}
+#rb-order-planner .rbp-list-head b,#rb-order-planner .rbp-list-head small{display:block;color:var(--text-heading)}
+#rb-order-planner .rbp-list-head b{font-size:11.5px}
+#rb-order-planner .rbp-list-head small{margin-top:2px;color:var(--text-muted2);font-size:9.5px}
+#rb-order-planner .rbp-draft-item{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:4px;padding:7px 8px;border-bottom:1px solid var(--surface-card-border);border-left:4px solid transparent}
+#rb-order-planner .rbp-draft-item:last-child{border-bottom:0}
+#rb-order-planner .rbp-draft-item.is-active{border-left-color:#0b9889;background:var(--surface-tint)}
+#rb-order-planner .rbp-draft-item>input{width:17px;height:17px;accent-color:#0b8f83}
+#rb-order-planner .rbp-draft-item>button{min-width:0;padding:5px 4px;border:0;background:transparent;color:var(--text-heading);text-align:left;cursor:pointer}
+#rb-order-planner .rbp-draft-item strong,#rb-order-planner .rbp-draft-item small,#rb-order-planner .rbp-draft-item .rbp-complete{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rb-order-planner .rbp-draft-item strong{font-size:11px}
+#rb-order-planner .rbp-draft-item small{margin-top:3px;color:var(--text-muted2);font-size:9.5px}
+#rb-order-planner .rbp-complete{color:#a46808;font-size:9px;font-weight:700}
+#rb-order-planner .rbp-complete.is-ready{color:#168151}
+#rb-order-planner .rbp-draft-item>.rbp-badge{padding:3px 6px;font-size:8.5px}
+#rb-order-planner .rbp-detail-editor{min-width:0;overflow:hidden}
+#rb-order-planner .rbp-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;background:var(--surface-tint);border-bottom:1px solid var(--surface-card-border)}
+#rb-order-planner .rbp-detail-head b,#rb-order-planner .rbp-detail-head small{display:block;color:var(--text-heading)}
+#rb-order-planner .rbp-detail-head b{font-size:12.5px}
+#rb-order-planner .rbp-detail-head small{margin-top:2px;color:var(--text-muted2);font-size:9.5px}
+#rb-order-planner .rbp-detail-head>div:last-child{display:flex;align-items:center;gap:7px;white-space:nowrap}
+#rb-order-planner .rbp-locked-note{margin:12px 13px 0;padding:9px 11px;border-left:4px solid #2d77a8;border-radius:7px;background:#e7f2fb;color:#215b81;font-size:10.5px}
+#rb-order-planner .rbp-detail-form{min-width:0;margin:0;padding:0 13px 13px;border:0}
+#rb-order-planner .rbp-detail-form:disabled{opacity:.72}
+#rb-order-planner .rbp-detail-section{padding-top:13px}
+#rb-order-planner .rbp-detail-section h4{margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid var(--surface-card-border);color:#176b55;font-size:11.5px}
+#rb-order-planner .rbp-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 10px}
+#rb-order-planner .rbp-detail-field{display:block;min-width:0;color:var(--text-muted2);font-size:9.5px}
+#rb-order-planner .rbp-detail-field.is-wide{grid-column:1/-1}
+#rb-order-planner .rbp-detail-field>span{display:block;margin-bottom:4px}
+#rb-order-planner .rbp-detail-field input,#rb-order-planner .rbp-detail-field select,#rb-order-planner .rbp-detail-field textarea{width:100%;min-height:36px;box-sizing:border-box;padding:7px 9px;border:1px solid #c8d8ce;border-radius:7px;background:var(--surface-card);color:var(--text-heading);font:inherit;font-size:11px}
+#rb-order-planner .rbp-detail-field textarea{min-height:76px;resize:vertical;line-height:1.55}
+html[data-theme=dark] #rb-order-planner .rbp-sync-strip{background:#3d3018;color:#ffe0a1}
+html[data-theme=dark] #rb-order-planner .rbp-sync-strip span{background:rgba(255,255,255,.04)}
+html[data-theme=dark] #rb-order-planner .rbp-locked-note{background:#102c3d;color:#b9e0ff}
 html[data-theme=dark] #rb-order-planner .rbp-planitem{background:#103c31;color:#dcfff2}html[data-theme=dark] #rb-order-planner .rbp-planitem.blocked{background:#3b1d22;color:#ffb8c0}html[data-theme=dark] #rb-order-planner .rbp-planitem.dispatched{background:#102c3d;color:#b9e0ff}html[data-theme=dark] #rb-order-planner .rbp-example{background:#3d3018;color:#ffe0a1}html[data-theme=dark] #rb-order-planner .rbp-example.ok{background:#173d2e;color:#a8efc8}html[data-theme=dark] #rb-order-planner .rbp-feedback{background:#173d2e;color:#a8efc8}
-@media(max-width:900px){#rb-order-planner{padding:7px;align-items:flex-end}#rb-order-planner .rbp-window{max-height:97vh;border-radius:15px 15px 0 0}#rb-order-planner .rbp-week{grid-template-columns:repeat(2,minmax(0,1fr))}#rb-order-planner .rbp-rules{grid-template-columns:1fr}}
-@media(max-width:600px){#rb-order-planner .rbp-header{padding:11px 12px}#rb-order-planner .rbp-private{display:none}#rb-order-planner .rbp-summary{grid-template-columns:1fr 1fr;padding:9px}#rb-order-planner .rbp-stat:last-child{grid-column:1/-1}#rb-order-planner .rbp-tab{font-size:10.5px}#rb-order-planner .rbp-body{padding:10px}#rb-order-planner .rbp-head,#rb-order-planner .rbp-bulkbar,#rb-order-planner .rbp-weekbar{align-items:stretch;flex-direction:column}#rb-order-planner .rbp-week{grid-template-columns:1fr}#rb-order-planner .rbp-rule{grid-template-columns:auto 1fr}#rb-order-planner .rbp-rule select,#rb-order-planner .rbp-rule input[type=time],#rb-order-planner .rbp-rule input[type=number]{grid-column:2}#rb-order-planner .rbp-actions .rbp-btn{flex:1}}
+@media(max-width:900px){#rb-order-planner{padding:7px;align-items:flex-end}#rb-order-planner .rbp-window{max-height:97vh;border-radius:15px 15px 0 0}#rb-order-planner .rbp-week{grid-template-columns:repeat(2,minmax(0,1fr))}#rb-order-planner .rbp-rules,#rb-order-planner .rbp-drafts-layout{grid-template-columns:1fr}#rb-order-planner .rbp-draft-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#rb-order-planner .rbp-list-head{grid-column:1/-1}#rb-order-planner .rbp-draft-item{border-right:1px solid var(--surface-card-border)}}
+@media(max-width:600px){#rb-order-planner .rbp-header{padding:11px 12px}#rb-order-planner .rbp-private{display:none}#rb-order-planner .rbp-summary{grid-template-columns:1fr 1fr;padding:9px}#rb-order-planner .rbp-stat:last-child{grid-column:1/-1}#rb-order-planner .rbp-tab{font-size:10.5px}#rb-order-planner .rbp-body{padding:10px}#rb-order-planner .rbp-head,#rb-order-planner .rbp-bulkbar,#rb-order-planner .rbp-weekbar{align-items:stretch;flex-direction:column}#rb-order-planner .rbp-week{grid-template-columns:1fr}#rb-order-planner .rbp-rule{grid-template-columns:auto 1fr}#rb-order-planner .rbp-rule select,#rb-order-planner .rbp-rule input[type=time],#rb-order-planner .rbp-rule input[type=number]{grid-column:2}#rb-order-planner .rbp-actions .rbp-btn{flex:1}#rb-order-planner .rbp-draft-list,#rb-order-planner .rbp-detail-grid{grid-template-columns:1fr}#rb-order-planner .rbp-detail-field.is-wide{grid-column:auto}#rb-order-planner .rbp-sync-strip{align-items:flex-start}#rb-order-planner .rbp-detail-head{align-items:flex-start;flex-direction:column}}

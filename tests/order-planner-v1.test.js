@@ -4,9 +4,9 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix293-order-planner">'),'build marker must expose fix293');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix293'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix293'),'planner script must be loaded');
+assert.ok(index.includes('<meta name="rb-build" content="fix294-planner-single-entry">'),'build marker must expose fix294');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix294'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix294'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -21,4 +21,9 @@ assert.ok(js.includes('setInterval(function(){if(window._rbUser)runWorker()},600
 assert.ok(js.includes("window.addEventListener('online'"),'overdue work must be checked again when the dashboard reconnects');
 assert.ok(js.includes('บันทึกฉบับร่างทั้งหมด')&&js.includes('ตั้งเวลางานที่เลือก')&&js.includes('สั่งงานที่เลือกตอนนี้'),'bulk draft actions must be present');
 assert.ok(js.includes('ตารางแพลนงาน')&&js.includes('กฎสั่งงานอัตโนมัติ'),'planner and automation views must be present');
+assert.ok(js.includes('rbp-drafts-layout')&&js.includes('rbp-draft-list')&&js.includes('rbp-detail-editor'),'draft creation must use the approved left-list and right-form layout');
+assert.ok(js.includes("brief:d.brief||''")&&js.includes("sampleLink:d.sampleLink||''")&&js.includes("rawLink:d.rawLink||''")&&js.includes("sheetLink:d.sheetLink||''"),'drafts must retain the full brief and reference-link set');
+assert.ok(js.includes("brief:d.brief||''")&&js.includes("hook:d.hook||''")&&js.includes("hook2:d.hook2||''")&&js.includes("note:d.note||''"),'automatic orders must inherit all one-time detail fields');
+assert.ok(js.includes('กรอกครั้งเดียว')&&js.includes('ตรวจออดิต')&&js.includes('ส่งงานภาพ'),'the planner must explain the one-entry synchronization flow');
+assert.ok(js.includes('function queueAutosave(')&&js.includes('บันทึกร่างอัตโนมัติแล้ว'),'the multi-order form must autosave while the Supervisor works');
 console.log('order-planner-v1: all tests passed');
