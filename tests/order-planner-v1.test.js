@@ -1,13 +1,14 @@
 const fs=require('fs');
 const assert=require('assert');
+const vm=require('vm');
 const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix300-leave-persistence">'),'build marker must expose fix300');
+assert.ok(index.includes('<meta name="rb-build" content="fix301-planner-status-filters">'),'build marker must expose fix301');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix297b'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix297b'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix301'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix301'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -38,4 +39,14 @@ assert.ok(js.includes('function applyPlannerProductAssets(')&&index.includes('wi
 assert.ok(js.includes("if(field==='hook'){applyPlannerContent(d,true)"),'each Hook/version must populate only its matching Content Tracker links');
 assert.ok(js.includes('assignmentDate=d.deadline||d.scheduledDate')&&js.includes('leaveCodes(assignmentDate)'),'automatic assignment must use the Add New Deadline for leave checks');
 assert.ok(js.includes('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน')&&js.includes('ลิงก์ไฟล์ดิบ (Creative)')&&js.includes('ลิงก์สคริปต์'),'the complete Add New reference-link set must be present');
+assert.ok(js.includes('data-status-filter="draft"')&&js.includes('data-status-filter="scheduled"')&&js.includes('data-status-filter="blocked"'),'the summary cards must filter each status independently');
+assert.ok(js.includes('data-planner-date-filter="1"')&&js.includes('data-action="select-all-visible"'),'the left list must include a Deadline filter and select-all-visible control');
+assert.ok(css.includes('.rbp-list-filter-row')&&css.includes('.rbp-select-visible'),'date and select-all controls must have planner styling');
+
+const sandbox={window:{_rbUser:{name:'View',role:'sup'},addEventListener(){}},document:{readyState:'loading',addEventListener(){}},localStorage:{getItem(){return null},setItem(){}},console,Date,JSON,Object,Array,String,Number,Math,Promise,setTimeout(){return 1},clearTimeout(){},setInterval(){return 1},fetch(){return Promise.resolve({ok:true,json(){return Promise.resolve({})}})}};
+vm.runInNewContext(js,sandbox);
+const filter=sandbox.window._rbOrderPlannerTest;
+const sample=[{id:'1',status:'draft',deadline:'2026-08-29'},{id:'2',status:'scheduled',deadline:'2026-08-29'},{id:'3',status:'scheduled',deadline:'2026-08-30'},{id:'4',status:'blocked',deadline:'2026-08-30'}];
+assert.deepStrictEqual(Array.from(filter.filterByStatus(sample,'scheduled'),x=>x.id),['2','3'],'scheduled filter must not include drafts or blocked work');
+assert.deepStrictEqual(Array.from(filter.filterByDate(sample,'2026-08-30'),x=>x.id),['3','4'],'date filter must match the visible Deadline exactly');
 console.log('order-planner-v1: all tests passed');
