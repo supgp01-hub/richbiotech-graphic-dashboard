@@ -24,3 +24,52 @@ html[data-theme=dark] #rb-order-modal .rb-revision-uniform-row .rb-revision-ref-
 #rb-order-modal .rb-revision-team-workspace #om-submitlinks-section{margin:0!important;background:#f7fcfb!important}
 html[data-theme=dark] #rb-order-modal .rb-revision-team-workspace{border-color:#2e9f7c;background:#0d3026}html[data-theme=dark] #rb-order-modal .rb-revision-team-head{border-color:#2b6b55;color:#d9f8e9}html[data-theme=dark] #rb-order-modal .rb-revision-team-head small{color:#9acdb6}html[data-theme=dark] #rb-order-modal .rb-revision-team-workspace #om-submitlinks-section{background:#12392e!important}
 @media(max-width:680px){#rb-order-modal .rb-revision-uniform-row{grid-template-columns:96px minmax(0,1fr) 38px 38px!important}#rb-order-modal .rb-revision-uniform-row .rb-revision-ref-field-label{padding:8px!important;font-size:10px!important}#rb-order-modal .rb-revision-uniform-row .rb-revision-ref-value{padding:8px 9px!important;font-size:10.5px!important}}
+
+/* fix287: submitted work links use compact VER rows with explicit copy/open actions. */
+#rb-order-modal .rb-delivery-links-card{grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px;margin:0 0 14px;padding:12px;border:1px solid #9fcdbb;border-radius:12px;background:#f5fbf8;box-shadow:0 4px 14px rgba(18,76,58,.06)}
+#rb-order-modal .rb-delivery-links-icon{display:grid;width:32px;height:32px;place-items:center;border-radius:9px;background:#dff3e9;font-size:16px}
+#rb-order-modal .rb-delivery-links-body{min-width:0}
+#rb-order-modal .rb-delivery-links-title{margin:0 0 8px;font-size:12px;font-weight:900;color:#153e32}
+#rb-order-modal .rb-delivery-links-list{display:grid;gap:7px}
+#rb-order-modal .rb-delivery-link-row{display:grid;grid-template-columns:82px minmax(0,1fr) 38px 38px;min-height:42px;overflow:hidden;border:1px solid #9fcdbb;border-radius:9px;background:#fff}
+#rb-order-modal .rb-delivery-link-label{display:flex;align-items:center;padding:8px 10px;background:#dff1eb;color:#17634e;font-size:11px;font-weight:900}
+#rb-order-modal .rb-delivery-link-value{display:flex;min-width:0;align-items:center;padding:8px 11px;overflow:hidden;color:#123d31;font-size:11.5px;font-weight:700;text-decoration:none;text-overflow:ellipsis;white-space:nowrap}
+#rb-order-modal .rb-delivery-link-value:hover{text-decoration:underline}
+#rb-order-modal .rb-delivery-link-action{display:grid;place-items:center;border:0;border-left:1px solid #b8d9cc;background:#f7fcfa;color:#087c72;font-size:17px;text-decoration:none;cursor:pointer}
+#rb-order-modal .rb-delivery-link-action svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#rb-order-modal .rb-delivery-link-open{background:#0d8b82;color:#fff}
+#rb-order-modal .rb-delivery-link-copy.is-copied{background:#d8f3e5;color:#087443}
+html[data-theme=dark] #rb-order-modal .rb-delivery-links-card{border-color:#2e725b;background:#0d2f26;box-shadow:none}
+html[data-theme=dark] #rb-order-modal .rb-delivery-links-icon,html[data-theme=dark] #rb-order-modal .rb-delivery-link-label{background:#164739;color:#cdf5e2}
+html[data-theme=dark] #rb-order-modal .rb-delivery-link-row{border-color:#2b755a;background:#10362b}
+html[data-theme=dark] #rb-order-modal .rb-delivery-links-title,html[data-theme=dark] #rb-order-modal .rb-delivery-link-value{color:#e1f7ec}
+html[data-theme=dark] #rb-order-modal .rb-delivery-link-action{border-color:#2b755a;background:#143f33;color:#7ee0c2}
+html[data-theme=dark] #rb-order-modal .rb-delivery-link-open{background:#0d8b82;color:#fff}
+@media(max-width:680px){#rb-order-modal .rb-delivery-links-card{grid-template-columns:1fr;padding:10px}#rb-order-modal .rb-delivery-links-icon{display:none}#rb-order-modal .rb-delivery-link-row{grid-template-columns:68px minmax(0,1fr) 36px 36px}#rb-order-modal .rb-delivery-link-label{padding:7px;font-size:10px}#rb-order-modal .rb-delivery-link-value{padding:7px 8px;font-size:10.5px}}
+
+/* Keep the approved VER layout while inheriting the Dashboard's original light palette. */
+#rb-order-modal[data-active-tab="imgs"] .rb-om-panel-images{padding:24px 20px 18px!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-panel-images>.rb-om-panel-heading{display:none!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-card{display:grid!important;grid-template-columns:1fr!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-icon{display:none!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-title{margin:0!important;color:#153e32!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-title strong{display:block;font-size:15px;line-height:1.35}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-title small{display:block;margin-top:4px;color:#648478;font-size:11px;font-weight:500}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-count{display:inline-flex;min-height:38px;align-items:center;padding:0 16px;border-radius:999px;background:#dff3e9;color:#17634e;font-size:14px;font-weight:800;white-space:nowrap}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-list{gap:9px!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-row{grid-template-columns:92px minmax(0,1fr) 46px 46px!important;min-height:54px!important;border:1px solid #9fcdbb!important;border-left:6px solid #43d6c1!important;border-radius:11px!important;background:#fff!important;box-shadow:0 2px 8px rgba(22,91,68,.05)}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-label{justify-content:center;padding:0 12px!important;background:#dff1eb!important;color:#17634e!important;font-size:12.5px!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-value{padding:0 13px!important;color:#173f34!important;font-size:12.5px!important;font-weight:700!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-action{border-color:#b8d9cc!important;background:#f7fcfa!important;color:#087c72!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-action:hover{background:#e4f5ef!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-open{background:#0d8b82!important;color:#fff!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-open:hover{background:#08766f!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-guide{margin-top:11px;padding:10px 13px;border-left:4px solid #e5a033;border-radius:8px;background:#fff4dc;color:#87530c;font-size:11px;font-weight:800}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-upload-zone,#rb-order-modal[data-active-tab="imgs"] #om-img-gallery,#rb-order-modal[data-active-tab="imgs"] .rb-om-panel-images>.rb-om-section{margin-top:16px!important;border-color:#9fcdbb!important;background:#eefaf5!important;color:#173f34!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-panel-images textarea{border-color:#b7d5ca!important;background:#fff!important;color:#173f34!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-footer{padding:14px 20px!important;border-color:#c8d8de!important;background:#e9f0f3!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-footer-hint{color:#55716a!important;font-size:12px!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-footer-hint span{color:#16875f!important}
+#rb-order-modal[data-active-tab="imgs"] .rb-om-primary-action{flex:0 0 auto!important;min-width:174px!important;max-width:none!important;background:#1f3540!important;border-radius:12px!important;box-shadow:none!important}
+@media(max-width:680px){#rb-order-modal[data-active-tab="imgs"] .rb-om-panel-images{padding:18px 12px!important}#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-head{align-items:flex-start}#rb-order-modal[data-active-tab="imgs"] .rb-delivery-links-count{min-height:32px;padding:0 11px;font-size:11px}#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-row{grid-template-columns:66px minmax(0,1fr) 42px 42px!important;min-height:56px!important;border-radius:12px!important}#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-label,#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-value{font-size:11px!important;padding:0 8px!important}#rb-order-modal[data-active-tab="imgs"] .rb-om-primary-action{min-width:0!important;flex:1!important}}

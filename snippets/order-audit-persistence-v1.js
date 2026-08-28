@@ -76,6 +76,20 @@
     });
   };
 
+  window.rbCopyOrderDeliveryLink=function(value,button){
+    function done(){
+      button.classList.add('is-copied');button.setAttribute('aria-label','คัดลอกแล้ว');
+      setTimeout(function(){button.classList.remove('is-copied');button.setAttribute('aria-label','คัดลอกลิงก์');},1200);
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(value).then(done).catch(function(){});return;
+    }
+    var temp=document.createElement('textarea');temp.value=value;temp.style.position='fixed';temp.style.opacity='0';
+    document.body.appendChild(temp);temp.select();
+    try{document.execCommand('copy');done();}catch(error){}
+    temp.remove();
+  };
+
   if(document.addEventListener){
     document.addEventListener('input',function(event){
       if(event.target&&event.target.closest&&event.target.closest('#om-image-submitlinks-rows'))window.rbSyncOrderDeliveryLinks();

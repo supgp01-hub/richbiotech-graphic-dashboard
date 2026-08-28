@@ -9,9 +9,13 @@ assert.ok(index.includes("submitLinks:submitLinkValues(),"),'all delivery-link s
 assert.ok(index.includes("o&&Array.isArray(o.submitLinks)?o.submitLinks.slice():(o&&o.submitLink?[o.submitLink]:[])"),'all saved delivery links must reopen without truncation');
 assert.ok(index.includes("order.submitLinks=currentSubmitLinks;order.submitLink=order.submitLinks[0]||'';"),'normal status workflow saves must preserve delivery links and the legacy first-link field');
 assert.ok(index.includes('order.revisionSubmissions.push({links:currentSubmitLinks.slice()'),'revision delivery links must append to history without overwriting the original');
-assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix286-audit-job-version-isolation\">"),'deployed page must expose the audit workflow build');
+assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix288-send-image-ver-layout\">"),'deployed page must expose the audit workflow build');
 assert.ok(index.includes("document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input')"),'the save workflow must collect every delivery-link row');
 assert.ok(!index.includes('id="om-audit-submitlink-list"'),'the Audit tab must not duplicate submitted links in a separate text block');
 assert.ok(index.includes("i===0?'om-uplink':i===1?'om-ad':'om-link'+(i+1)"),'submitted links must populate Link Ver 1, Link Ver 2, and every additional Link Ver field');
 assert.ok(index.includes("workNodes=workIds.map(function(id){return document.getElementById(id);}).filter(Boolean)"),'team controls must be preserved when another user reopens a job');
+assert.ok(index.includes("row.className='rb-delivery-link-row'"),'the image-delivery tab must render each submitted link as a structured row');
+assert.ok(index.includes('rb-delivery-link-copy'),'every submitted link must include a copy action');
+assert.ok(index.includes('rb-delivery-link-open'),'every submitted link must include an open action');
+assert.ok(index.includes('copyDeliveryLink'),'the copy action must use the complete saved URL');
 console.log('order-submit-links-v1: all tests passed');

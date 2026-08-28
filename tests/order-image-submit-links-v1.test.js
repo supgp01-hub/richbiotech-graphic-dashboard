@@ -2,6 +2,7 @@ const assert=require('assert');
 const fs=require('fs');
 const index=fs.readFileSync('index.html','utf8');
 const auditSync=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
+const css=fs.readFileSync('snippets/order-detail-unified-v1.css','utf8');
 
 assert.ok(index.includes("submitWorkTab.textContent='🔗 ลิงก์ส่งงาน'"),'the existing work-link tab must remain available');
 assert.ok(index.includes("submitImageTab.textContent='▧ ลิงก์ส่งงานภาพ'"),'the image-delivery tab must be visible');
@@ -17,7 +18,16 @@ assert.ok(auditSync.includes("label.textContent='ภาพ '+(index+1)"),'image 
 assert.ok(auditSync.includes("makeAction('คัดลอกลิงก์'"),'every synchronized image link must be copyable');
 assert.ok(auditSync.includes("makeAction('เปิดลิงก์'"),'every synchronized image link must remain openable');
 assert.ok(index.includes('(d.imageSubmitLinks||[]).some(Boolean)'),'draft recovery must retain image-delivery links');
-assert.ok(index.includes('<meta name="rb-build" content="fix286-audit-job-version-isolation">'),'the deployed page must expose the image-delivery build');
-assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix286'),'the image-delivery helper must use the current cache version');
+assert.ok(index.includes('<meta name="rb-build" content="fix288-send-image-ver-layout">'),'the deployed page must expose the image-delivery build');
+assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix287'),'the image-delivery helper must use the current cache version');
+assert.ok(index.includes("subLinkCount.id='om-submitlink-count'"),'the image-delivery view must expose a version-count badge');
+assert.ok(index.includes("subLinkGuide.className='rb-delivery-links-guide'"),'the approved guide strip must render below the version rows');
+assert.ok(index.includes("visibleCount=vals.filter(Boolean).length"),'the badge must reflect only non-empty delivery links');
+assert.ok(css.includes('#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-row'),'the approved VER layout must be scoped to the send-image tab');
+assert.ok(css.includes('background:#fff!important'),'the send-image link rows must use the original light palette');
+assert.ok(!css.includes('background:#071d18!important'),'the send-image tab must not force the black-green palette');
+assert.ok(css.includes('border-left:6px solid #43d6c1'),'each version row must keep the approved teal accent');
+assert.ok(index.includes("if(k==='imgs')setTimeout(function()"),'opening the send-image tab must run its own refresh cycle');
+assert.ok(index.includes('if(window._refreshSubmitLinkDisplay)window._refreshSubmitLinkDisplay();'),'the send-image tab must redraw structured VER rows after link synchronization');
 
 console.log('order-image-submit-links-v1: all tests passed');
