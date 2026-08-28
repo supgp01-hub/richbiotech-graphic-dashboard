@@ -13,7 +13,7 @@ assert(source.includes("revisionUniformLinkRows('ลิงก์ตัวอย�
 assert(source.includes("title.textContent='รวมภาพ'"), 'combined image gallery title is missing');
 assert(source.includes("empty.textContent='ยังไม่มีภาพในงานนี้'"), 'empty combined gallery state is missing');
 assert(source.includes("revisionUniformLinkRows('ลิงก์คลิป',clipLinks"), 'clip links are missing from detail view');
-assert(source.includes("revisionUniformLinkRows('ลิงก์งาน',workLinks"), 'work links are missing from detail view');
+assert(source.includes("revisionUniformLinkRows('ลิงก์แอด',workLinks"), 'ad links are missing from detail view');
 assert(source.includes("revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[])"), 'Footage links must remain and be deduplicated');
 assert(source.includes("revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[])"), 'Insert / Review links must remain and be deduplicated');
 assert(source.includes("value.replace(/[?#].*$/,'').replace(/\\/+$/,'').toLowerCase()"), 'equivalent Drive links with query strings must be deduplicated');
@@ -29,7 +29,7 @@ assert(source.includes('snippets/order-detail-all-users-v1.css'), 'all-user stru
 assert(source.includes("if(order.status==='revision')"), 'revision warning must only appear for revision jobs');
 assert(source.includes("statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'}"), 'structured detail must show the actual workflow status');
 assert(source.includes("var workIds=['om-p1fix-hdr','om-p1fix-gallery','om-p1fix-wrap','om-p1fix-inp','om-submitlinks-section']"), 'team workspace must contain only fix-image and current submission controls');
-assert(source.includes("<small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์ส่งงาน</small>"), 'team workspace subtitle must match the visible controls');
+assert(source.includes("<small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small>"), 'team workspace subtitle must match the visible controls');
 assert(source.includes(':not(#rb-revision-team-workspace)'), 'team submit-link workspace must remain editable');
 assert(source.includes("teamWorkspace.id='rb-revision-team-workspace'"), 'team edit controls must stay grouped in one workspace');
 

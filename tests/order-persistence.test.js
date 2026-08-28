@@ -32,7 +32,7 @@ const workflowSave = html.slice(workflowStart, workflowEnd);
 assert.ok(workflowSave.includes('order.clipLinks='), 'employee clip links must be copied into the order before status changes');
 assert.ok(workflowSave.includes('order.fixImages='), 'employee fix images must be copied into the order before status changes');
 assert.ok(workflowSave.includes('order.errorImages='), 'audit images must be copied into the order before status changes');
-assert.ok(html.includes('snippets/order-audit-persistence-v1.js?v=fix289'), 'Audit persistence helper must load before the order modal');
+assert.ok(html.includes('snippets/order-audit-persistence-v1.js?v=fix290'), 'Audit persistence helper must load before the order modal');
 assert.ok(workflowSave.includes('window.rbPersistAuditFields(order,ge,document)'), 'every Audit status action must collect the full Audit form');
 
 const fakeFields = {

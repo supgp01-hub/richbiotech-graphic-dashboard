@@ -4,7 +4,7 @@ const index=fs.readFileSync('index.html','utf8');
 const auditSync=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-detail-unified-v1.css','utf8');
 
-assert.ok(index.includes("submitWorkTab.textContent='🔗 ลิงก์ส่งงาน'"),'the existing work-link tab must remain available');
+assert.ok(index.includes("submitWorkTab.textContent='🔗 ลิงก์แอด'"),'the ad-link tab must use its correct name');
 assert.ok(index.includes("submitImageTab.textContent='▧ ลิงก์ส่งงานภาพ'"),'the image-delivery tab must be visible');
 assert.ok(index.includes("imageSubmitLinksAdd.textContent='+ เพิ่มลิงก์ส่งงานภาพ'"),'the image-delivery tab must add link rows');
 assert.ok(index.includes("function imageSubmitLinkValues()"),'the save workflow must collect image-delivery rows');
@@ -16,17 +16,20 @@ assert.ok(index.includes("revisionUniformLinkRows('ลิงก์ส่งง�
 assert.ok(!auditSync.includes("box.setAttribute('aria-label','ลิงก์ส่งงานภาพ')"),'the send-image tab must not create a duplicate image-delivery panel');
 assert.ok(auditSync.includes("document.getElementById('om-image-submitlink-box')"),'the compatibility sync must remove any stale duplicate panel');
 assert.ok(auditSync.includes('if(duplicate)duplicate.remove()'),'stale duplicate image-delivery panels must be cleaned up');
+assert.ok(auditSync.includes("window._refreshImageSubmitLinkDisplay"),'image-link edits must synchronize to the send-image tab');
 assert.ok(index.includes('(d.imageSubmitLinks||[]).some(Boolean)'),'draft recovery must retain image-delivery links');
-assert.ok(index.includes('<meta name="rb-build" content="fix289-remove-duplicate-image-links">'),'the deployed page must expose the duplicate-panel removal build');
-assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix289'),'the image-delivery helper must use the current cache version');
+assert.ok(index.includes('<meta name="rb-build" content="fix290-sync-image-delivery-links">'),'the deployed page must expose the image-link synchronization build');
+assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix290'),'the image-delivery helper must use the current cache version');
 assert.ok(index.includes("subLinkCount.id='om-submitlink-count'"),'the image-delivery view must expose a version-count badge');
 assert.ok(!index.includes("subLinkGuide.className='rb-delivery-links-guide'"),'the redundant guide strip must not render below the version rows');
-assert.ok(index.includes("visibleCount=vals.filter(Boolean).length"),'the badge must reflect only non-empty delivery links');
+assert.ok(index.includes("window._refreshImageSubmitLinkDisplay=function(){var vals=imageSubmitLinkValues()"),'the send-image tab must render the dedicated image-link values');
+assert.ok(index.includes("label.textContent='ภาพ '+(i+1)"),'the synchronized rows must keep their image numbering');
+assert.ok(index.includes("count.textContent=visibleCount+' ลิงก์'"),'the badge must reflect only non-empty image links');
 assert.ok(css.includes('#rb-order-modal[data-active-tab="imgs"] .rb-delivery-link-row'),'the approved VER layout must be scoped to the send-image tab');
 assert.ok(css.includes('background:#fff!important'),'the send-image link rows must use the original light palette');
 assert.ok(!css.includes('background:#071d18!important'),'the send-image tab must not force the black-green palette');
 assert.ok(css.includes('border-left:6px solid #43d6c1'),'each version row must keep the approved teal accent');
 assert.ok(index.includes("if(k==='imgs')setTimeout(function()"),'opening the send-image tab must run its own refresh cycle');
-assert.ok(index.includes('if(window._refreshSubmitLinkDisplay)window._refreshSubmitLinkDisplay();'),'the send-image tab must redraw structured VER rows after link synchronization');
+assert.ok(index.includes('if(window._refreshImageSubmitLinkDisplay)window._refreshImageSubmitLinkDisplay();'),'the send-image tab must redraw image-link rows after synchronization');
 
 console.log('order-image-submit-links-v1: all tests passed');

@@ -34,12 +34,11 @@
   };
 
   window.rbSyncOrderDeliveryLinks=function(){
-    /* The send-image tab already renders the canonical VER delivery rows in
-       #om-submitlink-box.  Older builds added a second image-only summary here,
-       which duplicated the same links.  Remove only that legacy presentation;
-       the imageSubmitLinks data and its editor remain untouched. */
+    /* Keep one presentation on the send-image tab, sourced only from the
+       dedicated imageSubmitLinks editor.  The ad-link set stays separate. */
     var duplicate=document.getElementById('om-image-submitlink-box');
     if(duplicate)duplicate.remove();
+    if(typeof window._refreshImageSubmitLinkDisplay==='function')window._refreshImageSubmitLinkDisplay();
   };
 
   window.rbCopyOrderDeliveryLink=function(value,button){
