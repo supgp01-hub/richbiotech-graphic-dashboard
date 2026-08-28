@@ -1,0 +1,78 @@
+#rb-order-planner{position:fixed;inset:0;z-index:100080;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(12,31,24,.66);backdrop-filter:blur(4px)}
+#rb-order-planner.is-open{display:flex}
+#rb-order-planner .rbp-window{display:flex;width:min(1180px,100%);max-height:94vh;flex-direction:column;overflow:hidden;border:1px solid rgba(169,207,183,.72);border-radius:18px;background:var(--surface-page,#f5f8f6);box-shadow:0 24px 68px rgba(8,35,25,.38)}
+#rb-order-planner .rbp-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#18313a;color:#fff}
+#rb-order-planner .rbp-icon{display:grid;width:40px;height:40px;place-items:center;flex:0 0 40px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(255,255,255,.1);font-size:19px}
+#rb-order-planner .rbp-title{min-width:0;flex:1}
+#rb-order-planner .rbp-title strong{display:block;font-size:15px}
+#rb-order-planner .rbp-title small{display:block;margin-top:2px;color:#c8e4d6;font-size:10.5px}
+#rb-order-planner .rbp-private{padding:6px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#d9fff4;font-size:10.5px;white-space:nowrap}
+#rb-order-planner .rbp-close{display:grid;width:38px;height:38px;place-items:center;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#ff858b;font-size:18px;cursor:pointer}
+#rb-order-planner .rbp-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:12px 16px;background:var(--surface-card);border-bottom:1px solid var(--surface-card-border)}
+#rb-order-planner .rbp-stat{padding:9px 12px;border:1px solid var(--surface-card-border);border-radius:10px;background:var(--surface-tint)}
+#rb-order-planner .rbp-stat span{display:block;color:var(--text-muted2);font-size:10px}
+#rb-order-planner .rbp-stat b{display:block;margin-top:2px;color:var(--text-heading);font-size:19px}
+#rb-order-planner .rbp-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface-card);border-bottom:1px solid var(--surface-card-border)}
+#rb-order-planner .rbp-tab{position:relative;min-height:51px;border:0;background:transparent;color:var(--text-muted2);font-size:12.5px;font-weight:600;cursor:pointer}
+#rb-order-planner .rbp-tab.is-active{color:#168b7e;background:var(--surface-tint)}
+#rb-order-planner .rbp-tab.is-active:after{position:absolute;right:20px;bottom:0;left:20px;height:3px;border-radius:3px 3px 0 0;background:#10998c;content:""}
+#rb-order-planner .rbp-body{min-height:0;flex:1;overflow:auto;padding:16px;background:var(--surface-page)}
+#rb-order-planner .rbp-view{display:none}
+#rb-order-planner .rbp-view.is-active{display:block}
+#rb-order-planner .rbp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+#rb-order-planner .rbp-head h3{margin:0;color:var(--text-heading);font-size:15px}
+#rb-order-planner .rbp-head p{margin:3px 0 0;color:var(--text-muted2);font-size:10.5px}
+#rb-order-planner .rbp-actions{display:flex;flex-wrap:wrap;gap:7px}
+#rb-order-planner .rbp-btn{min-height:36px;padding:7px 12px;border:1px solid #b8d2c7;border-radius:8px;background:var(--surface-card);color:#176b55;font-size:11.5px;font-weight:700;cursor:pointer}
+#rb-order-planner .rbp-btn.primary{border-color:#0b8f83;background:#0b8f83;color:#fff}
+#rb-order-planner .rbp-btn.dark{border-color:#18313a;background:#18313a;color:#fff}
+#rb-order-planner .rbp-btn.danger{border-color:#f1b3b8;color:#c73642}
+#rb-order-planner .rbp-table-wrap{overflow-x:auto;border:1px solid var(--surface-card-border);border-radius:11px;background:var(--surface-card)}
+#rb-order-planner .rbp-table{width:100%;min-width:1040px;border-collapse:collapse;font-size:11.5px}
+#rb-order-planner .rbp-table th{padding:9px 7px;background:var(--surface-tint);color:#176b55;text-align:left;font-size:10.5px;white-space:nowrap}
+#rb-order-planner .rbp-table td{padding:7px;border-top:1px solid var(--surface-card-border);vertical-align:middle}
+#rb-order-planner .rbp-table input:not([type=checkbox]),#rb-order-planner .rbp-table select,#rb-order-planner .rbp-rules select,#rb-order-planner .rbp-rules input[type=time],#rb-order-planner .rbp-rules input[type=number]{width:100%;min-height:34px;box-sizing:border-box;border:1px solid #c8d8ce;border-radius:7px;background:var(--surface-card);color:var(--text-heading);font-size:11.5px;padding:6px 8px}
+#rb-order-planner .rbp-name{min-width:195px}
+#rb-order-planner .rbp-check{text-align:center}
+#rb-order-planner .rbp-badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700;white-space:nowrap}
+#rb-order-planner .rbp-badge.draft{background:#fff2d8;color:#956100}
+#rb-order-planner .rbp-badge.scheduled{background:#def5ec;color:#167759}
+#rb-order-planner .rbp-badge.blocked{background:#ffe8eb;color:#bd3040}
+#rb-order-planner .rbp-badge.dispatched{background:#dff0ff;color:#1767a5}
+#rb-order-planner .rbp-bulkbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:11px 12px;border:1px solid var(--surface-card-border);border-radius:10px;background:var(--surface-card)}
+#rb-order-planner .rbp-bulkbar span{color:var(--text-muted2);font-size:10.5px}
+#rb-order-planner .rbp-weekbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+#rb-order-planner .rbp-weeknav{display:flex;align-items:center;gap:7px}
+#rb-order-planner .rbp-weeklabel{min-width:190px;color:var(--text-heading);text-align:center;font-size:12.5px;font-weight:700}
+#rb-order-planner .rbp-legend{display:flex;flex-wrap:wrap;gap:10px;color:var(--text-muted2);font-size:10px}
+#rb-order-planner .rbp-dot{display:inline-block;width:8px;height:8px;margin-right:4px;border-radius:50%;background:#0b8f83}.rbp-dot.auto{background:#d69618}.rbp-dot.bad{background:#d43a48}
+#rb-order-planner .rbp-week{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:7px}
+#rb-order-planner .rbp-day{min-height:190px;padding:9px;border:1px solid var(--surface-card-border);border-radius:10px;background:var(--surface-card)}
+#rb-order-planner .rbp-day.today{box-shadow:inset 0 3px 0 #0b8f83}
+#rb-order-planner .rbp-dayhead{display:flex;justify-content:space-between;gap:6px;margin-bottom:7px;color:var(--text-heading);font-size:11.5px;font-weight:700}
+#rb-order-planner .rbp-dayhead small{color:var(--text-muted2);font-size:9.5px}
+#rb-order-planner .rbp-planitem{margin-top:6px;padding:7px;border-left:4px solid #0b8f83;border-radius:7px;background:#e8f7f1;color:#174d3a;cursor:pointer}
+#rb-order-planner .rbp-planitem.blocked{border-left-color:#d43a48;background:#ffebee;color:#a52936}
+#rb-order-planner .rbp-planitem.dispatched{border-left-color:#2d77a8;background:#e7f2fb;color:#215b81}
+#rb-order-planner .rbp-planitem strong{display:block;font-size:10.5px}
+#rb-order-planner .rbp-planitem small{display:block;margin-top:3px;font-size:9px;opacity:.8}
+#rb-order-planner .rbp-empty{padding:18px;color:var(--text-muted2);text-align:center;font-size:11px}
+#rb-order-planner .rbp-rules{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:12px}
+#rb-order-planner .rbp-rulelist,#rb-order-planner .rbp-rulepreview{overflow:hidden;border:1px solid var(--surface-card-border);border-radius:11px;background:var(--surface-card)}
+#rb-order-planner .rbp-rule{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(165px,210px);align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--surface-card-border)}
+#rb-order-planner .rbp-rule:last-child{border-bottom:0}
+#rb-order-planner .rbp-rule input[type=checkbox]{width:18px;height:18px;accent-color:#0b8f83}
+#rb-order-planner .rbp-rule strong{display:block;color:var(--text-heading);font-size:11.5px}
+#rb-order-planner .rbp-rule small{display:block;margin-top:3px;color:var(--text-muted2);font-size:9.5px;line-height:1.45}
+#rb-order-planner .rbp-rulepreview{padding:13px}
+#rb-order-planner .rbp-rulepreview h4{margin:0 0 9px;color:var(--text-heading);font-size:13px}
+#rb-order-planner .rbp-example{margin-top:8px;padding:10px;border-left:4px solid #d69618;border-radius:7px;background:#fff2d8;color:#76500b;font-size:10.5px;line-height:1.55}
+#rb-order-planner .rbp-example.ok{border-left-color:#168151;background:#e4f7ec;color:#155e3f}
+#rb-order-planner .rbp-note{margin-top:10px;padding:9px 11px;border-left:3px solid #0b8f83;border-radius:0 7px 7px 0;background:var(--surface-tint);color:var(--text-muted2);font-size:10px}
+#rb-order-planner .rbp-feedback{display:none;margin:0 16px 13px;padding:9px 11px;border-left:4px solid #168151;border-radius:8px;background:#e4f7ec;color:#155e3f;font-size:11px;font-weight:700}
+#rb-order-planner .rbp-feedback.show{display:block}
+#ord-planner-btn{background:#0b8f83!important;color:#fff!important;border:none!important;border-radius:8px!important;padding:8px 14px!important;font-size:12px!important;font-weight:700!important;white-space:nowrap!important;cursor:pointer!important}
+body.rb-not-sup #ord-planner-btn{display:none!important}
+html[data-theme=dark] #rb-order-planner .rbp-planitem{background:#103c31;color:#dcfff2}html[data-theme=dark] #rb-order-planner .rbp-planitem.blocked{background:#3b1d22;color:#ffb8c0}html[data-theme=dark] #rb-order-planner .rbp-planitem.dispatched{background:#102c3d;color:#b9e0ff}html[data-theme=dark] #rb-order-planner .rbp-example{background:#3d3018;color:#ffe0a1}html[data-theme=dark] #rb-order-planner .rbp-example.ok{background:#173d2e;color:#a8efc8}html[data-theme=dark] #rb-order-planner .rbp-feedback{background:#173d2e;color:#a8efc8}
+@media(max-width:900px){#rb-order-planner{padding:7px;align-items:flex-end}#rb-order-planner .rbp-window{max-height:97vh;border-radius:15px 15px 0 0}#rb-order-planner .rbp-week{grid-template-columns:repeat(2,minmax(0,1fr))}#rb-order-planner .rbp-rules{grid-template-columns:1fr}}
+@media(max-width:600px){#rb-order-planner .rbp-header{padding:11px 12px}#rb-order-planner .rbp-private{display:none}#rb-order-planner .rbp-summary{grid-template-columns:1fr 1fr;padding:9px}#rb-order-planner .rbp-stat:last-child{grid-column:1/-1}#rb-order-planner .rbp-tab{font-size:10.5px}#rb-order-planner .rbp-body{padding:10px}#rb-order-planner .rbp-head,#rb-order-planner .rbp-bulkbar,#rb-order-planner .rbp-weekbar{align-items:stretch;flex-direction:column}#rb-order-planner .rbp-week{grid-template-columns:1fr}#rb-order-planner .rbp-rule{grid-template-columns:auto 1fr}#rb-order-planner .rbp-rule select,#rb-order-planner .rbp-rule input[type=time],#rb-order-planner .rbp-rule input[type=number]{grid-column:2}#rb-order-planner .rbp-actions .rbp-btn{flex:1}}

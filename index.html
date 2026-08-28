@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix292-optional-delivery-evidence">
+<meta name="rb-build" content="fix293-order-planner">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3206,19 +3206,13 @@ function refreshOrderViews(){
   window._rbRenderMyWork&&window._rbRenderMyWork();
 }
 function spORD(d){
-  /* lpORD may return the same mutable in-memory array that a form has already
-     edited.  Compare against the immutable last-committed snapshot instead;
-     otherwise a new order or Audit edit looks unchanged and never reaches
-     the Firebase write queue. */
+  /* Compare with the last committed snapshot so edits always reach sync. */
   var before=window.rbStorageResilience&&window.rbStorageResilience.loadOrderSnapshot?window.rbStorageResilience.loadOrderSnapshot(LS_ORD):lpORD(),after=Array.isArray(d)?d:[],byKey={},active={};
   if(before.length)fbRememberOrders(before);
   before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=String(idx);byKey[row._fbKey]=row;});
   after.forEach(function(row){
     if(!row||!row.id)return;
-    /* A visible GR number is not a safe database key: two staff members can
-       open the form at the same time and receive the same next number.  A new
-       row must always get its own internal key so it cannot overwrite another
-       employee's order. */
+    /* Keep a collision-safe internal key separate from the visible GR number. */
     if(!row._fbKey)row._fbKey='ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
     active[row._fbKey]=1;
   });
@@ -6041,4 +6035,6 @@ html[data-theme="dark"] #rb-bottom-nav{background:#071d20!important;border-color
 html[data-theme="dark"] #rb-bottom-nav button{color:#b4c6c4!important}
 html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;background:#174438!important}
 </style>
+<link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix293">
+<script src="snippets/order-planner-v1.js?v=fix293"></script>
 </html>
