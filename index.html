@@ -3132,7 +3132,7 @@ window.addEventListener('pagehide',fbStopNetwork);
 // ===== END FIREBASE SYNC =====
 var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL"];window.MB_GR=MB_GR;
 var MB_ALL=["วิว","มอส","ดอม","เตอร์","นุ่น","แจ๋ม","บอล","นุ้ย","มายด์"];
-var OT=["กราฟิก","รูปภาพ","ยิงแอด","เทสส่วนตัว","คัดคลิป","Rlees","สร้างเพจ"];window.OT=OT;
+var OT=["กราฟิก","รูปภาพ","ยิงแอด","เทสส่วนตัว","คัดคลิป","Rlees","สร้างเพจ","Retarget"];window.OT=OT;
 var ST=[
   {k:"pending",l:"มอบหมาย",col:"#6b7280",bg:"#f3f4f6"},
   {k:"inprogress",l:"กำลังดำเนินการ",col:"#1d4ed8",bg:"#dbeafe"},
@@ -4155,7 +4155,7 @@ window.gAS=function(){
     var g1=document.createElement('div');g1.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
     var dlI=document.createElement('input');dlI.id='om-dl';dlI.type='date';dlI.autocomplete='off';
     dlI.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;box-sizing:border-box;';
-    var OT_=typeof OT!=='undefined'?OT:['กราฟิก','รูปภาพ','ยิงแอด','เทสส่วนตัว','คัดคลิป','Rlees','สร้างเพจ'];
+    var OT_=typeof OT!=='undefined'?OT:['กราฟิก','รูปภาพ','ยิงแอด','เทสส่วนตัว','คัดคลิป','Rlees','สร้างเพจ','Retarget'];
     var typeSel=mkS('om-type',[['','-- เลือกประเภทงาน --']].concat(OT_.map(function(x){return[x,x];})));
     typeSel.addEventListener('change',function(){
       if(this.value&&!dlI.value){
@@ -5591,7 +5591,7 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     var people={
       'วิว':'#fbbc04',view:'#fbbc04',wiw:'#fbbc04','มอส':'#191970',moss:'#191970',mos:'#191970','เตอร์':'#d96400',ter:'#d96400','บอล':'#00257d',ball:'#00257d',bol:'#00257d','นุ่น':'#FF64AD',nune:'#FF64AD',nun:'#FF64AD','แจ๋ม':'#5f6738',jam:'#5f6738','ดอม':'#000000',dom:'#000000','นุ้ย':'#ea4335',nui:'#ea4335','มายด์':'#c42b2b',mind:'#c42b2b',mnd:'#c42b2b',demo:'#94A3B8'
     };
-    var workTypes={'กราฟิก':'#7C3AED','รูปภาพ':'#2563EB','ยิงแอด':'#EA4335','เทสส่วนตัว':'#D96400','คัดคลิป':'#009688',rlees:'#64748B','สร้างเพจ':'#1877F2'};
+    var workTypes={'กราฟิก':'#7C3AED','รูปภาพ':'#2563EB','ยิงแอด':'#EA4335','เทสส่วนตัว':'#D96400','คัดคลิป':'#009688',rlees:'#64748B','สร้างเพจ':'#1877F2',retarget:'#A855F7'};
     var products={'liv care':'#059669','so pink':'#DB2777','i sure plus':'#7C3AED',olymplus:'#D97706','olymplus max':'#B45309',judo:'#DC2626','dragon blood':'#991B1B','ขุนแผน':'#6D28D9','heaven plus+':'#0891B2','the lord':'#1D4ED8','wolf+':'#374151','เจ้าขุน':'#92400E'};
     var exact=people[valueKey]||people[labelKey];if(exact)return{icon:statusIcon('dot'),color:'#285D43',bg:'#EEF8F2',border:'#D3E9DA',iconBg:exact};
     exact=workTypes[valueKey]||workTypes[labelKey];if(exact)return{icon:statusIcon('dot'),color:'#285D43',bg:'#F3F7F5',border:'#DCE9E1',iconBg:exact};
@@ -5638,7 +5638,7 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     if(root.querySelectorAll)root.querySelectorAll('select').forEach(enhance);
   }
   function usesRequestedColorBar(select){
-    var requested={view:1,moss:1,ter:1,ball:1,nune:1,jam:1,dom:1,nui:1,mind:1,'วิว':1,'มอส':1,'เตอร์':1,'บอล':1,'นุ่น':1,'แจ๋ม':1,'ดอม':1,'นุ้ย':1,'มายด์':1,'กราฟิก':1,'รูปภาพ':1,'ยิงแอด':1,'เทสส่วนตัว':1,'คัดคลิป':1,rlees:1,'สร้างเพจ':1,'liv care':1,'so pink':1,'i sure plus':1,olymplus:1,'olymplus max':1,judo:1,'dragon blood':1,'ขุนแผน':1,'heaven plus+':1,'the lord':1,'wolf+':1,'เจ้าขุน':1,'โอลิมพลัส':1,'เฮฟเว่นพลัส':1,'เดอะลอร์ด':1,'จูโด้':1,'ลีฟแคร์':1,'โซพิงค์':1,'วูล์ฟ':1,'เมนพลัส':1,'วันพลัส':1,'ไอชัวร์พลัส':1};
+    var requested={view:1,moss:1,ter:1,ball:1,nune:1,jam:1,dom:1,nui:1,mind:1,'วิว':1,'มอส':1,'เตอร์':1,'บอล':1,'นุ่น':1,'แจ๋ม':1,'ดอม':1,'นุ้ย':1,'มายด์':1,'กราฟิก':1,'รูปภาพ':1,'ยิงแอด':1,'เทสส่วนตัว':1,'คัดคลิป':1,rlees:1,'สร้างเพจ':1,retarget:1,'liv care':1,'so pink':1,'i sure plus':1,olymplus:1,'olymplus max':1,judo:1,'dragon blood':1,'ขุนแผน':1,'heaven plus+':1,'the lord':1,'wolf+':1,'เจ้าขุน':1,'โอลิมพลัส':1,'เฮฟเว่นพลัส':1,'เดอะลอร์ด':1,'จูโด้':1,'ลีฟแคร์':1,'โซพิงค์':1,'วูล์ฟ':1,'เมนพลัส':1,'วันพลัส':1,'ไอชัวร์พลัส':1};
     return Array.prototype.some.call(select.options,function(option){var v=String(option.value||'').trim().toLowerCase();var l=String(option.textContent||'').trim().toLowerCase();return !!(requested[v]||requested[l]);});
   }
   function build(){
