@@ -4,9 +4,9 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix296-facebook-status-sync">'),'build marker must expose fix296');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix295'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix295'),'planner script must be loaded');
+assert.ok(index.includes('<meta name="rb-build" content="fix297-planner-dropdown-link-sync">'),'build marker must expose fix297');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix297'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix297'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -31,6 +31,10 @@ assert.ok(js.includes("workStatus:d.workStatus||'pending'")&&js.includes("status
 assert.ok(js.includes('BRIEF_PRESETS')&&js.includes('data-action="toggle-presets"')&&js.includes('data-action="apply-preset"'),'the Add New brief preset workflow must be available');
 assert.ok(js.includes('data-upload="brief"')&&js.includes('function handlePlannerFileChange('),'sample-image upload must work from the planner form');
 assert.ok(js.includes('function plannerContentRows(')&&js.includes('function applyPlannerContent('),'Content Tracker suggestions must populate the same Hook and reference-link fields');
+assert.ok(js.includes("'contentChoice'")&&js.includes('function plannerJobs('),'the planner must expose a visible Content Tracker DropDown instead of a hidden datalist');
+assert.ok(js.includes("window.refreshOrderContentFromCloud")&&js.includes('content.then(function()'),'opening the planner must refresh Content Tracker before rebuilding its DropDowns');
+assert.ok(js.includes('function applyPlannerProductAssets(')&&index.includes('window._rbProductAssetLinks=PRODUCT_ASSET_LINKS'),'product Footage and Insert / Review links must share the Add New catalog');
+assert.ok(js.includes("if(field==='hook'){applyPlannerContent(d,true)"),'each Hook/version must populate only its matching Content Tracker links');
 assert.ok(js.includes('assignmentDate=d.deadline||d.scheduledDate')&&js.includes('leaveCodes(assignmentDate)'),'automatic assignment must use the Add New Deadline for leave checks');
 assert.ok(js.includes('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน')&&js.includes('ลิงก์ไฟล์ดิบ (Creative)')&&js.includes('ลิงก์สคริปต์'),'the complete Add New reference-link set must be present');
 console.log('order-planner-v1: all tests passed');

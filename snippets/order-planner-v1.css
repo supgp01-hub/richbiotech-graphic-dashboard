@@ -110,11 +110,15 @@ body.rb-not-sup #ord-planner-btn{display:none!important}
 #rb-order-planner .rbp-detail-field.is-wide{grid-column:1/-1}
 #rb-order-planner .rbp-detail-field>span{display:block;margin-bottom:4px}
 #rb-order-planner .rbp-detail-field input,#rb-order-planner .rbp-detail-field select,#rb-order-planner .rbp-detail-field textarea{width:100%;min-height:36px;box-sizing:border-box;padding:7px 9px;border:1px solid #c8d8ce;border-radius:7px;background:var(--surface-card);color:var(--text-heading);font:inherit;font-size:11px}
+#rb-order-planner .rbp-detail-field select{padding-right:32px;cursor:pointer;appearance:auto}
 #rb-order-planner .rbp-detail-field textarea{min-height:76px;resize:vertical;line-height:1.55}
 #rb-order-planner .rbp-parity-form{padding-top:0}
 #rb-order-planner .rbp-parity-form .rbp-detail-section>h4{font-size:12px}
 #rb-order-planner .rbp-parity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px}
 #rb-order-planner .rbp-parity-form>.rbp-detail-section>.rbp-parity-grid:first-of-type .rbp-detail-field:first-child{grid-column:auto}
+#rb-order-planner .rbp-content-status{margin-top:9px;padding:8px 10px;border-left:4px solid #2f9f83;border-radius:7px;background:#e8f7ed;color:#176b55;font-size:10px;line-height:1.5}
+#rb-order-planner .rbp-content-status.is-loading{border-left-color:#d99a1a;background:#fff2d6;color:#81570d}
+#rb-order-planner .rbp-content-status.is-empty{border-left-color:#d37b1e;background:#fff4e2;color:#8a5315}
 #rb-order-planner .rbp-parity-guard{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 11px;border:1px solid var(--surface-card-border);border-radius:8px;background:var(--surface-tint);font-size:10px}
 #rb-order-planner .rbp-parity-guard b{color:var(--text-heading)}
 #rb-order-planner .rbp-parity-guard span{color:var(--text-muted2)}
@@ -148,6 +152,8 @@ body.rb-not-sup #ord-planner-btn{display:none!important}
 #rb-order-planner .rbp-schedule-box{margin-top:13px;padding:11px;border:1px solid var(--surface-card-border);border-radius:9px;background:var(--surface-tint)}
 #rb-order-planner .rbp-schedule-box h4{margin:0 0 9px;color:#176b55;font-size:11px}
 html[data-theme=dark] #rb-order-planner .rbp-parity-guard.is-ok{background:#173d2e;color:#a8efc8}
+html[data-theme=dark] #rb-order-planner .rbp-content-status{background:#173d2e;color:#a8efc8}
+html[data-theme=dark] #rb-order-planner .rbp-content-status.is-loading,html[data-theme=dark] #rb-order-planner .rbp-content-status.is-empty{background:#3d3018;color:#ffe0a1}
 html[data-theme=dark] #rb-order-planner .rbp-parity-guard.is-bad{background:#3b1d22;color:#ffb8c0}
 html[data-theme=dark] #rb-order-planner .rbp-upload-block{background:rgba(23,61,46,.55)}
 html[data-theme=dark] #rb-order-planner .rbp-preset-menu button:hover{background:#173d2e}

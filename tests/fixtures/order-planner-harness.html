@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix295">
+  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix297">
 </head>
 <body>
   <div><button id="ord-add-btn" type="button">+ เพิ่มงานใหม่</button></div>
@@ -15,16 +15,44 @@
     window.fbGet = function (path, callback) { callback(null, null); };
     window.lpORD = function () { return []; };
     window.lvGetDay = function () { return []; };
-    window.orderContentRows = function () {
-      return [{
+    const contentRows = [{
         name: 'โปรโมชัน Valore Clinic',
         brand: 'Liv CARE',
         hook: 'สวยครบทุกโปรในที่เดียว',
         link: 'https://example.com/raw',
         script: 'https://example.com/script'
+      }, {
+        name: 'โปรโมชัน Valore Clinic',
+        brand: 'Liv CARE',
+        hook: 'โปรแรงเฉพาะเดือนนี้',
+        link: 'https://example.com/raw-version-2',
+        script: 'https://example.com/script-version-2'
+      }, {
+        name: 'รีวิวคลินิกจากลูกค้าจริง',
+        brand: 'Liv CARE',
+        hook: 'เสียงจริงจากลูกค้า',
+        link: 'https://example.com/review-raw',
+        script: 'https://example.com/review-script'
+      }, {
+        name: 'โปรโมชัน So Pink',
+        brand: 'So Pink',
+        hook: 'ผิวสวยมั่นใจ',
+        link: 'https://example.com/sopink-raw',
+        script: 'https://example.com/sopink-script'
       }];
+    window.orderContentRows = function () { return contentRows.slice(); };
+    window.refreshOrderContentFromCloud = function () { return Promise.resolve(contentRows.slice()); };
+    window._rbProductAssetLinks = {
+      'Liv CARE': {
+        footage: ['https://example.com/liv-footage'],
+        review: ['https://example.com/liv-review']
+      },
+      'So Pink': {
+        footage: ['https://example.com/sopink-footage'],
+        review: ['https://example.com/sopink-review']
+      }
     };
   </script>
-  <script src="../../snippets/order-planner-v1.js?v=fix295"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix297"></script>
 </body>
 </html>
