@@ -4,8 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>List Facebook swap smoke test</title>
-  <link rel="stylesheet" href="../../snippets/list-facebook-editor.css?v=270">
-  <link rel="stylesheet" href="../../snippets/list-facebook-followup.css?v=278">
+  <link rel="stylesheet" href="../../snippets/list-facebook-editor.css?v=296">
+  <link rel="stylesheet" href="../../snippets/list-facebook-followup.css?v=296">
+  <link rel="stylesheet" href="../../snippets/facebook-status-catalog-v1.css?v=225">
   <style>
     :root{--surface-card:#fff;--surface-page:#f0fbf4;--surface-card-border:#b7dcc5;--text-heading:#173f31;--text-body:#33443d;--text-muted2:#728078}
     body{margin:0;padding:24px;background:#eefaf2;font-family:Arial,"Noto Sans Thai",sans-serif;color:#173f31}
@@ -15,22 +16,32 @@
   <main id="lfb-root"></main>
   <script>
     window._rbUser={name:'View',role:'sup'};
+    window.__writes=[];
+    window.__fixtureRows=[
+      {sourceRow:2,type:'บัญชีเล็ก',name:'Ford Mustang',emp:'JAM',prod:'',st:'รหัส 2FA ผิด',fbid:'100001',passFb:'facebook-pass',email:'ford@example.com',emailPass:'email-pass',twofa:'AAAA BBBB CCCC',limit:'500',bal:'1200',note:'ทดสอบสถานะ',follow:'ติดตาม',upd:'20/08/2569'},
+      {sourceRow:3,type:'บัญชีใหญ่',name:'Test Account B',emp:'MOS',prod:'Liv CARE',st:'ใช้งาน',fbid:'100002',passFb:'facebook-pass-2',email:'test-b@example.com',emailPass:'email-pass-2',twofa:'DDDD EEEE FFFF',limit:'800',bal:'2500',note:'บัญชีปกติ',follow:'',upd:'24/08/2569'}
+    ];
+    localStorage.setItem('rb_listfacebook_base_v1',JSON.stringify(window.__fixtureRows));
+    localStorage.setItem('rb_listfacebook_edits_v1','{}');
+    localStorage.setItem('rb_listfacebook_manual_v1','[]');
     window.fbGet=function(path,callback){callback(null,{});};
-    window.fbSet=function(){return Promise.resolve(true);};
+    window.fbSet=function(path,value){window.__writes.push({path:path,value:JSON.parse(JSON.stringify(value))});return Promise.resolve(true);};
     window.rbApplyHeavyRefreshPermissions=function(){};
     window.rbHeavyRefreshStatus=function(){};
     window.rbCanRefreshHeavy=function(){return true;};
   </script>
-  <script src="../../snippets/list-facebook-editor.js?v=270"></script>
-  <script src="../../snippets/list-facebook-followup.js?v=278"></script>
+  <script src="../../snippets/facebook-status-catalog-v1.js?v=225"></script>
+  <script src="../../snippets/list-facebook-editor.js?v=296"></script>
+  <script>
+    window.__fordKey=window._lfbEditorTest.rowKey(window.__fixtureRows[0]);
+    var followups={};
+    followups[window.__fordKey]={key:window.__fordKey,stage:'new',owner:'View',nextDate:'2026-09-04',updatedAt:100,history:[{action:'เปลี่ยนเป็น “ยังไม่เริ่ม”',by:'View',at:100}]};
+    localStorage.setItem('rb_listfacebook_followups_v1',JSON.stringify(followups));
+  </script>
+  <script src="../../snippets/list-facebook-followup.js?v=296"></script>
   <script>
     window.addEventListener('load',function(){
       window._lfbEditorActivate();
-      window._listfbData=[
-        {_key:'account-1',type:'บัญชีเล็ก',name:'Test Account A',emp:'TER',prod:'WOLF+',st:'รหัส 2FA ผิด',fbid:'100001',passFb:'facebook-pass',email:'test-a@example.com',emailPass:'email-pass',twofa:'AAAA BBBB CCCC',limit:'500',bal:'1200',note:'ทดสอบแบบฟอร์ม',follow:'ติดตาม',upd:'24/08/2569'},
-        {_key:'account-2',type:'บัญชีใหญ่',name:'Test Account B',emp:'MOS',prod:'Liv CARE',st:'ใช้งาน',fbid:'100002',passFb:'facebook-pass-2',email:'test-b@example.com',emailPass:'email-pass-2',twofa:'DDDD EEEE FFFF',limit:'800',bal:'2500',note:'บัญชีปกติ',follow:'',upd:'24/08/2569'}
-      ];
-      window._lfbRender();
     });
   </script>
 </body>

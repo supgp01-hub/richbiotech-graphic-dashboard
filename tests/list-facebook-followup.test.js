@@ -19,6 +19,7 @@ assert.equal(api.isMarked({ follow: '' }), false);
 assert.equal(api.needsSystemFollowup({ st: 'ใช้งาน' }), false);
 assert.equal(api.needsSystemFollowup({ st: 'ว่าง' }), false);
 assert.equal(api.needsSystemFollowup({ st: 'ปิดใช้งาน' }), false, 'intentional team closure does not require account repair');
+assert.equal(api.needsSystemFollowup({ st: 'เปลี่ยนเฟสใหม่แล้ว' }), false, 'a replaced Facebook account must leave the repair queue');
 assert.equal(api.needsSystemFollowup({ st: 'เราปิดใช้งานบัญชีของคุณแล้ว' }), true, 'Facebook closure must be followed');
 assert.equal(api.needsSystemFollowup({ st: 'ติด WHATAPP' }), true);
 
@@ -31,6 +32,9 @@ const counts = api.stageCounts(rows);
 assert.equal(counts.marked, 1);
 assert.equal(counts.new, 1);
 assert.equal(counts.recommended, 1);
+assert.equal(api.rowMeta({ _key: 'safe-marked', follow: 'ติดตาม', st: 'เปลี่ยนเฟสใหม่แล้ว' }).stage, 'none', 'safe Facebook statuses must override an old tracking mark');
+assert.equal(api.rowMeta({ _key: 'safe-marked', follow: 'ติดตาม', st: 'เปลี่ยนเฟสใหม่แล้ว' }).marked, false, 'safe Facebook statuses must not remain in the marked tracking count');
+assert.equal(api.normalizeStage('waiting'), 'working', 'legacy waiting stages must migrate to working');
 
 global._lfbFilter = { q: 'account outside current filters', followView: 'stage', stage: 'new', fE: 'MOS' };
 const searchRows = [
@@ -47,6 +51,8 @@ assert.equal(api.followupTiming({ stage: 'working', updatedAt: baseNow, nextDate
 assert.equal(api.followupTiming({ stage: 'working', updatedAt: baseNow, nextDate: '2026-08-30' }, baseNow + 6 * day).level, 6, 'severity must increase as the deadline approaches');
 assert.equal(api.followupTiming({ stage: 'working', updatedAt: baseNow, nextDate: '2026-08-30' }, baseNow + 7 * day).level, 7, 'the seventh day must be the red deadline state');
 assert.equal(api.followupTiming({ stage: 'done', updatedAt: baseNow }, baseNow + 7 * day).nextDate, '', 'completed work must not create another follow-up deadline');
+assert.equal(api.followupTiming({ stage: 'none', updatedAt: baseNow, nextDate: '2026-08-30' }, baseNow).nextDate, '', 'non-tracked statuses must clear a stale follow-up date');
+assert.equal(api.mergeFollowupMaps({ a: { updatedAt: 200, stage: 'none' } }, { a: { updatedAt: 100, stage: 'new' } }).a.stage, 'none', 'stale cloud tracking data must not overwrite a newer local closure');
 
 assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follow-up data must use a separate cloud path');
 assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
@@ -69,5 +75,7 @@ assert.ok(source.includes("defaultListView();hybridInit()"), 'returning to List 
 assert.ok(source.includes('aria-pressed="'), 'summary and workflow buttons must expose their selected state');
 assert.ok(source.includes('<em>กำลังดู</em>'), 'the selected summary must visibly identify the current view');
 assert.ok(source.includes("query.value=String(filter.q||'')"), 'returning to List Facebook must visibly clear a stale search query');
+assert.equal(source.includes("['waiting','รอ Facebook']"), false, 'รอ Facebook must be removed from every tracking-stage selector and summary');
+assert.ok(source.includes('window._lfbReconcileFollowupStatus=reconcileFollowupStatus'), 'Facebook status saves must reconcile the shared tracking record');
 
 console.log('list-facebook-followup: all tests passed');

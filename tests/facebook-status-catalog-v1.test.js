@@ -13,12 +13,12 @@ assert.ok(api.catalog.length>=30,'catalog must contain every source and guide st
 assert.strictEqual(new Set(api.values()).size,api.values().length,'status values must not be duplicated');
 assert.ok(source.includes("selected!=='ALL'"),'the all-status filter must not create a duplicate ALL option');
 ['ติด WHATAPP','รหัส 2FA ผิด','อัพโหลดเอกสารประจำตัว','Facebook โดนยืนยันสแกนหน้า','เข้าอีเมลไม่ได้','ส่งคำขอผ่านองกรณ์'].forEach(value=>assert.strictEqual(api.needsFollowup(value),true,value+' must enter the follow-up queue'));
-['ใช้งาน','ว่าง','เราปิดใช้งานบัญชีของคุณแล้ว','บัญชีโฆษณาถูกจำกัดแต่บัญชี FACEBOOK ยังใช้งานได้','Manus','ห้ามใช้'].forEach(value=>assert.strictEqual(api.needsFollowup(value),false,value+' must not create follow-up work'));
+['ใช้งาน','ว่าง','เราปิดใช้งานบัญชีของคุณแล้ว','บัญชีโฆษณาถูกจำกัดแต่บัญชี FACEBOOK ยังใช้งานได้','Manus','ห้ามใช้','เปลี่ยนเฟสใหม่แล้ว'].forEach(value=>assert.strictEqual(api.needsFollowup(value),false,value+' must not create follow-up work'));
 assert.ok(editor.includes('rbSetFacebookStatusOptions(statusSelect,row.st,false)'),'account editor must use the complete grouped status dropdown');
 assert.ok(editor.includes('rbUpdateFacebookStatusHelp'),'account editor must explain whether the selected status needs follow-up');
 assert.ok(followup.includes('rbFacebookStatusNeedsFollowup'),'follow-up recommendations must use the shared catalog');
 assert.ok(followup.includes('id="lfb-hybrid-status"'),'workspace must include a complete status filter dropdown');
 assert.ok(followup.includes('คู่มือสถานะ'),'workspace must include the status guide button');
 assert.ok(index.includes('facebook-status-catalog-v1.js?v=225')&&index.includes('facebook-status-catalog-v1.css?v=225'),'deployed page must load the cache-busted catalog assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix295-planner-new-order-parity">'),'deployed page must expose the current build');
+assert.ok(index.includes('<meta name="rb-build" content="fix296-facebook-status-sync">'),'deployed page must expose the current build');
 console.log('facebook-status-catalog-v1: all tests passed');

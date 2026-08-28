@@ -22,7 +22,7 @@
 #lfb-root .lfb-follow-stat.is-danger strong{color:#dc3545}
 #lfb-root .lfb-follow-stat.is-warning strong{color:#d88700}
 #lfb-root .lfb-follow-stat.is-success strong{color:#23845f}
-#lfb-root .lfb-follow-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 14px 13px}
+#lfb-root .lfb-follow-stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 14px 13px}
 #lfb-root .lfb-follow-stage{appearance:none;padding:10px;border:1px solid var(--surface-card-border);border-radius:10px;background:var(--surface-card);color:var(--text-heading);text-align:left;cursor:pointer}
 #lfb-root .lfb-follow-stage.is-active{border-color:#2d8b68;background:color-mix(in srgb,#dff3e6 78%,var(--surface-card));box-shadow:inset 4px 0 0 #2d8b68,0 4px 12px rgba(45,139,104,.12)}
 #lfb-root .lfb-follow-stage>span{display:flex;align-items:center;justify-content:space-between;gap:8px}

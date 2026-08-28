@@ -4,7 +4,7 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix295-planner-new-order-parity">'),'build marker must expose fix295');
+assert.ok(index.includes('<meta name="rb-build" content="fix296-facebook-status-sync">'),'build marker must expose fix296');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix295'),'planner stylesheet must be loaded');
 assert.ok(index.includes('snippets/order-planner-v1.js?v=fix295'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
