@@ -4,9 +4,9 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix294-planner-single-entry">'),'build marker must expose fix294');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix294'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix294'),'planner script must be loaded');
+assert.ok(index.includes('<meta name="rb-build" content="fix295-planner-new-order-parity">'),'build marker must expose fix295');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix295'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix295'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -26,4 +26,11 @@ assert.ok(js.includes("brief:d.brief||''")&&js.includes("sampleLink:d.sampleLink
 assert.ok(js.includes("brief:d.brief||''")&&js.includes("hook:d.hook||''")&&js.includes("hook2:d.hook2||''")&&js.includes("note:d.note||''"),'automatic orders must inherit all one-time detail fields');
 assert.ok(js.includes('กรอกครั้งเดียว')&&js.includes('ตรวจออดิต')&&js.includes('ส่งงานภาพ'),'the planner must explain the one-entry synchronization flow');
 assert.ok(js.includes('function queueAutosave(')&&js.includes('บันทึกร่างอัตโนมัติแล้ว'),'the multi-order form must autosave while the Supervisor works');
+assert.ok(js.includes('function renderDraftsV3(')&&js.includes('ฟอร์มด้านขวาใช้ช่องและพฤติกรรมเดียวกับ “เพิ่มงานใหม่”'),'the right-side editor must expose the Add New parity form');
+assert.ok(js.includes("workStatus:d.workStatus||'pending'")&&js.includes("status:d.workStatus||'pending'"),'the planner must retain the selected Add New work status');
+assert.ok(js.includes('BRIEF_PRESETS')&&js.includes('data-action="toggle-presets"')&&js.includes('data-action="apply-preset"'),'the Add New brief preset workflow must be available');
+assert.ok(js.includes('data-upload="brief"')&&js.includes('function handlePlannerFileChange('),'sample-image upload must work from the planner form');
+assert.ok(js.includes('function plannerContentRows(')&&js.includes('function applyPlannerContent('),'Content Tracker suggestions must populate the same Hook and reference-link fields');
+assert.ok(js.includes('assignmentDate=d.deadline||d.scheduledDate')&&js.includes('leaveCodes(assignmentDate)'),'automatic assignment must use the Add New Deadline for leave checks');
+assert.ok(js.includes('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน')&&js.includes('ลิงก์ไฟล์ดิบ (Creative)')&&js.includes('ลิงก์สคริปต์'),'the complete Add New reference-link set must be present');
 console.log('order-planner-v1: all tests passed');

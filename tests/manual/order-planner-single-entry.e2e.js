@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 const assert = require('assert');
 
 (async () => {
-  const targetUrl = process.argv[2] || 'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?v=fix294';
+  const targetUrl = process.argv[2] || 'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?v=fix295';
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const page = await browser.newPage();
   page.setDefaultTimeout(20000);
@@ -27,13 +27,19 @@ const assert = require('assert');
   assert.strictEqual(await page.locator('.rbp-draft-list').count(), 1, 'planner must show the draft list on the left');
   assert.strictEqual(await page.locator('.rbp-detail-editor').count(), 1, 'planner must show the single-entry form on the right');
   const editor = page.locator('.rbp-detail-editor');
+  assert.strictEqual(await editor.locator('[data-field="workStatus"]').inputValue(), 'pending', 'the Add New status must default to pending');
+  assert.strictEqual(await editor.locator('[data-upload="brief"]').count(), 1, 'the Add New sample-image upload must be present');
+  assert.strictEqual(await editor.locator('.rbp-parity-guard').count(), 1, 'the Add New leave guard must be present');
+  await editor.locator('[data-field="product"]').selectOption('Liv CARE');
   await editor.locator('[data-field="name"]').fill('โปรโมชัน Valore Clinic');
-  await editor.locator('[data-field="product"]').fill('Valore');
+  await editor.locator('[data-field="name"]').press('Tab');
+  assert.strictEqual(await editor.locator('[data-field="hook"]').inputValue(), 'สวยครบทุกโปรในที่เดียว', 'matching Content Tracker data must fill Hook');
+  assert.strictEqual(await editor.locator('[data-field="rawLink"]').inputValue(), 'https://example.com/raw', 'matching Content Tracker data must fill the raw link');
+  assert.strictEqual(await editor.locator('[data-field="sheetLink"]').inputValue(), 'https://example.com/script', 'matching Content Tracker data must fill the script link');
+  await editor.locator('[data-action="toggle-presets"]').click();
+  await editor.locator('[data-action="apply-preset"]').first().click();
   await editor.locator('[data-field="brief"]').fill('ทำภาพโปรโมชัน 5 รูป ขนาด 1:1 และ 9:16');
-  await editor.locator('[data-field="hook"]').fill('สวยครบทุกโปรในที่เดียว');
   await editor.locator('[data-field="sampleLink"]').fill('https://example.com/brief');
-  await editor.locator('[data-field="rawLink"]').fill('https://example.com/raw');
-  await editor.locator('[data-field="sheetLink"]').fill('https://example.com/script');
   await editor.locator('[data-field="note"]').fill('ใช้โทนสีเดิมของแบรนด์');
   assert.match(await page.locator('.rbp-draft-item button strong').first().innerText(), /โปรโมชัน Valore Clinic/, 'the left list must update while typing in the right form');
   await page.getByRole('button', { name: '+ เพิ่มงาน', exact: true }).click();
@@ -53,7 +59,7 @@ const assert = require('assert');
   assert.match(scheduled.orderId, /^GR\d+$/, 'a scheduled draft must reserve one visible GR number');
   assert.strictEqual(scheduled.brief, 'ทำภาพโปรโมชัน 5 รูป ขนาด 1:1 และ 9:16', 'scheduling must retain the complete brief');
   const built = await page.evaluate(() => window._rbOrderPlannerTest.buildOrder({
-    id: 'draft_sync_test', orderId: 'GR990', name: 'งานซิงค์', product: 'Valore', type: 'รูปภาพ', assignee: 'DOM',
+    id: 'draft_sync_test', orderId: 'GR990', name: 'งานซิงค์', product: 'Liv CARE', type: 'รูปภาพ', assignee: 'DOM', workStatus: 'in_progress',
     deadline: '2026-09-03', scheduledDate: '2026-09-01', dispatchTime: '08:30', brief: 'บรีฟเดียวใช้ทุกหน้า',
     hook: 'HOOK หลัก', hook2: 'HOOK สำรอง', sampleLink: 'https://example.com/sample', rawLink: 'https://example.com/raw',
     sheetLink: 'https://example.com/script', footageLink: 'https://example.com/footage', reviewLink: 'https://example.com/review', note: 'หมายเหตุ'
@@ -66,6 +72,7 @@ const assert = require('assert');
   assert.strictEqual(built.footageLink, 'https://example.com/footage');
   assert.strictEqual(built.reviewLink, 'https://example.com/review');
   assert.strictEqual(built.note, 'หมายเหตุ');
+  assert.strictEqual(built.status, 'in_progress');
   assert.deepStrictEqual(browserErrors, [], 'planner must not produce browser errors');
   const workerPage = await browser.newPage();
   await workerPage.goto(targetUrl + '&role=graphic', { waitUntil: 'domcontentloaded' });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix294">
+  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix295">
 </head>
 <body>
   <div><button id="ord-add-btn" type="button">+ เพิ่มงานใหม่</button></div>
@@ -15,7 +15,16 @@
     window.fbGet = function (path, callback) { callback(null, null); };
     window.lpORD = function () { return []; };
     window.lvGetDay = function () { return []; };
+    window.orderContentRows = function () {
+      return [{
+        name: 'โปรโมชัน Valore Clinic',
+        brand: 'Liv CARE',
+        hook: 'สวยครบทุกโปรในที่เดียว',
+        link: 'https://example.com/raw',
+        script: 'https://example.com/script'
+      }];
+    };
   </script>
-  <script src="../../snippets/order-planner-v1.js?v=fix294"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix295"></script>
 </body>
 </html>
