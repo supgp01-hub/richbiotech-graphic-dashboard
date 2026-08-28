@@ -2,6 +2,7 @@ const fs=require('fs');
 const assert=require('assert');
 const source=fs.readFileSync('index.html','utf8');
 const theme=fs.readFileSync('snippets/order-modal-graphite-teal-v1.css','utf8');
+const allUsers=fs.readFileSync('snippets/order-detail-all-users-v1.css','utf8');
 
 assert(source.includes('snippets/order-modal-graphite-teal-v1.css'), 'Graphite Teal stylesheet is not loaded');
 assert(theme.includes('html:not([data-theme=dark]) #rb-order-modal .rb-om-header{background:#22333c!important}'), 'Graphite Teal modal theme is missing');
@@ -32,5 +33,9 @@ assert(source.includes("var workIds=['om-p1fix-hdr','om-p1fix-gallery','om-p1fix
 assert(source.includes("<small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small>"), 'team workspace subtitle must match the visible controls');
 assert(source.includes(':not(#rb-revision-team-workspace)'), 'team submit-link workspace must remain editable');
 assert(source.includes("teamWorkspace.id='rb-revision-team-workspace'"), 'team edit controls must stay grouped in one workspace');
+assert(source.includes("addMeta('บรีฟงาน / สไตล์ที่ต้องการ',order.brief,true,true)"), 'saved brief must use the multiline detail presentation');
+assert(allUsers.includes('.rb-revision-meta-item.is-multiline b'), 'multiline detail presentation is missing');
+assert(allUsers.includes('white-space: pre-wrap'), 'multiline detail text must preserve the author\'s line breaks');
+assert(allUsers.includes('overflow-wrap: anywhere'), 'long URLs inside multiline detail text must wrap safely');
 
 console.log('order detail Graphite Teal tests passed');
