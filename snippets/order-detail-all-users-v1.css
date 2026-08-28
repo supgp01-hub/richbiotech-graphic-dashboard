@@ -34,6 +34,13 @@
 html[data-theme="dark"] #rb-order-modal #rb-revision-view-toolbar { border-color: #2c7155; background: #10382b; }
 html[data-theme="dark"] #rb-order-modal .rb-revision-view-toolbar-copy strong { color: #effff7; }
 html[data-theme="dark"] #rb-order-modal .rb-revision-view-toolbar-copy small { color: #a8d6c1; }
+#rb-order-modal .rb-revision-meta-item b {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--text-heading);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
 #rb-order-modal .rb-revision-meta-item.is-multiline b {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
