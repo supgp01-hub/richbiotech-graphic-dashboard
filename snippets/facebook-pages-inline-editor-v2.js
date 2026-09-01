@@ -60,17 +60,67 @@ function recordForRow(row){var name=row.getAttribute('data-name')||'',rows=windo
 function clearEditable(cell){if(!cell)return;cell.contentEditable='false';cell.removeAttribute('contenteditable');cell.removeAttribute('title');cell.style.cursor='';}
 function makeButton(className,label){var button=document.createElement('button');button.type='button';button.className=className;button.textContent=label;return button;}
 
+function makeFilterField(label,sourceSelector,attribute){
+  var field=document.createElement('label');field.className='rb-fbp-filter-field';
+  var caption=document.createElement('span');caption.textContent=label;
+  var select=document.createElement('select');select.className='rb-fbp-filter-select';select.setAttribute('aria-label',label);
+  [].forEach.call(document.querySelectorAll(sourceSelector),function(button){
+    var option=document.createElement('option'),value=button.getAttribute('data-'+attribute)||'';
+    option.value=value;option.textContent=button.textContent.trim();select.appendChild(option);
+  });
+  select.addEventListener('change',function(){var target=document.querySelector(sourceSelector+'[data-'+attribute+'="'+String(select.value).replace(/"/g,'\\"')+'"]');if(target)target.click();});
+  field.appendChild(caption);field.appendChild(select);return field;
+}
+
+function professionalizeRoot(root){
+  if(!root)return;
+  root.classList.add('rb-fbp-professional');
+  var summary=root.firstElementChild,search=root.querySelector('#fbl-q');
+  if(summary)summary.classList.add('rb-fbp-overview');
+  var grids=summary?summary.querySelectorAll('.rb-fbp-summary-grid'):[];
+  if(grids[0])grids[0].classList.add('rb-fbp-kpi-grid');
+  if(grids[1])grids[1].classList.add('rb-fbp-workflow-grid');
+  var statusSource=search?search.nextElementSibling:null,ownerSource=statusSource?statusSource.nextElementSibling:null;
+  var productSource=summary?summary.nextElementSibling:null;
+  if(statusSource)statusSource.classList.add('rb-fbp-filter-source');
+  if(ownerSource)ownerSource.classList.add('rb-fbp-filter-source');
+  if(productSource)productSource.classList.add('rb-fbp-filter-source');
+  var filter=document.createElement('section');filter.className='rb-fbp-filter-panel';filter.setAttribute('aria-label','ค้นหาและตัวกรอง Facebook Pages');
+  var searchField=document.createElement('label');searchField.className='rb-fbp-filter-field rb-fbp-search-field';
+  var searchLabel=document.createElement('span');searchLabel.textContent='ค้นหาเพจ';searchField.appendChild(searchLabel);
+  if(search){search.placeholder='ชื่อเพจ หรือ Facebook ID';searchField.appendChild(search);}
+  filter.appendChild(searchField);
+  filter.appendChild(makeFilterField('สถานะเพจ','.fblsb','s'));
+  filter.appendChild(makeFilterField('พนักงาน','.fblob','o'));
+  filter.appendChild(makeFilterField('สินค้า','.fblpb','p'));
+  var reset=makeButton('rb-fbp-filter-reset','ล้างตัวกรอง');reset.addEventListener('click',function(){
+    if(search){search.value='';search.dispatchEvent(new Event('input',{bubbles:true}));}
+    ['.fblsb[data-s="ALL"]','.fblob[data-o="ALL"]','.fblpb[data-p="ALL"]'].forEach(function(selector){var button=root.querySelector(selector);if(button)button.click();});
+    [].forEach.call(filter.querySelectorAll('select'),function(select){select.selectedIndex=0;});
+  });filter.appendChild(reset);
+  var tableShell=root.querySelector('table');tableShell=tableShell&&tableShell.parentElement;
+  if(tableShell){tableShell.classList.add('rb-fbp-table-shell');root.insertBefore(filter,tableShell);}
+  var table=root.querySelector('table');
+  if(table){
+    table.classList.add('rb-fbp-table');
+    var oldGroup=table.querySelector('colgroup');if(oldGroup)oldGroup.remove();
+    var group=document.createElement('colgroup');[36,13,14,12,17,8].forEach(function(width){var col=document.createElement('col');col.style.width=width+'%';group.appendChild(col);});
+    table.insertBefore(group,table.firstChild);
+    var heads=table.querySelectorAll('thead th');if(heads[3])heads[3].textContent='พนักงาน';if(heads[5])heads[5].textContent='จัดการ';
+  }
+}
+
 function decorateRow(row,record){
   if(!row||!record)return;
   var cells=row.querySelectorAll('td');if(cells.length<6)return;
   row.setAttribute('data-fbp-key',rowKey(record));
   row.classList.remove('rb-fbp-row-editing');
   [0,1,2,3].forEach(function(index){clearEditable(cells[index]);});
-  cells[0].innerHTML='<span class="rb-fbp-cell-main">'+esc(record.name)+'</span>'+(record.manual?'<span class="rb-fbp-manual">เพิ่มเอง</span>':'');
+  cells[0].innerHTML='<span class="rb-fbp-cell-main">'+esc(record.name)+'</span>'+(record.manual?'<span class="rb-fbp-manual">เพิ่มเอง</span>':'')+(record.fbid?'<span class="rb-fbp-cell-meta">Facebook ID '+esc(record.fbid)+'</span>':'');
   cells[1].textContent=record.prod||'—';
   var statusClass=record.st==='ใช้งาน'?' is-active':record.st==='ว่าง'?' is-idle':' is-closed';
   cells[2].innerHTML='<span class="rb-fbp-page-status'+statusClass+'">'+esc(record.st||'—')+'</span>';
-  cells[3].textContent=record.own||'—';
+  cells[3].innerHTML='<span class="rb-fbp-employee">'+esc(record.own||'—')+'</span>';
   cells[4].innerHTML=notificationMarkup(record.name);
   var deleteButton=cells[5].querySelector('[data-fpid]')||row._fbpDeleteButton||null;if(deleteButton)row._fbpDeleteButton=deleteButton;
   cells[5].innerHTML='';cells[5].classList.add('rb-fbp-actions-cell');
@@ -139,6 +189,7 @@ function installRenderer(){
     window._fpOwnersCache=unique(effective.map(function(row){return row.own;}));
     window._fpStatusCache=unique(effective.map(function(row){return row.st;}));
     originalRender(root,effective);
+    professionalizeRoot(root);
     setTimeout(function(){decorateHeader();enhanceRows(root);},0);
   };
   wrapped._fbpInlineEditorV2=true;
