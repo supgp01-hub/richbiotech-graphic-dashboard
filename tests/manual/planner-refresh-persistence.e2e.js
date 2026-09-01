@@ -15,9 +15,10 @@ const assert=require('assert');
   assert.match(await page.locator('#rbp-save-state').innerText(),/รอซิงก์/,'offline autosave must not claim server success');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#ord-planner-btn').click();
-  await page.waitForTimeout(100);
+  await page.waitForFunction(()=>document.querySelectorAll('[data-action="select-draft"]').length>=2);
   const savedItem=page.locator('[data-action="select-draft"]',{hasText:'งานใหม่ต้องไม่เด้งกลับ'});
   assert.strictEqual(await savedItem.count(),1,'the queued local edit must remain available after refresh');
+  assert.strictEqual(await page.locator('[data-action="select-draft"]',{hasText:'ข้อมูลเก่าจากออนไลน์'}).count(),1,'a queued child save must not hide other jobs loaded from the online collection');
   await savedItem.click();
   assert.strictEqual(await page.locator('.rbp-detail-editor [data-field="name"]').inputValue(),'งานใหม่ต้องไม่เด้งกลับ','stale cloud data must not replace the queued local edit after refresh');
 

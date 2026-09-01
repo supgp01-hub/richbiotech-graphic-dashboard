@@ -3,7 +3,7 @@
 if(root._rbPersistenceReliabilityV3Loaded)return;
 root._rbPersistenceReliabilityV3Loaded=true;
 
-var VERSION='3.0.0';
+var VERSION='3.1.0';
 var QUEUE_KEY='rb_generic_write_queue_v3';
 var RETRY_MS=5000;
 var originalSet=root.fbSet;
@@ -27,6 +27,28 @@ function writeQueue(queue){
     try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));memoryQueue=[];return true;}
     catch(retryError){memoryQueue=queue.slice();return false;}
   }
+}
+function plannerDraftEntries(value,entry){
+  var rows=[];
+  if(Array.isArray(value))rows=value;
+  else if(value&&typeof value==='object')Object.keys(value).forEach(function(key){var row=value[key];if(row&&typeof row==='object'){if(!row.id)row=Object.assign({id:key},row);rows.push(row);}});
+  return rows.filter(function(row){return row&&row.id;}).map(function(row,index){
+    var key=String(row.id).replace(/[^a-zA-Z0-9_-]/g,'_');
+    return{token:(entry&&entry.token||'sync')+'_draft_'+index,path:'/order_planner/drafts/'+key,data:clone(row),ts:Number(entry&&entry.ts||Date.now())+index};
+  });
+}
+function migrateUnsafeCollectionWrites(){
+  var queue=readQueue(),next=[],changed=false;
+  queue.forEach(function(entry){
+    if(!entry||pathOf(entry.path)!=='/order_planner/drafts'){next.push(entry);return;}
+    changed=true;
+    plannerDraftEntries(entry.data,entry).forEach(function(child){
+      for(var i=next.length-1;i>=0;i--)if(pathOf(next[i]&&next[i].path)===pathOf(child.path))next.splice(i,1);
+      next.push(child);
+    });
+  });
+  if(changed)writeQueue(next);
+  return changed;
 }
 function queueWrite(path,data){
   path=pathOf(path);
@@ -101,9 +123,10 @@ root.fbGet=function reliableFbGet(path,callback){
     callback(error&&pending?null:error,overlay(path,data));
   });
 };
-root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:flush,overlay:overlay,queue:readQueue,related:relatedPending};
+root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:flush,overlay:overlay,queue:readQueue,related:relatedPending,migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites};
 root.addEventListener&&root.addEventListener('online',flush);
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===QUEUE_KEY){dispatchState();flush();}});
+migrateUnsafeCollectionWrites();
 setTimeout(flush,600);
 document.documentElement.setAttribute('data-persistence-reliability',VERSION);
 })(window);

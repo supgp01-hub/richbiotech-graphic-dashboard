@@ -44,6 +44,6 @@ assert.ok(css.includes('.rb-fbp-search-field>.rb-icon-input-wrap.rb-search-wide'
 assert.ok(css.includes('display:table-cell!important'),'the action column must retain table-cell layout so row divider lines align');
 assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix316'));
 assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix308'));
-assert.ok(index.includes('<meta name="rb-build" content="fix316">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix317">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');

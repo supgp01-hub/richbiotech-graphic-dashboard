@@ -32,8 +32,8 @@ vm.createContext(context);
 vm.runInContext(source,context);
 
 (async function(){
-  assert.strictEqual(window.rbPersistence.version,'3.0.0');
-  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.0.0');
+  assert.strictEqual(window.rbPersistence.version,'3.1.0');
+  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.1.0');
 
   const first=await window.fbSet('/module/item',{value:'ใหม่',updatedAt:20});
   assert.strictEqual(first,false,'a failed server write must not be reported as synced');
@@ -61,6 +61,12 @@ vm.runInContext(source,context);
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'queued writes must clear after a confirmed retry');
   assert.ok(writes.length>=4,'both initial attempts and retries must reach the server adapter');
 
+  store.set('rb_generic_write_queue_v3',JSON.stringify([{token:'legacy',path:'/order_planner/drafts',data:{draft_a:{id:'draft_a',name:'A'},draft_b:{id:'draft_b',name:'B'}},ts:10}]));
+  assert.strictEqual(window.rbPersistence.migrateUnsafeCollectionWrites(),true,'legacy whole-planner writes must be migrated before retry');
+  const migrated=window.rbPersistence.queue();
+  assert.deepStrictEqual(migrated.map(x=>x.path).sort(),['/order_planner/drafts/draft_a','/order_planner/drafts/draft_b'],'legacy writes must become independent child writes');
+  store.set('rb_generic_write_queue_v3','[]');
+
   blockNext=true;
   const rapidFirst=window.fbSet('/rapid',{value:1});
   await Promise.resolve();
@@ -74,6 +80,6 @@ vm.runInContext(source,context);
   await new Promise(resolve=>setImmediate(resolve));
   assert.strictEqual(writes[writes.length-1].data.value,2,'the newest same-path value must be the final server write');
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'the serialized same-path queue must fully drain');
-  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=304')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
+  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix317')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
   console.log('persistence-reliability-v3: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

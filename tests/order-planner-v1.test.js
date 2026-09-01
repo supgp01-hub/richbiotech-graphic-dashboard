@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix316">'),'build marker must expose fix316');
+assert.ok(index.includes('<meta name="rb-build" content="fix317">'),'build marker must expose fix317');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix316'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix317'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -29,7 +29,7 @@ assert.ok(js.includes("brief:d.brief||''")&&js.includes("sampleLink:d.sampleLink
 assert.ok(js.includes("brief:d.brief||''")&&js.includes("hook:d.hook||''")&&js.includes("hook2:d.hook2||''")&&js.includes("note:d.note||''"),'automatic orders must inherit all one-time detail fields');
 assert.ok(js.includes('กรอกครั้งเดียว')&&js.includes('ตรวจออดิต')&&js.includes('ส่งงานภาพ'),'the planner must explain the one-entry synchronization flow');
 assert.ok(js.includes('function queueAutosave(')&&js.includes('บันทึกในเครื่องแล้ว · รอซิงก์')&&js.includes('บันทึกและซิงก์แล้ว'),'autosave must distinguish pending local data from confirmed cloud sync');
-assert.ok(js.includes('window.rbPersistence.related(CLOUD)'),'pending planner writes must block stale cloud data from replacing local drafts');
+assert.ok(!js.includes('window.rbPersistence.related(CLOUD)'),'a pending child write must not hide other planner jobs from the online collection');
 assert.ok(js.includes('function renderDraftsV3(')&&js.includes('ฟอร์มด้านขวาใช้ช่องและพฤติกรรมเดียวกับ “เพิ่มงานใหม่”'),'the right-side editor must expose the Add New parity form');
 assert.ok(js.includes("workStatus:d.workStatus||'pending'")&&js.includes("status:d.workStatus||'pending'"),'the planner must retain the selected Add New work status');
 assert.ok(js.includes('BRIEF_PRESETS')&&js.includes('data-action="toggle-presets"')&&js.includes('data-action="apply-preset"'),'the Add New brief preset workflow must be available');
@@ -45,6 +45,7 @@ assert.ok(js.includes('data-status-filter="draft"')&&js.includes('data-status-fi
 assert.ok(js.includes('data-planner-date-filter="1"')&&js.includes('data-action="select-all-visible"'),'the left list must include a Deadline filter and select-all-visible control');
 assert.ok(css.includes('.rbp-list-filter-row')&&css.includes('.rbp-select-visible'),'date and select-all controls must have planner styling');
 assert.ok(js.includes('4. งานที่สั่งแล้ว')&&js.includes('function renderHistory('),'the planner must include a dispatched-work history view');
+assert.ok(js.includes("historyButton.textContent='4. งานที่สั่งแล้ว'+(historyCount?' ('+historyCount+')':'')"),'history tab must show how many dispatched jobs are still stored');
 assert.ok(js.includes('data-action="open-history-delete"')&&js.includes('data-history-delete-check')&&js.includes('data-action="confirm-history-delete"'),'deleting a dispatched job must require an explicit checked confirmation');
 assert.ok(js.includes("className='rbp-history-delete rbp-draft-delete'")&&js.includes("setAttribute('data-action','delete')")&&js.includes('ลบรายการนี้'),'tab 1 must expose a guarded delete action for the selected draft');
 assert.ok(js.includes("deleteJSON('/orders/'+remoteKey)")&&js.includes('function removeDispatchedDraft('),'confirmed deletion must remove the exact planner order and its history draft');
@@ -60,4 +61,9 @@ assert.deepStrictEqual(Array.from(filter.filterByStatus(sample,'all'),x=>x.id),[
 assert.deepStrictEqual(Array.from(filter.filterByDate(sample,'2026-08-30'),x=>x.id),['3','4','5'],'date filter must match the visible Deadline exactly');
 assert.strictEqual(filter.plannerOrderMatches({sourceDraftId:'draft-a',id:'GR090'},{id:'draft-a',orderId:'GR090'}),true,'history deletion must match the order by exact source draft id');
 assert.strictEqual(filter.plannerOrderMatches({sourceDraftId:'draft-b',id:'GR091'},{id:'draft-a',orderId:'GR090'}),false,'history deletion must never match a different job');
+const before=filter.snapshotDrafts([{id:'draft-a',name:'งาน A',status:'draft'},{id:'draft-old',name:'งานเก่า',status:'draft'}]);
+const ops=JSON.parse(JSON.stringify(filter.draftWriteOps([{id:'draft-a',name:'งาน A แก้ไข',status:'draft'},{id:'draft-new',name:'งานใหม่',status:'draft'}],before)));
+assert.deepStrictEqual(ops.map(x=>x.path).sort(),['/order_planner/drafts/draft-a','/order_planner/drafts/draft-new','/order_planner/drafts/draft-old'],'planner must save and delete only the exact changed jobs');
+assert.strictEqual(ops.find(x=>x.path.endsWith('/draft-old')).data,null,'removing one draft must delete only its child key');
+assert.ok(!js.includes('window.fbSet(CLOUD,mapDrafts(rows))'),'planner must never overwrite the full shared draft collection');
 console.log('order-planner-v1: all tests passed');
