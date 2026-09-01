@@ -3,7 +3,7 @@
 if(root._rbLeavePersistenceV2Loaded)return;
 root._rbLeavePersistenceV2Loaded=true;
 
-var VERSION='3.0.0';
+var VERSION='3.1.0';
 var LOCAL_KEY='lv_dash_v5';
 var PENDING_KEY='rb_leave_pending_v2';
 var CLOUD_PATH='/lv_data';
@@ -72,6 +72,11 @@ function mergePending(remote,pending){
 function acceptRemote(remote){
   remote=normalize(remote);var local=readLocal(),pending=readPending();lastRevision=Math.max(lastRevision,remote.t,local.t,pending?pending.t:0);
   if(pending){var merged=mergePending(remote,pending);root.LV_DATA=clone(merged.d);root.LV_UID=Math.max(number(root.LV_UID)||1,merged.u||1);pending.d=clone(merged.d);pending.u=merged.u;writeJson(PENDING_KEY,pending);saveLocal({d:merged.d,u:merged.u,t:Math.max(local.t,pending.t,remote.t),updatedBy:pending.updatedBy});render();flush();return'pending-kept';}
+  /* A request that started before the last successful save can finish after the
+     save queue has already been acknowledged.  Never let that older snapshot
+     replace the newer local copy; the next poll will receive the confirmed
+     revision from Firebase. */
+  if(local.t&&local.t>remote.t){root.LV_DATA=clone(local.d);root.LV_UID=Math.max(number(root.LV_UID)||1,local.u||1);render();return'stale-ignored';}
   if(remote.t||Object.keys(remote.d).length){applyEnvelope(remote);return'remote-applied';}
   return'empty-ignored';
 }

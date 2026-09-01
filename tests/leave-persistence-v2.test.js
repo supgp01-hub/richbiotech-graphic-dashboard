@@ -50,6 +50,11 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.ok(writes.some(x=>x.path==='/lv_data/t'),'the queue should continue through metadata writes after the entry write succeeds');
   assert.strictEqual(store.has('rb_leave_pending_v2'),false,'the pending queue must clear only after every cloud write succeeds');
 
+  const confirmedLocal=JSON.parse(store.get('lv_dash_v5'));
+  const staleAccepted=window._rbLeavePersistenceTest.acceptRemote({d:{'2026-8-29':[{uid:2,empId:'jam',type:'sick'}]},u:3,t:confirmedLocal.t-1});
+  assert.strictEqual(staleAccepted,'stale-ignored','a GET started before save confirmation must not roll the calendar back');
+  assert.strictEqual(window.LV_DATA['2026-8-28'][0].type,'vac','the confirmed leave must survive a stale remote response');
+
   const normalized=window._rbLeavePersistenceTest.normalize({d:{'2026-9-1':{
     legacy:{uid:7,empId:'jam',type:'hol'},
     other:{uid:8,empId:'dom',type:'vac'}
@@ -58,12 +63,12 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(normalized.d['2026-9-1'].map(x=>x.__cloudKey).sort())),['legacy','other']);
 
   store.delete('rb_leave_pending_v2');
-  store.set('lv_dash_v5',JSON.stringify({d:{'2026-9-2':[{uid:1,empId:'dom',type:'hol'}]},u:2,t:999}));
-  const accepted=window._rbLeavePersistenceTest.acceptRemote({d:{'2026-9-2':[{uid:2,empId:'jam',type:'sick'}]},u:3,t:100});
-  assert.strictEqual(accepted,'remote-applied','a stale local snapshot without pending edits must never overwrite newer team data');
+  store.set('lv_dash_v5',JSON.stringify({d:{'2026-9-2':[{uid:1,empId:'dom',type:'hol'}]},u:2,t:100}));
+  const accepted=window._rbLeavePersistenceTest.acceptRemote({d:{'2026-9-2':[{uid:2,empId:'jam',type:'sick'}]},u:3,t:999});
+  assert.strictEqual(accepted,'remote-applied','a newer team revision must replace an older local snapshot');
   assert.strictEqual(window.LV_DATA['2026-9-2'][0].empId,'jam');
   const index=fs.readFileSync('index.html','utf8');
-  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix308'));
-assert.ok(index.includes('<meta name="rb-build" content="fix308">'));
+  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix311'));
+assert.ok(index.includes('<meta name="rb-build" content="fix311">'));
   console.log('leave-persistence-v2: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});
