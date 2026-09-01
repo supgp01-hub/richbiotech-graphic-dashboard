@@ -7,12 +7,16 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix310'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix310'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix312'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix312'),'commission runtime must be loaded');
 assert.ok(js.includes("if(r==='audit')return'audit'"),'Audit must have its own entry view');
 assert.ok(js.includes("if(r==='graphic'||r==='ads')return'staff'"),'Graphic and Ads must have personal view');
 assert.ok(js.includes('function enforceAdsAccess()'),'Ads users must be able to open the commission tab');
 assert.ok(js.includes("return'supervisor'"),'Supervisor must have team view');
+assert.ok(js.includes('data-cc-view'),'Supervisor must be able to preview every user view');
+assert.ok(js.includes('Graphic & Ads รายบุคคล'),'employee preview options must be grouped clearly');
+assert.ok(js.includes("actualRoleView()!=='audit'"),'Supervisor preview must not gain Audit edit permission');
+assert.ok(js.includes('ตัวอย่างนี้เป็นแบบอ่านอย่างเดียว'),'preview mode must explain its read-only permission');
 assert.ok(js.includes("CLOUD_STORE='/commission_center_v1'"),'commission edits must persist to shared storage');
 assert.ok(js.includes('data-cc-action="save-audit"'),'Audit must be able to save ad-spend rows');
 assert.ok(js.includes('data-cc-action="toggle-lock"'),'Supervisor must be able to lock a period');
