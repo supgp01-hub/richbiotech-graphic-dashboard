@@ -7,8 +7,8 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix312'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix312'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix313'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix313'),'commission runtime must be loaded');
 assert.ok(js.includes("if(r==='audit')return'audit'"),'Audit must have its own entry view');
 assert.ok(js.includes("if(r==='graphic'||r==='ads')return'staff'"),'Graphic and Ads must have personal view');
 assert.ok(js.includes('function enforceAdsAccess()'),'Ads users must be able to open the commission tab');
@@ -20,7 +20,11 @@ assert.ok(js.includes('ตัวอย่างนี้เป็นแบบอ
 assert.ok(js.includes("CLOUD_STORE='/commission_center_v1'"),'commission edits must persist to shared storage');
 assert.ok(js.includes('data-cc-action="save-audit"'),'Audit must be able to save ad-spend rows');
 assert.ok(js.includes('data-cc-action="toggle-lock"'),'Supervisor must be able to lock a period');
-assert.ok(js.includes('คุณเห็นเฉพาะข้อมูลของตัวเอง'),'staff view must explain personal-only access');
+assert.ok(js.includes('ค่าคอมของทีม'),'staff view must show the team card dashboard');
+assert.ok(js.includes('data-cc-team-card'),'every employee must be represented by a commission card');
+assert.ok(js.includes('data-cc-staff-person'),'staff must be able to inspect teammate details');
+assert.ok(js.includes('พนักงานทุกคนดูค่าคอมของทีม'),'staff team visibility must be explained');
+assert.ok(css.includes('.cc-team-grid'),'team cards must have a responsive layout');
 assert.ok(js.includes('พนักงาน + วันที่ + สินค้า'),'duplicate protection must be visible');
 assert.ok(js.includes('function commissionForAds(value)'),'new Audit entries must use the daily ad-spend tier rule');
 assert.ok(js.includes('function parseReference(html)'),'a public read-only source must back up the Google Sheet connection');

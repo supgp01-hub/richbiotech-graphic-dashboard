@@ -42,7 +42,9 @@ async function openRole(browser,role,name){
   assert.strictEqual(await sup.page.evaluate(()=>window._rbCommissionTest.actualRoleView()),'supervisor');
   await sup.page.locator('[data-cc-view]').selectOption('staff:BALL');
   assert.match(await sup.page.locator('.cc-role-chip').textContent(),/BALL/);
-  assert.match(await sup.page.locator('.rb-commission-app').textContent(),/มุมมองข้อมูลส่วนตัวของ BALL/);
+  assert.ok(await sup.page.locator('[data-cc-team-card]').count()>=7);
+  assert.strictEqual(await sup.page.locator('[data-cc-team-card="BALL"].is-own').count(),1);
+  assert.match(await sup.page.locator('.rb-commission-app').textContent(),/การ์ดของ BALL ถูกไฮไลต์/);
   await sup.page.locator('[data-cc-view]').selectOption('supervisor');
   assert.strictEqual(await sup.page.locator('[data-cc-action="toggle-lock"]').count(),1);
   assert.deepStrictEqual(sup.errors,[]);
@@ -67,9 +69,24 @@ async function openRole(browser,role,name){
   assert.strictEqual(await staff.page.locator('[data-cc-view]').count(),0);
   assert.strictEqual(await staff.page.locator('[data-cc-action="save-audit"]').count(),0);
   assert.strictEqual(await staff.page.locator('[data-cc-action="toggle-lock"]').count(),0);
-  assert.match(await staff.page.locator('.rb-commission-app').textContent(),/เฉพาะข้อมูลของตัวเอง/);
+  assert.ok(await staff.page.locator('[data-cc-team-card]').count()>=7);
+  assert.strictEqual(await staff.page.locator('[data-cc-team-card="BALL"].is-own').count(),1);
+  await staff.page.locator('[data-cc-staff-person="DOM"]').click();
+  assert.match(await staff.page.locator('.cc-panel-head').last().textContent(),/DOM · รายละเอียดค่าคอม/);
+  assert.match(await staff.page.locator('.rb-commission-app').textContent(),/พนักงานทุกคนดูค่าคอมของทีม/);
   assert.deepStrictEqual(staff.errors,[]);
   await staff.context.close();
+
+  const ads=await openRole(browser,'ads','มอส');
+  assert.match(await ads.page.locator('.cc-role-chip').textContent(),/Graphic & Ads/);
+  assert.ok(await ads.page.locator('[data-cc-team-card]').count()>=7);
+  assert.strictEqual(await ads.page.locator('[data-cc-team-card="MOS"].is-own').count(),1);
+  assert.strictEqual(await ads.page.locator('[data-cc-action="save-audit"]').count(),0);
+  assert.strictEqual(await ads.page.locator('[data-cc-action="toggle-lock"]').count(),0);
+  await ads.page.locator('[data-cc-staff-person="JAM"]').click();
+  assert.match(await ads.page.locator('.cc-panel-head').last().textContent(),/JAM · รายละเอียดค่าคอม/);
+  assert.deepStrictEqual(ads.errors,[]);
+  await ads.context.close();
 
   await browser.close();
   console.log('commission center role and save flow: passed');
