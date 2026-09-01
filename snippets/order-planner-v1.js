@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var VERSION='2.3.0',DRAFT_KEY='rb_order_planner_drafts_v1',RULE_KEY='rb_order_planner_rules_v1',CLOUD='/order_planner/drafts',RULE_CLOUD='/order_planner/rules',FB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
+var VERSION='2.4.0',DRAFT_KEY='rb_order_planner_drafts_v1',RULE_KEY='rb_order_planner_rules_v1',CLOUD='/order_planner/drafts',RULE_CLOUD='/order_planner/rules',FB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
 var modal=null,rows=[],selected={},tab='drafts',weekStart=null,feedbackTimer=null,workerBusy=false,activeDraftId='',autosaveTimer=null,presetOpen=false,statusFilter='all',dateFilter='',pendingDeleteId='';
 var DEFAULT_RULES={enabled:true,dispatchTime:'08:30',absencePolicy:'reassign',missingPolicy:'hold',overduePolicy:'dispatch',maxActive:4,recurring:true};
 var NAME_ID={MOS:'mos',DOM:'dom',TER:'ter',JAM:'jam',NUNE:'nun',BALL:'bol',VIEW:'wiw',NUI:'nui',MIND:'mnd'};
@@ -97,6 +97,13 @@ function decorateDraftListFilters(host,visible){
   head.insertAdjacentElement('afterend',controls);
 }
 var renderDraftsV3Base=renderDraftsV3;
+function decorateDraftDelete(host){
+  var detail=host&&host.querySelector('.rbp-detail-editor[data-id]'),head=detail&&detail.querySelector('.rbp-detail-head'),actions=head&&head.lastElementChild;
+  if(!detail||!head||!actions||actions.querySelector('.rbp-draft-delete'))return;
+  var button=document.createElement('button');
+  button.type='button';button.className='rbp-history-delete rbp-draft-delete';button.setAttribute('data-action','delete');
+  button.textContent='🗑 ลบรายการนี้';button.title='ลบฉบับร่างหรือรายการรอสั่งอัตโนมัตินี้';actions.appendChild(button);
+}
 renderDraftsV3=function(host){
   if(!rows.length)rows=[blank()];
   var all=rows,visible=filteredRows();
@@ -108,6 +115,7 @@ renderDraftsV3=function(host){
   }
   if(!visible.some(function(d){return d.id===activeDraftId}))activeDraftId=visible[0].id;
   rows=visible;try{renderDraftsV3Base(host)}finally{rows=all}
+  decorateDraftDelete(host);
   var head=host.querySelector('.rbp-list-head'),title=head&&head.querySelector('b'),sub=head&&head.querySelector('small');
   if(title)title.textContent='รายการ'+(statusFilter==='all'?'ทั้งหมด':filterLabel(statusFilter))+' '+visible.length+' งาน'+(dateFilter?' · '+filterDateLabel(dateFilter):'');
   if(sub)sub.textContent=statusFilter==='all'?'ติ๊กเลือกเพื่อสั่งพร้อมกัน':'แสดงเฉพาะ '+filterLabel(statusFilter);

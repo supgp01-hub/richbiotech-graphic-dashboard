@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix304-save">'),'build marker must expose fix304');
+assert.ok(index.includes('<meta name="rb-build" content="fix305-del">'),'build marker must expose fix305');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix304'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix305'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -45,6 +45,7 @@ assert.ok(js.includes('data-planner-date-filter="1"')&&js.includes('data-action=
 assert.ok(css.includes('.rbp-list-filter-row')&&css.includes('.rbp-select-visible'),'date and select-all controls must have planner styling');
 assert.ok(js.includes('4. งานที่สั่งแล้ว')&&js.includes('function renderHistory('),'the planner must include a dispatched-work history view');
 assert.ok(js.includes('data-action="open-history-delete"')&&js.includes('data-history-delete-check')&&js.includes('data-action="confirm-history-delete"'),'deleting a dispatched job must require an explicit checked confirmation');
+assert.ok(js.includes("className='rbp-history-delete rbp-draft-delete'")&&js.includes("setAttribute('data-action','delete')")&&js.includes('ลบรายการนี้'),'tab 1 must expose a guarded delete action for the selected draft');
 assert.ok(js.includes("deleteJSON('/orders/'+remoteKey)")&&js.includes('function removeDispatchedDraft('),'confirmed deletion must remove the exact planner order and its history draft');
 assert.ok(js.includes('HOOK 2 (ถ้ามี)')&&js.includes('data-field="hook2"'),'the planner parity form must expose a second optional Hook');
 assert.ok(css.includes('.rbp-history-layout')&&css.includes('.rbp-history-delete-overlay'),'history and destructive confirmation must have responsive planner styling');
