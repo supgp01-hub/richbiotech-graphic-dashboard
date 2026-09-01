@@ -28,6 +28,8 @@ assert.deepEqual(Array.from(api.unique(['ขุนแผน','ขุนแผน
 assert.equal(api.rowKey(rows[0]),api.rowKey({...rows[0],name:'ชื่อใหม่'}),'Facebook ID must keep edit identity stable after renaming');
 assert.equal(api.mergeMaps({a:{st:'ว่าง',updatedAt:200}},{a:{st:'ใช้งาน',updatedAt:100}}).a.st,'ว่าง','newer edits must win');
 assert.ok(api.notificationMarkup('เพจ 160').includes('🔒'),'notification status must be rendered as locked');
+assert.equal(api.cloudKey('row/a.b'),'row_a_b','Firebase child keys must be safe');
+assert.ok(source.includes("CLOUD_PATH+'/'+cloudKey(key)"),'each edited page must save independently to prevent concurrent overwrite');
 assert.equal(source.includes("contentEditable='true'"),false,'the editor must not use unrestricted contentEditable cells');
 assert.ok(source.includes("window._lfbFetch=refreshLiveData"),'opening or refreshing Facebook Pages must use the live sheet loader');
 assert.ok(source.includes("fetch(SHEET_URL,{cache:'no-store'})"),'live status must bypass stale HTTP cache');
@@ -40,8 +42,8 @@ assert.ok(css.includes('table-layout:fixed!important'),'the table must keep prop
 assert.ok(css.includes('.rb-fbp-filter-field>.rb-fbp-filter-label'),'filter labels must use a dedicated selector so the search icon wrapper is not styled as a label');
 assert.ok(css.includes('.rb-fbp-search-field>.rb-icon-input-wrap.rb-search-wide'),'the wrapped search field must align with every dropdown');
 assert.ok(css.includes('display:table-cell!important'),'the action column must retain table-cell layout so row divider lines align');
-assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix308'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix316'));
 assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix308'));
-assert.ok(index.includes('<meta name="rb-build" content="fix315">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix316">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');

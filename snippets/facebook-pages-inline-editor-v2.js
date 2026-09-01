@@ -25,7 +25,14 @@ function parseSheet(csv){var lines=String(csv||'').replace(/\r/g,'').split('\n')
 
 function applyEdits(rows){return(rows||[]).map(function(row){var result=copy(row),key=rowKey(row),entry=edits[key];result._fbpKey=key;result._fbpSourceName=row._fbpSourceName||row.name||'';if(entry){['name','prod','st','own'].forEach(function(field){if(Object.prototype.hasOwnProperty.call(entry,field))result[field]=entry[field];});result._fbpEditedAt=entry.updatedAt||0;}return result;});}
 function canEdit(){var role=window._rbUser&&window._rbUser.role||'';return role==='sup'||role==='spec';}
-function saveEdits(){saveObject(EDIT_KEY,edits);if(typeof window.fbSet==='function')window.fbSet(CLOUD_PATH,edits);}
+function cloudKey(value){return String(value||'').replace(/[.#$\[\]\/]/g,'_');}
+function saveEdits(key){
+  saveObject(EDIT_KEY,edits);
+  /* Save one page at a time.  A full-map PUT allowed two supervisors editing
+     different rows at nearly the same time to overwrite each other. */
+  if(typeof window.fbSet==='function')return window.fbSet(CLOUD_PATH+'/'+cloudKey(key),edits[key]||null);
+  return Promise.resolve(false);
+}
 function syncCloud(done){if(cloudLoaded||typeof window.fbGet!=='function'){cloudLoaded=true;if(done)done();return;}window.fbGet(CLOUD_PATH,function(error,data){if(!error&&data&&typeof data==='object'){edits=mergeMaps(edits,data);saveObject(EDIT_KEY,edits);}cloudLoaded=true;if(done)done();});}
 
 function formatActualTime(date){return'ข้อมูลล่าสุด '+date.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'})+' · '+date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
@@ -146,7 +153,7 @@ function beginEdit(row,record){
     row.classList.remove('rb-fbp-row-error');
     var key=row.getAttribute('data-fbp-key')||rowKey(record);
     edits[key]={name:name,prod:selects[0]?selects[0].value:record.prod,st:selects[1]?selects[1].value:record.st,own:selects[2]?selects[2].value:record.own,sourceName:record._fbpSourceName||record.name,fbid:record.fbid||'',updatedAt:Date.now(),updatedBy:window._rbUser&&window._rbUser.name||''};
-    saveEdits();
+    saveEdits(key);
     var root=document.getElementById('fbl-root');if(root&&typeof window._renderFbList==='function')window._renderFbList(root,lastRawData);
   });
   cells[5].appendChild(cancel);cells[5].appendChild(save);
@@ -200,7 +207,7 @@ function activate(){installRenderer();decorateHeader();syncCloud(function(){var 
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 
-window._fbpInlineEditorTest={parseCsvLine:parseCsvLine,parseSheet:parseSheet,rowKey:rowKey,applyEdits:applyEdits,mergeMaps:mergeMaps,unique:unique,notificationMarkup:notificationMarkup};
+window._fbpInlineEditorTest={parseCsvLine:parseCsvLine,parseSheet:parseSheet,rowKey:rowKey,applyEdits:applyEdits,mergeMaps:mergeMaps,unique:unique,notificationMarkup:notificationMarkup,cloudKey:cloudKey};
 install();
 setTimeout(install,300);
 setTimeout(install,900);

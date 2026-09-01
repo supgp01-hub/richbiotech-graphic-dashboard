@@ -7,8 +7,8 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix315'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix315'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix316'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix316'),'commission runtime must be loaded');
 assert.ok(js.includes('window._rbCommissionMount'),'commission app must expose a deterministic late-panel mount hook');
 assert.ok(js.includes('MutationObserver'),'commission app must recover when the real panel is created after page load');
 assert.ok(js.includes('mountIfNeeded()'),'commission app must mount itself when the panel appears');
@@ -22,6 +22,8 @@ assert.ok(js.includes('Graphic & Ads รายบุคคล'),'employee previe
 assert.ok(js.includes("actualRoleView()!=='audit'"),'Supervisor preview must not gain Audit edit permission');
 assert.ok(js.includes('ตัวอย่างนี้เป็นแบบอ่านอย่างเดียว'),'preview mode must explain its read-only permission');
 assert.ok(js.includes("CLOUD_STORE='/commission_center_v1'"),'commission edits must persist to shared storage');
+assert.ok(js.includes("CLOUD_STORE+'/records/'"),'commission rows must save independently so concurrent Audit work cannot overwrite other records');
+assert.ok(js.includes("CLOUD_STORE+'/locks/'"),'period locks must save independently from commission rows');
 assert.ok(js.includes('data-cc-action="save-audit"'),'Audit must be able to save ad-spend rows');
 assert.ok(js.includes('data-cc-action="toggle-lock"'),'Supervisor must be able to lock a period');
 assert.ok(js.includes('ค่าคอมของทีม'),'staff view must show the team card dashboard');

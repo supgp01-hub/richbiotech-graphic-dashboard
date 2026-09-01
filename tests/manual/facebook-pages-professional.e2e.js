@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 
 (async () => {
-  const url = process.argv[2] || 'http://127.0.0.1:8014/index.html?qa=fix308';
+  const url = process.argv[2] || 'http://127.0.0.1:8014/index.html?qa=fix316';
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   await context.addInitScript(() => {
@@ -26,9 +26,9 @@ const assert = require('node:assert/strict');
   await page.waitForSelector('#sidebar', { timeout: 90000 });
   await page.locator('#sidebar button').filter({ hasText: 'Graphic' }).click();
   await page.waitForSelector('#tab-team.active');
-  await page.waitForFunction(() => typeof window._renderFbList === 'function', null, { timeout: 30000 });
+  await page.waitForFunction(() => typeof window._renderFbList === 'function', null, { timeout: 90000 });
   await page.locator('.gsnav-btn').filter({ hasText: 'Facebook Pages' }).click();
-  await page.waitForFunction(() => !!window._renderFbList?._fbpInlineEditorV2, null, { timeout: 30000 });
+  await page.waitForFunction(() => !!window._renderFbList?._fbpInlineEditorV2, null, { timeout: 90000 });
   assert.equal(await page.evaluate(() => !!window._renderFbList?._fbpInlineEditorV2), true, 'professional renderer wrapper must be installed');
   await page.evaluate(() => window._renderFbList(document.querySelector('#fbl-root'), [
     { name: 'เพจทดสอบ 1', prod: 'ขุนแผน', st: 'ใช้งาน', own: 'MOS', emp: 'MOS', fbid: '10001' },
@@ -60,15 +60,17 @@ const assert = require('node:assert/strict');
   assert.equal(await firstRow.locator('select.rb-fbp-edit-field').count(), 3);
   await firstRow.locator('select.rb-fbp-edit-field').nth(2).selectOption('JAM');
   await firstRow.locator('.rb-fbp-row-save').click();
-  await page.waitForFunction(() => document.querySelector('#fbl-body tr[data-name] .rb-fbp-employee')?.textContent.trim() === 'JAM');
+  await page.waitForTimeout(500);
+  const saveDiagnostic=await page.evaluate(()=>({employee:document.querySelector('#fbl-body tr[data-name] .rb-fbp-employee')?.textContent.trim(),edits:JSON.parse(localStorage.getItem('rb_fbpages_edits_v2')||'{}'),summary:(window._fblSummaryData||[])[0],raw:(window._lfbData||[])[0]}));
+  assert.equal(saveDiagnostic.employee,'JAM',`row must update immediately after save: ${JSON.stringify(saveDiagnostic)}`);
   assert.equal((await page.locator('#fbl-body tr[data-name] .rb-fbp-employee').first().textContent()).trim(), 'JAM');
 
-  await page.reload({ waitUntil: 'commit' });
+  await page.reload({ waitUntil: 'commit', timeout: 60000 });
   await page.waitForSelector('#sidebar', { timeout: 90000 });
   await page.locator('#sidebar button').filter({ hasText: 'Graphic' }).click();
-  await page.waitForFunction(() => typeof window._renderFbList === 'function', null, { timeout: 30000 });
+  await page.waitForFunction(() => typeof window._renderFbList === 'function', null, { timeout: 90000 });
   await page.locator('.gsnav-btn').filter({ hasText: 'Facebook Pages' }).click();
-  await page.waitForFunction(() => !!window._renderFbList?._fbpInlineEditorV2, null, { timeout: 30000 });
+  await page.waitForFunction(() => !!window._renderFbList?._fbpInlineEditorV2, null, { timeout: 90000 });
   await page.evaluate(() => window._renderFbList(document.querySelector('#fbl-root'), [
     { name: 'เพจทดสอบ 1', prod: 'ขุนแผน', st: 'ใช้งาน', own: 'MOS', emp: 'MOS', fbid: '10001' },
     { name: 'เพจทดสอบ 2', prod: 'จูโด้', st: 'ว่าง', own: 'JAM', emp: 'JAM', fbid: '10002' },

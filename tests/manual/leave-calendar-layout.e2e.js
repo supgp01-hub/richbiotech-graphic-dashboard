@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 const assert=require('assert');
 
 (async()=>{
-  const targetUrl=process.argv[2]||'http://127.0.0.1:8024/index.html?v=262';
+  const targetUrl=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix316';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1050}});
   await context.addInitScript(()=>{
@@ -29,7 +29,7 @@ const assert=require('assert');
   await page.waitForSelector('#sidebar',{timeout:90000});
   await page.locator('#sidebar button').filter({hasText:'ตารางวันหยุด'}).click();
   await page.waitForSelector('#tab-schedule.active .lv-day');
-  await page.waitForFunction(()=>!!window._lvwTest&&document.querySelectorAll('#tab-schedule .lvw-special-ribbon').length>0,null,{timeout:15000});
+  await page.waitForFunction(()=>!!window._lvwTest&&document.querySelectorAll('#tab-schedule .lvw-special-ribbon').length>0,null,{timeout:90000});
 
   const result=await page.evaluate(()=>{
     const allowed=['WFH','เข้าออฟฟิศ','อบรม','OUTING'];

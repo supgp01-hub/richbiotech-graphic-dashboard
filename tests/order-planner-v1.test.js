@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix315">'),'build marker must expose fix315');
+assert.ok(index.includes('<meta name="rb-build" content="fix316">'),'build marker must expose fix316');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix305'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix316'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -16,6 +16,7 @@ assert.ok(js.includes("CLOUD='/order_planner/drafts'"),'multiple drafts must syn
 assert.ok(js.includes('function reserveIds(')&&js.includes('function dispatchDraft('),'scheduled jobs must reserve ids and use the automatic dispatch workflow');
 assert.ok(js.includes("sourceDraftId:d.id")&&js.includes("autoDispatched:true"),'automatic orders must be traceable to one exact draft');
 assert.ok(js.includes("orderKey='planner_'+cloudKey(d.id)"),'automatic dispatch must use an idempotent per-draft database key');
+assert.ok(js.includes("typeof window.fbSet==='function'"),'automatic dispatch writes must use the shared retry queue');
 assert.ok(js.includes("if(!/^GR\\d+$/.test(id))return"),'draft timestamps must never be mistaken for visible GR order numbers');
 assert.ok(js.includes("typeof window.lvGetDay!=='function'")&&js.includes('function chooseAssignee('),'automatic assignment must check the existing leave calendar');
 assert.ok(js.includes("d.repeat==='weekly'")&&js.includes("d.repeat==='none'"),'weekly and monthly recurring plans must be supported');
