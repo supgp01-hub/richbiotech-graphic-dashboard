@@ -48,6 +48,6 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.ok(writes.length>=2,'the queue should continue through metadata writes after the date write succeeds');
   const index=fs.readFileSync('index.html','utf8');
   assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix300'));
-  assert.ok(index.includes('<meta name="rb-build" content="fix303-planner-history-hooks">'));
+  assert.ok(index.includes('<meta name="rb-build" content="fix304-save">'));
   console.log('leave-persistence-v2: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

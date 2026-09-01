@@ -10,11 +10,16 @@
   <script>
     const fixtureParams = new URLSearchParams(location.search);
     const historyMode = fixtureParams.get('history') === '1';
+    const preserveMode = fixtureParams.get('preserve') === '1';
+    window.__fixtureOnline = fixtureParams.get('offline') !== '1';
     window._rbUser = { name: 'ผู้ทดสอบ', role: fixtureParams.get('role') || 'sup' };
     window.MB_GR = ['MOS', 'DOM', 'TER', 'JAM', 'NUNE', 'BALL'];
     window.OT = ['กราฟิก', 'รูปภาพ', 'ยิงแอด', 'เทสส่วนตัว', 'คัดคลิป', 'Reels', 'สร้างเพจ', 'Retarget'];
-    window.fbSet = function () { return Promise.resolve(true); };
-    window.fbGet = function (path, callback) { callback(null, null); };
+    window.fbSet = function () { return Promise.resolve(window.__fixtureOnline); };
+    window.fbGet = function (path, callback) {
+      if (fixtureParams.get('stale') === '1' && path === '/order_planner/drafts') callback(null, { stale_draft: { id: 'stale_draft', name: 'ข้อมูลเก่าจากออนไลน์', type: 'กราฟิก', deadline: '2026-09-04', scheduledDate: '2026-09-01', updatedAt: 1 } });
+      else callback(null, null);
+    };
     window.fetch = function () { return Promise.resolve({ ok: true, json: function () { return Promise.resolve({}); } }); };
     let mockOrders = historyMode ? [{
       id: 'GR090',
@@ -49,7 +54,7 @@
         dispatchedAt: 1788226200000,
         updatedBy: 'ผู้ทดสอบ'
       }]));
-    } else {
+    } else if (!preserveMode) {
       localStorage.removeItem('rb_order_planner_drafts_v1');
     }
     window.lpORD = function () { return mockOrders.slice(); };
@@ -93,6 +98,7 @@
       }
     };
   </script>
-  <script src="../../snippets/order-planner-v1.js?v=fix303"></script>
+  <script src="../../snippets/persistence-reliability-v3.js?v=304"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix304"></script>
 </body>
 </html>

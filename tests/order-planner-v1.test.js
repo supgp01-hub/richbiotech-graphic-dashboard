@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix303-planner-history-hooks">'),'build marker must expose fix303');
+assert.ok(index.includes('<meta name="rb-build" content="fix304-save">'),'build marker must expose fix304');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix303'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix304'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -27,7 +27,8 @@ assert.ok(js.includes('rbp-drafts-layout')&&js.includes('rbp-draft-list')&&js.in
 assert.ok(js.includes("brief:d.brief||''")&&js.includes("sampleLink:d.sampleLink||''")&&js.includes("rawLink:d.rawLink||''")&&js.includes("sheetLink:d.sheetLink||''"),'drafts must retain the full brief and reference-link set');
 assert.ok(js.includes("brief:d.brief||''")&&js.includes("hook:d.hook||''")&&js.includes("hook2:d.hook2||''")&&js.includes("note:d.note||''"),'automatic orders must inherit all one-time detail fields');
 assert.ok(js.includes('กรอกครั้งเดียว')&&js.includes('ตรวจออดิต')&&js.includes('ส่งงานภาพ'),'the planner must explain the one-entry synchronization flow');
-assert.ok(js.includes('function queueAutosave(')&&js.includes('บันทึกร่างอัตโนมัติแล้ว'),'the multi-order form must autosave while the Supervisor works');
+assert.ok(js.includes('function queueAutosave(')&&js.includes('บันทึกในเครื่องแล้ว · รอซิงก์')&&js.includes('บันทึกและซิงก์แล้ว'),'autosave must distinguish pending local data from confirmed cloud sync');
+assert.ok(js.includes('window.rbPersistence.related(CLOUD)'),'pending planner writes must block stale cloud data from replacing local drafts');
 assert.ok(js.includes('function renderDraftsV3(')&&js.includes('ฟอร์มด้านขวาใช้ช่องและพฤติกรรมเดียวกับ “เพิ่มงานใหม่”'),'the right-side editor must expose the Add New parity form');
 assert.ok(js.includes("workStatus:d.workStatus||'pending'")&&js.includes("status:d.workStatus||'pending'"),'the planner must retain the selected Add New work status');
 assert.ok(js.includes('BRIEF_PRESETS')&&js.includes('data-action="toggle-presets"')&&js.includes('data-action="apply-preset"'),'the Add New brief preset workflow must be available');

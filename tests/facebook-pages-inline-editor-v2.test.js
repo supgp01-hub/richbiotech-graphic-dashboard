@@ -34,6 +34,6 @@ assert.ok(source.includes("fetch(SHEET_URL,{cache:'no-store'})"),'live status mu
 assert.ok(css.includes('thead th:nth-child(5):after'),'notification column must show a lock');
 assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix299'));
 assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix299'));
-assert.ok(index.includes('<meta name="rb-build" content="fix303-planner-history-hooks">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix304-save">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');
