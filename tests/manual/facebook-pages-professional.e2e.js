@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 
 (async () => {
-  const url = process.argv[2] || 'http://127.0.0.1:8014/index.html?qa=fix306';
+  const url = process.argv[2] || 'http://127.0.0.1:8014/index.html?qa=fix307';
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   await context.addInitScript(() => {
@@ -39,6 +39,7 @@ const assert = require('node:assert/strict');
   await page.waitForSelector('#fbl-body tr[data-name]');
 
   assert.equal(await page.locator('.rb-fbp-filter-select').count(), 3, 'three compact dropdown filters must be visible');
+  assert.equal(await page.locator('.rb-fbp-workflow-grid').count(), 0, 'the marked workflow summary row must be removed');
   assert.equal(await page.locator('.rb-fbp-table').evaluate(table => getComputedStyle(table).tableLayout), 'fixed');
   assert.deepEqual((await page.locator('.rb-fbp-employee').allTextContents()).sort(), ['DOM', 'JAM', 'MOS']);
   assert.equal(await page.locator('.rb-fbp-employee').locator('span').count(), 0, 'employee cells must contain names only');

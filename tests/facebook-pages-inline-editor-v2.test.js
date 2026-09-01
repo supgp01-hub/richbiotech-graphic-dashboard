@@ -33,11 +33,12 @@ assert.ok(source.includes("window._lfbFetch=refreshLiveData"),'opening or refres
 assert.ok(source.includes("fetch(SHEET_URL,{cache:'no-store'})"),'live status must bypass stale HTTP cache');
 assert.ok(css.includes('thead th:nth-child(5):after'),'notification column must show a lock');
 assert.ok(source.includes('professionalizeRoot(root)'),'the Facebook Pages renderer must install the professional layout');
+assert.ok(source.includes('if(grids[1])grids[1].remove()'),'the marked workflow summary row must be removed');
 assert.ok(source.includes("heads[3].textContent='พนักงาน'"),'the owner column must be labelled as employee');
 assert.ok(source.includes('rb-fbp-employee'),'employee cells must render only the employee name');
 assert.ok(css.includes('table-layout:fixed!important'),'the table must keep proportional column widths');
-assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix306'));
-assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix306'));
-assert.ok(index.includes('<meta name="rb-build" content="fix306">'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix307'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix307'));
+assert.ok(index.includes('<meta name="rb-build" content="fix307">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');

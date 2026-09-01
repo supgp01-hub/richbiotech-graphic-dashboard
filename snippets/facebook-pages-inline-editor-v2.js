@@ -79,7 +79,7 @@ function professionalizeRoot(root){
   if(summary)summary.classList.add('rb-fbp-overview');
   var grids=summary?summary.querySelectorAll('.rb-fbp-summary-grid'):[];
   if(grids[0])grids[0].classList.add('rb-fbp-kpi-grid');
-  if(grids[1])grids[1].classList.add('rb-fbp-workflow-grid');
+  if(grids[1])grids[1].remove();
   var statusSource=search?search.nextElementSibling:null,ownerSource=statusSource?statusSource.nextElementSibling:null;
   var productSource=summary?summary.nextElementSibling:null;
   if(statusSource)statusSource.classList.add('rb-fbp-filter-source');
