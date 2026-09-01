@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 
 (async () => {
-  const url = process.argv[2] || 'http://127.0.0.1:8014/index.html?qa=fix307';
+  const url = process.argv[2] || 'http://127.0.0.1:8014/index.html?qa=fix308';
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   await context.addInitScript(() => {
@@ -40,6 +40,11 @@ const assert = require('node:assert/strict');
 
   assert.equal(await page.locator('.rb-fbp-filter-select').count(), 3, 'three compact dropdown filters must be visible');
   assert.equal(await page.locator('.rb-fbp-workflow-grid').count(), 0, 'the marked workflow summary row must be removed');
+  await page.waitForSelector('.rb-fbp-search-field .rb-icon-input-wrap');
+  const controlBoxes = await page.locator('.rb-fbp-filter-panel #fbl-q,.rb-fbp-filter-panel .rb-fbp-filter-select,.rb-fbp-filter-panel .rb-fbp-filter-reset').evaluateAll(elements => elements.map(element => { const box=element.getBoundingClientRect(); return { top:Math.round(box.top),height:Math.round(box.height) }; }));
+  assert.ok(Math.max(...controlBoxes.map(box => box.top))-Math.min(...controlBoxes.map(box => box.top))<=1, 'all filter controls must share the same top edge');
+  assert.ok(Math.max(...controlBoxes.map(box => box.height))-Math.min(...controlBoxes.map(box => box.height))<=1, 'all filter controls must have the same height');
+  assert.equal(await page.locator('#fbl-body tr[data-name]').first().locator('.rb-fbp-actions-cell').evaluate(element => getComputedStyle(element).display), 'table-cell', 'action cells must keep table layout so divider lines stay aligned');
   assert.equal(await page.locator('.rb-fbp-table').evaluate(table => getComputedStyle(table).tableLayout), 'fixed');
   assert.deepEqual((await page.locator('.rb-fbp-employee').allTextContents()).sort(), ['DOM', 'JAM', 'MOS']);
   assert.equal(await page.locator('.rb-fbp-employee').locator('span').count(), 0, 'employee cells must contain names only');

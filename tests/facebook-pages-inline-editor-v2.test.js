@@ -37,8 +37,11 @@ assert.ok(source.includes('if(grids[1])grids[1].remove()'),'the marked workflow 
 assert.ok(source.includes("heads[3].textContent='พนักงาน'"),'the owner column must be labelled as employee');
 assert.ok(source.includes('rb-fbp-employee'),'employee cells must render only the employee name');
 assert.ok(css.includes('table-layout:fixed!important'),'the table must keep proportional column widths');
-assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix307'));
-assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix307'));
-assert.ok(index.includes('<meta name="rb-build" content="fix307">'));
+assert.ok(css.includes('.rb-fbp-filter-field>.rb-fbp-filter-label'),'filter labels must use a dedicated selector so the search icon wrapper is not styled as a label');
+assert.ok(css.includes('.rb-fbp-search-field>.rb-icon-input-wrap.rb-search-wide'),'the wrapped search field must align with every dropdown');
+assert.ok(css.includes('display:table-cell!important'),'the action column must retain table-cell layout so row divider lines align');
+assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix308'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix308'));
+assert.ok(index.includes('<meta name="rb-build" content="fix308">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');

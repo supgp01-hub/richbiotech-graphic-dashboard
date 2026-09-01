@@ -62,7 +62,7 @@ function makeButton(className,label){var button=document.createElement('button')
 
 function makeFilterField(label,sourceSelector,attribute){
   var field=document.createElement('label');field.className='rb-fbp-filter-field';
-  var caption=document.createElement('span');caption.textContent=label;
+  var caption=document.createElement('span');caption.className='rb-fbp-filter-label';caption.textContent=label;
   var select=document.createElement('select');select.className='rb-fbp-filter-select';select.setAttribute('aria-label',label);
   [].forEach.call(document.querySelectorAll(sourceSelector),function(button){
     var option=document.createElement('option'),value=button.getAttribute('data-'+attribute)||'';
@@ -87,7 +87,7 @@ function professionalizeRoot(root){
   if(productSource)productSource.classList.add('rb-fbp-filter-source');
   var filter=document.createElement('section');filter.className='rb-fbp-filter-panel';filter.setAttribute('aria-label','ค้นหาและตัวกรอง Facebook Pages');
   var searchField=document.createElement('label');searchField.className='rb-fbp-filter-field rb-fbp-search-field';
-  var searchLabel=document.createElement('span');searchLabel.textContent='ค้นหาเพจ';searchField.appendChild(searchLabel);
+  var searchLabel=document.createElement('span');searchLabel.className='rb-fbp-filter-label';searchLabel.textContent='ค้นหาเพจ';searchField.appendChild(searchLabel);
   if(search){search.placeholder='ชื่อเพจ หรือ Facebook ID';searchField.appendChild(search);}
   filter.appendChild(searchField);
   filter.appendChild(makeFilterField('สถานะเพจ','.fblsb','s'));
