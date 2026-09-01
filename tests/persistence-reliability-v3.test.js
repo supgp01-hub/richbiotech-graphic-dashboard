@@ -80,6 +80,6 @@ vm.runInContext(source,context);
   await new Promise(resolve=>setImmediate(resolve));
   assert.strictEqual(writes[writes.length-1].data.value,2,'the newest same-path value must be the final server write');
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'the serialized same-path queue must fully drain');
-  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix317')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
+  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix318')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
   console.log('persistence-reliability-v3: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

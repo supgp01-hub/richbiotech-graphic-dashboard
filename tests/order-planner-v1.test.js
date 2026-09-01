@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix317">'),'build marker must expose fix317');
+assert.ok(index.includes('<meta name="rb-build" content="fix318">'),'build marker must expose fix318');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix317'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix318'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -66,4 +66,12 @@ const ops=JSON.parse(JSON.stringify(filter.draftWriteOps([{id:'draft-a',name:'�
 assert.deepStrictEqual(ops.map(x=>x.path).sort(),['/order_planner/drafts/draft-a','/order_planner/drafts/draft-new','/order_planner/drafts/draft-old'],'planner must save and delete only the exact changed jobs');
 assert.strictEqual(ops.find(x=>x.path.endsWith('/draft-old')).data,null,'removing one draft must delete only its child key');
 assert.ok(!js.includes('window.fbSet(CLOUD,mapDrafts(rows))'),'planner must never overwrite the full shared draft collection');
+const mergeNow=Date.now();
+const recovered=filter.mergeDraftCollections([{id:'online',name:'ออนไลน์',status:'draft',updatedAt:mergeNow-1000}],[{id:'online',name:'แก้ในเครื่อง',status:'draft',updatedAt:mergeNow},{id:'missing-new',name:'งานใหม่ยังไม่ทันซิงก์',status:'draft',updatedAt:mergeNow}],mergeNow);
+assert.deepStrictEqual(Array.from(recovered,x=>x.name),['แก้ในเครื่อง','งานใหม่ยังไม่ทันซิงก์'],'fresh local work must win and missing recent drafts must be recovered after refresh');
+const stale=filter.mergeDraftCollections([],[{id:'missing-old',name:'ข้อมูลค้างเก่า',status:'draft',updatedAt:mergeNow-8*24*60*60*1000}],mergeNow);
+assert.strictEqual(stale.length,0,'old local rows deleted elsewhere must not be resurrected indefinitely');
+assert.ok(js.includes("if(action==='add'){var added=blank();rows.push(added);activeDraftId=added.id;saveDraftsImmediately()"),'adding a row must queue its cloud save before a fast refresh');
+assert.ok(js.includes("window.addEventListener('pagehide',function(){if(isSupervisor()&&rows.length)saveDraftsImmediately()"),'leaving or refreshing must flush pending planner edits into the durable queue');
+assert.ok(js.includes("latestLocal=mergeDraftCollections([],local.concat(rows||[],localDrafts())"),'a delayed online read must merge jobs added while the read was in flight');
 console.log('order-planner-v1: all tests passed');

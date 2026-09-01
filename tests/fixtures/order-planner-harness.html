@@ -17,8 +17,11 @@
     window.OT = ['กราฟิก', 'รูปภาพ', 'ยิงแอด', 'เทสส่วนตัว', 'คัดคลิป', 'Reels', 'สร้างเพจ', 'Retarget'];
     window.fbSet = function () { return Promise.resolve(window.__fixtureOnline); };
     window.fbGet = function (path, callback) {
-      if (fixtureParams.get('stale') === '1' && path === '/order_planner/drafts') callback(null, { stale_draft: { id: 'stale_draft', name: 'ข้อมูลเก่าจากออนไลน์', type: 'กราฟิก', deadline: '2026-09-04', scheduledDate: '2026-09-01', updatedAt: 1 } });
-      else callback(null, null);
+      const done = function () {
+        if (fixtureParams.get('stale') === '1' && path === '/order_planner/drafts') callback(null, { stale_draft: { id: 'stale_draft', name: 'ข้อมูลเก่าจากออนไลน์', type: 'กราฟิก', deadline: '2026-09-04', scheduledDate: '2026-09-01', updatedAt: 1 } });
+        else callback(null, null);
+      };
+      if (fixtureParams.get('delay') === '1') setTimeout(done, 350); else done();
     };
     window.fetch = function () { return Promise.resolve({ ok: true, json: function () { return Promise.resolve({}); } }); };
     let mockOrders = historyMode ? [{
@@ -98,7 +101,7 @@
       }
     };
   </script>
-  <script src="../../snippets/persistence-reliability-v3.js?v=fix317"></script>
-  <script src="../../snippets/order-planner-v1.js?v=fix317"></script>
+  <script src="../../snippets/persistence-reliability-v3.js?v=fix318"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix318"></script>
 </body>
 </html>

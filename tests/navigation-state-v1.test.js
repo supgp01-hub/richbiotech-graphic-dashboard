@@ -47,6 +47,6 @@ assert.ok(source.includes("sessionStorage"), 'each browser tab must keep an inde
 assert.ok(source.includes("event.persisted"), 'back-forward cache restoration must be supported');
 assert.ok(!source.includes('setInterval('), 'navigation restoration must not add a permanent polling loop');
 assert.ok(index.includes('snippets/navigation-state-v1.js?v=224'), 'the deployed page must load the cache-busted navigation module');
-assert.ok(index.includes('<meta name="rb-build" content="fix317">'), 'the deployed page must expose the current build');
+assert.ok(index.includes('<meta name="rb-build" content="fix318">'), 'the deployed page must expose the current build');
 
 console.log('navigation-state-v1: all tests passed');
