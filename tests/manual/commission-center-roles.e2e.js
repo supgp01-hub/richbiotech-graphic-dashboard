@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
 
-const url=process.argv[2]||'http://127.0.0.1:8014/tests/manual/commission-center-harness.html?v=fix309';
+const url=process.argv[2]||'http://127.0.0.1:8014/tests/manual/commission-center-harness.html?v=fix310';
 const csv='Employee,Product,Ads,Commission,Date\nBALL,JUDO,10000,500,2026-08-28\nDOM,WOLF+,20000,800,2026-08-29\nJAM,JUDO,15000,750,2026-08-30\n';
 
 async function openRole(browser,role,name){
@@ -38,6 +38,7 @@ async function openRole(browser,role,name){
   const audit=await openRole(browser,'audit','Audit');
   assert.match(await audit.page.locator('.cc-role-chip').textContent(),/Audit/);
   assert.ok(await audit.page.locator('[data-cc-audit-row]').count()>0);
+  assert.deepStrictEqual(await audit.page.evaluate(()=>[19999,20000,25000,60000,80000].map(window._rbCommissionTest.commissionForAds)),[0,70,80,240,400]);
   const firstInput=audit.page.locator('[data-cc-ads]').first();
   await firstInput.fill('2500');
   await audit.page.locator('[data-cc-action="save-audit"]').click();
