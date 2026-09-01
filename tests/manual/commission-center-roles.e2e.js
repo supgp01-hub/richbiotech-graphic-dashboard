@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
 
-const url=process.argv[2]||'http://127.0.0.1:8014/tests/manual/commission-center-harness.html?v=fix312';
+const url=process.argv[2]||'http://127.0.0.1:8014/tests/manual/commission-center-harness.html?v=fix315';
 const csv='Employee,Product,Ads,Commission,Date\nBALL,JUDO,10000,500,2026-08-28\nDOM,WOLF+,20000,800,2026-08-29\nJAM,JUDO,15000,750,2026-08-30\n';
 
 async function openRole(browser,role,name){
@@ -77,10 +77,20 @@ async function openRole(browser,role,name){
   assert.deepStrictEqual(staff.errors,[]);
   await staff.context.close();
 
-  const ads=await openRole(browser,'ads','มอส');
+  const specialist=await openRole(browser,'spec','มอส');
+  assert.match(await specialist.page.locator('.cc-role-chip').textContent(),/Graphic & Ads/);
+  assert.strictEqual(await specialist.page.evaluate(()=>window._rbCommissionTest.actualRoleView()),'staff');
+  assert.ok(await specialist.page.locator('[data-cc-team-card]').count()>=7);
+  assert.strictEqual(await specialist.page.locator('[data-cc-team-card="MOS"].is-own').count(),1);
+  assert.deepStrictEqual(specialist.errors,[]);
+  await specialist.context.close();
+
+  const ads=await openRole(browser,'ads','นุ้ย');
   assert.match(await ads.page.locator('.cc-role-chip').textContent(),/Graphic & Ads/);
   assert.ok(await ads.page.locator('[data-cc-team-card]').count()>=7);
-  assert.strictEqual(await ads.page.locator('[data-cc-team-card="MOS"].is-own').count(),1);
+  assert.strictEqual(await ads.page.locator('[data-cc-team-card].is-own').count(),0);
+  assert.match(await ads.page.locator('.cc-team-section-head').textContent(),/เลือกการ์ดเพื่อดูรายละเอียด/);
+  assert.ok(await ads.page.locator('[data-cc-team-card].is-selected').count()===1);
   assert.strictEqual(await ads.page.locator('[data-cc-action="save-audit"]').count(),0);
   assert.strictEqual(await ads.page.locator('[data-cc-action="toggle-lock"]').count(),0);
   await ads.page.locator('[data-cc-staff-person="JAM"]').click();

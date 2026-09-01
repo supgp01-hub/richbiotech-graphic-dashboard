@@ -69,6 +69,6 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.strictEqual(window.LV_DATA['2026-9-2'][0].empId,'jam');
   const index=fs.readFileSync('index.html','utf8');
   assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix311'));
-assert.ok(index.includes('<meta name="rb-build" content="fix314">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix315">'));
   console.log('leave-persistence-v2: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});
