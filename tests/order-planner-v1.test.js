@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix302-stable-public-url">'),'build marker must expose fix302');
+assert.ok(index.includes('<meta name="rb-build" content="fix303-planner-history-hooks">'),'build marker must expose fix303');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix301'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix301'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix303'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -42,11 +42,19 @@ assert.ok(js.includes('ลิงก์ตัวอย่าง/ลิงก์�
 assert.ok(js.includes('data-status-filter="draft"')&&js.includes('data-status-filter="scheduled"')&&js.includes('data-status-filter="blocked"'),'the summary cards must filter each status independently');
 assert.ok(js.includes('data-planner-date-filter="1"')&&js.includes('data-action="select-all-visible"'),'the left list must include a Deadline filter and select-all-visible control');
 assert.ok(css.includes('.rbp-list-filter-row')&&css.includes('.rbp-select-visible'),'date and select-all controls must have planner styling');
+assert.ok(js.includes('4. งานที่สั่งแล้ว')&&js.includes('function renderHistory('),'the planner must include a dispatched-work history view');
+assert.ok(js.includes('data-action="open-history-delete"')&&js.includes('data-history-delete-check')&&js.includes('data-action="confirm-history-delete"'),'deleting a dispatched job must require an explicit checked confirmation');
+assert.ok(js.includes("deleteJSON('/orders/'+remoteKey)")&&js.includes('function removeDispatchedDraft('),'confirmed deletion must remove the exact planner order and its history draft');
+assert.ok(js.includes('HOOK 2 (ถ้ามี)')&&js.includes('data-field="hook2"'),'the planner parity form must expose a second optional Hook');
+assert.ok(css.includes('.rbp-history-layout')&&css.includes('.rbp-history-delete-overlay'),'history and destructive confirmation must have responsive planner styling');
 
 const sandbox={window:{_rbUser:{name:'View',role:'sup'},addEventListener(){}},document:{readyState:'loading',addEventListener(){}},localStorage:{getItem(){return null},setItem(){}},console,Date,JSON,Object,Array,String,Number,Math,Promise,setTimeout(){return 1},clearTimeout(){},setInterval(){return 1},fetch(){return Promise.resolve({ok:true,json(){return Promise.resolve({})}})}};
 vm.runInNewContext(js,sandbox);
 const filter=sandbox.window._rbOrderPlannerTest;
-const sample=[{id:'1',status:'draft',deadline:'2026-08-29'},{id:'2',status:'scheduled',deadline:'2026-08-29'},{id:'3',status:'scheduled',deadline:'2026-08-30'},{id:'4',status:'blocked',deadline:'2026-08-30'}];
+const sample=[{id:'1',status:'draft',deadline:'2026-08-29'},{id:'2',status:'scheduled',deadline:'2026-08-29'},{id:'3',status:'scheduled',deadline:'2026-08-30'},{id:'4',status:'blocked',deadline:'2026-08-30'},{id:'5',status:'dispatched',deadline:'2026-08-30'}];
 assert.deepStrictEqual(Array.from(filter.filterByStatus(sample,'scheduled'),x=>x.id),['2','3'],'scheduled filter must not include drafts or blocked work');
-assert.deepStrictEqual(Array.from(filter.filterByDate(sample,'2026-08-30'),x=>x.id),['3','4'],'date filter must match the visible Deadline exactly');
+assert.deepStrictEqual(Array.from(filter.filterByStatus(sample,'all'),x=>x.id),['1','2','3','4'],'the active-work list must exclude dispatched history rows');
+assert.deepStrictEqual(Array.from(filter.filterByDate(sample,'2026-08-30'),x=>x.id),['3','4','5'],'date filter must match the visible Deadline exactly');
+assert.strictEqual(filter.plannerOrderMatches({sourceDraftId:'draft-a',id:'GR090'},{id:'draft-a',orderId:'GR090'}),true,'history deletion must match the order by exact source draft id');
+assert.strictEqual(filter.plannerOrderMatches({sourceDraftId:'draft-b',id:'GR091'},{id:'draft-a',orderId:'GR090'}),false,'history deletion must never match a different job');
 console.log('order-planner-v1: all tests passed');

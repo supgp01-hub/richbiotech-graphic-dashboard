@@ -3,17 +3,57 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix301">
+  <link rel="stylesheet" href="../../snippets/order-planner-v1.css?v=fix303">
 </head>
 <body>
   <div><button id="ord-add-btn" type="button">+ เพิ่มงานใหม่</button></div>
   <script>
-    window._rbUser = { name: 'ผู้ทดสอบ', role: new URLSearchParams(location.search).get('role') || 'sup' };
+    const fixtureParams = new URLSearchParams(location.search);
+    const historyMode = fixtureParams.get('history') === '1';
+    window._rbUser = { name: 'ผู้ทดสอบ', role: fixtureParams.get('role') || 'sup' };
     window.MB_GR = ['MOS', 'DOM', 'TER', 'JAM', 'NUNE', 'BALL'];
     window.OT = ['กราฟิก', 'รูปภาพ', 'ยิงแอด', 'เทสส่วนตัว', 'คัดคลิป', 'Reels', 'สร้างเพจ', 'Retarget'];
     window.fbSet = function () { return Promise.resolve(true); };
     window.fbGet = function (path, callback) { callback(null, null); };
-    window.lpORD = function () { return []; };
+    window.fetch = function () { return Promise.resolve({ ok: true, json: function () { return Promise.resolve({}); } }); };
+    let mockOrders = historyMode ? [{
+      id: 'GR090',
+      _fbKey: 'planner_draft_history_1',
+      sourceDraftId: 'draft_history_1',
+      name: 'โปรโมชัน Valore Clinic',
+      product: 'Liv CARE',
+      type: 'ยิงแอด',
+      assignee: 'JAM',
+      status: 'pending',
+      hook: 'สวยครบทุกโปรในที่เดียว',
+      hook2: 'โปรแรงเฉพาะเดือนนี้',
+      brief: 'ทำภาพโปรโมชัน 2 เวอร์ชัน แยก HOOK ชัดเจน'
+    }] : [];
+    if (historyMode) {
+      localStorage.setItem('rb_order_planner_drafts_v1', JSON.stringify([{
+        id: 'draft_history_1',
+        orderId: 'GR090',
+        name: 'โปรโมชัน Valore Clinic',
+        product: 'Liv CARE',
+        type: 'ยิงแอด',
+        assignee: 'JAM',
+        finalAssignee: 'JAM',
+        workStatus: 'pending',
+        status: 'dispatched',
+        hook: 'สวยครบทุกโปรในที่เดียว',
+        hook2: 'โปรแรงเฉพาะเดือนนี้',
+        brief: 'ทำภาพโปรโมชัน 2 เวอร์ชัน แยก HOOK ชัดเจน',
+        deadline: '2026-09-02',
+        scheduledDate: '2026-09-01',
+        dispatchTime: '08:30',
+        dispatchedAt: 1788226200000,
+        updatedBy: 'ผู้ทดสอบ'
+      }]));
+    } else {
+      localStorage.removeItem('rb_order_planner_drafts_v1');
+    }
+    window.lpORD = function () { return mockOrders.slice(); };
+    window.spORD = function (rows) { mockOrders = rows.slice(); };
     window.lvGetDay = function () { return []; };
     const contentRows = [{
         name: 'โปรโมชัน Valore Clinic',
@@ -53,6 +93,6 @@
       }
     };
   </script>
-  <script src="../../snippets/order-planner-v1.js?v=fix301"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix303"></script>
 </body>
 </html>

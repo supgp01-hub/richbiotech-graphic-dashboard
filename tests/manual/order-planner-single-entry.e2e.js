@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 const assert = require('assert');
 
 (async () => {
-  const targetUrl = process.argv[2] || 'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?v=fix301';
+  const targetUrl = process.argv[2] || 'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?v=fix303';
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const page = await browser.newPage();
   page.setDefaultTimeout(20000);
