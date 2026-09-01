@@ -50,6 +50,15 @@ const assert=require('assert');
     await page.waitForTimeout(180);
     assert.match(await button.getAttribute('class'),/gsnav-active/,`${label} tab must become active`);
     assert.strictEqual(await page.locator(`.gsp[data-sub="${key}"]`).isVisible(),true,`${label} panel must be visible`);
+    if(key==='commission'){
+      await page.waitForSelector('.gsp[data-sub="commission"] .rb-commission-app .cc-shell',{timeout:10000});
+      assert.strictEqual(await page.locator('.gsp[data-sub="commission"] .gsp-empty').count(),0,'Commission placeholder must be replaced by the real app');
+      assert.ok(await page.locator('.gsp[data-sub="commission"] .cc-stat').count()>=4,'Supervisor commission summary cards must be rendered');
+      await page.locator('[data-cc-view]').selectOption('staff:BALL');
+      await page.waitForSelector('[data-cc-team-card="BALL"]',{timeout:5000});
+      assert.ok(await page.locator('[data-cc-team-card]').count()>=7,'Staff view must render every employee card');
+      await page.locator('[data-cc-view]').selectOption('supervisor');
+    }
   }
 
   await page.locator('.gsnav-btn').filter({hasText:'สั่งงาน'}).click();

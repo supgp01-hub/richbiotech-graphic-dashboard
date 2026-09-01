@@ -7,8 +7,11 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix313'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix313'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix314'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix314'),'commission runtime must be loaded');
+assert.ok(js.includes('window._rbCommissionMount'),'commission app must expose a deterministic late-panel mount hook');
+assert.ok(js.includes('MutationObserver'),'commission app must recover when the real panel is created after page load');
+assert.ok(js.includes('mountIfNeeded()'),'commission app must mount itself when the panel appears');
 assert.ok(js.includes("if(r==='audit')return'audit'"),'Audit must have its own entry view');
 assert.ok(js.includes("if(r==='graphic'||r==='ads')return'staff'"),'Graphic and Ads must have personal view');
 assert.ok(js.includes('function enforceAdsAccess()'),'Ads users must be able to open the commission tab');

@@ -18,7 +18,7 @@ assert.ok(auditSync.includes("document.getElementById('om-image-submitlink-box')
 assert.ok(auditSync.includes('if(duplicate)duplicate.remove()'),'stale duplicate image-delivery panels must be cleaned up');
 assert.ok(auditSync.includes("window._refreshImageSubmitLinkDisplay"),'image-link edits must synchronize to the send-image tab');
 assert.ok(index.includes('(d.imageSubmitLinks||[]).some(Boolean)'),'draft recovery must retain image-delivery links');
-assert.ok(index.includes('<meta name="rb-build" content="fix313">'),'the deployed page must expose the current build');
+assert.ok(index.includes('<meta name="rb-build" content="fix314">'),'the deployed page must expose the current build');
 assert.ok(index.includes('snippets/order-audit-persistence-v1.js?v=fix290'),'the image-delivery helper must use the current cache version');
 assert.ok(index.includes("subLinkCount.id='om-submitlink-count'"),'the image-delivery view must expose a version-count badge');
 assert.ok(!index.includes("subLinkGuide.className='rb-delivery-links-guide'"),'the redundant guide strip must not render below the version rows');
