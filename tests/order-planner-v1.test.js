@@ -8,7 +8,7 @@ const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 assert.ok(index.includes('<meta name="rb-build" content="fix318">'),'build marker must expose fix318');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix332'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix333'),'planner script must be loaded');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -52,7 +52,8 @@ assert.ok(js.includes("deleteJSON('/orders/'+remoteKey)")&&js.includes('function
 assert.ok(js.includes('HOOK 2 (ถ้ามี)')&&js.includes('data-field="hook2"'),'the planner parity form must expose a second optional Hook');
 assert.ok(css.includes('.rbp-history-layout')&&css.includes('.rbp-history-delete-overlay'),'history and destructive confirmation must have responsive planner styling');
 
-const sandbox={window:{_rbUser:{name:'View',role:'sup'},addEventListener(){}},document:{readyState:'loading',addEventListener(){}},localStorage:{getItem(){return null},setItem(){}},console,Date,JSON,Object,Array,String,Number,Math,Promise,setTimeout(){return 1},clearTimeout(){},setInterval(){return 1},fetch(){return Promise.resolve({ok:true,json(){return Promise.resolve({})}})}};
+const storage={};
+const sandbox={window:{_rbUser:{name:'View',role:'sup'},addEventListener(){}},document:{readyState:'loading',addEventListener(){}},localStorage:{getItem(key){return storage[key]||null},setItem(key,value){storage[key]=value}},console,Date,JSON,Object,Array,String,Number,Math,Promise,setTimeout(){return 1},clearTimeout(){},setInterval(){return 1},fetch(){return Promise.resolve({ok:true,json(){return Promise.resolve({})}})}};
 vm.runInNewContext(js,sandbox);
 const filter=sandbox.window._rbOrderPlannerTest;
 const sample=[{id:'1',status:'draft',deadline:'2026-08-29'},{id:'2',status:'scheduled',deadline:'2026-08-29'},{id:'3',status:'scheduled',deadline:'2026-08-30'},{id:'4',status:'blocked',deadline:'2026-08-30'},{id:'5',status:'dispatched',deadline:'2026-08-30'}];
@@ -84,4 +85,16 @@ assert.ok(js.includes("if(e.key===DRAFT_KEY||e.key===DELETE_KEY)scheduleExternal
 assert.ok(js.includes("window.addEventListener('focus',function(){refreshPlannerFromCloud()})")&&js.includes("document.addEventListener('visibilitychange'"),'returning to a planner tab must refresh the shared online list');
 assert.ok(js.includes("PENDING_KEY='rb_order_planner_pending_v1'")&&js.includes('function confirmPendingDrafts('),'new and edited planner rows must remain protected until an online read confirms them');
 assert.ok(js.includes("if(pendingDraftMarks()[id])return true"),'a completed write must remain guarded from a delayed stale read until server confirmation');
+assert.ok(js.includes('sameDraftPayload(remoteRow,localRow)'),'a pending planner row must be confirmed by its complete saved payload, not timestamp alone');
+assert.ok(js.includes('localTime>remoteTime||protectedChange'),'a pending local status change must win even when a stale online row has the same timestamp');
+assert.ok(js.includes('list.forEach(touchDraft)'),'scheduling and immediate dispatch must assign a new monotonic record version before saving');
+const scheduledLocal=filter.mergeDraftCollections([],[{id:'scheduled-tie',name:'งานตั้งเวลา',type:'กราฟิก',deadline:'2026-09-04',scheduledDate:'2026-09-03',status:'scheduled',orderId:'GR094',updatedAt:mergeNow}],mergeNow)[0];
+const staleScheduledRemote=Object.assign({},scheduledLocal,{status:'draft',orderId:''});
+filter.markDraftPending(scheduledLocal.id);
+const protectedScheduled=filter.mergeDraftCollections([staleScheduledRemote],[scheduledLocal],mergeNow);
+assert.strictEqual(protectedScheduled[0].status,'scheduled','an equal-timestamp stale draft must never replace a protected scheduled job');
+filter.confirmPendingDrafts([staleScheduledRemote],[scheduledLocal]);
+assert.ok(filter.pendingDraftMarks()[scheduledLocal.id],'a timestamp match with different status must not clear the pending guard');
+filter.confirmPendingDrafts([scheduledLocal],[scheduledLocal]);
+assert.ok(!filter.pendingDraftMarks()[scheduledLocal.id],'the pending guard may clear after the complete scheduled payload is confirmed');
 console.log('order-planner-v1: all tests passed');

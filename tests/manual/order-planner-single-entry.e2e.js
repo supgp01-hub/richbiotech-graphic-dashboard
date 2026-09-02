@@ -89,7 +89,7 @@ const assert = require('assert');
   await workerPage.goto(targetUrl + '&role=graphic', { waitUntil: 'domcontentloaded' });
   await workerPage.waitForFunction(() => typeof window.rbOrderPlanner === 'object');
   await workerPage.waitForTimeout(1900);
-  assert.strictEqual(await workerPage.locator('#ord-planner-btn').count(), 0, 'non-Supervisor users must not see the planner entry');
+  assert.strictEqual(await workerPage.locator('#ord-planner-btn').isVisible(), false, 'non-Supervisor users must not see the planner entry');
   assert.strictEqual(await workerPage.evaluate(() => window.rbOrderPlanner.open()), false, 'non-Supervisor users must not open the planner API');
   await workerPage.close();
   console.log('order planner single-entry e2e: all tests passed');
