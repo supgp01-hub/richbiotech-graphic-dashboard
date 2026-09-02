@@ -3,7 +3,7 @@
 if(root._rbLeaveDayActionsV2Loaded)return;
 root._rbLeaveDayActionsV2Loaded=true;
 
-var VERSION='2.1.0';
+var VERSION='2.2.0';
 var observer=null;
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
@@ -80,7 +80,8 @@ function ensureScopeNotice(){
   notice.innerHTML='<b>'+(manager()?'โหมดผู้ดูแล':'รายการของ '+esc(actor()))+'</b><span>'+(manager()?'เลือกพนักงานแล้วระบบจะบันทึกแยกเป็นรายคน':'คุณแก้ไขหรือลบได้เฉพาะรายการของตัวเอง')+' · ไม่ทับข้อมูลพนักงานคนอื่น</span>';
   if(tabs)tabs.insertAdjacentElement('afterend',notice);else box.insertBefore(notice,box.firstChild);
 }
-function refresh(){ensureTodayAction();ensureScopeNotice();}
+function removeLegacyJobBadges(){document.querySelectorAll('#tab-schedule .lv-job-badges,#tab-schedule .lv-job-badge,#tab-schedule [data-lvw-job-count]').forEach(function(el){el.remove();});}
+function refresh(){removeLegacyJobBadges();ensureTodayAction();ensureScopeNotice();}
 function install(){
   refresh();
   if(!observer&&document.body){observer=new MutationObserver(function(){setTimeout(refresh,0);});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});}

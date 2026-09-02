@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=fix322'));
-assert.ok(html.includes('leave-workforce-v1.js?v=fix322'));
+assert.ok(html.includes('leave-workforce-v1.css?v=fix323'));
+assert.ok(html.includes('leave-workforce-v1.js?v=fix323'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -47,7 +47,7 @@ assert.ok(css.includes('Keep the monthly calendar in its original light palette'
 assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
-assert.ok(source.includes("var VERSION='2.1.0'"));
+assert.ok(source.includes("var VERSION='2.2.0'"));
 assert.ok(source.includes('function storeSpecialRows(rows)'));
 assert.ok(source.includes('window.rbStorageResilience.relieve()'));
 assert.ok(source.includes('function specialRecordList()'));
@@ -72,6 +72,13 @@ assert.ok(!source.includes("cfg.label+' · '+esc(e?e.name"));
 assert.ok(html.includes("entries.length>=2&&entries.length<=4?' lv-chips-grid2'"));
 assert.ok(!source.includes("badges.innerHTML+='<span class=\"lv-job-badge\">Deadline "));
 assert.ok(!source.includes("badges.innerHTML+='<span class=\"lv-job-badge short\">กำลังคนไม่พอ"));
+assert.ok(!source.includes("badges.innerHTML='<span class=\"lv-job-badge review\">"));
+assert.ok(source.includes('function renderCombinedLeave'));
+assert.ok(source.includes('data-leave-edit'));
+assert.ok(source.includes('data-leave-delete'));
+assert.ok(source.includes('data-special-type'));
+assert.ok(source.includes('data-combined-nav="calendar"'));
+assert.ok(css.includes('.lvw-entry-workspace'));
 assert.ok(css.includes('special-work ribbon, approved option 2'));
 assert.ok(css.includes('approved employee grid and compact activity bars'));
 assert.ok(css.includes('grid-auto-rows:minmax(98px,auto)!important'));
@@ -92,7 +99,7 @@ assert.ok(html.includes("window.rbLeaveFinishSave({button:button||document.query
 assert.ok(source.includes('window.lvSaveRow=function(uid,button)'));
 assert.ok(source.includes("logHistory('special-add',dates.join(','),null,entry,entry.note);closeModal();"));
 assert.ok(source.includes("window.rbLeaveFinishSave({button:button,promise:saved})"));
-assert.ok(source.includes("window.rbLeaveFinishSave({button:button,close:lvCloseModal})"));
+assert.ok(source.includes("window.rbLeaveFinishSave({button:button,promise:sync})"));
 assert.ok(css.includes('html[data-theme="dark"]'));
 assert.ok(css.includes('@media(max-width:600px)'));
 

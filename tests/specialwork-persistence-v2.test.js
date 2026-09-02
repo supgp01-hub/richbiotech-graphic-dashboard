@@ -61,6 +61,6 @@ vm.runInNewContext(source,{window,document,localStorage,Promise,Date,JSON,Object
   assert.equal(JSON.parse(offlineStore.get('rb_specialwork_v1')).length,1,'an offline refresh must not erase saved special-work rows');
   await offlineWindow.fbSet('/specialwork',[{id:'sw_offline',empId:'ter',cat:'office'}]);
   assert.equal(offlineWindow.rbSpecialworkPersistence.pendingFor('sw_offline'),true,'failed online writes must remain queued per employee record');
-  assert.ok(index.includes('snippets/specialwork-persistence-v2.js?v=fix322'));
+  assert.ok(index.includes('snippets/specialwork-persistence-v2.js?v=fix323'));
   console.log('specialwork-persistence-v2: per-record writes and migration passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});
