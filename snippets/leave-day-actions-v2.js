@@ -3,7 +3,7 @@
 if(root._rbLeaveDayActionsV2Loaded)return;
 root._rbLeaveDayActionsV2Loaded=true;
 
-var VERSION='2.0.0';
+var VERSION='2.1.0';
 var observer=null;
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
@@ -64,14 +64,13 @@ function openToday(){
   },80);
 }
 function ensureTodayAction(){
-  var summary=document.getElementById('lvw-today-summary');
-  if(summary&&!summary.querySelector('.lvw-open-today')){
-    var button=document.createElement('button');button.type='button';button.className='lvw-open-today';button.innerHTML='<span>＋</span> ลงข้อมูลวันนี้';button.onclick=openToday;summary.appendChild(button);
+  var actions=document.querySelector('#lvw-topbar .lvw-topbar-actions'),summary=document.getElementById('lvw-today-summary');
+  var button=document.querySelector('#tab-schedule .lvw-open-today');
+  if(!button&&(actions||summary)){
+    button=document.createElement('button');button.type='button';button.className='lvw-open-today';button.innerHTML='<span>＋</span> ลงข้อมูลวันนี้';button.onclick=openToday;(actions||summary).appendChild(button);
   }
-  var today=document.querySelector('#tab-schedule .lv-day-today');
-  if(today&&!today.querySelector('.lvw-today-action')){
-    var hint=document.createElement('span');hint.className='lvw-today-action';hint.textContent='วันนี้ · กดเพื่อลงหรือแก้ไข';today.appendChild(hint);
-  }
+  if(actions&&button.parentNode!==actions)actions.appendChild(button);
+  document.querySelectorAll('#tab-schedule .lvw-today-action').forEach(function(hint){hint.remove();});
 }
 function ensureScopeNotice(){
   var modal=document.getElementById('lv-modal');if(!modal||!modal.classList.contains('open'))return;

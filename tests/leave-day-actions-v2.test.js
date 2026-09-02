@@ -5,12 +5,13 @@ const html=fs.readFileSync('index.html','utf8');
 const source=fs.readFileSync('snippets/leave-day-actions-v2.js','utf8');
 const css=fs.readFileSync('snippets/leave-day-actions-v2.css','utf8');
 
-assert.ok(html.includes('leave-day-actions-v2.css?v=fix319'));
-assert.ok(html.includes('leave-day-actions-v2.js?v=fix319'));
+assert.ok(html.includes('leave-day-actions-v2.css?v=fix321'));
+assert.ok(html.includes('leave-day-actions-v2.js?v=fix321'));
 assert.ok(source.includes("mode=box&&box.getAttribute('data-lvw-mode')||'leave'"));
 assert.ok(source.includes("mode==='special'?'#lvw-combined-special':'#lvw-combined-leave'"));
 assert.ok(source.includes('ลงข้อมูลวันนี้'));
-assert.ok(source.includes('วันนี้ · กดเพื่อลงหรือแก้ไข'));
+assert.ok(!source.includes("hint.textContent='วันนี้ · กดเพื่อลงหรือแก้ไข'"));
+assert.ok(source.includes("document.querySelector('#lvw-topbar .lvw-topbar-actions')"));
 assert.ok(source.includes('บันทึกออนไลน์แล้ว'));
 assert.ok(source.includes('เก็บข้อมูลไว้แล้ว · รอซิงก์'));
 assert.ok(source.includes('ไม่ทับข้อมูลพนักงานคนอื่น'));
