@@ -5,7 +5,7 @@ if(!modules)throw new Error('CODEX_PRIMARY_NODE_MODULES is required');
 const {chromium}=require(path.join(modules,'playwright'));
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix326';
+  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix327';
   const targetOrigin=new URL(target).origin;
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -98,8 +98,22 @@ const {chromium}=require(path.join(modules,'playwright'));
     const data=JSON.parse(raw).d||{};
     return Object.values(data).flat().some(x=>x.note==='E2E leave persistence');
   });
+  await page.click('[data-combined-mode="special"]');
+  await page.setViewportSize({width:840,height:900});
+  await page.waitForTimeout(100);
+  const mobileScroll=await page.locator('#lv-modal .lvw-combined-box').evaluate(box=>{
+    const style=getComputedStyle(box),before=box.scrollTop;
+    box.scrollTop=box.scrollHeight;
+    return{overflowY:style.overflowY,scrollHeight:box.scrollHeight,clientHeight:box.clientHeight,before,after:box.scrollTop};
+  });
+  assert.ok(mobileScroll.scrollHeight>mobileScroll.clientHeight,`mobile workspace should contain scrollable content: ${JSON.stringify(mobileScroll)}`);
+  assert.strictEqual(mobileScroll.overflowY,'auto','mobile workspace must own vertical scrolling');
+  assert.ok(mobileScroll.after>0,'mobile workspace must scroll to lower controls and records');
+  await page.locator('#lvw-cs-save').scrollIntoViewIfNeeded();
+  assert.strictEqual(await page.locator('#lvw-cs-save').isVisible(),true,'save controls must be reachable on mobile');
   await page.evaluate(()=>window.lvCloseModal(true));
   assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),false,'explicit close action must still dismiss the workspace');
+  await page.setViewportSize({width:1440,height:1000});
 
   await page.reload({waitUntil:'commit'});
   await page.waitForSelector('#sidebar',{timeout:90000});

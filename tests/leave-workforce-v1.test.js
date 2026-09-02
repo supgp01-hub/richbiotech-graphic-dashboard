@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=fix326'));
-assert.ok(html.includes('leave-workforce-v1.js?v=fix326'));
+assert.ok(html.includes('leave-workforce-v1.css?v=fix327'));
+assert.ok(html.includes('leave-workforce-v1.js?v=fix327'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -102,6 +102,9 @@ assert.ok(css.includes('keep the original selected-date title and use one clear 
 assert.ok(css.includes('#lv-modal .lv-mtitle{color:#fff!important'));
 assert.ok(css.includes('#lv-modal .lv-mhead>button:not(.lv-mclose){display:none!important}'));
 assert.ok(css.includes('#lv-modal .lv-mclose-icon path{fill:none!important;stroke:#ff737b!important'));
+assert.ok(css.includes('#lv-modal .lvw-combined-box{overflow-x:hidden!important;overflow-y:auto!important'));
+assert.ok(css.includes('-webkit-overflow-scrolling:touch'));
+assert.ok(css.includes('touch-action:pan-y'));
 assert.ok(html.includes('class="lv-mclose-icon"'));
 assert.ok(html.includes('aria-label="ปิด"'));
 assert.ok(html.includes("document.getElementById('lv-mtitle').textContent='📅 วัน'+dayName"));

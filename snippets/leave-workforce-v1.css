@@ -327,6 +327,8 @@ html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0
 
 /* v1.6 — keep the original selected-date title and use one clear close action. */
 #lv-modal .lv-mbox{padding:0!important;overflow:hidden!important}
+#lv-modal .lvw-combined-box{overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+@supports(height:100dvh){#lv-modal .lvw-combined-box{max-height:calc(100dvh - 48px)}@media(max-width:650px){#lv-modal .lvw-combined-box{max-height:calc(100dvh - 16px)}}}
 #lv-modal .lv-mhead{position:relative;display:block!important;margin:0!important;padding:15px 54px 14px 18px!important;background:#174d3a!important}
 #lv-modal .lv-mtitle{color:#fff!important;font-size:15px!important;line-height:1.35!important}
 #lv-modal #lv-mcycle{color:#a9dfbd!important;margin-top:3px!important}
