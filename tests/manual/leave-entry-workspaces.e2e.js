@@ -6,6 +6,7 @@ const {chromium}=require(path.join(modules,'playwright'));
 
 (async()=>{
   const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix324';
+  const targetOrigin=new URL(target).origin;
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   await context.addInitScript(()=>{
@@ -18,7 +19,7 @@ const {chromium}=require(path.join(modules,'playwright'));
       sessionStorage.setItem('lvw_e2e_seeded','1');
     }
   });
-  await context.route(/^https?:\/\/(?!127\.0\.0\.1(?::\d+)?\/)/,route=>route.abort('blockedbyclient'));
+  await context.route(/^https?:\/\//,route=>new URL(route.request().url()).origin===targetOrigin?route.continue():route.abort('blockedbyclient'));
   const page=await context.newPage(),errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   await page.goto(target,{waitUntil:'commit',timeout:60000});
@@ -101,7 +102,7 @@ const {chromium}=require(path.join(modules,'playwright'));
     localStorage.setItem('lv_dash_v5',JSON.stringify({u:3,d:{'2026-9-24':[{uid:1,empId:'ter',type:'hol',note:'ของเตอร์'},{uid:2,empId:'nun',type:'vac',note:'ของนุ่น'}]}}));
     localStorage.setItem('rb_specialwork_v1',JSON.stringify([{id:'own',empId:'ter',cat:'wfh',dates:['2026-9-23']},{id:'other',empId:'nun',cat:'training',dates:['2026-9-23']}]))
   });
-  await workerContext.route(/^https?:\/\/(?!127\.0\.0\.1(?::\d+)?\/)/,route=>route.abort('blockedbyclient'));
+  await workerContext.route(/^https?:\/\//,route=>new URL(route.request().url()).origin===targetOrigin?route.continue():route.abort('blockedbyclient'));
   const worker=await workerContext.newPage();
   await worker.goto(target,{waitUntil:'commit',timeout:60000});
   await worker.waitForSelector('#sidebar',{timeout:90000});
