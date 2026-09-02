@@ -197,14 +197,16 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 #lv-modal .lvw-combined-summary small{font-size:10.5px;color:#72897d}
 #lv-modal .lvw-combined-summary b{font-size:14px;white-space:nowrap}
 #lv-modal .lvw-combined-context{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0;color:#49685a;font-size:10.5px}
+#lv-modal .lvw-combined-context-single{grid-template-columns:1fr}
 #lv-modal .lvw-combined-context>span{padding:8px 10px;border:1px solid #d9e9df;border-radius:9px;background:#fff}
 #lv-modal .lvw-combined-jobs span{display:block;margin-top:3px}
-#lv-modal .lvw-combined-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 -18px}
+#lv-modal .lvw-combined-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0 -18px}
 #lv-modal .lvw-combined-tabs button{min-height:43px;border:0;border-top:1px solid #d8e9df;background:#f8fbf9;color:#5d7468;font:700 12px inherit;cursor:pointer}
 #lv-modal .lvw-combined-tabs button.active{background:#e7f7ee;color:#176b48;box-shadow:inset 0 -3px #2aa66d}
 #lv-modal .lvw-combined-pane{padding:16px 18px 18px}
-#lv-modal .lvw-combined-box[data-lvw-mode="leave"] #lvw-combined-special{display:none}
-#lv-modal .lvw-combined-box[data-lvw-mode="special"] #lvw-combined-leave{display:none}
+#lv-modal .lvw-combined-box[data-lvw-mode="leave"] #lvw-combined-special,#lv-modal .lvw-combined-box[data-lvw-mode="leave"] #lvw-combined-report{display:none}
+#lv-modal .lvw-combined-box[data-lvw-mode="special"] #lvw-combined-leave,#lv-modal .lvw-combined-box[data-lvw-mode="special"] #lvw-combined-report{display:none}
+#lv-modal .lvw-combined-box[data-lvw-mode="report"] #lvw-combined-leave,#lv-modal .lvw-combined-box[data-lvw-mode="report"] #lvw-combined-special{display:none}
 #lv-modal .lvw-combined-leave-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 10px;padding:10px;border:1px solid #d0e5d8;border-radius:10px;background:#f5fbf7}
 #lv-modal .lvw-combined-leave-dates label{display:block;margin-bottom:5px;color:#315846;font-size:10.5px;font-weight:700}
 #lv-modal .lvw-combined-leave-dates input{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #c5d9cd;border-radius:8px;background:#fff;color:#183e2e;font:500 11.5px inherit}
@@ -224,7 +226,7 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 #lv-modal .lvw-special-editor .lvw-combined-special-form{margin:12px;border:0;background:#f7fbf8}
 #lv-modal .lvw-special-editor .lvw-preview{margin:0 12px 10px}
 #lv-modal .lvw-special-editor .lvw-modal-actions{padding:0 12px 12px}
-#lv-modal .lvw-my-record-list{display:grid;gap:8px;max-height:420px;padding:12px;overflow:auto}
+#lv-modal .lvw-my-record-list{display:grid;gap:8px;padding:12px}
 #lv-modal .lvw-my-record{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px;border:1px solid #d6e6dc;border-left:4px solid var(--sw-color);border-radius:10px;background:#fbfefc}
 #lv-modal .lvw-my-record-copy{min-width:0}
 #lv-modal .lvw-my-record-copy b,#lv-modal .lvw-my-record-copy small{display:block}
@@ -261,11 +263,38 @@ html[data-theme="dark"] #lv-modal .lvw-my-record-copy b{color:#e9fff5}
 #lv-modal .lvw-special-choice-wrap{grid-column:1/-1}
 #lv-modal .lvw-special-employee-card{grid-column:1/-1;margin:0}
 #lv-modal .lvw-leave-record{--sw-bg:#f1fbf5}
+#lv-modal .lvw-report-workspace{border:1px solid #cfe3d6;border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(27,67,50,.05);overflow:hidden}
+#lv-modal .lvw-report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #d9eadf;background:#f4faf6;color:#174d3a}
+#lv-modal .lvw-report-head b,#lv-modal .lvw-report-head small{display:block}
+#lv-modal .lvw-report-head b{font-size:13px}
+#lv-modal .lvw-report-head small{margin-top:3px;color:#71887c;font-size:10px}
+#lv-modal .lvw-report-head>span{padding:5px 9px;border-radius:999px;background:#e5f7ec;color:#176b48;font-size:9px;font-weight:800;white-space:nowrap}
+#lv-modal .lvw-report-kind{display:flex;gap:7px;padding:10px 12px 0}
+#lv-modal .lvw-report-kind button{padding:8px 12px;border:1px solid #c9dfd2;border-radius:9px;background:#fff;color:#48695a;font:700 10.5px inherit;cursor:pointer}
+#lv-modal .lvw-report-kind button.active{border-color:#2aa66d;background:#e9f8ef;color:#176b48;box-shadow:inset 0 0 0 1px #2aa66d}
+#lv-modal .lvw-report-filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 12px}
+#lv-modal .lvw-report-filters label{color:#315846;font-size:9.5px;font-weight:700}
+#lv-modal .lvw-report-filters input,#lv-modal .lvw-report-filters select{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:8px 9px;border:1px solid #c7ddcf;border-radius:8px;background:#fff;color:#183e2e;font:600 10.5px inherit}
+#lv-modal .lvw-report-table-wrap{margin:0 12px;border:1px solid #d8e8de;border-radius:10px;overflow:auto}
+#lv-modal .lvw-report-table{width:100%;border-collapse:collapse;color:#294e3d;font-size:9.5px}
+#lv-modal .lvw-report-table th{padding:8px;text-align:left;background:#edf7f1;color:#315846;white-space:nowrap}
+#lv-modal .lvw-report-table td{max-width:175px;padding:7px 8px;border-top:1px solid #e3eee7;vertical-align:middle}
+#lv-modal .lvw-report-detail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#lv-modal .lvw-report-actions{display:flex;gap:4px}
+#lv-modal .lvw-report-actions button{padding:5px 7px;border:1px solid #bdd9c8;border-radius:6px;background:#fff;color:#176b48;font:700 9px inherit;cursor:pointer}
+#lv-modal .lvw-report-actions button.danger{border-color:#efc4c4;color:#c43e3e}
+#lv-modal .lvw-report-empty{padding:30px!important;text-align:center;color:#7c9287}
+#lv-modal .lvw-report-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;color:#71887c;font-size:9.5px}
+#lv-modal .lvw-report-pager>div{display:flex;align-items:center;gap:7px}
+#lv-modal .lvw-report-pager button{padding:6px 9px;border:1px solid #c8dfd1;border-radius:7px;background:#fff;color:#176b48;font:700 9px inherit;cursor:pointer}
+#lv-modal .lvw-report-pager button:disabled{opacity:.45;cursor:default}
+html[data-theme="dark"] #lv-modal .lvw-report-workspace{background:#102f29;border-color:#2f5e50}
+html[data-theme="dark"] #lv-modal .lvw-report-head,html[data-theme="dark"] #lv-modal .lvw-report-table th{background:#153a32;border-color:#2f5e50;color:#e9fff5}
 html[data-theme="dark"] #lv-modal .lvw-entry-editor{background:#102f29;border-color:#2f5e50}
 html[data-theme="dark"] #lv-modal .lvw-entry-editor>.lvw-combined-section-head{background:#153a32;border-color:#2f5e50}
 @media(max-width:850px){#lv-modal .lvw-special-workspace{grid-template-columns:1fr}}
 @media(max-width:850px){#lv-modal .lvw-entry-workspace{grid-template-columns:1fr}}
-@media(max-width:650px){#lv-modal{padding:8px}#lv-modal .lvw-combined-box{width:100%;max-height:calc(100vh - 16px);border-radius:14px}#lv-modal .lvw-combined-summary{grid-template-columns:1fr 1fr}#lv-modal .lvw-combined-context{grid-template-columns:1fr}#lv-modal .lvw-combined-tabs{grid-template-columns:1fr 1fr}#lv-modal .lvw-form-grid,#lv-modal .lvw-combined-leave-dates{grid-template-columns:1fr}#lv-modal .lvw-employee-card{grid-template-columns:34px 1fr}#lv-modal .lvw-employee-card select,#lv-modal .lvw-employee-card em{grid-column:1/-1}#lv-modal .lvw-type-choices{grid-template-columns:1fr 1fr}#lv-modal .lvw-combined-existing-row{grid-template-columns:32px minmax(0,1fr)}#lv-modal .lvw-combined-row-actions{grid-column:2}#lv-modal .lvw-my-record{grid-template-columns:32px minmax(0,1fr)}#lv-modal .lvw-sync-state{grid-column:2;justify-self:start}#lv-modal .lvw-my-record .lvw-combined-row-actions{grid-column:2}}
+@media(max-width:650px){#lv-modal{padding:8px}#lv-modal .lvw-combined-box{width:100%;max-height:calc(100vh - 16px);border-radius:14px}#lv-modal .lvw-combined-summary{grid-template-columns:1fr 1fr}#lv-modal .lvw-combined-context{grid-template-columns:1fr}#lv-modal .lvw-combined-tabs{grid-template-columns:repeat(3,1fr)}#lv-modal .lvw-form-grid,#lv-modal .lvw-combined-leave-dates,#lv-modal .lvw-report-filters{grid-template-columns:1fr}#lv-modal .lvw-employee-card{grid-template-columns:34px 1fr}#lv-modal .lvw-employee-card select,#lv-modal .lvw-employee-card em{grid-column:1/-1}#lv-modal .lvw-type-choices{grid-template-columns:1fr 1fr}#lv-modal .lvw-combined-existing-row{grid-template-columns:32px minmax(0,1fr)}#lv-modal .lvw-combined-row-actions{grid-column:2}#lv-modal .lvw-my-record{grid-template-columns:32px minmax(0,1fr)}#lv-modal .lvw-sync-state{grid-column:2;justify-self:start}#lv-modal .lvw-my-record .lvw-combined-row-actions{grid-column:2}#lv-modal .lvw-report-pager{align-items:flex-start;flex-direction:column}}
 
 /* v1.4 — special-work ribbon, approved option 2 */
 #tab-schedule .lvw-special-ribbons{display:grid;gap:3px;margin:4px -3px 5px}

@@ -5,7 +5,7 @@ if(!modules)throw new Error('CODEX_PRIMARY_NODE_MODULES is required');
 const {chromium}=require(path.join(modules,'playwright'));
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix323';
+  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix324';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   await context.addInitScript(()=>{
@@ -37,11 +37,13 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.waitForSelector('#tab-schedule.active #lvw-multi-btn');
   await page.click('#lvw-multi-btn');
   await page.waitForSelector('#lv-modal.open .lvw-combined-box[data-lvw-mode="special"]');
-  assert.strictEqual(await page.locator('.lvw-combined-tabs button').count(),4);
+  assert.strictEqual(await page.locator('.lvw-combined-tabs button').count(),3);
+  assert.strictEqual(await page.locator('[data-combined-nav="calendar"]').count(),0);
+  assert.ok(!(await page.locator('.lvw-combined-tools').innerText()).includes('ว่างรับงาน:'));
   assert.strictEqual(await page.locator('#lvw-combined-special [data-special-type]').count(),4);
   assert.strictEqual(await page.locator('#lvw-combined-special .lvw-special-workspace').count(),1);
   assert.strictEqual(await page.locator('#tab-schedule .lv-job-badge').count(),0);
-  if(process.env.CODEX_UI_CAPTURE)await page.screenshot({path:process.env.CODEX_UI_CAPTURE,fullPage:true});
+  if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE});
 
   await page.selectOption('#lvw-cs-emp','wiw');
   await page.click('#lvw-combined-special [data-special-type="training"]');
@@ -56,13 +58,19 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.click('[data-combined-mode="leave"]');
   await page.waitForSelector('#lvw-combined-leave .lvw-entry-workspace');
   assert.strictEqual(await page.locator('#lvw-combined-leave [data-leave-type]').count(),4);
-  if(process.env.CODEX_UI_CAPTURE)await page.screenshot({path:process.env.CODEX_UI_CAPTURE.replace(/\.png$/,'-leave.png'),fullPage:true});
+  if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE.replace(/\.png$/,'-leave.png')});
   await page.selectOption('#lv-f-emp','wiw');
   await page.click('#lvw-combined-leave [data-leave-type="hol"]');
   await page.fill('#lvw-cl-start','2026-09-24');
   await page.fill('#lvw-cl-end','2026-09-24');
   await page.fill('#lv-f-note','E2E leave persistence');
   await page.click('#lv-f-save');
+  await page.click('[data-combined-mode="report"]');
+  await page.waitForSelector('#lvw-combined-report .lvw-report-workspace');
+  assert.strictEqual(await page.locator('[data-report-kind]').count(),2);
+  assert.strictEqual(await page.locator('.lvw-team-day').count(),0);
+  assert.ok((await page.locator('#lvw-combined-report').innerText()).includes('ประวัติวันหยุดปกติ'));
+  if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE.replace(/\.png$/,'-report.png')});
   await page.waitForFunction(()=>{
     const raw=localStorage.getItem('lv_dash_v5');if(!raw)return false;
     const data=JSON.parse(raw).d||{};
@@ -84,7 +92,7 @@ const {chromium}=require(path.join(modules,'playwright'));
     special:JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'),
     version:document.documentElement.getAttribute('data-lvw-version')
   }));
-  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.2.0'});
+  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.3.0'});
   assert.deepStrictEqual(errors,[],errors.join(' | '));
 
   const workerContext=await browser.newContext({viewport:{width:1280,height:900}});
@@ -111,6 +119,11 @@ const {chromium}=require(path.join(modules,'playwright'));
   assert.deepStrictEqual(await worker.locator('#lv-f-emp option').evaluateAll(opts=>opts.map(x=>x.value).filter(Boolean)),['ter']);
   assert.ok((await worker.locator('#lvw-combined-leave .lvw-my-record-list').innerText()).includes('Ter'));
   assert.ok(!(await worker.locator('#lvw-combined-leave .lvw-my-record-list').innerText()).includes('Nune'));
+  await worker.click('[data-combined-mode="report"]');
+  assert.ok((await worker.locator('#lvw-combined-report').innerText()).includes('Nune'));
+  await worker.click('[data-report-kind="special"]');
+  assert.ok((await worker.locator('#lvw-combined-report').innerText()).includes('Nune'));
+  assert.strictEqual(await worker.locator('#lvw-combined-report [data-report-delete*="other"]').count(),0);
   await workerContext.close();
   console.log('leave and special-work workspaces persisted across refresh');
   await browser.close();
