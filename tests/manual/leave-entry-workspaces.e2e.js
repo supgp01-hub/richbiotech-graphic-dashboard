@@ -5,7 +5,7 @@ if(!modules)throw new Error('CODEX_PRIMARY_NODE_MODULES is required');
 const {chromium}=require(path.join(modules,'playwright'));
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix325';
+  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix326';
   const targetOrigin=new URL(target).origin;
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -58,6 +58,11 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lvw-cs-note','E2E special persistence');
   await page.click('#lvw-cs-save');
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'));
+  await page.waitForTimeout(900);
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'special-work modal must remain open after save');
+  assert.strictEqual(await page.locator('#lvw-combined-special').isVisible(),true,'special-work function bar must remain visible after save');
+  await page.evaluate(()=>window.lvCloseModal());
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'automatic legacy close must not dismiss the combined workspace');
   assert.strictEqual(await page.locator('#lvw-cs-save').isDisabled(),false,'special-work save must stay usable while cloud sync is pending');
   assert.strictEqual(await page.locator('[data-combined-mode="leave"]').isDisabled(),false,'navigation must stay usable after special-work save');
   await page.fill('#lvw-cs-start','2026-09-22');
@@ -65,6 +70,7 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lvw-cs-note','E2E second special without refresh');
   await page.click('#lvw-cs-save');
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E second special without refresh'));
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'modal must remain open after consecutive special-work saves');
 
   await page.click('[data-combined-mode="leave"]');
   await page.waitForSelector('#lvw-combined-leave .lvw-entry-workspace');
@@ -77,6 +83,9 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lv-f-note','E2E leave persistence');
   await page.evaluate(()=>{if(window.rbLeavePersistence)window.rbLeavePersistence.waitForSync=function(){return new Promise(function(){})}});
   await page.click('#lv-f-save');
+  await page.waitForTimeout(900);
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'leave modal must remain open after save');
+  assert.strictEqual(await page.locator('#lvw-combined-leave').isVisible(),true,'leave function bar must remain visible after save');
   assert.strictEqual(await page.locator('#lv-f-save').isDisabled(),false,'leave save must stay usable while cloud sync is pending');
   await page.click('[data-combined-mode="report"]');
   await page.waitForSelector('#lvw-combined-report .lvw-report-workspace');
@@ -89,6 +98,8 @@ const {chromium}=require(path.join(modules,'playwright'));
     const data=JSON.parse(raw).d||{};
     return Object.values(data).flat().some(x=>x.note==='E2E leave persistence');
   });
+  await page.evaluate(()=>window.lvCloseModal(true));
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),false,'explicit close action must still dismiss the workspace');
 
   await page.reload({waitUntil:'commit'});
   await page.waitForSelector('#sidebar',{timeout:90000});
@@ -105,7 +116,7 @@ const {chromium}=require(path.join(modules,'playwright'));
     special:JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'),
     version:document.documentElement.getAttribute('data-lvw-version')
   }));
-  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.4.0'});
+  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.5.0'});
   assert.deepStrictEqual(errors,[],errors.join(' | '));
 
   const workerContext=await browser.newContext({viewport:{width:1280,height:900}});

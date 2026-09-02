@@ -1735,12 +1735,12 @@ window._swSave=function(){
 };
 })();
 </script><!-- Modal -->
-  <div id="lv-modal" onclick="if(event.target===this)lvCloseModal()">
+  <div id="lv-modal" onclick="if(event.target===this)lvCloseModal(true)">
     <div class="lv-mbox">
       <div class="lv-mhead">
         <div class="lv-mtitle" id="lv-mtitle"></div>
         <div style="font-size:10px;color:var(--basil);font-weight:700;margin-top:2px" id="lv-mcycle"></div>
-        <button class="lv-mclose" type="button" aria-label="ปิด" title="ปิด" onclick="lvCloseModal()"><svg class="lv-mclose-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        <button class="lv-mclose" type="button" aria-label="ปิด" title="ปิด" onclick="lvCloseModal(true)"><svg class="lv-mclose-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
       </div>
       <!-- Entry list -->
       <div class="lv-elist" id="lv-elist"></div>
@@ -1761,7 +1761,7 @@ window._swSave=function(){
       <input class="lv-fnote" id="lv-f-note" type="text" placeholder="หมายเหตุ (ถ้ามี)" oninput="lvCheckAdd()">
       <div class="lv-ferr" id="lv-f-err"></div>
       <div class="lv-factions">
-        <button class="lv-fbtn-cancel" onclick="lvCloseModal()">ยกเลิก</button>
+        <button class="lv-fbtn-cancel" onclick="lvCloseModal(true)">ยกเลิก</button>
         <button class="lv-fbtn-save" id="lv-f-save" onclick="lvAddEntry()">✓ บันทึก</button>
       </div>
     </div>
@@ -5918,12 +5918,12 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=266"></script>
-<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=fix325">
-<link rel="stylesheet" href="snippets/leave-day-actions-v2.css?v=fix325">
-<script src="snippets/specialwork-persistence-v2.js?v=fix325"></script>
-<script src="snippets/leave-workforce-v1.js?v=fix325"></script>
+<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=fix326">
+<link rel="stylesheet" href="snippets/leave-day-actions-v2.css?v=fix326">
+<script src="snippets/specialwork-persistence-v2.js?v=fix326"></script>
+<script src="snippets/leave-workforce-v1.js?v=fix326"></script>
 <script src="snippets/leave-persistence-v2.js?v=fix320"></script>
-<script src="snippets/leave-day-actions-v2.js?v=fix325"></script>
+<script src="snippets/leave-day-actions-v2.js?v=fix326"></script>
 <script src="snippets/list-facebook-editor.js?v=296"></script>
 <script src="snippets/list-facebook-followup.js?v=296"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>
