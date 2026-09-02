@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=fix321'));
-assert.ok(html.includes('leave-workforce-v1.js?v=fix321'));
+assert.ok(html.includes('leave-workforce-v1.css?v=fix322'));
+assert.ok(html.includes('leave-workforce-v1.js?v=fix322'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -47,17 +47,19 @@ assert.ok(css.includes('Keep the monthly calendar in its original light palette'
 assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
-assert.ok(source.includes("var VERSION='2.0.0'"));
+assert.ok(source.includes("var VERSION='2.1.0'"));
 assert.ok(source.includes('function storeSpecialRows(rows)'));
 assert.ok(source.includes('window.rbStorageResilience.relieve()'));
 assert.ok(source.includes('function specialRecordList()'));
 assert.ok(source.includes('รายการของฉัน'));
+assert.ok(source.includes("openCombinedEntry('', 'special')"));
+assert.ok(source.includes("initialMode==='special'"));
 assert.ok(source.includes('บันทึกออนไลน์แล้ว'));
 assert.ok(source.includes('รอซิงก์'));
 assert.ok(css.includes('.lvw-special-workspace'));
 assert.ok(css.includes('.lvw-my-record'));
 assert.ok(source.includes("if(typeof window.lvOpenDay==='function'){window.lvOpenDay(y,m,d)"));
-assert.ok(source.includes('function enhanceCombinedDay(y,m,d)'));
+assert.ok(source.includes('function enhanceCombinedDay(y,m,d,initialMode)'));
 assert.ok(source.includes('function saveCombinedLeave(p)'));
 assert.ok(source.includes('บันทึกวันทำงานพิเศษ'));
 assert.ok(css.includes('.lvw-combined-tabs'));

@@ -5,8 +5,8 @@ const html=fs.readFileSync('index.html','utf8');
 const source=fs.readFileSync('snippets/leave-day-actions-v2.js','utf8');
 const css=fs.readFileSync('snippets/leave-day-actions-v2.css','utf8');
 
-assert.ok(html.includes('leave-day-actions-v2.css?v=fix321'));
-assert.ok(html.includes('leave-day-actions-v2.js?v=fix321'));
+assert.ok(html.includes('leave-day-actions-v2.css?v=fix322'));
+assert.ok(html.includes('leave-day-actions-v2.js?v=fix322'));
 assert.ok(source.includes("mode=box&&box.getAttribute('data-lvw-mode')||'leave'"));
 assert.ok(source.includes("mode==='special'?'#lvw-combined-special':'#lvw-combined-leave'"));
 assert.ok(source.includes('ลงข้อมูลวันนี้'));
