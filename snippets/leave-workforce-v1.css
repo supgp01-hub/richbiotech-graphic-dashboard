@@ -223,9 +223,10 @@ html[data-theme="dark"] .lvw-alert{background:#28220d;border-color:#69551d;color
 #lv-modal .lvw-special-workspace{display:grid;grid-template-columns:minmax(0,.92fr) minmax(320px,1.08fr);gap:14px;align-items:start}
 #lv-modal .lvw-special-editor,#lv-modal .lvw-my-records,#lv-modal .lvw-team-day{border:1px solid #cfe3d6;border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(27,67,50,.05);overflow:hidden}
 #lv-modal .lvw-special-editor .lvw-combined-section-head,#lv-modal .lvw-my-records .lvw-combined-section-head,#lv-modal .lvw-team-day .lvw-combined-section-head{margin:0;padding:12px 14px;border-bottom:1px solid #d9eadf;background:#f4faf6}
-#lv-modal .lvw-special-editor .lvw-combined-special-form{margin:12px;border:0;background:#f7fbf8}
-#lv-modal .lvw-special-editor .lvw-preview{margin:0 12px 10px}
-#lv-modal .lvw-special-editor .lvw-modal-actions{padding:0 12px 12px}
+#lv-modal .lvw-special-editor .lvw-entry-form{padding:12px}
+#lv-modal .lvw-special-editor .lvw-combined-special-form{margin:0;border:0;background:transparent}
+#lv-modal .lvw-special-editor .lvw-preview{margin:10px 0 0}
+#lv-modal .lvw-special-editor .lvw-modal-actions{padding:0}
 #lv-modal .lvw-my-record-list{display:grid;gap:8px;padding:12px}
 #lv-modal .lvw-my-record{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px;border:1px solid #d6e6dc;border-left:4px solid var(--sw-color);border-radius:10px;background:#fbfefc}
 #lv-modal .lvw-my-record-copy{min-width:0}
@@ -261,7 +262,7 @@ html[data-theme="dark"] #lv-modal .lvw-my-record-copy b{color:#e9fff5}
 #lv-modal .lvw-type-choice.active{border-color:#2aa66d;background:#effaf3;color:#176b48;box-shadow:inset 0 0 0 1px #2aa66d}
 #lv-modal .lvw-native-type-field{display:none!important}
 #lv-modal .lvw-special-choice-wrap{grid-column:1/-1}
-#lv-modal .lvw-special-employee-card{grid-column:1/-1;margin:0}
+#lv-modal .lvw-special-employee-card{margin-bottom:12px}
 #lv-modal .lvw-leave-record{--sw-bg:#f1fbf5}
 #lv-modal .lvw-report-workspace{border:1px solid #cfe3d6;border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(27,67,50,.05);overflow:hidden}
 #lv-modal .lvw-report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #d9eadf;background:#f4faf6;color:#174d3a}

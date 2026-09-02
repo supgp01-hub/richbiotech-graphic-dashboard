@@ -5,9 +5,10 @@ const html=fs.readFileSync('index.html','utf8');
 const source=fs.readFileSync('snippets/leave-day-actions-v2.js','utf8');
 const css=fs.readFileSync('snippets/leave-day-actions-v2.css','utf8');
 
-assert.ok(html.includes('leave-day-actions-v2.css?v=fix324'));
-assert.ok(html.includes('leave-day-actions-v2.js?v=fix324'));
-assert.ok(source.includes("var VERSION='2.2.0'"));
+assert.ok(html.includes('leave-day-actions-v2.css?v=fix325'));
+assert.ok(html.includes('leave-day-actions-v2.js?v=fix325'));
+assert.ok(source.includes("var VERSION='2.3.0'"));
+assert.ok(source.includes('button.disabled=!options.nonBlocking'));
 assert.ok(source.includes('removeLegacyJobBadges'));
 assert.ok(source.includes("mode=box&&box.getAttribute('data-lvw-mode')||'leave'"));
 assert.ok(source.includes("mode==='special'?'#lvw-combined-special':'#lvw-combined-leave'"));

@@ -5,7 +5,7 @@ if(!modules)throw new Error('CODEX_PRIMARY_NODE_MODULES is required');
 const {chromium}=require(path.join(modules,'playwright'));
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix324';
+  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix325';
   const targetOrigin=new URL(target).origin;
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -43,9 +43,11 @@ const {chromium}=require(path.join(modules,'playwright'));
   assert.ok(!(await page.locator('.lvw-combined-tools').innerText()).includes('ว่างรับงาน:'));
   assert.strictEqual(await page.locator('#lvw-combined-special [data-special-type]').count(),4);
   assert.strictEqual(await page.locator('#lvw-combined-special .lvw-special-workspace').count(),1);
+  assert.strictEqual(await page.locator('#lvw-combined-special .lvw-entry-form').count(),1);
   assert.strictEqual(await page.locator('#tab-schedule .lv-job-badge').count(),0);
   if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE});
 
+  await page.evaluate(()=>{window.fbSet=function(){return new Promise(function(){})}});
   await page.selectOption('#lvw-cs-emp','wiw');
   await page.click('#lvw-combined-special [data-special-type="training"]');
   await page.fill('#lvw-cs-start','2026-09-23');
@@ -55,6 +57,13 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lvw-cs-note','E2E special persistence');
   await page.click('#lvw-cs-save');
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'));
+  assert.strictEqual(await page.locator('#lvw-cs-save').isDisabled(),false,'special-work save must stay usable while cloud sync is pending');
+  assert.strictEqual(await page.locator('[data-combined-mode="leave"]').isDisabled(),false,'navigation must stay usable after special-work save');
+  await page.fill('#lvw-cs-start','2026-09-22');
+  await page.fill('#lvw-cs-end','2026-09-22');
+  await page.fill('#lvw-cs-note','E2E second special without refresh');
+  await page.click('#lvw-cs-save');
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E second special without refresh'));
 
   await page.click('[data-combined-mode="leave"]');
   await page.waitForSelector('#lvw-combined-leave .lvw-entry-workspace');
@@ -65,7 +74,9 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lvw-cl-start','2026-09-24');
   await page.fill('#lvw-cl-end','2026-09-24');
   await page.fill('#lv-f-note','E2E leave persistence');
+  await page.evaluate(()=>{if(window.rbLeavePersistence)window.rbLeavePersistence.waitForSync=function(){return new Promise(function(){})}});
   await page.click('#lv-f-save');
+  assert.strictEqual(await page.locator('#lv-f-save').isDisabled(),false,'leave save must stay usable while cloud sync is pending');
   await page.click('[data-combined-mode="report"]');
   await page.waitForSelector('#lvw-combined-report .lvw-report-workspace');
   assert.strictEqual(await page.locator('[data-report-kind]').count(),2);
@@ -93,7 +104,7 @@ const {chromium}=require(path.join(modules,'playwright'));
     special:JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'),
     version:document.documentElement.getAttribute('data-lvw-version')
   }));
-  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.3.0'});
+  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.4.0'});
   assert.deepStrictEqual(errors,[],errors.join(' | '));
 
   const workerContext=await browser.newContext({viewport:{width:1280,height:900}});

@@ -3,7 +3,7 @@
 if(root._rbLeaveDayActionsV2Loaded)return;
 root._rbLeaveDayActionsV2Loaded=true;
 
-var VERSION='2.2.0';
+var VERSION='2.3.0';
 var observer=null;
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
@@ -30,23 +30,24 @@ function syncPromise(){
   return Promise.resolve(true);
 }
 function finishSave(options){
-  options=options||{};
+    options=options||{};
   var button=options.button||document.getElementById('lv-f-save');
-  if(button){button.disabled=true;button.setAttribute('data-old-text',button.textContent||'บันทึก');button.textContent='กำลังบันทึกออนไลน์…';}
+  var oldText=button&&(button.getAttribute('data-old-text')||button.textContent)||'บันทึก';
+  if(button){button.setAttribute('data-old-text',oldText);button.disabled=!options.nonBlocking;button.removeAttribute('aria-busy');button.textContent=options.nonBlocking?oldText:'กำลังบันทึกออนไลน์…';}
   showFeedback('is-saving','กำลังบันทึก…','ระบบกำลังยืนยันข้อมูลกับฐานข้อมูลออนไลน์');
   return Promise.resolve(options.promise||syncPromise()).then(function(ok){
     if(ok!==false){
       showFeedback('is-saved','บันทึกออนไลน์แล้ว','ข้อมูลของ '+actor()+' ถูกบันทึกเรียบร้อยและจะไม่ทับรายการของคนอื่น');
-      if(button){button.textContent='✓ บันทึกออนไลน์แล้ว';button.disabled=true;}
+      if(button){button.textContent=options.nonBlocking?oldText:'✓ บันทึกออนไลน์แล้ว';button.disabled=options.nonBlocking?false:true;button.removeAttribute('aria-busy');}
       setTimeout(function(){if(typeof options.close==='function')options.close();},550);
       return true;
     }
     showFeedback('is-pending','เก็บข้อมูลไว้แล้ว · รอซิงก์','ข้อมูลไม่หายและระบบจะลองบันทึกใหม่อัตโนมัติเมื่อเชื่อมต่อได้');
-    if(button){button.disabled=false;button.textContent='ลองบันทึกออนไลน์อีกครั้ง';}
+    if(button){button.disabled=false;button.removeAttribute('aria-busy');button.textContent=options.nonBlocking?oldText:'ลองบันทึกออนไลน์อีกครั้ง';}
     return false;
   },function(){
     showFeedback('is-pending','เก็บข้อมูลไว้แล้ว · รอซิงก์','ข้อมูลไม่หายและระบบจะลองบันทึกใหม่อัตโนมัติ');
-    if(button){button.disabled=false;button.textContent='ลองบันทึกออนไลน์อีกครั้ง';}
+    if(button){button.disabled=false;button.removeAttribute('aria-busy');button.textContent=options.nonBlocking?oldText:'ลองบันทึกออนไลน์อีกครั้ง';}
     return false;
   });
 }
