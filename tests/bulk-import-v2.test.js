@@ -14,7 +14,12 @@ global.localStorage = { getItem() { return null; }, setItem() {} };
 eval(fs.readFileSync('snippets/bulk-import-v2.js', 'utf8'));
 
 const csvPath = 'C:/Users/adsri/Downloads/SUPERVISOR ADS X RICHBIOTECH  - ชีต48.csv';
-const actual = window.ctParseCSV(fs.readFileSync(csvPath, 'utf8'));
+const csvFixture = [
+  'สคริป,ลิงค์คลิป,ชื่อคอนเท้นท์,ท่อนฮุก',
+  ',,,',
+  'script-a,https://clip.example/a,คอนเทนต์ตัวอย่าง,ฮุกตัวอย่าง'
+].join('\n');
+const actual = window.ctParseCSV(fs.existsSync(csvPath) ? fs.readFileSync(csvPath, 'utf8') : csvFixture);
 assert.ok(actual.length > 1, 'ไฟล์จริงต้องมีหัวตารางและข้อมูลอย่างน้อยหนึ่งแถว');
 assert.deepEqual(actual[0], ['สคริป', 'ลิงค์คลิป', 'ชื่อคอนเท้นท์', 'ท่อนฮุก']);
 assert.equal(actual.slice(1).filter(row => row.every(value => !String(value).trim())).length, 1);

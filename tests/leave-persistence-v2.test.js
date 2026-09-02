@@ -69,7 +69,7 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.strictEqual(accepted,'remote-applied','a newer team revision must replace an older local snapshot');
   assert.strictEqual(window.LV_DATA['2026-9-2'][0].empId,'jam');
   const index=fs.readFileSync('index.html','utf8');
-  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix319'));
+  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix320'));
   assert.ok(index.includes('<meta name="rb-build" content="fix318">'));
   console.log('leave-persistence-v2: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

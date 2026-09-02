@@ -8,7 +8,9 @@ const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'u
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
 assert.ok(html.includes('commission-center-v1.css?v=fix316'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix316'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix320'),'commission runtime must be loaded');
+assert.ok(js.includes('function saveSourceLocal(rows)'),'large commission cache must be stored through a quota-safe helper');
+assert.ok(js.includes('json.length>750000'),'large source snapshots must not crowd out operational save queues');
 assert.ok(js.includes('window._rbCommissionMount'),'commission app must expose a deterministic late-panel mount hook');
 assert.ok(js.includes('MutationObserver'),'commission app must recover when the real panel is created after page load');
 assert.ok(js.includes('mountIfNeeded()'),'commission app must mount itself when the panel appears');

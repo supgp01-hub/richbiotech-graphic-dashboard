@@ -18,7 +18,12 @@ eval(fs.readFileSync('snippets/bulk-import-v2.js', 'utf8'));
 eval(fs.readFileSync('snippets/bulk-import-v3.js', 'utf8'));
 
 const csvPath = 'C:/Users/adsri/Downloads/SUPERVISOR ADS X RICHBIOTECH  - ชีต48.csv';
-const rows = window.ctParseCSV(fs.readFileSync(csvPath, 'utf8'));
+const csvFixture = [
+  'สคริป,ลิงค์คลิป,ชื่อคอนเท้นท์,ท่อนฮุก',
+  ',,,',
+  'script-a,https://clip.example/a,คอนเทนต์ตัวอย่าง,ฮุกตัวอย่าง'
+].join('\n');
+const rows = window.ctParseCSV(fs.existsSync(csvPath) ? fs.readFileSync(csvPath, 'utf8') : csvFixture);
 const result = window._ctImportV3Test.load(rows, 'So Pink');
 
 assert.equal(result.source, rows.length - 1, 'ต้องแสดงข้อมูลครบทุกแถวหลังหัวตาราง');

@@ -42,6 +42,9 @@ function trimTimeline(rows,limit){
   });
 }
 function relieve(){
+  /* Commission source is a disposable online cache and can be very large.
+     Remove it first so essential drafts and leave queues always have room. */
+  try{storage.removeItem('rb_commission_source_v1');}catch(error){}
   try{storage.removeItem('rb_orders_last_good_v1');}catch(error){}
   var timeline=readJson('rb_timeline_v1',[]);
   if(Array.isArray(timeline)&&timeline.length){

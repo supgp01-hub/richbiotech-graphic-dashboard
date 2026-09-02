@@ -32,6 +32,7 @@ assert.strictEqual(timelineResult.ok,true,'timeline must compact instead of thro
 assert(JSON.parse(storage.getItem('rb_timeline_v1')).length<300,'timeline cache must be bounded');
 
 storage.values.rb_orders_last_good_v1='x'.repeat(3000);
+storage.values.rb_commission_source_v1='x'.repeat(2000);
 const orders=[{id:'GR001',name:'งานทดสอบ',images:[{name:'large.png',type:'image/png',data:'x'.repeat(8000)}],briefImages:[],errorImages:[],fixImages:[]}];
 const orderResult=api.storeOrders(orders,'rb_orders_v1');
 assert.strictEqual(orderResult.ok,true,'orders must fall back to a compact cache when quota is tight');
@@ -41,5 +42,6 @@ assert.strictEqual(api.loadOrderSnapshot('rb_orders_v1')[0].status,undefined,'th
 const cached=JSON.parse(storage.getItem('rb_orders_v1'));
 assert.strictEqual(cached[0]._rbCacheCompacted,true,'local fallback must be marked compact');
 assert.strictEqual(cached[0].images[0].data,undefined,'large image payload must not fill localStorage');
+assert.strictEqual(storage.getItem('rb_commission_source_v1'),null,'quota recovery must discard the large online commission cache before operational data');
 
 console.log('storage resilience v1 tests passed');

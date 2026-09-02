@@ -3,11 +3,11 @@
 if(root._rbLeavePersistenceV2Loaded)return;
 root._rbLeavePersistenceV2Loaded=true;
 
-var VERSION='3.1.0';
+var VERSION='3.2.0';
 var LOCAL_KEY='lv_dash_v5';
 var PENDING_KEY='rb_leave_pending_v2';
 var CLOUD_PATH='/lv_data';
-var active=false,retryTimer=null,remoteLoading=false,lastRevision=0;
+var active=false,retryTimer=null,remoteLoading=false,lastRevision=0,memoryPending=null,memoryLocal=null;
 
 function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return value||{};}}
 function object(value){return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}
@@ -23,12 +23,21 @@ function normalizeData(value){var input=object(value),out={};Object.keys(input).
 function cleanEntry(value){var entry=clone(value);if(entry&&typeof entry==='object')delete entry.__cloudKey;return entry;}
 function entryKey(entry){return safeKey(entry&&entry.__cloudKey||('e_'+(number(entry&&entry.createdAt)||Date.now())+'_'+String(entry&&entry.empId||'emp')+'_'+(number(entry&&entry.uid)||1)));}
 function readJson(key){try{return JSON.parse(localStorage.getItem(key)||'null');}catch(error){return null;}}
-function writeJson(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true;}catch(error){return false;}}
+function writeJson(key,value){
+  var json;try{json=JSON.stringify(value);}catch(error){return false;}
+  try{localStorage.setItem(key,json);return true;}catch(error){
+    try{if(root.rbStorageResilience&&typeof root.rbStorageResilience.relieve==='function')root.rbStorageResilience.relieve();}catch(ignore){}
+    try{localStorage.setItem(key,json);return true;}catch(retryError){return false;}
+  }
+}
 function nextRevision(){lastRevision=Math.max(Date.now(),lastRevision+1);return lastRevision;}
 function normalize(value){value=object(value);return{d:normalizeData(value.d),u:number(value.u)||number(root.LV_UID)||1,t:number(value.t)||number(value.updatedAt),updatedBy:String(value.updatedBy||'')};}
-function readLocal(){return normalize(readJson(LOCAL_KEY));}
-function readPending(){var raw=readJson(PENDING_KEY);if(!raw)return null;var value=normalize(raw);value.dirty=Array.isArray(raw.dirty)?raw.dirty.filter(Boolean):[];value.ops=object(raw.ops);return value;}
-function saveLocal(envelope){return writeJson(LOCAL_KEY,{d:clone(envelope.d),u:envelope.u,t:envelope.t,updatedAt:envelope.t,updatedBy:envelope.updatedBy||''});}
+function newer(stored,memory){stored=stored&&typeof stored==='object'?stored:null;memory=memory&&typeof memory==='object'?memory:null;if(!stored)return memory;if(!memory)return stored;return number(memory.t)>=number(stored.t)?memory:stored;}
+function readLocal(){return normalize(newer(readJson(LOCAL_KEY),memoryLocal));}
+function readPending(){var raw=newer(readJson(PENDING_KEY),memoryPending);if(!raw)return null;var value=normalize(raw);value.dirty=Array.isArray(raw.dirty)?raw.dirty.filter(Boolean):[];value.ops=object(raw.ops);return value;}
+function saveLocal(envelope){var copy={d:clone(envelope.d),u:envelope.u,t:envelope.t,updatedAt:envelope.t,updatedBy:envelope.updatedBy||''};if(writeJson(LOCAL_KEY,copy)){memoryLocal=null;return true;}memoryLocal=copy;return false;}
+function savePending(envelope){var copy=clone(envelope);if(writeJson(PENDING_KEY,copy)){memoryPending=null;return true;}memoryPending=copy;return false;}
+function clearPending(){memoryPending=null;try{localStorage.removeItem(PENDING_KEY);}catch(error){}}
 function currentUser(){return root._rbUser&&root._rbUser.name?String(root._rbUser.name):'';}
 function unique(values){var seen={};return(values||[]).filter(function(value){value=String(value||'');if(!value||seen[value])return false;seen[value]=1;return true;});}
 function render(){try{if(typeof root.lvRender==='function')root.lvRender();if(typeof root.lvRestorePhotos==='function')root.lvRestorePhotos();if(typeof root.rbRefreshOrderLeaveGuard==='function')root.rbRefreshOrderLeaveGuard();}catch(error){}}
@@ -36,7 +45,7 @@ function queueSnapshot(dirty,operations){
   var previous=readPending(),revision=nextRevision(),keys=unique((previous?previous.dirty:[]).concat(dirty||[])),ops=clone(previous&&previous.ops||{});
   Object.keys(object(operations)).forEach(function(path){ops[path]=clone(operations[path]);});
   var envelope={d:normalizeData(root.LV_DATA),u:number(root.LV_UID)||1,t:revision,updatedBy:currentUser(),dirty:keys,ops:ops};
-  saveLocal(envelope);writeJson(PENDING_KEY,envelope);flush();return envelope;
+  saveLocal(envelope);savePending(envelope);flush();return envelope;
 }
 function keyPath(key){return CLOUD_PATH+'/d/'+String(key).replace(/[.#$\[\]\/]/g,'_');}
 function scheduleRetry(){clearTimeout(retryTimer);retryTimer=setTimeout(flush,5000);}
@@ -56,7 +65,7 @@ function flush(){
   chain.then(function(ok){
     active=false;
     var latest=readPending();
-    if(ok&&latest&&latest.t===pending.t){try{localStorage.removeItem(PENDING_KEY);}catch(error){}}
+    if(ok&&latest&&latest.t===pending.t)clearPending();
     if(!ok)scheduleRetry();else if(readPending())flush();
   },function(){active=false;scheduleRetry();});
 }
@@ -71,7 +80,7 @@ function mergePending(remote,pending){
 }
 function acceptRemote(remote){
   remote=normalize(remote);var local=readLocal(),pending=readPending();lastRevision=Math.max(lastRevision,remote.t,local.t,pending?pending.t:0);
-  if(pending){var merged=mergePending(remote,pending);root.LV_DATA=clone(merged.d);root.LV_UID=Math.max(number(root.LV_UID)||1,merged.u||1);pending.d=clone(merged.d);pending.u=merged.u;writeJson(PENDING_KEY,pending);saveLocal({d:merged.d,u:merged.u,t:Math.max(local.t,pending.t,remote.t),updatedBy:pending.updatedBy});render();flush();return'pending-kept';}
+  if(pending){var merged=mergePending(remote,pending);root.LV_DATA=clone(merged.d);root.LV_UID=Math.max(number(root.LV_UID)||1,merged.u||1);pending.d=clone(merged.d);pending.u=merged.u;savePending(pending);saveLocal({d:merged.d,u:merged.u,t:Math.max(local.t,pending.t,remote.t),updatedBy:pending.updatedBy});render();flush();return'pending-kept';}
   /* A request that started before the last successful save can finish after the
      save queue has already been acknowledged.  Never let that older snapshot
      replace the newer local copy; the next poll will receive the confirmed
