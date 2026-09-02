@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 const assert=require('assert');
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?role=sup&offline=1&stale=1&preserve=1&delay=1';
+  const target=process.argv[2]||'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?role=sup&offline=1&stale=1&preserve=1&delay=350';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext();
   const page=await context.newPage(),errors=[];

@@ -1,0 +1,41 @@
+const {chromium}=require('playwright');
+const assert=require('assert');
+
+(async()=>{
+  const target=process.argv[2]||'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?role=sup&preserve=1&cloud=1&delay=700';
+  const browser=await chromium.launch({headless:true,channel:'chrome'});
+  const context=await browser.newContext();
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.goto(target,{waitUntil:'domcontentloaded'});
+  await page.evaluate(()=>{
+    localStorage.removeItem('rb_order_planner_deleted_v1');
+    localStorage.removeItem('rb_order_planner_drafts_v1');
+    localStorage.removeItem('rb_generic_write_queue_v3');
+    localStorage.setItem('rb_fixture_planner_cloud',JSON.stringify({remote_existing:{id:'remote_existing',name:'งานเดิมออนไลน์',type:'กราฟิก',deadline:'2026-09-04',scheduledDate:'2026-09-01',status:'draft',updatedAt:Date.now()-1000}}));
+  });
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#ord-planner-btn').click();
+  await page.waitForTimeout(900);
+  assert.strictEqual(await page.locator('[data-action="select-draft"]').filter({hasText:'งานเดิมออนไลน์'}).count(),1,'existing cloud work must load');
+  await page.getByRole('button',{name:'+ เพิ่มงาน',exact:true}).click();
+  await page.locator('.rbp-detail-editor [data-field="name"]').fill('งานใหม่บันทึกออนไลน์');
+  await page.getByRole('button',{name:'บันทึกฉบับร่างทั้งหมด',exact:true}).click();
+  await page.waitForTimeout(900);
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#ord-planner-btn').click();
+  await page.waitForTimeout(900);
+  assert.strictEqual(await page.locator('[data-action="select-draft"]').filter({hasText:'งานเดิมออนไลน์'}).count(),1,'saving another job must not overwrite existing cloud work');
+  assert.strictEqual(await page.locator('[data-action="select-draft"]').filter({hasText:'งานใหม่บันทึกออนไลน์'}).count(),1,'saved work must survive a full refresh');
+  await page.locator('[data-action="select-draft"]').filter({hasText:'งานใหม่บันทึกออนไลน์'}).click();
+  await page.evaluate(()=>{window.confirm=()=>true;document.querySelector('.rbp-draft-delete').click()});
+  await page.waitForTimeout(900);
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#ord-planner-btn').click();
+  await page.waitForTimeout(900);
+  assert.strictEqual(await page.locator('[data-action="select-draft"]').filter({hasText:'งานใหม่บันทึกออนไลน์'}).count(),0,'deleted work must remain deleted after refresh');
+  assert.strictEqual(await page.locator('[data-action="select-draft"]').filter({hasText:'งานเดิมออนไลน์'}).count(),1,'deleting one job must not delete another job');
+  assert.deepStrictEqual(errors,[],'cloud roundtrip must not produce browser errors');
+  console.log('planner cloud roundtrip: add, save, refresh, delete and refresh passed');
+  await browser.close();
+})().catch(error=>{console.error(error);process.exit(1)});
