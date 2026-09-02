@@ -91,7 +91,11 @@ function saveDay(y,m,d,rows){
   (rows||[]).forEach(function(row){if(!row||typeof row!=='object')return;row=clone(row);row.__cloudKey=entryKey(row);keep[row.__cloudKey]=true;next.push(row);ops[keyPath(key)+'/'+safeKey(row.__cloudKey)]=cleanEntry(row);});
   before.forEach(function(row){var storage=entryKey(row);if(!keep[storage])ops[keyPath(key)+'/'+safeKey(storage)]=null;});
   if(!next.length)delete data[key];else data[key]=next;
-  root.LV_DATA=data;queueSnapshot([key],ops);
+  root.LV_DATA=data;return queueSnapshot([key],ops);
+}
+function waitForSync(timeout){
+  timeout=Math.max(500,Number(timeout)||4500);
+  return new Promise(function(resolve){var started=Date.now();(function check(){if(!readPending()){resolve(true);return;}if(Date.now()-started>=timeout){resolve(false);return;}setTimeout(check,120);})();});
 }
 function load(){var local=readLocal();lastRevision=Math.max(lastRevision,local.t);if(Object.keys(local.d).length){root.LV_DATA=clone(local.d);root.LV_UID=Math.max(number(root.LV_UID)||1,local.u||1);render();}fetchRemote();flush();}
 function install(){
@@ -105,6 +109,7 @@ function install(){
 
 root.addEventListener&&root.addEventListener('online',flush);
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===PENDING_KEY)flush();if(event.key===LOCAL_KEY&&!readPending()){var next=readLocal();if(next.t>lastRevision){lastRevision=next.t;applyEnvelope(next);}}});
-root._rbLeavePersistenceTest={normalize:normalize,normalizeData:normalizeData,mergePending:mergePending,acceptRemote:acceptRemote,readPending:readPending,flush:flush,version:VERSION};
+root.rbLeavePersistence={version:VERSION,waitForSync:waitForSync,flush:flush,pending:function(){return!!readPending();}};
+root._rbLeavePersistenceTest={normalize:normalize,normalizeData:normalizeData,mergePending:mergePending,acceptRemote:acceptRemote,readPending:readPending,flush:flush,waitForSync:waitForSync,version:VERSION};
 install();
 })(window);

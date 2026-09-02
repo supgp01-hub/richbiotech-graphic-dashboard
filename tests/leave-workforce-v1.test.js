@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=fix311'));
-assert.ok(html.includes('leave-workforce-v1.js?v=fix311'));
+assert.ok(html.includes('leave-workforce-v1.css?v=fix319'));
+assert.ok(html.includes('leave-workforce-v1.js?v=fix319'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -77,9 +77,12 @@ assert.ok(html.includes('aria-label="ปิด"'));
 assert.ok(html.includes("document.getElementById('lv-mtitle').textContent='📅 วัน'+dayName"));
 assert.ok(html.includes("document.getElementById('lv-mcycle').textContent='รอบ: 26 '"));
 assert.ok(!html.includes('<div class="lv-add-title">➕ เพิ่มการลา</div>'));
-assert.ok(html.includes('lvRenderCal();lvRenderSum();lvRefreshEList();lvCloseModal();'));
+assert.ok(html.includes('lvRenderCal();lvRenderSum();lvRefreshEList();'));
+assert.ok(html.includes("window.rbLeaveFinishSave({button:button||document.querySelector('#lv-elist .lv-esave'),close:lvCloseModal})"));
+assert.ok(source.includes('window.lvSaveRow=function(uid,button)'));
 assert.ok(source.includes("logHistory('special-add',dates.join(','),null,entry,entry.note);closeModal();"));
-assert.ok(source.includes('decorateCalendar();lvCloseModal()'));
+assert.ok(source.includes("window.rbLeaveFinishSave({button:button,promise:saved,close:lvCloseModal})"));
+assert.ok(source.includes("window.rbLeaveFinishSave({button:button,close:lvCloseModal})"));
 assert.ok(css.includes('html[data-theme="dark"]'));
 assert.ok(css.includes('@media(max-width:600px)'));
 

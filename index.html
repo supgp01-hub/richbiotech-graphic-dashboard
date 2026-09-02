@@ -844,23 +844,13 @@
   <div class="section-title">ทีม Graphic &amp; Ads RICHBIOTECH</div>
 
 <style>
-/* ═══════════════════════════════════════════
-   ARCH ORG CHART
-═══════════════════════════════════════════ */
 .oc-wrap   { overflow-x:auto; padding:8px 0 32px; }
 .oc-tree   { display:flex; flex-direction:column; align-items:center; min-width:960px; }
 
-/* ── vertical connector ── */
 .oc-vline  { width:2px; height:44px; background:var(--seaweed); margin:0 auto; flex-shrink:0; }
 
-/* ── Level rows ── */
 .oc-row    { display:flex; justify-content:center; align-items:flex-start; gap:14px; position:relative; }
 
-/* ── horizontal bar above L3 row ──
-   Spans from center-of-first-child to center-of-last-child
-   Card width L3 = 100px, gap = 14px, 8 cards
-   left = 50px, right = 50px
-*/
 .oc-l3-row { display:flex; justify-content:center; align-items:flex-start; gap:14px; position:relative; padding-top:44px; }
 .oc-l3-row::before {
   content:''; position:absolute; top:0;
@@ -874,7 +864,6 @@
   width:2px; height:44px; background:var(--seaweed);
 }
 
-/* ── ARCH CARD ── */
 .oc-node   { display:flex; flex-direction:column; align-items:center; cursor:pointer; }
 .oc-node:hover .oc-arch-body { transform:translateY(-6px); box-shadow:0 16px 36px rgba(27,67,50,.22); }
 
@@ -1174,14 +1163,8 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <script>
-/* ══════════════════════════════════════════
-   SHARED STATE
-══════════════════════════════════════════ */
 let _currentCard = null;
 
-/* ══════════════════════════════════════════
-   PHOTO EDITOR
-══════════════════════════════════════════ */
 const ED = {
   img: null, fitScale: 1, zoom: 1,
   rotation: 0, ox: 0, oy: 0,
@@ -1307,9 +1290,6 @@ function edSave() {
 }
 function edCancel() { document.getElementById('edit-modal').classList.remove('open'); }
 
-/* ══════════════════════════════════════════
-   UPLOAD HANDLERS  (route through editor)
-══════════════════════════════════════════ */
 function triggerUpload(slot) { slot.querySelector('input[type=file]').click(); }
 
 function checkPhotoPassword(cb) {
@@ -2070,7 +2050,7 @@ function lvRefreshEList(){
     h+='</select></div>';
     /* note */
     h+='<input class="lv-enote" data-uid="'+uid+'" value="'+lvEscHtml(e.note||'')+'" placeholder="หมายเหตุ (คลิกเพื่อแก้ไข)" onchange="lvENoteChange(this)"'+(canEdit?'':' disabled')+'>';
-    if(canEdit)h+='<button class="lv-esave" onclick="lvSaveRow('+uid+')">&#10003; บันทึกการเปลี่ยนแปลง</button>';
+    if(canEdit)h+='<button class="lv-esave" onclick="lvSaveRow('+uid+',this)">&#10003; บันทึกการเปลี่ยนแปลง</button>';
     var tsStr='';
     if(e.updatedAt)tsStr='✏️ แก้ไขล่าสุด: '+lvFmtTime(e.updatedAt);
     else if(e.createdAt)tsStr='🕐 บันทึก: '+lvFmtTime(e.createdAt);
@@ -2094,7 +2074,7 @@ function lvSaveEntryField(uid,field,val){
   for(var i=0;i<es.length;i++)if(es[i].uid===uid){es[i][field]=val;break;}
   lvSaveDay(y,m,d,es);
 }
-function lvSaveRow(uid){
+function lvSaveRow(uid,button){
   var y=LV_SEL.y,m=LV_SEL.m,d=LV_SEL.d;
   var es=lvGetDay(y,m,d),entry=null;
   for(var i=0;i<es.length;i++)if(es[i].uid===uid){entry=es[i];break;}
@@ -2103,7 +2083,8 @@ function lvSaveRow(uid){
   if(v&&v.block){alert('⚠️ '+v.msg+(v.bypassable?' — กรุณาใส่หมายเหตุก่อนบันทึก':''));return;}
   entry.updatedAt=Date.now();
   lvSaveDay(y,m,d,es);
-  lvRenderCal();lvRenderSum();lvRefreshEList();lvCloseModal();
+  lvRenderCal();lvRenderSum();lvRefreshEList();
+  if(typeof window.rbLeaveFinishSave==='function')window.rbLeaveFinishSave({button:button||document.querySelector('#lv-elist .lv-esave'),close:lvCloseModal});else lvCloseModal();
 }
 
 function lvDelEntry(uid){
@@ -2150,7 +2131,7 @@ function lvAddEntry(){
   errEl.textContent='';
   var sb=document.getElementById('lv-f-save');if(sb)sb.disabled=false;
   lvRefreshEList();
-  lvCloseModal();
+  if(typeof window.rbLeaveFinishSave==='function')window.rbLeaveFinishSave({button:sb,close:lvCloseModal});else lvCloseModal();
 }
 function lvCloseModal(){var el=document.getElementById('lv-modal');if(el)el.classList.remove('open');}
 
@@ -5937,9 +5918,12 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=266"></script>
-<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=fix311">
-<script src="snippets/leave-workforce-v1.js?v=fix311"></script>
-<script src="snippets/leave-persistence-v2.js?v=fix311"></script>
+<link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=fix319">
+<link rel="stylesheet" href="snippets/leave-day-actions-v2.css?v=fix319">
+<script src="snippets/specialwork-persistence-v2.js?v=fix319"></script>
+<script src="snippets/leave-workforce-v1.js?v=fix319"></script>
+<script src="snippets/leave-persistence-v2.js?v=fix319"></script>
+<script src="snippets/leave-day-actions-v2.js?v=fix319"></script>
 <script src="snippets/list-facebook-editor.js?v=296"></script>
 <script src="snippets/list-facebook-followup.js?v=296"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>

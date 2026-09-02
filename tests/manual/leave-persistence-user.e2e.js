@@ -61,6 +61,13 @@ const assert = require('node:assert/strict');
     });
     await page.waitForFunction(() => document.documentElement.getAttribute('data-leave-persistence') === '3.1.0', null, { timeout: 90000 });
     await page.waitForSelector('#lv-cal-body .lv-day[data-lvw-date]');
+    await page.waitForSelector('.lvw-open-today');
+    await page.locator('.lvw-open-today').click();
+    await page.waitForSelector('#lv-modal.open #lvw-cl-start');
+    const today = await page.evaluate(() => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; });
+    assert.equal(await page.locator('#lvw-cl-start').inputValue(),today,'the today shortcut must open today ready for add or edit');
+    await page.locator('#lv-modal .lv-mclose').click();
+    await page.locator('#lv-modal').waitFor({ state: 'hidden' });
     return { context, page, errors };
   }
 
@@ -73,6 +80,7 @@ const assert = require('node:assert/strict');
     await session.page.locator('#lv-f-type').selectOption(type);
     await session.page.locator('#lv-f-note').fill(note);
     await session.page.locator('#lv-f-save').click();
+    await session.page.locator('.lvw-persist-feedback.is-saved').waitFor({ state: 'visible' });
     await session.page.locator('#lv-modal').waitFor({ state: 'hidden' });
     await session.page.waitForFunction(() => !localStorage.getItem('rb_leave_pending_v2'), null, { timeout: 15000 });
     return dateValue;
@@ -84,6 +92,7 @@ const assert = require('node:assert/strict');
     await session.page.waitForSelector('#lv-modal.open #lv-elist .lv-erow');
     await session.page.locator('#lv-elist .lv-enote').fill(note);
     await session.page.locator('#lv-elist .lv-esave').click();
+    await session.page.locator('.lvw-persist-feedback.is-saved').waitFor({ state: 'visible' });
     await session.page.locator('#lv-modal').waitFor({ state: 'hidden' });
     await session.page.waitForFunction(() => !localStorage.getItem('rb_leave_pending_v2'), null, { timeout: 15000 });
   }

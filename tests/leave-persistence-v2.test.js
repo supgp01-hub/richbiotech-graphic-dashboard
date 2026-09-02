@@ -27,6 +27,7 @@ vm.createContext(context);vm.runInContext(source,context);
 
 (async function(){
   assert.strictEqual(document.documentElement.setAttribute instanceof Function,true);
+  assert.strictEqual(typeof window.rbLeavePersistence.waitForSync,'function','confirmed save helper must be exposed');
   window.lvSaveDay(2026,8,28,[{uid:1,empId:'dom',type:'vac',updatedAt:100}]);
   await Promise.resolve();
   assert.ok(writes[0].path.startsWith('/lv_data/d/2026-8-28/e_'),'a changed leave entry must be written to its own child path');
@@ -68,7 +69,7 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.strictEqual(accepted,'remote-applied','a newer team revision must replace an older local snapshot');
   assert.strictEqual(window.LV_DATA['2026-9-2'][0].empId,'jam');
   const index=fs.readFileSync('index.html','utf8');
-  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix311'));
-assert.ok(index.includes('<meta name="rb-build" content="fix318">'));
+  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix319'));
+  assert.ok(index.includes('<meta name="rb-build" content="fix318">'));
   console.log('leave-persistence-v2: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});
