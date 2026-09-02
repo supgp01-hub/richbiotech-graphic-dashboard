@@ -5,7 +5,7 @@ if(!modules)throw new Error('CODEX_PRIMARY_NODE_MODULES is required');
 const {chromium}=require(path.join(modules,'playwright'));
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix328';
+  const target=process.argv[2]||'http://127.0.0.1:8765/index.html?v=fix329';
   const targetOrigin=new URL(target).origin;
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -58,24 +58,36 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lvw-cs-note','E2E special persistence');
   await page.click('#lvw-cs-save');
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'));
-  await page.waitForTimeout(900);
-  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'special-work modal must remain open after save');
-  assert.strictEqual(await page.locator('#lvw-combined-special').isVisible(),true,'special-work function bar must remain visible after save');
-  await page.evaluate(()=>window.lvCloseModal());
-  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'automatic legacy close must not dismiss the combined workspace');
-  assert.strictEqual(await page.locator('#lvw-cs-save').isDisabled(),false,'special-work save must stay usable while cloud sync is pending');
-  assert.strictEqual(await page.locator('[data-combined-mode="leave"]').isDisabled(),false,'navigation must stay usable after special-work save');
+  await page.waitForFunction(()=>!document.getElementById('lv-modal').classList.contains('open'));
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),false,'special-work modal must close automatically after save');
+
+  await page.click('.lv-day[data-lvw-date="2026-9-22"]');
+  await page.waitForSelector('#lv-modal.open .lvw-combined-box');
+  assert.ok((await page.locator('#lv-mtitle').innerText()).includes('22 กันยายน 2569'),'next calendar day must open immediately after save');
+  await page.click('[data-combined-mode="special"]');
+  await page.waitForSelector('#lvw-combined-special .lvw-special-workspace');
+  await page.selectOption('#lvw-cs-emp','wiw');
+  await page.click('#lvw-combined-special [data-special-type="training"]');
   await page.fill('#lvw-cs-start','2026-09-22');
   await page.fill('#lvw-cs-end','2026-09-22');
   await page.fill('#lvw-cs-note','E2E second special without refresh');
   await page.click('#lvw-cs-save');
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E second special without refresh'));
-  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'modal must remain open after consecutive special-work saves');
+  await page.waitForFunction(()=>!document.getElementById('lv-modal').classList.contains('open'));
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),false,'second special-work save must also close automatically');
 
-  await page.click('[data-combined-mode="leave"]');
+  await page.click('.lv-day[data-lvw-date="2026-9-24"]');
+  await page.waitForSelector('#lv-modal.open .lvw-combined-box[data-lvw-mode="leave"]');
   await page.waitForSelector('#lvw-combined-leave .lvw-entry-workspace');
   assert.strictEqual(await page.locator('#lvw-combined-leave [data-leave-type]').count(),4);
   if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE.replace(/\.png$/,'-leave.png')});
+  await page.click('[data-combined-mode="report"]');
+  await page.waitForSelector('#lvw-combined-report .lvw-report-workspace');
+  assert.strictEqual(await page.locator('[data-report-kind]').count(),2);
+  assert.strictEqual(await page.locator('.lvw-team-day').count(),0);
+  assert.ok((await page.locator('#lvw-combined-report').innerText()).includes('ประวัติวันหยุดปกติ'));
+  if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE.replace(/\.png$/,'-report.png')});
+  await page.click('[data-combined-mode="leave"]');
   await page.selectOption('#lv-f-emp','wiw');
   await page.click('#lvw-combined-leave [data-leave-type="hol"]');
   await page.fill('#lvw-cl-start','2026-09-24');
@@ -83,21 +95,17 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.fill('#lv-f-note','E2E leave persistence');
   await page.evaluate(()=>{if(window.rbLeavePersistence)window.rbLeavePersistence.waitForSync=function(){return new Promise(function(){})}});
   await page.click('#lv-f-save');
-  await page.waitForTimeout(900);
-  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true,'leave modal must remain open after save');
-  assert.strictEqual(await page.locator('#lvw-combined-leave').isVisible(),true,'leave function bar must remain visible after save');
-  assert.strictEqual(await page.locator('#lv-f-save').isDisabled(),false,'leave save must stay usable while cloud sync is pending');
-  await page.click('[data-combined-mode="report"]');
-  await page.waitForSelector('#lvw-combined-report .lvw-report-workspace');
-  assert.strictEqual(await page.locator('[data-report-kind]').count(),2);
-  assert.strictEqual(await page.locator('.lvw-team-day').count(),0);
-  assert.ok((await page.locator('#lvw-combined-report').innerText()).includes('ประวัติวันหยุดปกติ'));
-  if(process.env.CODEX_UI_CAPTURE)await page.locator('#lv-modal .lvw-combined-box').screenshot({path:process.env.CODEX_UI_CAPTURE.replace(/\.png$/,'-report.png')});
+  await page.waitForFunction(()=>!document.getElementById('lv-modal').classList.contains('open'));
+  assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),false,'leave modal must close automatically even while cloud sync is pending');
   await page.waitForFunction(()=>{
     const raw=localStorage.getItem('lv_dash_v5');if(!raw)return false;
     const data=JSON.parse(raw).d||{};
     return Object.values(data).flat().some(x=>x.note==='E2E leave persistence');
   });
+
+  await page.click('.lv-day[data-lvw-date="2026-9-25"]');
+  await page.waitForSelector('#lv-modal.open .lvw-combined-box');
+  assert.ok((await page.locator('#lv-mtitle').innerText()).includes('25 กันยายน 2569'),'another calendar day must open without refreshing');
   await page.click('[data-combined-mode="special"]');
   await page.setViewportSize({width:840,height:900});
   await page.waitForTimeout(100);
@@ -114,14 +122,10 @@ const {chromium}=require(path.join(modules,'playwright'));
   await page.evaluate(()=>window.lvCloseModal(true));
   assert.strictEqual(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),false,'explicit close action must still dismiss the workspace');
   await page.setViewportSize({width:1440,height:1000});
-  await page.click('.lv-day[data-lvw-date="2026-9-25"]');
-  await page.waitForSelector('#lv-modal.open .lvw-combined-box');
-  assert.ok((await page.locator('#lv-mtitle').innerText()).includes('25 กันยายน 2569'),'next calendar day must open without refreshing');
-  assert.ok((await page.locator('.lvw-combined-context').innerText()).includes('25 กันยายน 2569'),'next-entry workspace must use the newly selected date');
-  await page.evaluate(()=>window.lvCloseModal(true));
   await page.click('.lv-day[data-lvw-date="2026-9-26"]');
   await page.waitForSelector('#lv-modal.open .lvw-combined-box');
-  assert.ok((await page.locator('#lv-mtitle').innerText()).includes('26 กันยายน 2569'),'a third calendar day must also open without refreshing');
+  assert.ok((await page.locator('#lv-mtitle').innerText()).includes('26 กันยายน 2569'),'a further calendar day must also open without refreshing');
+  assert.ok((await page.locator('.lvw-combined-context').innerText()).includes('26 กันยายน 2569'),'next-entry workspace must use the newly selected date');
   await page.evaluate(()=>window.lvCloseModal(true));
 
   await page.reload({waitUntil:'commit'});
@@ -139,7 +143,7 @@ const {chromium}=require(path.join(modules,'playwright'));
     special:JSON.parse(localStorage.getItem('rb_specialwork_v1')||'[]').some(x=>x.note==='E2E special persistence'),
     version:document.documentElement.getAttribute('data-lvw-version')
   }));
-  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.6.0'});
+  assert.deepStrictEqual(persisted,{leave:true,special:true,version:'2.7.0'});
   assert.deepStrictEqual(errors,[],errors.join(' | '));
 
   const workerContext=await browser.newContext({viewport:{width:1280,height:900}});
