@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><title>Shared business sync fixture</title></head>
+<body>
+<div id="ready">ready</div>
+<script>
+window.fbSet=function(path,value){return window.testCloudSet(path,value);};
+window.fbGet=function(path,callback){window.testCloudGet(path).then(function(value){callback(null,value);},function(error){callback(error,null);});};
+</script>
+<script src="../../snippets/shared-business-sync-v1.js?v=test"></script>
+</body>
+</html>

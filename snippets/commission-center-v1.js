@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var VERSION='fix320';
+var VERSION='fix336';
 var SHEET_URL='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=1307506660';
 var REFERENCE_URL='https://commission-rich.pages.dev/';
 var SOURCE_KEY='rb_commission_source_v1',STORE_KEY='rb_commission_center_v1',REFRESH_KEY='rb_commission_refreshed_v1';
@@ -80,5 +80,10 @@ function handleChange(e){if(!e.target.closest('.rb-commission-app'))return;if(e.
 function handleInput(e){if(!e.target.matches('[data-cc-ads]'))return;var row=e.target.closest('[data-cc-audit-row]'),out=row.querySelector('[data-cc-commission]');if(out)out.textContent=money(commissionForAds(e.target.value))}
 function loadAll(){state.period=defaultPeriod();state.date=today();state.source=load(SOURCE_KEY,[]);state.store=normalizeStore(load(STORE_KEY,{}));state.loaded=true;state.sourceMessage=state.source.length?'ข้อมูลล่าสุดในเครื่อง '+state.source.length.toLocaleString('th-TH')+' รายการ':'กำลังดึงข้อมูลจริงจากชีต...';render();Promise.all([cloudGet(CLOUD_STORE),cloudGet(CLOUD_SOURCE)]).then(function(results){var remote=results[0];if(remote){state.store=normalizeStore(remote);saveLocal();if(Array.isArray(remote.records))cloudSet(CLOUD_STORE+'/records',recordMap(state.store.records))}if(!state.source.length&&results[1]&&Array.isArray(results[1].items)){state.source=results[1].items;saveSourceLocal(state.source)}render();refreshSource(false)})}
 function boot(){document.addEventListener('click',handleClick);document.addEventListener('change',handleChange);document.addEventListener('input',handleInput);window._rbCommissionMount=function(){render();return!!document.querySelector('[data-sub="commission"] .rb-commission-app')};document.addEventListener('click',function(e){var commissionButton=e.target.closest('.gsnav-btn');if(commissionButton&&(commissionButton.textContent||'').indexOf('ค่าคอมมิชชั่น')>=0)setTimeout(render,0);var teamButton=e.target.closest('#sidebar button[onclick*="team"],#rb-bottom-nav button[onclick*="team"]');if(teamButton&&user().role==='ads')setTimeout(function(){enforceAdsAccess();var button=Array.prototype.slice.call(document.querySelectorAll('.gsnav-btn')).find(function(b){return(b.textContent||'').indexOf('ค่าคอมมิชชั่น')>=0});if(button)button.click()},160)},true);if(window.MutationObserver&&document.body){new MutationObserver(function(){mountIfNeeded()}).observe(document.body,{childList:true,subtree:true})}loadAll();mountIfNeeded();var sig=(user().role||'')+'|'+(user().name||'');setInterval(function(){var next=(user().role||'')+'|'+(user().name||'');enforceAdsAccess();mountIfNeeded();if(next!==sig){sig=next;state.employee='';state.detailEmployee='';state.staffDetailEmployee='';state.previewView='';render()}},900);window.addEventListener('storage',function(e){if(e.key===STORE_KEY){state.store=normalizeStore(load(STORE_KEY,{}));render()}});window._rbCommissionTest={parseSheet:parseSheet,parseReference:parseReference,range:range,commissionForAds:commissionForAds,roleView:roleView,actualRoleView:actualRoleView,selectedViewKey:selectedViewKey,combined:combined,mountIfNeeded:mountIfNeeded,normalizeStore:normalizeStore,normalizeRecords:normalizeRecords,recordMap:recordMap,safeCloudKey:safeCloudKey,version:VERSION}}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else setTimeout(boot,0);
+/* This script is loaded after the Graphic panels are created.  Boot immediately
+   so users can open and continue using commission while slower assets are still
+   loading; waiting for DOMContentLoaded used to leave the tab inert. */
+if(document.body&&document.querySelector('[data-sub="commission"]'))boot();
+else if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+else setTimeout(boot,0);
 })();

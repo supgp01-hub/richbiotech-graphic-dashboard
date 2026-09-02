@@ -8,7 +8,7 @@ const performance = fs.readFileSync('snippets/performance-v4.js', 'utf8');
 
 assert.ok(index.includes('snippets/runtime-stability-v2.js?v=207'), 'runtime stability controller must load');
 assert.ok(index.includes('snippets/bulk-import-v2.js?v=207'), 'content cloud cache must be refreshed');
-assert.ok(index.includes('snippets/performance-v4.js?v=267'), 'content sync cache must be refreshed');
+assert.ok(index.includes('snippets/performance-v4.js?v=fix335'), 'content sync cache must be refreshed');
 assert.ok(index.includes("typeof window.initLinksPanel==='function'"), 'Graphic must wait for Content Tracker initialization instead of crashing during a fast online boot');
 assert.ok(index.includes('waitForLinksPanel(attempt+1)'), 'Graphic must retry Content Tracker initialization after later scripts finish loading');
 assert.ok(runtime.includes("container.setAttribute('data-links-deferred','1')"), 'Content Tracker must not initialize with the Graphic page');
@@ -17,6 +17,7 @@ assert.ok(runtime.includes('window.ctCloudPause'), 'leaving Content Tracker must
 assert.ok(cloud.includes('function cloudAllowed()'), 'cloud reads must be gated by the active Content Tracker tab');
 assert.ok(cloud.includes('function cloudPause()'), 'inactive Content Tracker streams must be closed');
 assert.ok(performance.includes('function trackerActive()'), 'large background writes must be gated by the active tab');
-assert.ok(performance.includes('if(!trackerActive())return Promise.resolve(false)'), 'large data sync must not start on Dashboard login');
+assert.ok(performance.includes("window.fbSet('/content_tracker_v2',payload)"), 'business changes must use the retryable online queue');
+assert.ok(!performance.includes('if(!trackerActive())return Promise.resolve(false)'), 'pending business data must keep syncing after the user leaves the Content Tracker tab');
 
 console.log('runtime-stability-v2: all tests passed');
