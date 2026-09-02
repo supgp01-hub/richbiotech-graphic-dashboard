@@ -6,6 +6,7 @@ const assert=require('assert');
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext();
   const first=await context.newPage(),errors=[];
+  first.setDefaultTimeout(12000);
   first.on('pageerror',error=>errors.push('first: '+error.message));
   await first.goto(target,{waitUntil:'domcontentloaded'});
   await first.evaluate(()=>{
@@ -16,6 +17,7 @@ const assert=require('assert');
   });
   await first.reload({waitUntil:'domcontentloaded'});
   const second=await context.newPage();
+  second.setDefaultTimeout(12000);
   second.on('pageerror',error=>errors.push('second: '+error.message));
   await second.goto(target,{waitUntil:'domcontentloaded'});
   await first.locator('#ord-planner-btn').click();
