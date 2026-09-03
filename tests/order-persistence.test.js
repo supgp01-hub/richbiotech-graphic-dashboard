@@ -21,8 +21,8 @@ const syncStart = html.indexOf('function spORD(d)');
 const syncEnd = html.indexOf('\nfunction lpTL()', syncStart);
 const syncSave = html.slice(syncStart, syncEnd);
 assert.ok(syncSave.includes('loadOrderSnapshot(LS_ORD)'), 'order and Audit saves must diff against the last committed snapshot, not the already-mutated live array');
-assert.ok(syncSave.includes("if(!row._fbKey)row._fbKey='ord_'"), 'new rows need collision-safe internal keys');
-assert.ok(!syncSave.includes('byId[row.id]'), 'visible GR numbers must not select a database record to overwrite');
+assert.ok(syncSave.includes("legacyKey&&!active[legacyKey]?legacyKey:'ord_'"), 'legacy rows must reuse one unambiguous key while new rows receive collision-safe keys');
+assert.ok(syncSave.includes('legacyIdCount[row.id]===1'), 'a duplicated visible GR number must never select an existing database record to overwrite');
 
 assert.ok(html.includes('if(_omIsNew&&idx>=0)'), 'a stale new-order form must not replace an existing visible GR number');
 assert.ok(html.includes('function fbMigrateLocalOrders(rows)'), 'legacy local orders must migrate one record at a time');

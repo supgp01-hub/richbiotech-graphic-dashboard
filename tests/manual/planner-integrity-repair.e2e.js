@@ -17,6 +17,7 @@ const assert=require('assert');
     localStorage.setItem('rb_fixture_planner_orders',JSON.stringify({planner_existing:{id:'GR501',sourceDraftId:'existing',name:'งานที่ครบอยู่แล้ว'}}));
   });
   await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.rbOrderPlanner&&typeof window.rbOrderPlanner.run==='function');
   await page.evaluate(()=>window.rbOrderPlanner.run());
   await page.waitForFunction(()=>Object.values(JSON.parse(localStorage.getItem('rb_fixture_planner_orders')||'{}')).some(order=>order.sourceDraftId==='missing'));
   const first=await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_fixture_planner_orders')||'{}'));

@@ -2925,6 +2925,7 @@ var FB_DB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
 var _fbSse=null,_fbFallbackTimer=null,_fbStreamRefreshTimer=null,_fbSyncUiTimer=null; // live updates + fallback
 var FB_ORDER_QUEUE='rb_order_write_queue_v1',_fbOrderFlushActive=false,_fbOrderRetryTimer=null,_fbOrderMemoryQueue=[];
 var FB_REQ_TIMEOUT=12000,_fbRefreshActive=false,_fbRefreshAgain=false,_fbRefreshCallbacks=[];
+var FB_ORDER_ASSET_FIELDS=['images','briefImages','errorImages','fixImages'];
 function fbIsLeader(){return !window.rbMultiTab||window.rbMultiTab.isLeader();}
 function fbStopNetwork(){clearTimeout(_fbStreamRefreshTimer);if(_fbFallbackTimer){clearInterval(_fbFallbackTimer);_fbFallbackTimer=null;}if(_fbSse){_fbSse.close();_fbSse=null;}}
 function fbEnsureSyncChip(){
@@ -2975,6 +2976,9 @@ function fbMergeRemoteSnapshot(data){
     var old=localByKey[row._fbKey]||localById[row.id],out={};
     if(old)Object.keys(old).forEach(function(k){out[k]=old[k];});
     Object.keys(row).forEach(function(k){out[k]=row[k];});
+    /* Once an order has been migrated, images live in /order_assets.  Do not
+       keep an older multi-megabyte embedded copy alive in localStorage. */
+    if(row.assetCounts&&!fbOrderHasAssetFields(row))FB_ORDER_ASSET_FIELDS.forEach(function(field){delete out[field];});
     return out;
   });
   return fbMergePendingOrders(merged);
@@ -2993,7 +2997,32 @@ function fbQueueOrderOp(method,key,data){
   for(var i=0;i<q.length;i++)if(q[i].path===path){found=i;break;}
   var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,ts:Date.now()};
   if(found>=0){var old=q[found];if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;}else q[found]=op;}else q.push(op);
-  fbOrderQueueSave(q);fbFlushOrderQueue();
+  var stored=found>=0?q[found]:q[q.length-1],durable=fbOrderQueueSave(q);fbFlushOrderQueue();
+  return{token:stored&&stored.token,path:path,durable:durable};
+}
+function fbWaitOrderOp(op,timeout){
+  return new Promise(function(resolve){
+    if(!op||!op.token){resolve({confirmed:false,durable:false});return;}
+    /* The persistent queue is the save receipt; network confirmation continues
+       in the background and is reflected by the global sync indicator. */
+    setTimeout(function(){
+      var pending=fbOrderQueueLoad().some(function(item){return item&&item.token===op.token;});
+      resolve({confirmed:!pending,durable:!pending||!!op.durable});
+    },0);
+  });
+}
+function fbOrderAssetPayload(row){var out={};FB_ORDER_ASSET_FIELDS.forEach(function(field){out[field]=Array.isArray(row&&row[field])?row[field]:[];});return out;}
+function fbOrderAssetCounts(row){var out={};FB_ORDER_ASSET_FIELDS.forEach(function(field){out[field]=Array.isArray(row&&row[field])?row[field].length:0;});return out;}
+function fbOrderHasAssetFields(row){return FB_ORDER_ASSET_FIELDS.some(function(field){return !!row&&Object.prototype.hasOwnProperty.call(row,field);});}
+function fbOrderHasAssets(payload){return FB_ORDER_ASSET_FIELDS.some(function(field){return Array.isArray(payload&&payload[field])&&payload[field].length>0;});}
+function fbOrderCloudRecord(row,withFreshAssets){
+  var clean={};Object.keys(row||{}).forEach(function(key){if(key!=='_fbKey'&&key!=='_assetsLoaded'&&FB_ORDER_ASSET_FIELDS.indexOf(key)<0)clean[key]=row[key];});
+  if(withFreshAssets){clean.assetCounts=fbOrderAssetCounts(row);clean.assetsUpdatedAt=Date.now();}
+  return clean;
+}
+function fbLoadOrderAssets(order){
+  if(!order||!order._fbKey)return Promise.resolve(fbOrderAssetPayload(order||{}));
+  return new Promise(function(resolve,reject){fbGet('/order_assets/'+order._fbKey,function(error,data){if(error){reject(error);return;}resolve(fbOrderAssetPayload(data||{}));});});
 }
 function fbFlushOrderQueue(){
   if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}
@@ -3196,26 +3225,33 @@ function refreshOrderViews(){
 }
 function spORD(d){
   /* Compare with the last committed snapshot so edits always reach sync. */
-  var before=window.rbStorageResilience&&window.rbStorageResilience.loadOrderSnapshot?window.rbStorageResilience.loadOrderSnapshot(LS_ORD):lpORD(),after=Array.isArray(d)?d:[],byKey={},active={};
+  var before=window.rbStorageResilience&&window.rbStorageResilience.loadOrderSnapshot?window.rbStorageResilience.loadOrderSnapshot(LS_ORD):lpORD(),after=Array.isArray(d)?d:[],byKey={},legacyKeyById={},legacyIdCount={},active={},queueOps=[],assetWrites=[];
   if(before.length)fbRememberOrders(before);
-  before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=String(idx);byKey[row._fbKey]=row;});
+  before.forEach(function(row){if(row&&row.id)legacyIdCount[row.id]=(legacyIdCount[row.id]||0)+1;});
+  before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=(legacyIdCount[row.id]===1?'order_':'legacy_')+String(row.id).replace(/[^a-zA-Z0-9_-]/g,'_')+(legacyIdCount[row.id]===1?'':'_'+idx);byKey[row._fbKey]=row;if(legacyIdCount[row.id]===1)legacyKeyById[row.id]=row._fbKey;});
   after.forEach(function(row){
     if(!row||!row.id)return;
     /* Keep a collision-safe internal key separate from the visible GR number. */
-    if(!row._fbKey)row._fbKey='ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
+    if(!row._fbKey){var legacyKey=legacyKeyById[row.id];row._fbKey=legacyKey&&!active[legacyKey]?legacyKey:'ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);}
     active[row._fbKey]=1;
   });
-  if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(after,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(after));}catch(error){}
+  var localResult={ok:true};
+  if(window.rbStorageResilience)localResult=window.rbStorageResilience.storeOrders(after,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(after));}catch(error){localResult={ok:false,error:error};}
   refreshOrderViews();
-  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey])fbQueueOrderOp('DELETE',old._fbKey,null);});
+  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey]){queueOps.push(fbQueueOrderOp('DELETE',old._fbKey,null));assetWrites.push(Promise.resolve(fbSet('/order_assets/'+old._fbKey,null)));}});
   after.forEach(function(row){
     if(!row||!row.id)return;
-    var old=byKey[row._fbKey],clean={},changes={};
-    Object.keys(row).forEach(function(k){if(k!=='_fbKey')clean[k]=row[k];});
-    if(!old){fbQueueOrderOp('PUT',row._fbKey,clean);return;}
+    var old=byKey[row._fbKey],hasFreshAssets=fbOrderHasAssetFields(row),clean=fbOrderCloudRecord(row,hasFreshAssets),changes={};
+    if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderAssetPayload(row))));return;}
     var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
-    Object.keys(allKeys).forEach(function(k){var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
-    if(Object.keys(changes).length)fbQueueOrderOp('PATCH',row._fbKey,changes);
+    Object.keys(allKeys).forEach(function(k){if(FB_ORDER_ASSET_FIELDS.indexOf(k)>=0||k==='_assetsLoaded')return;var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
+    if(Object.keys(changes).length)queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes));
+    if(hasFreshAssets){var nextAssets=fbOrderAssetPayload(row),oldAssets=fbOrderAssetPayload(old);if(JSON.stringify(nextAssets)!==JSON.stringify(oldAssets))assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null)));}
+  });
+  var metaWait=queueOps.map(function(op){return fbWaitOrderOp(op);});
+  return Promise.all([Promise.all(metaWait),Promise.all(assetWrites)]).then(function(result){
+    var metadata=result[0]||[],assets=result[1]||[],metadataSafe=metadata.every(function(state){return state&&state.durable;}),online=metadata.every(function(state){return state&&state.confirmed;})&&assets.every(function(ok){return ok!==false;}),assetsOk=assets.every(function(ok){return ok!==false;});
+    return{ok:localResult.ok!==false&&metadataSafe&&assetsOk,localOk:localResult.ok!==false,metadataSafe:metadataSafe,assetsOk:assetsOk,online:online,pending:!online};
   });
 }
 function lpTL(){try{return JSON.parse(localStorage.getItem(LS_TL)||'[]');}catch(e){return[];}}
@@ -3331,7 +3367,11 @@ function initOrderPanel(){
   var _rbu=window._rbUser;
   if(_rbu&&_rbu.role==='graphic'){
     _OF.assignee=rbOrderAssigneeCode(_rbu.name)||'__none__';
+    window._rbOrderLockedAssignee=_OF.assignee;
     var _ocr=document.getElementById('ord-chip-row');if(_ocr)_ocr.style.display='none';
+  }else if(window._rbOrderLockedAssignee){
+    if(_OF.assignee===window._rbOrderLockedAssignee)_OF.assignee='';
+    window._rbOrderLockedAssignee='';
   }
   if(panel.getAttribute('data-order-init')){renderOrderStats();renderOrders();return;}
   panel.setAttribute('data-order-init','1');
@@ -3444,7 +3484,11 @@ function renderOrderStats(){
 function renderOrders(){
   var wrap=document.getElementById('ord-tw');if(!wrap)return;
   var orders=lpORD();
+  var _viewer=window._rbUser||null,_viewerCode=_viewer&&_viewer.role==='graphic'?(rbOrderAssigneeCode(_viewer.name)||'__none__'):'';
   var f=orders.filter(function(o){
+    /* This guard is independent from UI filters, so changing user/role in the
+       same tab can never leak another employee's work or hide the supervisor's. */
+    if(_viewerCode&&(o.assignee||'')!==_viewerCode)return false;
     if(_OF.status&&o.status!==_OF.status)return false;
     if(_OF.type&&o.type!==_OF.type)return false;
     if(_OF.search){var terms=_OF.search.toLowerCase().trim().split(/\s+/);var hay=[o.id,o.name,o.title,o.product,o.type,o.assignee,o.note,o.pageName,o.fbName].join(' ').toLowerCase();if(!terms.every(function(q){return hay.indexOf(q)>=0;}))return false;}
@@ -3774,6 +3818,7 @@ setTimeout(hookLeaveBtns,800);
 // Expose order functions globally for cross-IIFE access
 window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
 window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window._rbRefreshOrderViews=refreshOrderViews;
+window.rbOrderAssetFields=FB_ORDER_ASSET_FIELDS;window.rbOrderHasAssetFields=fbOrderHasAssetFields;window.rbLoadOrderAssets=fbLoadOrderAssets;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
 window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;window.refreshOrderContentFromCloud=refreshOrderContentFromCloud;
@@ -3800,34 +3845,41 @@ window.gAS=function(){
 /* ── ORDERS MODAL v3 — tabbed modal ── */
 (function(){
 
-  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omInfoAction=null, _omViewMode=false, _omUpdateFooter=null, _omIsNew=false, _omDraftTimer=null, _omDraftHydrating=false, _omSummaryOpen=false;
+  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omInfoAction=null, _omViewMode=false, _omUpdateFooter=null, _omIsNew=false, _omDraftTimer=null, _omDraftHydrating=false, _omSummaryOpen=false, _omUploadPending=0, _omAssetsReady=true, _omActionBusy=false;
+  var FB_ORDER_ASSET_FIELDS=window.rbOrderAssetFields||['images','briefImages','errorImages','fixImages'],fbOrderHasAssetFields=window.rbOrderHasAssetFields||function(){return false;},fbLoadOrderAssets=window.rbLoadOrderAssets||function(){return Promise.resolve({});};
   function ge(id){return (_OM2&&_OM2.querySelector('[id="'+id+'"]'))||document.getElementById(id);}
 
-  function compressImg(file,cb){
+  function compressImg(file,cb,fail){
     var r=new FileReader();
     r.onload=function(e){
       var img=new Image();
       img.onload=function(){
         var MAX=1080,w=img.width,h=img.height;
         if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
-        var c=document.createElement('canvas');c.width=w;c.height=h;
-        c.getContext('2d').drawImage(img,0,0,w,h);
-        cb({name:file.name,data:c.toDataURL('image/jpeg',0.83)});
+        var c=document.createElement('canvas'),data='',quality=.82,attempt=0;
+        do{c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);data=c.toDataURL('image/jpeg',quality);quality=Math.max(.5,quality-.09);if(data.length>900000&&attempt>=2){w=Math.max(480,Math.round(w*.82));h=Math.max(480,Math.round(h*.82));}attempt++;}while(data.length>900000&&attempt<7);
+        cb({name:file.name,type:'image/jpeg',size:Math.round(data.length*.75),data:data});
       };
+      img.onerror=function(){if(fail)fail(new Error('อ่านไฟล์รูปไม่สำเร็จ'));};
       img.src=e.target.result;
     };
+    r.onerror=function(){if(fail)fail(new Error('อ่านไฟล์รูปไม่สำเร็จ'));};
     r.readAsDataURL(file);
   }
 
   function handleImgUpload(files,gallery){
-    Array.from(files).forEach(function(f){
-      if(!f.type.startsWith('image/'))return;
+    var selected=Array.from(files||[]).filter(function(f){return f&&f.type&&f.type.startsWith('image/');});
+    if(!selected.length){setOMSubmitFeedback('กรุณาเลือกไฟล์รูปภาพ','error');return;}
+    _omUploadPending+=selected.length;setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอสักครู่...','success');
+    function finished(error){_omUploadPending=Math.max(0,_omUploadPending-1);if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอสักครู่...','success');}else if(error){setOMSubmitFeedback('มีรูปที่อ่านไม่สำเร็จ กรุณาเลือกไฟล์นั้นใหม่','error');}else{setOMSubmitFeedback('รูปพร้อมบันทึกและส่งงานแล้ว','success');}if(_omUpdateFooter)_omUpdateFooter();}
+    selected.forEach(function(f){
       compressImg(f,function(img){
         if(gallery==='brief'){_omBriefImages.push(img);refreshBriefGallery();}
         else if(gallery==='error'){_omErrorImages.push(img);refreshErrorGallery();}
         else if(gallery==='fix'){_omFixImages.push(img);refreshFixGallery();}
         else{_omImages.push(img);refreshGallery();}
-      });
+        finished(false);
+      },function(){finished(true);});
     });
   }
 
@@ -4320,10 +4372,10 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     var auditRow=document.createElement('div');auditRow.id='om-audit-btns';auditRow.style.cssText='display:none;gap:10px;width:100%;';
     var cBtn=document.createElement('button');cBtn.type='button';cBtn.textContent='✅ เสร็จสมบูรณ์';
     cBtn.style.cssText='flex:1;background:#15803d;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .15s;';
-    cBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit')return;var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){persistOMWorkflow(orders[idx]);orders[idx].status='done';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}closeOM2();if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();};
+    cBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='done';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{message:'กำลังบันทึกผลออดิต...',successMessage:'บันทึกผลออดิตออนไลน์เรียบร้อยแล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
     var rBtn=document.createElement('button');rBtn.type='button';rBtn.textContent='⚠️ ต้องแก้ไข';
     rBtn.style.cssText='flex:1;background:#dc2626;color:white;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(220,38,38,.3);transition:opacity .15s;';
-    rBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit')return;var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx>=0){persistOMWorkflow(orders[idx]);orders[idx].status='revision';orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}closeOM2();if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();};
+    rBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='revision';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{message:'กำลังส่งรายละเอียดงานแก้ไข...',successMessage:'ส่งงานกลับไปแก้ไขและบันทึกออนไลน์แล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
     _omUpdateFooter=function(tabKey){
@@ -4381,6 +4433,9 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     _omIsNew=!id;
     var orders=typeof lpORD==='function'?lpORD():[];
     var o=id?orders.find(function(x){return x.id===id;}):null;
+    var _hasRemoteAssets=!!(o&&o.assetCounts&&FB_ORDER_ASSET_FIELDS.some(function(field){return Number(o.assetCounts[field]||0)>0;}));
+    _omUploadPending=0;_omActionBusy=false;
+    _omAssetsReady=!_hasRemoteAssets||fbOrderHasAssetFields(o);
     _omImages=(o&&o.images)?JSON.parse(JSON.stringify(o.images)):[];
     _omBriefImages=(o&&o.briefImages)?JSON.parse(JSON.stringify(o.briefImages)):[];
     _omErrorImages=(o&&o.errorImages)?JSON.parse(JSON.stringify(o.errorImages)):[];
@@ -4459,6 +4514,25 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     var _revHistory=o&&Array.isArray(o.revisionSubmissions)?o.revisionSubmissions:[];var _latestRevision=_revHistory.length?_revHistory[_revHistory.length-1]:null;var _writingRevision=!!(o&&o.status==='revision'&&_orderRole==='graphic'&&_isView);var _structuredDetailView=!!o;var _slvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.links)?_latestRevision.links.slice():(o&&Array.isArray(o.submitLinks)?o.submitLinks.slice():(o&&o.submitLink?[o.submitLink]:[]));var _islvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.imageLinks)?_latestRevision.imageLinks.slice():(o&&Array.isArray(o.imageSubmitLinks)?o.imageSubmitLinks.slice():[]);if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(_slvs);if(window._renderImageSubmitLinkRows)window._renderImageSubmitLinkRows(_islvs);var _revisionNoteEl=ge('om-revision-note');if(_revisionNoteEl)_revisionNoteEl.value=_writingRevision?'':(_latestRevision&&_latestRevision.note||o&&o.revisionNote||'');if(window._omRenderRevisionDetailView)window._omRenderRevisionDetailView(o,_structuredDetailView);
     ge('om-brief').value=o?(o.brief||''):'';var _briefMenu=ge('om-brief-menu'),_briefToggle=ge('om-brief-toggle');if(_briefMenu)_briefMenu.style.display='none';if(_briefToggle)_briefToggle.setAttribute('aria-expanded','false');
     refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
+    /* Migrated image evidence is loaded only for the opened order. This keeps
+       the order list fast while preserving every historical image. */
+    if(o&&o._fbKey&&_hasRemoteAssets&&!fbOrderHasAssetFields(o)){
+      setOMSubmitFeedback('กำลังโหลดรูปและหลักฐานของงานนี้...','success');
+      fbLoadOrderAssets(o).then(function(assets){
+        if(!_OM2||_OM2.style.display==='none'||ge('om-id').textContent!==o.id)return;
+        _omImages=JSON.parse(JSON.stringify(assets.images||[]));
+        _omBriefImages=JSON.parse(JSON.stringify(assets.briefImages||[]));
+        _omErrorImages=JSON.parse(JSON.stringify(assets.errorImages||[]));
+        _omFixImages=JSON.parse(JSON.stringify(assets.fixImages||[]));
+        _omAssetsReady=true;refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
+        setOMSubmitFeedback('โหลดข้อมูลและรูปเรียบร้อยแล้ว','success');
+        if(_omUpdateFooter)_omUpdateFooter();
+      }).catch(function(error){
+        _omAssetsReady=false;
+        setOMSubmitFeedback('โหลดรูปและหลักฐานไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองใหม่ เพื่อป้องกันข้อมูลเดิมถูกทับ','error');
+        console.error('โหลดรูปของงานไม่สำเร็จ',error);
+      });
+    }
     if(_omIsNew)restoreOMDraft();else{var _draftBanner=ge('om-draft-banner');if(_draftBanner&&_draftBanner.parentNode)_draftBanner.parentNode.removeChild(_draftBanner);updateOMDraftStatus('');}
     _omViewMode=_isView;
     if(_switchTab)_switchTab('info');
@@ -4475,6 +4549,9 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
         _omSaveBtn.textContent=_cst==='inprogress'?'ส่งงาน':(_cst==='revision'?'ส่งตรวจอีกครั้ง':'กำลังดำเนินการ');
         _omSaveBtn.style.background='#d97706';
         _omInfoAction=function(){
+            if(_omActionBusy)return;
+            if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอจนรูปพร้อมก่อนส่งงาน','error');return;}
+            if(!_omAssetsReady){setOMSubmitFeedback('ข้อมูลรูปของงานยังโหลดไม่ครบ จึงยังไม่ส่งงานเพื่อป้องกันข้อมูลหาย','error');return;}
             if(_nst==='review'){
               var _clipCont=document.getElementById('om-clip-extra');
               var _hasClip=false;
@@ -4496,11 +4573,13 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
           var ordId=ge('om-id').textContent;
           var orders=typeof lpORD==='function'?lpORD():[];
           var idx=orders.findIndex(function(x){return x.id===ordId;});
-          if(idx>=0){persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst;orders[idx].updatedAt=Date.now();if(typeof spORD==='function')spORD(orders);if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+((typeof ST!=="undefined"?ST:[]).find(function(s){return s.k===_nst;})||{l:_nst}).l,(function(){var _x=orders.find(function(x){return x.id===ordId;});return _x?{jn:_x.title,jt:_x.type,as:_x.assignee}:null;})());}
-          closeOM2();
-          if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
-          if(typeof renderOrderStats==='function')renderOrderStats();
-          (window._rbInitOP||function(){})();
+          if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดรายการใหม่','error');return;}
+          persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst;orders[idx].updatedAt=Date.now();
+          persistOMAndFinish(orders,{message:'กำลังส่งข้อมูลและสถานะงาน...',successMessage:_nst==='review'?'ส่งงานและบันทึกออนไลน์เรียบร้อยแล้ว':'รับงานและบันทึกเรียบร้อยแล้ว',onSuccess:function(){
+            if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+((typeof ST!=="undefined"?ST:[]).find(function(s){return s.k===_nst;})||{l:_nst}).l,{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});
+            if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
+            if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();
+          }});
         };
         _omSaveBtn.onclick=_omInfoAction;
       } else if(_isAuditView) {
@@ -4557,11 +4636,36 @@ if(_revisionSubmit){
 }var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
 }
 
-  function closeOM2(){if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
+  function closeOM2(force){if(_omActionBusy&&!force)return;if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
 
   function submitLinkValues(){var rows=document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
   function imageSubmitLinkValues(){var rows=document.querySelectorAll('#om-image-submitlinks-rows .om-image-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
   function setOMSubmitFeedback(message,kind){var box=ge('om-submit-feedback');if(!box)return;box.textContent=message||'';box.style.display=message?'block':'none';box.style.background=kind==='error'?'#fef2f2':'#ecfdf5';box.style.border='1px solid '+(kind==='error'?'#fecaca':'#a7f3d0');box.style.color=kind==='error'?'#991b1b':'#176f4f';}
+
+  function setOMActionBusy(busy){
+    _omActionBusy=!!busy;if(!_OM2)return;
+    _OM2.setAttribute('aria-busy',busy?'true':'false');
+    _OM2.querySelectorAll('.rb-om-primary-action,#om-save-btn,#om-audit-btns button,.rb-om-header-save').forEach(function(btn){btn.disabled=!!busy;btn.style.opacity=busy?'.6':'';btn.style.cursor=busy?'wait':'pointer';});
+  }
+  function persistOMAndFinish(orders,options){
+    options=options||{};
+    if(_omActionBusy)return Promise.resolve(false);
+    if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอสักครู่','error');return Promise.resolve(false);}
+    if(!_omAssetsReady){setOMSubmitFeedback('ข้อมูลรูปยังโหลดไม่ครบ ระบบจึงหยุดการบันทึกเพื่อป้องกันข้อมูลเดิมหาย','error');return Promise.resolve(false);}
+    setOMActionBusy(true);setOMSubmitFeedback(options.message||'กำลังบันทึกและซิงก์ข้อมูล...','success');
+    return Promise.resolve(typeof spORD==='function'?spORD(orders):{ok:false}).then(function(state){
+      if(!state||state.ok===false)throw new Error(state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
+      if(typeof options.onSuccess==='function')options.onSuccess(state);
+      setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'บันทึกในเครื่องอย่างปลอดภัยแล้ว และจะซิงก์ออนไลน์อัตโนมัติ','success');
+      setOMActionBusy(false);
+      setTimeout(function(){closeOM2(true);},60);
+      return true;
+    }).catch(function(error){
+      console.error('บันทึกคำสั่งงานไม่สำเร็จ',error);setOMActionBusy(false);
+      setOMSubmitFeedback('บันทึกไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'error');
+      return false;
+    });
+  }
 
   var OM_DRAFT_FIELDS=['om-name','om-prod','om-type','om-dl','om-st','om-mb','om-brief','om-sample-link','om-raw','om-sheet','om-footage','om-review','om-note','om-hook','om-hook2'];
   function omDraftKey(){var who=(window._rbUser&&window._rbUser.name)||'guest';return 'rb_order_draft_v1_'+encodeURIComponent(who);}
@@ -4648,6 +4752,10 @@ if(_revisionSubmit){
     if(clipCont){
       order.clipLinks=Array.prototype.slice.call(clipCont.querySelectorAll('.om-clip-row')).map(function(row){var inp=row.querySelector('input[type="text"]');return inp?(inp.value||'').trim():'';}).filter(function(v){return !!v;});
     }
+    /* Always persist the complete asset set loaded for this order. Partial
+       status changes must never replace another image category with []. */
+    order.images=JSON.parse(JSON.stringify(_omImages||[]));
+    order.briefImages=JSON.parse(JSON.stringify(_omBriefImages||[]));
     order.errorImages=JSON.parse(JSON.stringify(_omErrorImages||[]));
     order.fixImages=JSON.parse(JSON.stringify(_omFixImages||[]));
     if(window.rbPersistAuditFields)window.rbPersistAuditFields(order,ge,document);
@@ -4664,7 +4772,10 @@ if(_revisionSubmit){
   }
 
   function saveOM2(confirmed){
+    if(_omActionBusy)return;
     setOMSubmitFeedback('','');
+    if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอจนรูปพร้อมก่อนบันทึก','error');return;}
+    if(!_omAssetsReady){setOMSubmitFeedback('ข้อมูลรูปของงานยังโหลดไม่ครบ จึงยังไม่บันทึกเพื่อป้องกันข้อมูลเดิมหาย','error');return;}
     var id=ge('om-id').textContent;
     var title=(ge('om-name').value||'').trim();
     var guardAssignee=(ge('om-mb')&&ge('om-mb').value)||'',guardDeadline=(ge('om-dl')&&ge('om-dl').value)||'';
@@ -4749,13 +4860,12 @@ if(_revisionSubmit){
     };
     if(idx>=0){Object.keys(orders[idx]).forEach(function(k){if(!(k in entry))entry[k]=orders[idx][k];});}
     if(idx>=0){orders[idx]=entry;}else{orders.push(entry);}
-    if(typeof spORD==='function')spORD(orders);
-    if(typeof logTL==='function'){var isNew=(idx<0);logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',isNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});}
-    if(typeof renderOrderStats==='function')renderOrderStats();
-    if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}
-    (window._rbInitOP||function(){})();
-    if(_omIsNew){clearOMDraft();_omIsNew=false;}
-    closeOM2();
+    var wasNew=idx<0;
+    persistOMAndFinish(orders,{message:wasNew?'กำลังสร้างและซิงก์งานใหม่...':'กำลังบันทึกการแก้ไขงาน...',successMessage:wasNew?'เพิ่มงานและบันทึกออนไลน์เรียบร้อยแล้ว':'บันทึกการแก้ไขออนไลน์เรียบร้อยแล้ว',onSuccess:function(){
+      if(typeof logTL==='function')logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',wasNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});
+      if(typeof renderOrderStats==='function')renderOrderStats();if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}(window._rbInitOP||function(){})();
+      if(_omIsNew){clearOMDraft();_omIsNew=false;}
+    }});
     }catch(saveError){console.error('บันทึกงานไม่สำเร็จ',saveError);setOMSubmitFeedback('บันทึกงานไม่สำเร็จ กรุณาลองอีกครั้ง: '+(saveError&&saveError.message?saveError.message:'ข้อผิดพลาดไม่ทราบสาเหตุ'),'error');}
   }
   try{
