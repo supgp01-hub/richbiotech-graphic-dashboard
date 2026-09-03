@@ -19,6 +19,7 @@ const nativeFetch=window.fetch.bind(window);
 let authUser=null;
 let profile=null;
 let pinLoginBusy=false;
+let lastPinError='';
 let resolveReady;
 const ready=new Promise(resolve=>{resolveReady=resolve;});
 
@@ -27,7 +28,7 @@ function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
   el=document.createElement('div');el.id='rb-auth-gate';
-  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form"><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option>'+esc(n)+'</option>').join('')+'</select><label id="rb-auth-pin-label">PIN 4 หลัก</label><div id="rb-auth-pin-group" class="rb-auth-pin-group" role="group" aria-labelledby="rb-auth-pin-label">'+[1,2,3,4].map((n,i)=>'<input class="rb-auth-pin-digit" data-pin-index="'+i+'" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" placeholder=" " aria-label="PIN หลักที่ '+n+'">').join('')+'</div><div class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button">เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div><div class="rb-auth-note">PIN เดิมของแต่ละคนใช้งานได้ตามปกติ และระบบจะจำการเข้าสู่ระบบไว้ในเครื่องนี้</div></div></section>';
+  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select><label id="rb-auth-pin-label">PIN 4 หลัก</label><div id="rb-auth-pin-group" class="rb-auth-pin-group" role="group" aria-labelledby="rb-auth-pin-label">'+[1,2,3,4].map((n,i)=>'<input class="rb-auth-pin-digit" data-pin-index="'+i+'" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" placeholder=" " aria-label="PIN หลักที่ '+n+'">').join('')+'</div><div class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div><div class="rb-auth-note">PIN เดิมของแต่ละคนใช้งานได้ตามปกติ และระบบจะจำการเข้าสู่ระบบไว้ในเครื่องนี้</div></div></section>';
   document.body.appendChild(el);
   el.querySelector('#rb-auth-pin-login').addEventListener('click',pinLogin);
   const digits=pinInputs(el);
@@ -38,7 +39,7 @@ function gate(){
     input.addEventListener('focus',()=>input.select());
   });
   el.querySelector('#rb-auth-name').addEventListener('change',()=>{
-    el.querySelector('#rb-auth-error').textContent='';
+    lastPinError='';el.querySelector('#rb-auth-error').textContent='';
     if(readPin(el).length===4)pinLogin();else digits[0].focus();
   });
   el.querySelector('#rb-auth-google-login').addEventListener('click',googleLogin);
@@ -54,7 +55,7 @@ function maybeAutoLogin(el=gate()){
 function handlePinInput(event,index){
   const inputs=pinInputs();const input=event.currentTarget;
   input.value=input.value.replace(/\D/g,'').slice(-1);
-  gate().querySelector('#rb-auth-error').textContent='';
+  lastPinError='';gate().querySelector('#rb-auth-error').textContent='';
   if(input.value&&index<inputs.length-1)inputs[index+1].focus();
   maybeAutoLogin();
 }
@@ -113,13 +114,13 @@ async function googleLogin(){
 async function pinLogin(){
   if(pinLoginBusy)return;
   const el=gate();const name=el.querySelector('#rb-auth-name').value;const pin=readPin(el);
-  const button=el.querySelector('#rb-auth-pin-login');const error=el.querySelector('#rb-auth-error');error.textContent='';
+  const button=el.querySelector('#rb-auth-pin-login');const error=el.querySelector('#rb-auth-error');lastPinError='';error.textContent='';
   if(!name){error.textContent='กรุณาเลือกชื่อพนักงาน';el.querySelector('#rb-auth-name').focus();return;}
   if(!/^\d{4}$/.test(pin)){error.textContent='กรุณาใส่ PIN 4 หลัก';return;}
   pinLoginBusy=true;button.disabled=true;button.textContent='กำลังเข้าสู่ระบบ...';
   pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
   try{await setPersistence(auth,browserLocalPersistence);await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);}
-  catch(_error){error.textContent='ชื่อหรือ PIN ไม่ถูกต้อง กรุณาลองใหม่';clearPin(el,false);}
+  catch(_error){lastPinError='ชื่อหรือ PIN ไม่ถูกต้อง กรุณาลองใหม่';error.textContent=lastPinError;clearPin(el,false);}
   finally{pinLoginBusy=false;button.disabled=false;button.textContent='เข้าสู่ระบบ';pinInputs(el).forEach(input=>{input.disabled=false;});el.querySelector('#rb-auth-name').disabled=false;if(error.textContent)pinInputs(el)[0]?.focus();}
 }
 async function ensureProfile(user){
@@ -172,7 +173,7 @@ async function openAdmin(){
     const approvedEmails=new Set(Object.values(users||{}).filter(Boolean).map(x=>(x.email||'').toLowerCase()));
     const rows=Object.values(requests||{}).filter(x=>x&&x.status==='pending'&&!approvedEmails.has((x.email||'').toLowerCase()));
     if(!rows.length){body.innerHTML='<div class="rb-auth-empty">ไม่มีคำขอที่รออนุมัติ</div>';return;}
-    body.innerHTML=rows.map((r,i)=>'<div class="rb-auth-request" data-uid="'+esc(r.uid)+'"><div><strong>'+esc(r.displayName||'บัญชีใหม่')+'</strong><div class="rb-auth-request-email">'+esc(r.email)+'</div></div><select data-kind="name">'+EMPLOYEES.map(n=>'<option'+(n===(r.displayName||'')?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select><select data-kind="role">'+ROLES.map(x=>'<option value="'+x[0]+'">'+esc(x[1])+'</option>').join('')+'</select><button class="rb-auth-approve" type="button" data-index="'+i+'">อนุมัติ</button></div>').join('');
+    body.innerHTML=rows.map((r,i)=>'<div class="rb-auth-request" data-uid="'+esc(r.uid)+'"><div><strong>'+esc(r.displayName||'บัญชีใหม่')+'</strong><div class="rb-auth-request-email">'+esc(r.email)+'</div></div><select data-kind="name">'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'"'+(n===(r.displayName||'')?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select><select data-kind="role">'+ROLES.map(x=>'<option value="'+x[0]+'">'+esc(x[1])+'</option>').join('')+'</select><button class="rb-auth-approve" type="button" data-index="'+i+'">อนุมัติ</button></div>').join('');
     body.querySelectorAll('.rb-auth-approve').forEach((btn,i)=>btn.addEventListener('click',()=>approve(rows[i],btn)));
   }catch(error){body.innerHTML='<div class="rb-auth-empty" style="color:#b42318">โหลดคำขอไม่สำเร็จ: '+esc(error.message)+'</div>';}
 }
@@ -196,7 +197,7 @@ gate();
 setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
   onAuthStateChanged(auth,async user=>{
     setupAdmin(false);
-    if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','เลือกชื่อและกรอก PIN เดิมเพื่อเปิด Dashboard และบันทึกข้อมูลออนไลน์',{login:true});return;}
+    if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','เลือกชื่อและกรอก PIN เดิมเพื่อเปิด Dashboard และบันทึกข้อมูลออนไลน์',{login:true,error:lastPinError});return;}
     setGate('กำลังตรวจสอบสิทธิ์','ตรวจสอบบัญชี '+(user.email||''),{login:false,logout:true});
     try{const p=await ensureProfile(user);if(p)applyProfile(user,p);}catch(error){setGate('ตรวจสอบสิทธิ์ไม่สำเร็จ','ระบบยังไม่อนุญาตให้เปิดข้อมูล กรุณาลองใหม่',{login:false,logout:true,error:error.message||String(error)});}
   });

@@ -49,3 +49,10 @@ test('PIN controls support paste, backspace navigation and duplicate-submit prot
   assert.match(auth, /if\(pinLoginBusy\)return/);
   assert.match(auth, /input\.disabled=true/);
 });
+
+test('translated labels cannot change the stable employee account values', () => {
+  assert.match(auth, /EMPLOYEES\.map\(n=>'<option value=\"'/);
+  assert.match(auth, /'วิว':'pin\.view@richbiotech\.team'/);
+  assert.match(auth, /id=\"rb-auth-pin-form\" class=\"rb-auth-pin-form\" hidden/);
+  assert.match(auth, /error:lastPinError/);
+});
