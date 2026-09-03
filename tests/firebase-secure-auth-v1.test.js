@@ -36,20 +36,23 @@ test('supervisor bootstrap is limited to the confirmed company email', () => {
   assert.match(auth, /SUPERVISOR_EMAIL='supgp01@richbiotech\.com'/);
 });
 
-test('PIN login uses one visible native input and submits automatically', () => {
-  assert.doesNotMatch(auth, /class=\"rb-auth-pin-digit\"/);
-  assert.match(auth, /id=\"rb-auth-pin\" class=\"rb-auth-pin-input\"/);
-  assert.match(auth, /maxlength=\"4\"/);
+test('PIN login uses four real single-digit inputs and submits automatically', () => {
+  assert.match(auth, /class=\"rb-auth-pin-digit\"/);
+  assert.match(auth, /data-pin-index=\"/);
+  assert.match(auth, /maxlength=\"1\"/);
   assert.match(auth, /inputmode=\"numeric\"/);
   assert.match(auth, /if\(readPin\(el\)\.length===4&&!pinLoginBusy\)pinLogin\(\)/);
-  assert.match(auth, /input\.value=input\.value\.replace\(\/\\D\/g,''\)\.slice\(0,4\)/);
+  assert.match(auth, /input\.value=input\.value\.replace\(\/\\D\/g,''\)\.slice\(-1\)/);
 });
 
 test('PIN controls preserve paste and leading zeroes while preventing duplicate submissions', () => {
-  assert.match(auth, /function readPin\(el=gate\(\)\)\{return pinInput\(el\)\.value;\}/);
+  assert.match(auth, /function readPin\(el=gate\(\)\)\{return pinInputs\(el\)\.map\(input=>input\.value\)\.join\(''\);\}/);
+  assert.match(auth, /handlePinPaste/);
+  assert.match(auth, /getData\('text'\)/);
+  assert.match(auth, /event\.key==='Backspace'/);
   assert.match(auth, /autocomplete=\"off\"/);
   assert.match(auth, /if\(pinLoginBusy\)return/);
-  assert.match(auth, /pinInput\(el\)\.disabled=true/);
+  assert.match(auth, /pinInputs\(el\)\.forEach\(input=>\{input\.disabled=true;\}\)/);
   assert.match(auth, /too-many-requests/);
   assert.match(auth, /network-request-failed/);
 });

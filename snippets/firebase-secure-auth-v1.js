@@ -29,34 +29,52 @@ function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
   el=document.createElement('div');el.id='rb-auth-gate';
-  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select><label id="rb-auth-pin-label" for="rb-auth-pin">PIN 4 หลัก</label><input id="rb-auth-pin" class="rb-auth-pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" placeholder="กรอก PIN 4 หลัก" aria-labelledby="rb-auth-pin-label" aria-describedby="rb-auth-pin-hint"><div id="rb-auth-pin-hint" class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div></div></section>';
+  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select><div id="rb-auth-pin-label" class="rb-auth-pin-label">PIN 4 หลัก</div><div id="rb-auth-pin-group" class="rb-auth-pin-group" role="group" aria-labelledby="rb-auth-pin-label" aria-describedby="rb-auth-pin-hint">'+[1,2,3,4].map(i=>'<input class="rb-auth-pin-digit" data-pin-index="'+(i-1)+'" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" placeholder=" " aria-label="PIN หลักที่ '+i+'">').join('')+'</div><div id="rb-auth-pin-hint" class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div></div></section>';
   document.body.appendChild(el);
   el.querySelector('#rb-auth-pin-login').addEventListener('click',pinLogin);
-  const input=pinInput(el);
-  input.addEventListener('input',handlePinInput);
-  input.addEventListener('keydown',handlePinKeydown);
+  const inputs=pinInputs(el);
+  inputs.forEach(input=>{
+    input.addEventListener('input',handlePinInput);
+    input.addEventListener('keydown',handlePinKeydown);
+    input.addEventListener('paste',handlePinPaste);
+  });
   el.querySelector('#rb-auth-name').addEventListener('change',()=>{
     lastPinError='';el.querySelector('#rb-auth-error').textContent='';
-    if(readPin(el).length===4)pinLogin();else input.focus();
+    if(readPin(el).length===4)pinLogin();else inputs[0].focus();
   });
   el.querySelector('#rb-auth-google-login').addEventListener('click',googleLogin);
   el.querySelector('#rb-auth-logout').addEventListener('click',()=>signOut(auth));
   return el;
 }
-function pinInput(el=gate()){return el.querySelector('#rb-auth-pin');}
-function readPin(el=gate()){return pinInput(el).value;}
-function clearPin(el=gate(),focus=true){pinInput(el).value='';if(focus)pinInput(el).focus();}
+function pinInputs(el=gate()){return Array.from(el.querySelectorAll('.rb-auth-pin-digit'));}
+function readPin(el=gate()){return pinInputs(el).map(input=>input.value).join('');}
+function clearPin(el=gate(),focus=true){const inputs=pinInputs(el);inputs.forEach(input=>{input.value='';});if(focus&&inputs[0])inputs[0].focus();}
 function maybeAutoLogin(el=gate()){
   if(readPin(el).length===4&&!pinLoginBusy)pinLogin();
 }
 function handlePinInput(event){
   const input=event.currentTarget;
-  input.value=input.value.replace(/\D/g,'').slice(0,4);
+  input.value=input.value.replace(/\D/g,'').slice(-1);
   lastPinError='';gate().querySelector('#rb-auth-error').textContent='';
+  const inputs=pinInputs();const index=inputs.indexOf(input);
+  if(input.value&&index<inputs.length-1)inputs[index+1].focus();
   maybeAutoLogin();
 }
 function handlePinKeydown(event){
   if(event.key==='Enter'){event.preventDefault();pinLogin();}
+  const inputs=pinInputs();const index=inputs.indexOf(event.currentTarget);
+  if(event.key==='Backspace'&&!event.currentTarget.value&&index>0){event.preventDefault();inputs[index-1].value='';inputs[index-1].focus();}
+  if(event.key==='ArrowLeft'&&index>0){event.preventDefault();inputs[index-1].focus();}
+  if(event.key==='ArrowRight'&&index<inputs.length-1){event.preventDefault();inputs[index+1].focus();}
+}
+function handlePinPaste(event){
+  const digits=(event.clipboardData?.getData('text')||'').replace(/\D/g,'').slice(0,4);
+  if(!digits)return;
+  event.preventDefault();const inputs=pinInputs();
+  inputs.forEach((input,index)=>{input.value=digits[index]||'';});
+  lastPinError='';gate().querySelector('#rb-auth-error').textContent='';
+  (inputs[Math.min(digits.length,inputs.length)-1]||inputs[0]).focus();
+  maybeAutoLogin();
 }
 function setGate(title,message,{login=true,logout=false,error=''}={}){
   const el=gate();el.hidden=false;
@@ -99,16 +117,16 @@ async function pinLogin(){
   const el=gate();const name=el.querySelector('#rb-auth-name').value;const pin=readPin(el);
   const button=el.querySelector('#rb-auth-pin-login');const error=el.querySelector('#rb-auth-error');lastPinError='';error.textContent='';
   if(!name){error.textContent='กรุณาเลือกชื่อพนักงาน';el.querySelector('#rb-auth-name').focus();return;}
-  if(!/^\d{4}$/.test(pin)){error.textContent='กรุณาใส่ PIN 4 หลัก';pinInput(el).focus();return;}
+  if(!/^\d{4}$/.test(pin)){error.textContent='กรุณาใส่ PIN 4 หลัก';(pinInputs(el).find(input=>!input.value)||pinInputs(el)[0]).focus();return;}
   pinLoginBusy=true;button.disabled=true;button.textContent='กำลังเข้าสู่ระบบ...';
-  pinInput(el).disabled=true;el.querySelector('#rb-auth-name').disabled=true;
+  pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
   try{await setPersistence(auth,browserLocalPersistence);await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);}
   catch(loginError){
     const code=loginError?.code||'';
     lastPinError=/too-many-requests/i.test(code)?'มีการลองหลายครั้งเกินไป กรุณารอประมาณ 1 นาทีแล้วลองใหม่':/network-request-failed/i.test(code)?'เชื่อมต่อ Firebase ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองใหม่':'ชื่อหรือ PIN ไม่ถูกต้อง กรุณาลองใหม่';
     error.textContent=lastPinError;clearPin(el,false);
   }
-  finally{pinLoginBusy=false;button.disabled=false;button.textContent='เข้าสู่ระบบ';pinInput(el).disabled=false;el.querySelector('#rb-auth-name').disabled=false;if(error.textContent)pinInput(el).focus();}
+  finally{pinLoginBusy=false;button.disabled=false;button.textContent='เข้าสู่ระบบ';pinInputs(el).forEach(input=>{input.disabled=false;});el.querySelector('#rb-auth-name').disabled=false;if(error.textContent)pinInputs(el)[0].focus();}
 }
 async function ensureProfile(user){
   let current=null;try{current=await db('auth_users/'+user.uid);}catch(error){if(!/Permission denied/i.test(error.message))throw error;}
