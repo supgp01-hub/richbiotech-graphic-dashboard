@@ -23,6 +23,7 @@ assert.ok(bulk.includes("typeof window.fbGet==='function'"), 'content tracker do
 assert.equal(bulk.includes("document.addEventListener('DOMContentLoaded',cloudInit)"), false, 'content tracker must not download on every dashboard visit');
 assert.ok(bulk.includes("if(pending){var staleSnapshot="), 'a much larger online tracker must recover a stale device even when an old pending marker remains');
 assert.ok(bulk.includes('mergePendingWithCloud(remoteItems,local)'), 'pending local additions must be preserved while recovering the complete online tracker');
+assert.ok(bulk.includes("addEventListener('rb:auth-ready'"), 'a newly signed-in browser must reload tracker data immediately after Firebase authentication');
 assert.ok(bulk.includes("typeof window.fbGet==='function'"), 'Content Tracker reads must use the authenticated Firebase transport');
 assert.ok(bulk.includes("rbFirebaseAuth.urlWithAuth"), 'Content Tracker realtime updates must carry Firebase authentication');
 assert.ok(bulk.includes("if(!items.length&&local.length)"), 'an empty cloud snapshot must not erase populated local tracker data');
