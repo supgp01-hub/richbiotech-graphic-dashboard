@@ -64,5 +64,7 @@ if(window.__CT_IMPORT_TEST__)window._ctApplyCloudForTest=applyCloud;
 document.addEventListener('visibilitychange',function(){if(!cloudAllowed())cloudPause();else cloudInit()});
 if(window.addEventListener)window.addEventListener('rb:leader-change',function(e){if(!(e.detail&&e.detail.leader)||!cloudAllowed()){cloudPause();return}cloudInit()});
 if(window.addEventListener)window.addEventListener('rb:auth-ready',function(){cloudPause();setTimeout(function(){hydrateCloud().then(function(){if(cloudAllowed())cloudInit()}).catch(function(){})},0)});
-if(window.rbFirebaseAuth&&window.rbFirebaseAuth.ready)window.rbFirebaseAuth.ready.then(function(){return hydrateCloud()}).then(function(){if(cloudAllowed())cloudInit()}).catch(function(){cloudStarted=false});
+function showHydrationFailure(error){var el=document.getElementById('ct-sync-status');if(!el)return;el.className='ct-sync-status waiting';el.textContent='รอโหลดออนไลน์ใหม่';el.title='โหลดข้อมูลออนไลน์ไม่สำเร็จ: '+String(error&&error.message||error||'กรุณารอสักครู่')}
+function hydrateAfterAuth(attempt){var auth=window.rbFirebaseAuth;if(!auth||!auth.ready){if(attempt<40)setTimeout(function(){hydrateAfterAuth(attempt+1)},250);return}Promise.resolve(auth.ready).then(function(){return hydrateCloud()}).then(function(){if(cloudAllowed())cloudInit()}).catch(function(error){cloudStarted=false;showHydrationFailure(error);if(attempt<8)setTimeout(function(){hydrateAfterAuth(attempt+1)},Math.min(15000,800*Math.pow(2,attempt)))})}
+setTimeout(function(){hydrateAfterAuth(0)},0);
 })();
