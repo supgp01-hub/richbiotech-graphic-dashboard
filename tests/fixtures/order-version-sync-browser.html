@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Order version sync browser fixture</title>
+  <link rel="stylesheet" href="../../snippets/order-audit-version-workflow-v1.css">
+  <style>
+    body{margin:0;padding:24px;background:#edf8f1;color:#173d30;font-family:Arial,"Noto Sans Thai",sans-serif}.fixture-toolbar{position:sticky;top:0;z-index:4;display:flex;gap:10px;align-items:center;margin-bottom:18px;padding:12px;border:1px solid #a7d8ba;border-radius:12px;background:#fff}.fixture-toolbar output{font-weight:700}.fixture-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.fixture-panel{min-width:0;padding:14px;border:1px solid #b7d8c4;border-radius:14px;background:#fff}.fixture-panel>h2{margin:0 0 10px;font-size:17px}@media(max-width:900px){.fixture-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div id="rb-order-modal" style="display:block">
+    <div class="fixture-toolbar">
+      <b id="fixture-role"></b>
+      <button type="button" id="fixture-validate">ตรวจความพร้อมส่งกลับ</button>
+      <button type="button" id="fixture-reopen">จำลองปิด–เปิดใหม่</button>
+      <output id="fixture-result">พร้อมทดสอบ</output>
+      <span id="save-count">บันทึก 0 ครั้ง</span>
+    </div>
+    <span id="om-id">GR995</span>
+    <input id="om-camp1" value="Artwork Facebook">
+    <input id="om-camp2" value="Artwork Instagram">
+    <input id="om-uplink" value="https://example.com/content/ver-1">
+    <input id="om-ad" value="https://example.com/content/ver-2">
+    <div id="om-camp-extra"></div>
+    <div id="om-submitlinks-rows"></div>
+    <div id="om-image-submitlinks-rows"></div>
+    <div class="fixture-grid">
+      <section class="fixture-panel"><h2>แท็บตรวจออดิต</h2><div id="om2-p2-panel"><div><label>หมายเหตุ<textarea id="om-audit-note"></textarea></label></div></div></section>
+      <section class="fixture-panel"><h2>แท็บส่งงานภาพ</h2><div id="om2-p4-panel"></div></section>
+    </div>
+  </div>
+  <script>
+    (function(){
+      var query=new URLSearchParams(location.search),selectedRole=query.get('role')||'audit',saveCount=0;
+      window._rbUser=selectedRole==='graphic'?{name:'Ter',role:'graphic'}:{name:'Audit',role:'audit'};
+      document.getElementById('fixture-role').textContent='บทบาท: '+window._rbUser.name;
+      var baseVersions=[
+        {jobId:'GR995',version:1,versionKey:'GR995:VER1',name:'Artwork Facebook',workLink:'https://example.com/ad/ver-1',imageLink:'https://example.com/image/ver-1',result:'pass',auditImages:[],fixImages:[]},
+        {jobId:'GR995',version:2,versionKey:'GR995:VER2',name:'Artwork Instagram',workLink:'https://example.com/ad/ver-2',imageLink:'https://example.com/image/ver-2',result:'issue',issueType:'รูปหรือข้อความไม่ถูกต้อง',note:'โลโก้ผิดตำแหน่งและข้อความบรรทัดสองตกหล่น',auditImages:[],fixImages:[],correctionRequestedAt:Date.now()-1000}
+      ];
+      var orders=[{id:'GR995',name:'Version sync test',status:'revision',camp1:'Artwork Facebook',camp2:'Artwork Instagram',upLink:'https://example.com/content/ver-1',adLink:'https://example.com/content/ver-2',submitLinks:['https://example.com/ad/ver-1','https://example.com/ad/ver-2'],imageSubmitLinks:['https://example.com/image/ver-1','https://example.com/image/ver-2'],auditVersions:baseVersions}];
+      function renderRows(selector,className,prefix,values){var box=document.querySelector(selector);box.innerHTML='';(values||[]).forEach(function(value,index){var row=document.createElement('div');row.className=className;var input=document.createElement('input');input.id=prefix+(index+1);input.value=value||'';row.appendChild(input);box.appendChild(row);});}
+      window._renderSubmitLinkRows=function(values){renderRows('#om-submitlinks-rows','om-submitlink-row','fixture-work-',values);};
+      window._renderImageSubmitLinkRows=function(values){renderRows('#om-image-submitlinks-rows','om-image-submitlink-row','fixture-image-',values);};
+      window._renderSubmitLinkRows(orders[0].submitLinks);window._renderImageSubmitLinkRows(orders[0].imageSubmitLinks);
+      window.lpORD=function(){return orders;};
+      window.spORD=function(next){orders=JSON.parse(JSON.stringify(next));saveCount++;document.getElementById('save-count').textContent='บันทึก '+saveCount+' ครั้ง';return Promise.resolve({ok:true,online:true});};
+      window.renderOrderStats=function(){};window.logTL=function(){};
+      window.__fixtureReopen=function(){window.rbRenderAuditVersionWorkflow(JSON.parse(JSON.stringify(orders[0])),true);document.getElementById('fixture-result').textContent='เปิดใหม่แล้ว · ข้อมูลยังอยู่ '+(orders[0].auditVersions||[]).length+' VER';};
+    })();
+  </script>
+  <script src="../../snippets/order-audit-version-workflow-v1.js"></script>
+  <script>
+    window.rbRenderAuditVersionWorkflow(window.lpORD()[0],true);
+    document.getElementById('fixture-validate').onclick=function(){var result=window.rbValidateAuditVersionDecision('issue');document.getElementById('fixture-result').textContent=result.ok?'พร้อมส่งกลับตาม VER':result.message;};
+    document.getElementById('fixture-reopen').onclick=window.__fixtureReopen;
+  </script>
+</body>
+</html>

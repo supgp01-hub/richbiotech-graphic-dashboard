@@ -39,3 +39,46 @@ html[data-theme=dark] #rb-order-modal select.rb-source-status-empty{background:#
 html[data-theme=dark] #rb-order-modal .rb-av-card-head,html[data-theme=dark] #rb-order-modal .rb-av-card.is-pass .rb-av-card-head,html[data-theme=dark] #rb-order-modal .rb-av-card.is-issue .rb-av-card-head,html[data-theme=dark] #rb-order-modal .rb-av-card.is-pending .rb-av-card-head{background:#164638!important;border-bottom-color:#2f6a56!important}
 html[data-theme=dark] #rb-order-modal .rb-av-card-head b{color:#fff!important}
 html[data-theme=dark] #rb-order-modal .rb-av-card-head .rb-av-campaign{color:#d7f2e6!important}
+
+/* Unified send-work and Audit workflow, keyed by job id + VER. */
+#rb-order-modal .rb-av-source-links,#rb-order-modal .rb-av-delivery-list{display:grid;gap:5px;min-width:0}
+#rb-order-modal .rb-av-delivery-link{display:grid;grid-template-columns:54px minmax(0,1fr) 30px 30px;align-items:center;min-width:0;min-height:32px;border:1px solid #c8ddd3;border-radius:8px;background:#f8fcfa;overflow:hidden}
+#rb-order-modal .rb-av-delivery-link b{padding:7px 8px;color:#176f58!important;font-size:9.5px!important;font-weight:800!important;white-space:nowrap}
+#rb-order-modal .rb-av-delivery-link span{min-width:0;padding:7px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#49675d;font-size:10px}
+#rb-order-modal .rb-av-delivery-link button,#rb-order-modal .rb-av-delivery-link a{display:grid;height:100%;min-height:32px;place-items:center;border:0;border-left:1px solid #c8ddd3;background:#e4f6ef;color:#087f6f;text-decoration:none;cursor:pointer}
+#rb-order-modal .rb-av-delivery-link.is-empty{grid-template-columns:54px minmax(0,1fr);opacity:.72}
+#rb-order-modal .rb-av-team-card{padding:0!important;overflow:hidden}
+#rb-order-modal .rb-av-team-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;background:#edf7f2;border-bottom:1px solid #c9ddd4}
+#rb-order-modal .rb-av-team-card.is-issue .rb-av-team-card-head{background:#fff0f2;border-bottom-color:#f5c6cd}
+#rb-order-modal .rb-av-team-card.is-pass .rb-av-team-card-head{background:#e6f8ee;border-bottom-color:#b9e5cf}
+#rb-order-modal .rb-av-team-card-head>div{min-width:0;display:grid;gap:3px}
+#rb-order-modal .rb-av-team-card-head strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#173f33;font-size:12.5px}
+#rb-order-modal .rb-av-team-card-head small{color:#72877f;font-size:10px}
+#rb-order-modal .rb-av-version-line{display:flex;align-items:center;gap:8px}
+#rb-order-modal .rb-av-version-line>b{color:#087f6f;font-size:11.5px}
+#rb-order-modal .rb-av-team-card.is-issue .rb-av-version-line>b{color:#c82338}
+#rb-order-modal .rb-av-flow{display:grid;grid-template-columns:1fr 1.18fr 1fr}
+#rb-order-modal .rb-av-stage{min-width:0;padding:11px;border-top:0;background:#fff}
+#rb-order-modal .rb-av-stage+.rb-av-stage{border-left:1px solid #d7e5de}
+#rb-order-modal .rb-av-stage-title{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px;color:#244d40;font-size:10.5px}
+#rb-order-modal .rb-av-stage-title>b{display:flex;align-items:center;gap:6px;font-size:11.5px}
+#rb-order-modal .rb-av-stage-title i{display:grid;width:23px;height:23px;place-items:center;border-radius:50%;background:#dff4ea;color:#08785b;font-style:normal}
+#rb-order-modal .rb-av-stage-title>span{color:#71867f;font-size:9.5px;text-align:right}
+#rb-order-modal .rb-av-stage .rb-av-issue-summary,#rb-order-modal .rb-av-stage .rb-av-readonly-summary{display:grid;grid-column:auto;margin:0 0 8px}
+#rb-order-modal .rb-av-inline-evidence{padding:8px;border:1px solid #dce9e3;border-radius:8px;background:#f6faf8}
+#rb-order-modal .rb-av-fix-link,#rb-order-modal .rb-av-fix-note{width:100%;box-sizing:border-box;border:1px solid #c6d9d0;border-radius:8px;background:#fff;color:#173c31;padding:8px 9px;font-size:11px}
+#rb-order-modal .rb-av-fix-note{min-height:62px;margin-top:8px;resize:vertical}
+#rb-order-modal .rb-av-stage-fix .rb-av-upload{width:100%;box-sizing:border-box;margin:8px 0 0}
+#rb-order-modal .rb-av-submitted{padding:9px 10px;border-radius:8px;background:#e5f8ec;color:#087443;font-size:10.5px;font-weight:800}
+#rb-order-modal .rb-av-audit-correction{display:grid;gap:3px;margin-top:9px}.rb-av-audit-correction span{font-weight:400}
+#rb-order-modal .rb-av-save-message.is-error{background:#ffe4e6;color:#b42335}
+#rb-order-modal .surface-team{margin-top:0;margin-bottom:14px;background:#f2faf6}
+#rb-order-modal .surface-team .rb-av-section-head>span{background:#fff0d2;color:#8a5a00}
+html[data-theme=dark] #rb-order-modal .rb-av-delivery-link,html[data-theme=dark] #rb-order-modal .rb-av-stage,html[data-theme=dark] #rb-order-modal .rb-av-fix-link,html[data-theme=dark] #rb-order-modal .rb-av-fix-note{border-color:#2b6250;background:#0d2e25;color:#e1f8ed}
+html[data-theme=dark] #rb-order-modal .rb-av-delivery-link span{color:#c2e2d5}
+html[data-theme=dark] #rb-order-modal .rb-av-team-card-head,html[data-theme=dark] #rb-order-modal .rb-av-team-card.is-issue .rb-av-team-card-head,html[data-theme=dark] #rb-order-modal .rb-av-team-card.is-pass .rb-av-team-card-head{background:#164638;border-bottom-color:#2f6a56}
+html[data-theme=dark] #rb-order-modal .rb-av-team-card-head strong{color:#e3faef}
+html[data-theme=dark] #rb-order-modal .rb-av-stage+.rb-av-stage{border-left-color:#295744}
+html[data-theme=dark] #rb-order-modal .rb-av-inline-evidence{border-color:#2b6250;background:#12372d}
+@media(max-width:900px){#rb-order-modal .rb-av-flow{grid-template-columns:1fr}#rb-order-modal .rb-av-stage+.rb-av-stage{border-left:0;border-top:1px solid #d7e5de}}
+@media(max-width:720px){#rb-order-modal .rb-av-card-head{grid-template-columns:52px minmax(0,1fr) auto!important}#rb-order-modal .rb-av-card-head .rb-av-source-links{grid-column:1/-1}#rb-order-modal .rb-av-delivery-link{grid-template-columns:50px minmax(0,1fr) 34px 34px}#rb-order-modal .rb-av-team-card-head strong{white-space:normal}}
