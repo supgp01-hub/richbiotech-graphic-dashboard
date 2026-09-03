@@ -7,7 +7,7 @@ window.addEventListener('storage',event=>{if(event.key==='rb_session')event.stop
 const CONFIG={apiKey:'AIzaSyCfhpRlo_jVl9_vuBKkwDq0H7kAmC-_nho',authDomain:'richbiotech-c4e41.firebaseapp.com',projectId:'richbiotech-c4e41',storageBucket:'richbiotech-c4e41.firebasestorage.app',messagingSenderId:'238265709540',appId:'1:238265709540:web:dcbac40e5d49467afc8df1'};
 const DB='https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 const SUPERVISOR_EMAIL='supgp01@richbiotech.com';
-const PIN_SESSION_KEY='rb_firebase_pin_session_v2';
+const PIN_SESSION_KEY='rb_firebase_pin_session_v3';
 const EMPLOYEES=['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์','MY Boss','Audit'];
 const PIN_ACCOUNTS={
   'วิว':'pin.view@richbiotech.team','มอส':'pin.moss@richbiotech.team','ดอม':'pin.dom@richbiotech.team',
@@ -43,9 +43,17 @@ function makePinSession(data){
   };
   return session;
 }
-function savePinSession(session){try{localStorage.setItem(PIN_SESSION_KEY,JSON.stringify({uid:session.uid,email:session.email,refreshToken:session._refreshToken}));}catch(_e){}}
-function restorePinSession(){try{const saved=JSON.parse(localStorage.getItem(PIN_SESSION_KEY)||'null');return saved?.uid&&saved?.refreshToken?makePinSession({localId:saved.uid,email:saved.email,refreshToken:saved.refreshToken}):null;}catch(_e){return null;}}
-function clearPinSession(){pinSession=null;try{localStorage.removeItem(PIN_SESSION_KEY);}catch(_e){}}
+function savePinSession(session){
+  const payload=JSON.stringify({uid:session.uid,email:session.email,refreshToken:session._refreshToken});
+  try{localStorage.setItem(PIN_SESSION_KEY,payload);}catch(_e){}
+  try{sessionStorage.setItem(PIN_SESSION_KEY,payload);}catch(_e){}
+}
+function restorePinSession(){
+  let raw='';try{raw=localStorage.getItem(PIN_SESSION_KEY)||'';}catch(_e){}
+  if(!raw){try{raw=sessionStorage.getItem(PIN_SESSION_KEY)||'';}catch(_e){}}
+  try{const saved=JSON.parse(raw||'null');return saved?.uid&&saved?.refreshToken?makePinSession({localId:saved.uid,email:saved.email,refreshToken:saved.refreshToken}):null;}catch(_e){return null;}
+}
+function clearPinSession(){pinSession=null;try{localStorage.removeItem(PIN_SESSION_KEY);}catch(_e){}try{sessionStorage.removeItem(PIN_SESSION_KEY);}catch(_e){}}
 function activeFirebaseUser(){return auth.currentUser||pinSession;}
 async function pinRestLogin(email,pin){
   const response=await nativeFetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'rb'+pin,returnSecureToken:true})});
