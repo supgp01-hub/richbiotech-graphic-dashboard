@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 global.window = global;
+global.__CT_IMPORT_TEST__ = true;
 global.document = {
   readyState: 'loading',
   addEventListener() {},
@@ -9,7 +10,12 @@ global.document = {
   querySelector() { return null; },
   querySelectorAll() { return []; }
 };
-global.localStorage = { getItem() { return null; }, setItem() {} };
+const storage = new Map();
+global.localStorage = {
+  getItem(key) { return storage.has(key) ? storage.get(key) : null; },
+  setItem(key, value) { storage.set(key, value); },
+  removeItem(key) { storage.delete(key); }
+};
 
 eval(fs.readFileSync('snippets/bulk-import-v2.js', 'utf8'));
 
@@ -30,5 +36,12 @@ const parsedMultiline = window.ctParseCSV(multiline);
 assert.equal(parsedMultiline.length, 2);
 assert.equal(parsedMultiline[1][2], 'ชื่อ, มีจุลภาค');
 assert.equal(parsedMultiline[1][3], 'บรรทัดแรก\nบรรทัดสอง');
+
+const remoteRows = Array.from({length:2169},(_,i)=>({id:`row-${i}`,clipLink:`https://example.com/${i}`}));
+storage.set('rb_olympplus_v1', JSON.stringify(remoteRows.slice(0,34)));
+storage.set('rb_ct_sync_pending_v1', 'stale');
+window._ctApplyCloudForTest({items:remoteRows});
+assert.equal(JSON.parse(storage.get('rb_olympplus_v1')).length,2169,'เครื่องที่ค้าง 34 รายการต้องรับชุดออนไลน์เต็มกลับมา');
+assert.equal(storage.has('rb_ct_sync_pending_v1'),false,'สถานะรอซิงก์เก่าต้องไม่ขวางการกู้ชุดข้อมูลเต็ม');
 
 console.log('bulk-import-v2: all tests passed');
