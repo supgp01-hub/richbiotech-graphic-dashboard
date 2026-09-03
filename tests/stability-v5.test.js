@@ -19,9 +19,15 @@ assert.ok(source.includes('Date.now()-_rbOrderContentCloudAt<120000'), 'large co
 assert.ok(source.includes('window.ctCloudInit)window.ctCloudInit()'), 'opening the tracker must start its cloud connection on demand');
 assert.ok(source.includes('var CT_EMBED = [];'), 'large tracker seed must not be embedded in the initial page');
 assert.ok(bulk.includes('window.ctCloudInit=cloudInit'), 'content tracker cloud startup must be exposed for lazy loading');
-assert.ok(bulk.includes('ctl.abort()},12000'), 'content tracker download must time out instead of hanging indefinitely');
+assert.ok(bulk.includes("typeof window.fbGet==='function'"), 'content tracker downloads must use the authenticated Firebase timeout wrapper');
 assert.equal(bulk.includes("document.addEventListener('DOMContentLoaded',cloudInit)"), false, 'content tracker must not download on every dashboard visit');
 assert.ok(bulk.includes("cloudWrite||localStorage.getItem('rb_ct_sync_pending_v1')"), 'incoming cloud snapshots must not overwrite pending local content edits');
+assert.ok(bulk.includes("typeof window.fbGet==='function'"), 'Content Tracker reads must use the authenticated Firebase transport');
+assert.ok(bulk.includes("rbFirebaseAuth.urlWithAuth"), 'Content Tracker realtime updates must carry Firebase authentication');
+assert.ok(bulk.includes("if(!items.length&&local.length)"), 'an empty cloud snapshot must not erase populated local tracker data');
+assert.ok(source.includes("window.fbGet('/content_tracker_v2'"), 'order forms must load Content Tracker through authenticated Firebase reads');
+assert.ok(source.includes("rb_ct_backup_v1"), 'tracker data must be backed up before a cloud refresh replaces local rows');
 assert.ok(performance.includes("e.key!=='rb_olympplus_v1'"), 'content changes from another tab must update the current tab');
+assert.ok(performance.includes("BACKUP_KEY='rb_ct_backup_v1'"), 'local tracker edits must preserve the previous snapshot');
 
 console.log('stability-v5: all tests passed');

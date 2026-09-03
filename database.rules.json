@@ -14,7 +14,12 @@
       ".read": true,
       "$key": {
         ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
-        ".validate": "!newData.exists() || (newData.hasChildren(['name','loginEmail','active','updatedAt']) && newData.numChildren() === 4 && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 64 && newData.child('loginEmail').isString() && newData.child('loginEmail').val().length > 0 && newData.child('loginEmail').val().length <= 160 && newData.child('active').isBoolean() && newData.child('updatedAt').isNumber())"
+        ".validate": "!newData.exists() || newData.hasChildren(['name','loginEmail','active','updatedAt'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 64" },
+        "loginEmail": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 160" },
+        "active": { ".validate": "newData.isBoolean()" },
+        "updatedAt": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
       }
     },
     "access_requests": {

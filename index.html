@@ -3222,10 +3222,11 @@ function refreshOrderContentFromCloud(brand){
   if(window._rbOrderContentCloudRows&&Date.now()-_rbOrderContentCloudAt<120000){refreshOrderContentList(brand||'');return Promise.resolve(window._rbOrderContentCloudRows);}
   if(_rbOrderContentCloudPromise)return _rbOrderContentCloudPromise.then(function(items){refreshOrderContentList(brand||'');return items;});
   var controller=typeof AbortController!=='undefined'?new AbortController():null,timer=controller?setTimeout(function(){controller.abort();},12000):null,opts={cache:'no-store'};if(controller)opts.signal=controller.signal;
-  _rbOrderContentCloudPromise=fetch(url,opts).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(d){
+  var cloudRead=new Promise(function(resolve,reject){if(typeof window.fbGet==='function'){window.fbGet('/content_tracker_v2',function(error,data){if(error)reject(error);else resolve(data);});return;}var transport=window.rbFirebaseAuth&&window.rbFirebaseAuth.fetch?window.rbFirebaseAuth.fetch:fetch;transport(url,opts).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(resolve,reject);});
+  _rbOrderContentCloudPromise=cloudRead.then(function(d){
     var items=Array.isArray(d)?d:(d&&Array.isArray(d.items)?d.items:[]);
     window._rbOrderContentCloudRows=items;_rbOrderContentCloudAt=Date.now();
-    try{if(!localStorage.getItem('rb_ct_sync_pending_v1'))localStorage.setItem('rb_olympplus_v1',JSON.stringify(items));}catch(ex){}
+    try{var local=JSON.parse(localStorage.getItem('rb_olympplus_v1')||'[]');if(!Array.isArray(local))local=[];if(items.length||!local.length){if(local.length&&JSON.stringify(local)!==JSON.stringify(items))localStorage.setItem('rb_ct_backup_v1',JSON.stringify({items:local,createdAt:Date.now(),reason:'before_order_refresh'}));if(!localStorage.getItem('rb_ct_sync_pending_v1'))localStorage.setItem('rb_olympplus_v1',JSON.stringify(items));}else{localStorage.setItem('rb_ct_sync_pending_v1',String(Date.now()));if(typeof window.ctSyncNow==='function')window.ctSyncNow();}}catch(ex){}
     refreshOrderContentList(brand||'');
     return items;
   }).catch(function(e){console.warn('โหลดข้อมูลคอนเทนต์ล่าสุดไม่สำเร็จ',e);return window._rbOrderContentCloudRows||[];}).then(function(items){if(timer)clearTimeout(timer);_rbOrderContentCloudPromise=null;return items;});
@@ -4974,7 +4975,7 @@ var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','I Sure Plus':'#7c3aed',
 var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','I Sure Plus':'','Olymplus':'MOS DOM','Olymplus MAX':'MOS DOM','JUDO':'NUNE JAM','Dragon Blood':'MOS DOM BALL','ขุนแผน':'MOS DOM BALL','Heaven PLUS+':'MOS DOM','THE LORD':'TER JAM','WOLF+':'TER NUNE BALL','เจ้าขุน':'BALL'};
 var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
-function ctLoad(){var raw=localStorage.getItem('rb_olympplus_v1');if(raw)return JSON.parse(raw);return typeof CT_EMBED!=='undefined'?CT_EMBED:[]}
+function ctLoad(){try{var raw=localStorage.getItem('rb_olympplus_v1'),rows=raw?JSON.parse(raw):null;if(Array.isArray(rows))return rows;if(rows&&Array.isArray(rows.items))return rows.items;}catch(e){}return typeof CT_EMBED!=='undefined'&&Array.isArray(CT_EMBED)?CT_EMBED:[]}
 function ctSave(){
   try{localStorage.setItem(CT_KEY,JSON.stringify(_ctData));}catch(e){}
   try{window.dispatchEvent(new CustomEvent('rb:content-updated'));}catch(e){}
@@ -5207,7 +5208,7 @@ window.ctBulkDelete=function(){
   ctSave();
   window.ctRender();
 };
-window.ctSaveEmp=function(inp){var id=inp.dataset.id,idx=parseInt(inp.dataset.idx),val=inp.value.trim();var row=(_ctLinks||[]).find(function(r){return String(r.id)===String(id);});if(row){if(!row.empVals)row.empVals=[];row.empVals[idx]=val;try{ctSave();}catch(e){}}}
+window.ctSaveEmp=function(inp){var id=inp.dataset.id,idx=parseInt(inp.dataset.idx),val=inp.value.trim();var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){if(!row.empVals)row.empVals=[];row.empVals[idx]=val;row.updatedAt=new Date().toISOString();try{ctSave();}catch(e){}}}
 window.ctSaveUpdDate=function(inp){var id=inp.dataset.id,val=inp.value;var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){row.updDate=val;try{ctSave();}catch(e){}}};
 window.ctSetBrand=function(b,btn){
   _ctBrand=b;
@@ -6030,9 +6031,9 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/bulk-import-v2.css?v=187">
 <link rel="stylesheet" href="snippets/bulk-import-v3.css?v=203">
 <link rel="stylesheet" href="snippets/performance-v4.css?v=204">
-<script src="snippets/bulk-import-v2.js?v=207"></script>
+<script src="snippets/bulk-import-v2.js?v=208"></script>
 <script src="snippets/bulk-import-v3.js?v=267"></script>
-<script src="snippets/performance-v4.js?v=fix335"></script>
+<script src="snippets/performance-v4.js?v=fix336"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=225">
