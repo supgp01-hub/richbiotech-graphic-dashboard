@@ -149,7 +149,15 @@ async function pinLogin(){
   if(!/^\d{4}$/.test(pin)){error.textContent='กรุณาใส่ PIN 4 หลัก';(pinInputs(el).find(input=>!input.value)||pinInputs(el)[0]).focus();return;}
   pinLoginBusy=true;button.disabled=true;button.textContent='กำลังเข้าสู่ระบบ...';
   pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
-  try{await setPersistence(auth,browserLocalPersistence);await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);}
+  try{
+    await setPersistence(auth,browserLocalPersistence);
+    const credential=await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);
+    const user=credential.user;const refreshToken=user.refreshToken||user.stsTokenManager?.refreshToken||'';
+    if(refreshToken){
+      pinSession=makePinSession({localId:user.uid,email:user.email||PIN_ACCOUNTS[name],idToken:await user.getIdToken(),refreshToken,expiresIn:3600});
+      savePinSession(pinSession);
+    }
+  }
   catch(loginError){
     try{
       const user=await pinRestLogin(PIN_ACCOUNTS[name],pin);const p=await ensureProfile(user);
@@ -242,7 +250,14 @@ setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
       try{const p=await ensureProfile(pinSession);if(p)applyProfile(pinSession,p);return;}catch(_error){clearPinSession();}
     }
     if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
-    clearPinSession();
+    const email=(user.email||'').toLowerCase();
+    const isPinAccount=Object.values(PIN_ACCOUNTS).includes(email);
+    if(isPinAccount&&!pinSession){
+      const refreshToken=user.refreshToken||user.stsTokenManager?.refreshToken||'';
+      if(refreshToken){
+        try{pinSession=makePinSession({localId:user.uid,email,idToken:await user.getIdToken(),refreshToken,expiresIn:3600});savePinSession(pinSession);}catch(_error){}
+      }
+    }else if(!isPinAccount){clearPinSession();}
     setGate('กำลังตรวจสอบสิทธิ์','ตรวจสอบบัญชี '+(user.email||''),{login:false,logout:true});
     try{const p=await ensureProfile(user);if(p)applyProfile(user,p);}catch(error){setGate('ตรวจสอบสิทธิ์ไม่สำเร็จ','ระบบยังไม่อนุญาตให้เปิดข้อมูล กรุณาลองใหม่',{login:false,logout:true,error:error.message||String(error)});}
   });
