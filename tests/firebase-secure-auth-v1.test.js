@@ -56,3 +56,9 @@ test('translated labels cannot change the stable employee account values', () =>
   assert.match(auth, /id=\"rb-auth-pin-form\" class=\"rb-auth-pin-form\" hidden/);
   assert.match(auth, /error:lastPinError/);
 });
+
+test('PIN login includes every existing dashboard user', () => {
+  assert.match(auth, /const EMPLOYEES=\['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์','MY Boss','Audit'\]/);
+  assert.match(auth, /'MY Boss':'pin\.myboss@richbiotech\.team'/);
+  assert.match(auth, /'Audit':'pin\.audit@richbiotech\.team'/);
+});

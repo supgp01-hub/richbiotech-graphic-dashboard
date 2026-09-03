@@ -4,11 +4,12 @@ import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithEmailAndPassword,si
 const CONFIG={apiKey:'AIzaSyCfhpRlo_jVl9_vuBKkwDq0H7kAmC-_nho',authDomain:'richbiotech-c4e41.firebaseapp.com',projectId:'richbiotech-c4e41',storageBucket:'richbiotech-c4e41.firebasestorage.app',messagingSenderId:'238265709540',appId:'1:238265709540:web:dcbac40e5d49467afc8df1'};
 const DB='https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 const SUPERVISOR_EMAIL='supgp01@richbiotech.com';
-const EMPLOYEES=['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์'];
+const EMPLOYEES=['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์','MY Boss','Audit'];
 const PIN_ACCOUNTS={
   'วิว':'pin.view@richbiotech.team','มอส':'pin.moss@richbiotech.team','ดอม':'pin.dom@richbiotech.team',
   'เตอร์':'pin.ter@richbiotech.team','นุ่น':'pin.nune@richbiotech.team','แจ๋ม':'pin.jam@richbiotech.team',
-  'บอล':'pin.ball@richbiotech.team','นุ้ย':'pin.nui@richbiotech.team','มายด์':'pin.mind@richbiotech.team'
+  'บอล':'pin.ball@richbiotech.team','นุ้ย':'pin.nui@richbiotech.team','มายด์':'pin.mind@richbiotech.team',
+  'MY Boss':'pin.myboss@richbiotech.team','Audit':'pin.audit@richbiotech.team'
 };
 const ROLES=[['sup','Supervisor'],['spec','Specialist'],['graphic','Graphic & Ads'],['ads','Ads Optimizer'],['audit','Audit']];
 const app=initializeApp(CONFIG);
