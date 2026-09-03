@@ -62,7 +62,7 @@ test('PIN login has an official Firebase REST fallback with a persistent refresh
   assert.match(auth, /accounts:signInWithPassword\?key=/);
   assert.match(auth, /securetoken\.googleapis\.com\/v1\/token\?key=/);
   assert.match(auth, /grant_type:'refresh_token'/);
-  assert.match(auth, /PIN_SESSION_KEY='rb_firebase_pin_session_v1'/);
+  assert.match(auth, /PIN_SESSION_KEY='rb_firebase_pin_session_v2'/);
   assert.match(auth, /const user=await pinRestLogin\(PIN_ACCOUNTS\[name\],pin\)/);
   assert.match(auth, /function activeFirebaseUser\(\)\{return auth\.currentUser\|\|pinSession;\}/);
   assert.match(auth, /async function logout\(\)\{clearPinSession\(\)/);

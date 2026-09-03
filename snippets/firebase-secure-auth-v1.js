@@ -7,7 +7,7 @@ window.addEventListener('storage',event=>{if(event.key==='rb_session')event.stop
 const CONFIG={apiKey:'AIzaSyCfhpRlo_jVl9_vuBKkwDq0H7kAmC-_nho',authDomain:'richbiotech-c4e41.firebaseapp.com',projectId:'richbiotech-c4e41',storageBucket:'richbiotech-c4e41.firebasestorage.app',messagingSenderId:'238265709540',appId:'1:238265709540:web:dcbac40e5d49467afc8df1'};
 const DB='https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 const SUPERVISOR_EMAIL='supgp01@richbiotech.com';
-const PIN_SESSION_KEY='rb_firebase_pin_session_v1';
+const PIN_SESSION_KEY='rb_firebase_pin_session_v2';
 const EMPLOYEES=['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์','MY Boss','Audit'];
 const PIN_ACCOUNTS={
   'วิว':'pin.view@richbiotech.team','มอส':'pin.moss@richbiotech.team','ดอม':'pin.dom@richbiotech.team',
