@@ -45,5 +45,15 @@ eval(fs.readFileSync('snippets/performance-v4.js', 'utf8'));
   assert.equal(fallback.cloud, true, 'พื้นที่ในเครื่องเต็มต้องสลับไปบันทึกออนไลน์โดยตรง');
   assert.equal(cloudCalls, 1, 'การบันทึกสำรองต้องส่งข้อมูลผ่านคิวออนไลน์ที่ลองใหม่ได้');
   assert.equal(global._ctData[0].id, 'quota-row', 'ข้อมูลใหม่ต้องคงอยู่ในหน้าปัจจุบัน');
+
+  forceQuota = false;
+  cloudCalls = 0;
+  const remoteRows = Array.from({ length: 2169 }, (_, i) => ({ id: `safe-${i}`, script: `remote-${i}` }));
+  global.fbGet = (_path, callback) => callback(null, { items: remoteRows });
+  const staleRows = remoteRows.slice(0, 34);
+  await window.ctPersistContent(staleRows);
+  const protectedPayload = JSON.parse(storage.get('cloud:/content_tracker_v2'));
+  assert.equal(protectedPayload.items.length, 2169, 'อุปกรณ์เก่าที่มีข้อมูลน้อยกว่าต้องไม่เขียนทับฐานข้อมูลชุดเต็ม');
+  assert.equal(global._ctData.length, 2169, 'หน้าปัจจุบันต้องกู้รายการออนไลน์กลับมาให้อัตโนมัติ');
   console.log('performance-v4: all tests passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

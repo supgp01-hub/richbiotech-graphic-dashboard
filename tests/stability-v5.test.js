@@ -29,5 +29,7 @@ assert.ok(source.includes("window.fbGet('/content_tracker_v2'"), 'order forms mu
 assert.ok(source.includes("rb_ct_backup_v1"), 'tracker data must be backed up before a cloud refresh replaces local rows');
 assert.ok(performance.includes("e.key!=='rb_olympplus_v1'"), 'content changes from another tab must update the current tab');
 assert.ok(performance.includes("BACKUP_KEY='rb_ct_backup_v1'"), 'local tracker edits must preserve the previous snapshot');
+assert.ok(performance.includes('function protectAgainstRollback('), 'a stale device must not replace the complete online tracker with a smaller snapshot');
+assert.ok(performance.includes('function mergeById('), 'rollback protection must retain online rows while applying current edits');
 
 console.log('stability-v5: all tests passed');
