@@ -29,14 +29,12 @@ function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
   el=document.createElement('div');el.id='rb-auth-gate';
-  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select><label id="rb-auth-pin-label" for="rb-auth-pin">PIN 4 หลัก</label><div id="rb-auth-pin-group" class="rb-auth-pin-group">'+[1,2,3,4].map(i=>'<span class="rb-auth-pin-digit" data-pin-index="'+i+'" aria-hidden="true"></span>').join('')+'<input id="rb-auth-pin" class="rb-auth-pin-capture" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" aria-labelledby="rb-auth-pin-label" aria-describedby="rb-auth-pin-hint"></div><div id="rb-auth-pin-hint" class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div><div class="rb-auth-note">PIN เดิมของแต่ละคนใช้งานได้ตามปกติ และระบบจะจำการเข้าสู่ระบบไว้ในเครื่องนี้</div></div></section>';
+  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select><label id="rb-auth-pin-label" for="rb-auth-pin">PIN 4 หลัก</label><input id="rb-auth-pin" class="rb-auth-pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" placeholder="กรอก PIN 4 หลัก" aria-labelledby="rb-auth-pin-label" aria-describedby="rb-auth-pin-hint"><div id="rb-auth-pin-hint" class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div></div></section>';
   document.body.appendChild(el);
   el.querySelector('#rb-auth-pin-login').addEventListener('click',pinLogin);
   const input=pinInput(el);
   input.addEventListener('input',handlePinInput);
   input.addEventListener('keydown',handlePinKeydown);
-  input.addEventListener('focus',()=>renderPin(el));
-  input.addEventListener('blur',()=>renderPin(el));
   el.querySelector('#rb-auth-name').addEventListener('change',()=>{
     lastPinError='';el.querySelector('#rb-auth-error').textContent='';
     if(readPin(el).length===4)pinLogin();else input.focus();
@@ -47,15 +45,7 @@ function gate(){
 }
 function pinInput(el=gate()){return el.querySelector('#rb-auth-pin');}
 function readPin(el=gate()){return pinInput(el).value;}
-function renderPin(el=gate()){
-  const length=readPin(el).length;const focused=document.activeElement===pinInput(el);
-  el.querySelectorAll('.rb-auth-pin-digit').forEach((box,index)=>{
-    box.textContent=index<length?'●':'';
-    box.classList.toggle('is-filled',index<length);
-    box.classList.toggle('is-current',focused&&index===Math.min(length,3)&&length<4);
-  });
-}
-function clearPin(el=gate(),focus=true){pinInput(el).value='';renderPin(el);if(focus)pinInput(el).focus();}
+function clearPin(el=gate(),focus=true){pinInput(el).value='';if(focus)pinInput(el).focus();}
 function maybeAutoLogin(el=gate()){
   if(readPin(el).length===4&&!pinLoginBusy)pinLogin();
 }
@@ -63,7 +53,6 @@ function handlePinInput(event){
   const input=event.currentTarget;
   input.value=input.value.replace(/\D/g,'').slice(0,4);
   lastPinError='';gate().querySelector('#rb-auth-error').textContent='';
-  renderPin();
   maybeAutoLogin();
 }
 function handlePinKeydown(event){
@@ -195,7 +184,7 @@ gate();
 setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
   onAuthStateChanged(auth,async user=>{
     setupAdmin(false);
-    if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','เลือกชื่อและกรอก PIN เดิมเพื่อเปิด Dashboard และบันทึกข้อมูลออนไลน์',{login:true,error:lastPinError});return;}
+    if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
     setGate('กำลังตรวจสอบสิทธิ์','ตรวจสอบบัญชี '+(user.email||''),{login:false,logout:true});
     try{const p=await ensureProfile(user);if(p)applyProfile(user,p);}catch(error){setGate('ตรวจสอบสิทธิ์ไม่สำเร็จ','ระบบยังไม่อนุญาตให้เปิดข้อมูล กรุณาลองใหม่',{login:false,logout:true,error:error.message||String(error)});}
   });

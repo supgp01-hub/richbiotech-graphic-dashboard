@@ -36,21 +36,27 @@ test('supervisor bootstrap is limited to the confirmed company email', () => {
   assert.match(auth, /SUPERVISOR_EMAIL='supgp01@richbiotech\.com'/);
 });
 
-test('PIN login uses one reliable capture input with four visual boxes and submits automatically', () => {
-  assert.match(auth, /class=\"rb-auth-pin-digit\"/);
-  assert.match(auth, /id=\"rb-auth-pin\" class=\"rb-auth-pin-capture\"/);
+test('PIN login uses one visible native input and submits automatically', () => {
+  assert.doesNotMatch(auth, /class=\"rb-auth-pin-digit\"/);
+  assert.match(auth, /id=\"rb-auth-pin\" class=\"rb-auth-pin-input\"/);
   assert.match(auth, /maxlength=\"4\"/);
+  assert.match(auth, /inputmode=\"numeric\"/);
   assert.match(auth, /if\(readPin\(el\)\.length===4&&!pinLoginBusy\)pinLogin\(\)/);
   assert.match(auth, /input\.value=input\.value\.replace\(\/\\D\/g,''\)\.slice\(0,4\)/);
 });
 
 test('PIN controls preserve paste and leading zeroes while preventing duplicate submissions', () => {
   assert.match(auth, /function readPin\(el=gate\(\)\)\{return pinInput\(el\)\.value;\}/);
-  assert.match(auth, /autocomplete=\"current-password\"/);
+  assert.match(auth, /autocomplete=\"off\"/);
   assert.match(auth, /if\(pinLoginBusy\)return/);
   assert.match(auth, /pinInput\(el\)\.disabled=true/);
   assert.match(auth, /too-many-requests/);
   assert.match(auth, /network-request-failed/);
+});
+
+test('login page omits the two user-requested helper messages', () => {
+  assert.doesNotMatch(auth, /เลือกชื่อและกรอก PIN เดิมเพื่อเปิด Dashboard และบันทึกข้อมูลออนไลน์/);
+  assert.doesNotMatch(auth, /PIN เดิมของแต่ละคนใช้งานได้ตามปกติ และระบบจะจำการเข้าสู่ระบบไว้ในเครื่องนี้/);
 });
 
 test('translated labels cannot change the stable employee account values', () => {
