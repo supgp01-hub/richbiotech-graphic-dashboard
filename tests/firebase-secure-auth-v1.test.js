@@ -35,3 +35,17 @@ test('supervisor bootstrap is limited to the confirmed company email', () => {
   assert.match(rules.auth_users.$uid['.write'], /supgp01@richbiotech\.com/);
   assert.match(auth, /SUPERVISOR_EMAIL='supgp01@richbiotech\.com'/);
 });
+
+test('PIN login uses four accessible digit boxes and submits automatically', () => {
+  assert.match(auth, /class=\"rb-auth-pin-digit\"/);
+  assert.match(auth, /aria-label=\"PIN หลักที่ /);
+  assert.match(auth, /if\(readPin\(el\)\.length===4&&!pinLoginBusy\)pinLogin\(\)/);
+  assert.doesNotMatch(auth, /id=\"rb-auth-pin\" type=\"password\"/);
+});
+
+test('PIN controls support paste, backspace navigation and duplicate-submit protection', () => {
+  assert.match(auth, /handlePinPaste/);
+  assert.match(auth, /event\.key==='Backspace'/);
+  assert.match(auth, /if\(pinLoginBusy\)return/);
+  assert.match(auth, /input\.disabled=true/);
+});
