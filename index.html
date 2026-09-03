@@ -3160,6 +3160,11 @@ window.addEventListener('pagehide',fbStopNetwork);
 var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL"];window.MB_GR=MB_GR;
 var MB_ALL=["วิว","มอส","ดอม","เตอร์","นุ่น","แจ๋ม","บอล","นุ้ย","มายด์"];
 var OT=["กราฟิก","รูปภาพ","ยิงแอด","เทสส่วนตัว","คัดคลิป","Rlees","สร้างเพจ","Retarget"];window.OT=OT;
+function rbOrderTypeLabel(type){
+  var value=String(type==null?'':type);
+  return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value;
+}
+window.rbOrderTypeLabel=rbOrderTypeLabel;
 var ST=[
   {k:"pending",l:"มอบหมาย",col:"#6b7280",bg:"#f3f4f6"},
   {k:"inprogress",l:"กำลังดำเนินการ",col:"#1d4ed8",bg:"#dbeafe"},
@@ -3439,7 +3444,7 @@ function initOrderPanel(){
   dtClr.onclick=function(){dtI.value='';_OF.date='';dtClr.style.display='none';renderOrders();};
   sts.appendChild(dtLbl);sts.appendChild(dtI);sts.appendChild(dtClr);
   var tys=document.createElement('select');tys.id='ord-type-filter';tys.style.cssText='border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;background:var(--surface-card);';
-  [['','ประเภททั้งหมด']].concat(OT.map(function(t){return[t,t];})).forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];tys.appendChild(o);});
+  [['','ประเภททั้งหมด']].concat(OT.map(function(t){return[t,rbOrderTypeLabel(t)];})).forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];tys.appendChild(o);});
   tys.onchange=function(){_OF.type=this.value;renderOrders();};
   var sortSel=document.createElement('select');sortSel.id='ord-sort';sortSel.title='เรียงลำดับงาน';sortSel.style.cssText='border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;background:var(--surface-card);';
   sortSel.className='rb-priority-select';[['priority','งานด่วนก่อน'],['deadline','Deadline ใกล้ก่อน'],['newest','แก้ไขล่าสุด'],['oldest','งานเก่าก่อน'],['name','ก-ฮ ชื่องาน']].forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];sortSel.appendChild(o);});
@@ -3543,7 +3548,7 @@ function renderOrders(){
     var dlbadge=ds==='over'?'<span style="font-size:10px;background:var(--auto-lc21);color:#dc2626;padding:1px 5px;border-radius:4px;margin-left:4px;">เกิน</span>':ds==='soon'?'<span style="font-size:10px;background:var(--auto-lc25);color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">ใกล้</span>':'';
     [{html:'<span style="font-family:monospace;font-weight:700;color:var(--text-heading);">'+esc(o.id)+'</span>'},
      {html:'<div style="font-weight:600;color:var(--text-heading);">'+esc(o.name||o.title||'')+'</div>'+(o.product?'<span class="ord-product">'+esc(o.product)+'</span>':'')+(o.note?'<div style="font-size:11px;color:var(--text-muted2);margin-top:3px;">'+esc(o.note)+'</div>':'')},
-     {html:'<span style="background:var(--auto-lc24);padding:2px 8px;border-radius:6px;font-size:11px;">'+esc(o.type||'—')+'</span>'},
+     {html:'<span style="background:var(--auto-lc24);padding:2px 8px;border-radius:6px;font-size:11px;">'+esc(rbOrderTypeLabel(o.type)||'—')+'</span>'},
      {html:'<span style="color:'+dlc+';font-weight:600;">'+fmtD(o.deadline)+'</span>'+dlbadge}
     ].forEach(function(c,ci){var td=document.createElement('td');td.setAttribute('data-label',['เลขงาน','ชื่องาน','ประเภท','DEADLINE'][ci]);td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
     var stTd=document.createElement('td');stTd.style.cssText='padding:8px 14px;vertical-align:middle;';
@@ -3590,7 +3595,7 @@ function buildOM(){
   var dlI=document.createElement('input');dlI.id='om-dl';dlI.type='date';dlI.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;';
   var noteTA=document.createElement('textarea');noteTA.id='om-note';noteTA.placeholder='หมายเหตุ...';noteTA.rows=2;noteTA.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;resize:vertical;';
   var g1=document.createElement('div');g1.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
-  g1.appendChild(mkF('ประเภทงาน',mkS('om-type',OT.map(function(t){return[t,t];}))));
+  g1.appendChild(mkF('ประเภทงาน',mkS('om-type',OT.map(function(t){return[t,rbOrderTypeLabel(t)];}))));
   g1.appendChild(mkF('Deadline',dlI));
   var g2=document.createElement('div');g2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 14px;';
   g2.appendChild(mkF('สถานะ',mkS('om-st',ST.map(function(s){return[s.k,s.l];}))));
@@ -3839,7 +3844,7 @@ window.addEventListener('rb:content-updated',function(){var p=document.getElemen
 })();
 </script><script src="snippets/persistence-reliability-v3.js?v=fix339"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
-<script src="snippets/order-planner-v1.js?v=fix337"></script>
+<script src="snippets/order-planner-v1.js?v=fix338"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix316">
 <script src="snippets/commission-center-v1.js?v=fix336"></script><script>
 /* ── Section detector ── */
@@ -4209,7 +4214,7 @@ window.gAS=function(){
     var dlI=document.createElement('input');dlI.id='om-dl';dlI.type='date';dlI.autocomplete='off';
     dlI.style.cssText='width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;box-sizing:border-box;';
     var OT_=typeof OT!=='undefined'?OT:['กราฟิก','รูปภาพ','ยิงแอด','เทสส่วนตัว','คัดคลิป','Rlees','สร้างเพจ','Retarget'];
-    var typeSel=mkS('om-type',[['','-- เลือกประเภทงาน --']].concat(OT_.map(function(x){return[x,x];})));
+    var typeSel=mkS('om-type',[['','-- เลือกประเภทงาน --']].concat(OT_.map(function(x){return[x,rbOrderTypeLabel(x)];})));
     typeSel.addEventListener('change',function(){
       if(this.value&&!dlI.value){
         var tm=new Date();tm.setDate(tm.getDate()+1);
@@ -5486,7 +5491,7 @@ window._rbRenderMyWork = function(){
     if(!list.length) return '<div class="mywork-empty">ไม่มีรายการ</div>';
     var h = '<table class="mywork-table"><thead><tr><th>เลขงาน</th><th>ชื่องาน</th><th>ประเภท</th><th>Deadline</th><th>สถานะ</th></tr></thead><tbody>';
     list.forEach(function(o){
-      h += '<tr><td>'+(o.id||'-')+'</td><td>'+(o.name||'-')+'</td><td>'+(o.type||'-')+'</td><td>'+fmtDate(o.deadline)+'</td><td>'+pill(o.status)+'</td></tr>';
+      h += '<tr><td>'+(o.id||'-')+'</td><td>'+(o.name||'-')+'</td><td>'+(rbOrderTypeLabel(o.type)||'-')+'</td><td>'+fmtDate(o.deadline)+'</td><td>'+pill(o.status)+'</td></tr>';
     });
     h += '</tbody></table>';
     return h;

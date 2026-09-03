@@ -8,7 +8,9 @@ const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 assert.ok(index.includes('<meta name="rb-build" content="fix318">'),'build marker must expose fix318');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix337'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix338'),'planner script must be loaded');
+assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
+assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
 assert.ok(js.includes("if(!isSupervisor())return false"),'planner API must reject non-Supervisor users');
 assert.ok(css.includes('body.rb-not-sup #ord-planner-btn{display:none!important}'),'planner entry button must stay hidden for every non-Supervisor role');
@@ -51,6 +53,8 @@ assert.ok(js.includes('data-action="open-history-delete"')&&js.includes('data-hi
 assert.ok(js.includes("className='rbp-history-delete rbp-draft-delete'")&&js.includes("setAttribute('data-action','delete')")&&js.includes('ลบรายการนี้'),'tab 1 must expose a guarded delete action for the selected draft');
 assert.ok(js.includes("deleteJSON('/orders/'+remoteKey)")&&js.includes('function removeDispatchedDraft('),'confirmed deletion must remove the exact planner order and its history draft');
 assert.ok(js.includes('HOOK 2 (ถ้ามี)')&&js.includes('data-field="hook2"'),'the planner parity form must expose a second optional Hook');
+assert.ok(js.includes('option(x,typeLabel(x),current)'),'the planner must show Reel while retaining the stable legacy option value');
+assert.ok(js.includes("historyValue('ประเภทงาน',typeLabel(order.type||active.type),false)"),'planner history must show the corrected work type label');
 assert.ok(css.includes('.rbp-history-layout')&&css.includes('.rbp-history-delete-overlay'),'history and destructive confirmation must have responsive planner styling');
 
 const storage={};
