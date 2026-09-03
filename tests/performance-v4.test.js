@@ -26,6 +26,7 @@ global._ctData = Array.from({ length: 2135 }, (_, i) => ({ id: `row-${i}`, scrip
 global.ctLoad = () => global._ctData;
 
 eval(fs.readFileSync('snippets/performance-v4.js', 'utf8'));
+assert.ok(fs.readFileSync('index.html','utf8').includes('id="ct-main-pager-top"'), 'ต้องมีตัวควบคุมหน้าเหนือรายการเพื่อให้เห็นทันทีว่าข้อมูลยังมีหน้าถัดไป');
 
 (async () => {
   const started = Date.now();
