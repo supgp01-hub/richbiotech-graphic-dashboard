@@ -150,19 +150,19 @@ async function pinLogin(){
   pinLoginBusy=true;button.disabled=true;button.textContent='กำลังเข้าสู่ระบบ...';
   pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
   try{
-    await setPersistence(auth,browserLocalPersistence);
-    const credential=await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);
-    const user=credential.user;const refreshToken=user.refreshToken||user.stsTokenManager?.refreshToken||'';
-    if(refreshToken){
-      pinSession=makePinSession({localId:user.uid,email:user.email||PIN_ACCOUNTS[name],idToken:await user.getIdToken(),refreshToken,expiresIn:3600});
-      savePinSession(pinSession);
-    }
-  }
-  catch(loginError){
+    const user=await pinRestLogin(PIN_ACCOUNTS[name],pin);const p=await ensureProfile(user);
+    if(p){applyProfile(user,p);return;}
+  }catch(restError){
     try{
-      const user=await pinRestLogin(PIN_ACCOUNTS[name],pin);const p=await ensureProfile(user);
-      if(p){applyProfile(user,p);return;}
-    }catch(restError){
+      await setPersistence(auth,browserLocalPersistence);
+      const credential=await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);
+      const user=credential.user;const refreshToken=user.refreshToken||user.stsTokenManager?.refreshToken||'';
+      if(refreshToken){
+        pinSession=makePinSession({localId:user.uid,email:user.email||PIN_ACCOUNTS[name],idToken:await user.getIdToken(),refreshToken,expiresIn:3600});
+        savePinSession(pinSession);
+      }
+      const p=await ensureProfile(user);if(p){applyProfile(user,p);return;}
+    }catch(loginError){
       const code=(restError?.code||restError?.message||loginError?.code||'');
       lastPinError=/too-many|TOO_MANY/i.test(code)?'มีการลองหลายครั้งเกินไป กรุณารอประมาณ 1 นาทีแล้วลองใหม่':/network|fetch|TOKEN/i.test(code)?'เชื่อมต่อ Firebase ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองใหม่':'ชื่อหรือ PIN ไม่ถูกต้อง กรุณาลองใหม่';
       error.textContent=lastPinError;clearPin(el,false);

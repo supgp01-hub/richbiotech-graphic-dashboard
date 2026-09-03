@@ -67,6 +67,7 @@ test('PIN login has an official Firebase REST fallback with a persistent refresh
   assert.match(auth, /function activeFirebaseUser\(\)\{return auth\.currentUser\|\|pinSession;\}/);
   assert.match(auth, /async function logout\(\)\{clearPinSession\(\)/);
   assert.match(auth, /const credential=await signInWithEmailAndPassword/);
+  assert.ok(auth.indexOf('const user=await pinRestLogin(PIN_ACCOUNTS[name],pin)') < auth.indexOf('const credential=await signInWithEmailAndPassword'));
   assert.match(auth, /pinSession=makePinSession\(\{localId:user\.uid,email:user\.email\|\|PIN_ACCOUNTS\[name\]/);
   assert.match(auth, /if\(isPinAccount&&!pinSession\)/);
   assert.match(auth, /else if\(!isPinAccount\)\{clearPinSession\(\);\}/);
