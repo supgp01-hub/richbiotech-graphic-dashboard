@@ -3221,8 +3221,8 @@ function refreshOrderContentFromCloud(brand){
   var url='https://richbiotech-c4e41-default-rtdb.firebaseio.com/content_tracker_v2.json';
   if(window._rbOrderContentCloudRows&&Date.now()-_rbOrderContentCloudAt<120000){refreshOrderContentList(brand||'');return Promise.resolve(window._rbOrderContentCloudRows);}
   if(_rbOrderContentCloudPromise)return _rbOrderContentCloudPromise.then(function(items){refreshOrderContentList(brand||'');return items;});
-  var controller=typeof AbortController!=='undefined'?new AbortController():null,timer=controller?setTimeout(function(){controller.abort();},12000):null,opts={cache:'no-store'};if(controller)opts.signal=controller.signal;
-  var cloudRead=new Promise(function(resolve,reject){if(typeof window.fbGet==='function'){window.fbGet('/content_tracker_v2',function(error,data){if(error)reject(error);else resolve(data);});return;}var transport=window.rbFirebaseAuth&&window.rbFirebaseAuth.fetch?window.rbFirebaseAuth.fetch:fetch;transport(url,opts).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(resolve,reject);});
+  var controller=typeof AbortController!=='undefined'?new AbortController():null,timer=controller?setTimeout(function(){controller.abort();},90000):null,opts={cache:'no-store'};if(controller)opts.signal=controller.signal;
+  var cloudRead=new Promise(function(resolve,reject){if(window.rbFirebaseAuth&&window.rbFirebaseAuth.fetch){window.rbFirebaseAuth.fetch(url,opts).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(resolve,reject);return;}if(typeof window.fbGet==='function'){window.fbGet('/content_tracker_v2',function(error,data){if(error)reject(error);else resolve(data);});return;}fetch(url,opts).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(resolve,reject);});
   _rbOrderContentCloudPromise=cloudRead.then(function(d){
     var items=Array.isArray(d)?d:(d&&Array.isArray(d.items)?d.items:[]);
     window._rbOrderContentCloudRows=items;_rbOrderContentCloudAt=Date.now();
@@ -6034,7 +6034,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/bulk-import-v2.css?v=187">
 <link rel="stylesheet" href="snippets/bulk-import-v3.css?v=203">
 <link rel="stylesheet" href="snippets/performance-v4.css?v=205">
-<script src="snippets/bulk-import-v2.js?v=212"></script>
+<script src="snippets/bulk-import-v2.js?v=213"></script>
 <script src="snippets/bulk-import-v3.js?v=267"></script>
 <script src="snippets/performance-v4.js?v=fix339"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
