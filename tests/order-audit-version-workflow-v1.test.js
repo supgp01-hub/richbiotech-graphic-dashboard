@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix323'),'the unified version layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix323'),'the unified version runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix324'),'the unified version layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix324'),'the unified version runtime must be cache-busted');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the correction view');
 assert.ok(workflow.includes("kind==='image'?'#om-image-submitlinks-rows"),'image delivery links must be read from the send-work editor');
@@ -57,6 +57,7 @@ assert.ok(workflow.includes("field('ผลตรวจ',result"),'Audit decision
 assert.ok(css.includes('.surface-audit .rb-av-audit-fields{grid-template-columns:'),'the redesigned Audit form must use an orderly desktop grid');
 assert.ok(css.includes('@media(max-width:980px)'),'the redesigned Audit form must adapt to medium screens');
 assert.ok(css.includes('@container audit-workspace (max-width:760px)'),'the redesigned Audit form must adapt to the modal content width');
-assert.ok(css.includes('[data-active-tab="links"] .rb-om-window{max-width:1120px'),'the Audit workspace must have enough desktop width for the approved layout');
+assert.ok(css.includes('#rb-order-modal .rb-om-window{max-width:1120px'),'all three workflow tabs must keep the same desktop width');
+assert.ok(!css.includes('[data-active-tab="links"] .rb-om-window'),'tab switching must not change the modal width');
 
 console.log('order-audit-version-workflow-v1: all tests passed');
