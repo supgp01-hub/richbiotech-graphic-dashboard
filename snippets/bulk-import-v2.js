@@ -64,4 +64,5 @@ if(window.__CT_IMPORT_TEST__)window._ctApplyCloudForTest=applyCloud;
 document.addEventListener('visibilitychange',function(){if(!cloudAllowed())cloudPause();else cloudInit()});
 if(window.addEventListener)window.addEventListener('rb:leader-change',function(e){if(!(e.detail&&e.detail.leader)||!cloudAllowed()){cloudPause();return}cloudInit()});
 if(window.addEventListener)window.addEventListener('rb:auth-ready',function(){cloudPause();setTimeout(function(){hydrateCloud().then(function(){if(cloudAllowed())cloudInit()}).catch(function(){})},0)});
+if(window.rbFirebaseAuth&&window.rbFirebaseAuth.ready)window.rbFirebaseAuth.ready.then(function(){return hydrateCloud()}).then(function(){if(cloudAllowed())cloudInit()}).catch(function(){cloudStarted=false});
 })();
