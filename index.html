@@ -2996,20 +2996,23 @@ function fbQueueOrderOp(method,key,data){
   if(!key)return;
   var q=fbOrderQueueLoad(),path='/orders/'+key,found=-1;
   for(var i=0;i<q.length;i++)if(q[i].path===path){found=i;break;}
-  var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,ts:Date.now()};
-  if(found>=0){var old=q[found];if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;}else q[found]=op;}else q.push(op);
-  var stored=found>=0?q[found]:q[q.length-1],durable=fbOrderQueueSave(q);fbFlushOrderQueue();
+  var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,ts:Date.now(),attempts:0,nextAttemptAt:0};
+  if(found>=0){var old=q[found];if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else q[found]=op;}else q.push(op);
+  var stored=found>=0?q[found]:q[q.length-1],durable=fbOrderQueueSave(q);fbFlushOrderQueue(true);
   return{token:stored&&stored.token,path:path,durable:durable};
 }
 function fbWaitOrderOp(op,timeout){
   return new Promise(function(resolve){
     if(!op||!op.token){resolve({confirmed:false,durable:false});return;}
-    /* The persistent queue is the save receipt; network confirmation continues
-       in the background and is reflected by the global sync indicator. */
-    setTimeout(function(){
+    if(!op.durable){resolve({confirmed:false,durable:false});return;}
+    var started=Date.now(),limit=Number(timeout)||FB_REQ_TIMEOUT+1500;
+    function check(){
       var pending=fbOrderQueueLoad().some(function(item){return item&&item.token===op.token;});
-      resolve({confirmed:!pending,durable:!pending||!!op.durable});
-    },0);
+      if(!pending){resolve({confirmed:true,durable:true});return;}
+      if(Date.now()-started>=limit){resolve({confirmed:false,durable:true});return;}
+      fbFlushOrderQueue(false);setTimeout(check,160);
+    }
+    check();
   });
 }
 function fbOrderAssetPayload(row){var out={};FB_ORDER_ASSET_FIELDS.forEach(function(field){out[field]=Array.isArray(row&&row[field])?row[field]:[];});return out;}
@@ -3025,14 +3028,18 @@ function fbLoadOrderAssets(order){
   if(!order||!order._fbKey)return Promise.resolve(fbOrderAssetPayload(order||{}));
   return new Promise(function(resolve,reject){fbGet('/order_assets/'+order._fbKey,function(error,data){if(error){reject(error);return;}resolve(fbOrderAssetPayload(data||{}));});});
 }
-function fbFlushOrderQueue(){
+function fbFlushOrderQueue(force){
   if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}
   if(_fbOrderFlushActive)return;
   var q=fbOrderQueueLoad();if(!q.length){fbSetSyncState(_fbSse&&_fbSse.readyState===1?'online':'saved',_fbSse&&_fbSse.readyState===1?'ออนไลน์':'บันทึกแล้ว');return;}
   if(typeof navigator!=='undefined'&&navigator.onLine===false){fbSetSyncState('waiting','รออินเทอร์เน็ต','มี '+q.length+' รายการรอซิงค์');return;}
-  var op=q[0],opts={method:op.method,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
+  var now=Date.now(),op=null;
+  for(var i=0;i<q.length;i++){if(Number(q[i]&&q[i].nextAttemptAt||0)<=now){op=q[i];break;}}
+  if(!op&&force)op=q[0];
+  if(!op){var nextAt=q.reduce(function(value,item){var due=Number(item&&item.nextAttemptAt||0);return due>now&&(!value||due<value)?due:value;},0);fbSetSyncState('waiting','รอซิงค์ใหม่','มี '+q.length+' รายการรอซิงค์');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(false);},nextAt?Math.max(250,nextAt-now):5000);return;}
+  var opts={method:op.method,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
   _fbOrderFlushActive=true;fbSetSyncState('saving','กำลังบันทึก...','เหลือ '+q.length+' รายการ');
-  fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(){var next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});fbOrderQueueSave(next);_fbOrderFlushActive=false;clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue();}).catch(function(e){_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(fbFlushOrderQueue,5000);});
+  fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(){var next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});fbOrderQueueSave(next);_fbOrderFlushActive=false;clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue(false);}).catch(function(e){var current=fbOrderQueueLoad(),failed=null;current.forEach(function(item){if(item&&item.token===op.token){item.attempts=Number(item.attempts||0)+1;item.nextAttemptAt=Date.now()+Math.min(30000,3000*Math.pow(2,Math.min(3,item.attempts-1)));failed=item;}});if(failed)fbOrderQueueSave(current);_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(false);},100);});
 }
 function fbScheduleStreamRefresh(){
   clearTimeout(_fbStreamRefreshTimer);
@@ -3250,6 +3257,8 @@ function spORD(d){
     if(Object.keys(changes).length)queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes));
     if(hasFreshAssets){var nextAssets=fbOrderAssetPayload(row),oldAssets=fbOrderAssetPayload(old);if(JSON.stringify(nextAssets)!==JSON.stringify(oldAssets))assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null)));}
   });
+  var queuedByToken={};queueOps.forEach(function(op){if(op&&op.token)queuedByToken[op.token]=1;});
+  fbOrderQueueLoad().forEach(function(op){if(op&&op.token&&!queuedByToken[op.token]){queueOps.push({token:op.token,path:op.path,durable:true});queuedByToken[op.token]=1;}});
   var metaWait=queueOps.map(function(op){return fbWaitOrderOp(op);});
   return Promise.all([Promise.all(metaWait),Promise.all(assetWrites)]).then(function(result){
     var metadata=result[0]||[],assets=result[1]||[],metadataSafe=metadata.every(function(state){return state&&state.durable;}),online=metadata.every(function(state){return state&&state.confirmed;})&&assets.every(function(ok){return ok!==false;}),assetsOk=assets.every(function(ok){return ok!==false;});
@@ -3821,14 +3830,14 @@ function hookLeaveBtns(){
 setTimeout(hookLeaveBtns,800);
 // Expose order functions globally for cross-IIFE access
 window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
-window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window._rbRefreshOrderViews=refreshOrderViews;
+window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window._rbRefreshOrderViews=refreshOrderViews;
 window.rbOrderAssetFields=FB_ORDER_ASSET_FIELDS;window.rbOrderHasAssetFields=fbOrderHasAssetFields;window.rbLoadOrderAssets=fbLoadOrderAssets;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
 window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;window.refreshOrderContentFromCloud=refreshOrderContentFromCloud;
 window.addEventListener('rb:content-updated',function(){var p=document.getElementById('om-prod');refreshOrderContentList(p?p.value:'');});
 })();
-</script><script src="snippets/persistence-reliability-v3.js?v=fix337"></script>
+</script><script src="snippets/persistence-reliability-v3.js?v=fix339"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
 <script src="snippets/order-planner-v1.js?v=fix337"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix316">
@@ -4660,10 +4669,10 @@ if(_revisionSubmit){
     return Promise.resolve(typeof spORD==='function'?spORD(orders):{ok:false}).then(function(state){
       if(!state||state.ok===false)throw new Error(state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
       if(typeof options.onSuccess==='function')options.onSuccess(state);
-      setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'บันทึกในเครื่องอย่างปลอดภัยแล้ว และจะซิงก์ออนไลน์อัตโนมัติ','success');
+      setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'เก็บแบบร่างในเครื่องแล้ว แต่ยังยืนยันออนไลน์ไม่ได้ กรุณารอแล้วกดบันทึกอีกครั้ง','success');
       setOMActionBusy(false);
-      setTimeout(function(){closeOM2(true);},60);
-      return true;
+      if(state.online){setTimeout(function(){closeOM2(true);},60);return true;}
+      return false;
     }).catch(function(error){
       console.error('บันทึกคำสั่งงานไม่สำเร็จ',error);setOMActionBusy(false);
       setOMSubmitFeedback('บันทึกไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'error');
@@ -4865,10 +4874,10 @@ if(_revisionSubmit){
     if(idx>=0){Object.keys(orders[idx]).forEach(function(k){if(!(k in entry))entry[k]=orders[idx][k];});}
     if(idx>=0){orders[idx]=entry;}else{orders.push(entry);}
     var wasNew=idx<0;
-    persistOMAndFinish(orders,{message:wasNew?'กำลังสร้างและซิงก์งานใหม่...':'กำลังบันทึกการแก้ไขงาน...',successMessage:wasNew?'เพิ่มงานและบันทึกออนไลน์เรียบร้อยแล้ว':'บันทึกการแก้ไขออนไลน์เรียบร้อยแล้ว',onSuccess:function(){
+    persistOMAndFinish(orders,{message:wasNew?'กำลังสร้างและซิงก์งานใหม่...':'กำลังบันทึกการแก้ไขงาน...',successMessage:wasNew?'เพิ่มงานและบันทึกออนไลน์เรียบร้อยแล้ว':'บันทึกการแก้ไขออนไลน์เรียบร้อยแล้ว',onSuccess:function(state){
       if(typeof logTL==='function')logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',wasNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});
       if(typeof renderOrderStats==='function')renderOrderStats();if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}(window._rbInitOP||function(){})();
-      if(_omIsNew){clearOMDraft();_omIsNew=false;}
+      if(_omIsNew&&state&&state.online){clearOMDraft();_omIsNew=false;}
     }});
     }catch(saveError){console.error('บันทึกงานไม่สำเร็จ',saveError);setOMSubmitFeedback('บันทึกงานไม่สำเร็จ กรุณาลองอีกครั้ง: '+(saveError&&saveError.message?saveError.message:'ข้อผิดพลาดไม่ทราบสาเหตุ'),'error');}
   }
@@ -5644,6 +5653,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 <script src="snippets/login-reliability-v1.js?v=207"></script>
 <link rel="stylesheet" href="snippets/workflow-ops-v1.css?v=241">
 <script src="snippets/workflow-ops-v1.js?v=fix316"></script>
+<script src="snippets/workflow-sync-retry-bridge-v1.js?v=fix338"></script>
 <style id="rb-global-dropdown-v5-css">
 select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:30px!important;border-radius:8px;cursor:pointer;transition:box-shadow .16s,border-color .16s,transform .16s}
 select.rb-dd-native:not([multiple]):hover{border-color:#52B788!important;box-shadow:0 3px 10px rgba(27,67,50,.10)}
@@ -6158,7 +6168,7 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix308">
 <script src="snippets/facebook-pages-inline-editor-v2.js?v=fix316"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
-<script src="snippets/shared-business-sync-v1.js?v=fix335"></script>
+<script src="snippets/shared-business-sync-v1.js?v=fix338"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure17">
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure17"></script>
 </html>

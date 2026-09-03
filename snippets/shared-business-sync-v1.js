@@ -10,8 +10,7 @@ var descriptors={
   rb_channel_data_v1:{path:'/channel_data_v1',kind:'grouped'},
   rb_fb_cells:{path:'/facebook_legacy_cells',kind:'map'},
   rb_fb_notif:{path:'/facebook_notifications',kind:'map'},
-  rb_timeline_v1:{path:'/timeline_v1',kind:'timeline'},
-  rb_users:{path:'/rb_users',kind:'whole'}
+  rb_timeline_v1:{path:'/timeline_v1',kind:'timeline'}
 };
 
 function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return value;}}

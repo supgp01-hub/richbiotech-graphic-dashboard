@@ -31,6 +31,18 @@ test('database defaults to deny and protects sensitive paths', () => {
   assert.match(rules.orders['.write'], /active/);
 });
 
+test('every Graphic data module used by the live page has an explicit online rule', () => {
+  ['specialwork_v2','brand_pages_v1','channel_data_v1'].forEach(name => {
+    assert.ok(rules[name], `${name} must have Firebase rules`);
+    assert.match(rules[name]['.read'], /active/);
+    assert.match(rules[name]['.write'], /active/);
+  });
+  assert.match(rules.fbpages_edits_v2['.write'], /role.*sup/);
+  assert.match(rules.fbpages_edits_v2['.write'], /role.*spec/);
+  assert.match(rules.commission_center_v1['.write'], /role.*audit/);
+  assert.match(rules.commission_center_v1['.write'], /role.*sup/);
+});
+
 test('supervisor bootstrap is limited to the confirmed company email', () => {
   assert.match(rules.auth_users.$uid['.write'], /supgp01@richbiotech\.com/);
   assert.match(auth, /SUPERVISOR_EMAIL='supgp01@richbiotech\.com'/);

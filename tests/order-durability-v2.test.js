@@ -14,7 +14,15 @@ assert.match(source, /if\(_omUploadPending\).*กรุณารอจนรู�
 assert.match(source, /persistOMAndFinish\(orders/,
   'modal actions must wait for a durable save receipt');
 assert.match(source, /setTimeout\(function\(\)\{closeOM2\(true\);\},60\)/,
-  'the modal must close automatically after a safe save');
+  'the modal may close after a confirmed online save');
+assert.match(source, /if\(state\.online\)\{setTimeout\(function\(\)\{closeOM2\(true\);\},60\);return true;\}/,
+  'the modal must stay open until Firebase confirms the save');
+assert.match(source, /function fbWaitOrderOp\(op,timeout\)[\s\S]*Date\.now\(\)-started>=limit/,
+  'the save receipt must wait for online confirmation instead of resolving immediately');
+assert.match(source, /window\.fbFlushOrderQueue=function\(\)\{fbFlushOrderQueue\(true\);\}/,
+  'the manual retry control must call a real exported queue flush');
+assert.match(source, /old\.attempts=0;old\.nextAttemptAt=0/,
+  'a fresh edit must reset retry backoff for its existing queued order');
 assert.match(source, /legacyKey&&!active\[legacyKey\]\?legacyKey:'ord_'/,
   'legacy rows must keep a stable internal key instead of being deleted and recreated');
 assert.match(source, /if\(_viewerCode&&!rbOrderMatchesAssignee\(o,_viewerCode\)\)return false/,

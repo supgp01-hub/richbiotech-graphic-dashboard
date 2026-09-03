@@ -40,7 +40,7 @@ localStorage.setItem('rb_timeline_v1',JSON.stringify([{ts:100,sec:'งาน',ac
 assert.ok(writes.some(write=>write.path==='/timeline_v1/100'),'audit timeline items must write online independently');
 
 localStorage.setItem('rb_users',JSON.stringify([{name:'User A',role:'graphic'}]));
-assert.ok(writes.some(write=>write.path==='/rb_users'),'user administration changes must use the reliable online queue');
+assert.ok(!writes.some(write=>write.path==='/rb_users'),'legacy local user data must never enter the denied shared-data queue');
 
 localStorage.setItem('rb_order_draft_v1_Tester',JSON.stringify({name:'งานที่กำลังกรอก',deadline:'2026-09-04'}));
 assert.ok(writes.some(write=>write.path==='/order_form_drafts/Tester'),'unfinished order form drafts must be recoverable online per user');
@@ -56,5 +56,5 @@ assert.deepEqual(
   'first migration must preserve unsynced records from another user device'
 );
 assert.equal(document.documentElement['data-shared-business-sync'],'1.1.0');
-assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix335'),'the online business sync layer must be loaded by the live page');
+assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix338'),'the online business sync layer must be loaded by the live page');
 console.log('shared-business-sync-v1: all tests passed');

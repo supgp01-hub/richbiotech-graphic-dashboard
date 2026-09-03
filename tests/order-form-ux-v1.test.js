@@ -11,7 +11,7 @@ assert(source.includes("firstMissing.scrollIntoView({behavior:'smooth',block:'ce
 assert(source.includes("function saveOMDraftNow()"), 'automatic draft persistence is missing');
 assert(source.includes("function restoreOMDraft()"), 'draft restore is missing');
 assert(source.includes("rb_order_draft_v1_"), 'draft key must be isolated from order storage');
-assert(source.includes("if(_omIsNew){clearOMDraft();_omIsNew=false;}"), 'successful new order save must clear its draft');
+assert(source.includes("if(_omIsNew&&state&&state.online){clearOMDraft();_omIsNew=false;}"), 'only a confirmed online new-order save may clear its draft');
 assert(source.includes("กรุณาแนบรูปภาพใหม่"), 'draft restore must explain that images are not stored in localStorage');
 assert(source.includes("sampleLink:ge('om-sample-link').value||''"), 'sample link must be preserved with the order');
 assert(source.includes("ge('om-sample-link').value=o?(o.sampleLink||''):''"), 'sample link must be restored when editing an order');

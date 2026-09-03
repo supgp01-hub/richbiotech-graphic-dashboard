@@ -16,12 +16,12 @@ const cases=[
   ['แก้ไข Facebook Pages',read('snippets/facebook-pages-inline-editor-v2.js'),"CLOUD_PATH='/fbpages_edits_v2'"],
   ['ประวัติและ Workflow',read('snippets/workflow-ops-v1.js'),"cloud('/workflow_audit/"],
   ['ข้อมูลช่องทางและข้อมูลรุ่นเดิม',read('snippets/shared-business-sync-v1.js'),"rb_channel_data_v1:{path:'/channel_data_v1'"],
-  ['ผู้ใช้งาน',read('snippets/shared-business-sync-v1.js'),"rb_users:{path:'/rb_users'"],
   ['ประวัติการทำรายการ',read('snippets/shared-business-sync-v1.js'),"rb_timeline_v1:{path:'/timeline_v1'"]
   ,['แบบร่างฟอร์มสั่งงาน',read('snippets/shared-business-sync-v1.js'),"path:'/order_form_drafts/'"]
 ];
 
 for(const [label,source,contract] of cases)assert.ok(source.includes(contract),`${label} ต้องมีเส้นทางบันทึกออนไลน์`);
-assert.ok(index.includes('snippets/persistence-reliability-v3.js?v=fix337'),'ทุกโมดูลต้องใช้คิวออนไลน์ที่ลองใหม่ได้');
-assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix335'),'ข้อมูลธุรกิจรุ่นเดิมต้องใช้ชั้นซิงก์กลาง');
+assert.ok(index.includes('snippets/persistence-reliability-v3.js?v=fix339'),'ทุกโมดูลต้องใช้คิวออนไลน์ที่ลองใหม่ได้');
+assert.ok(!read('snippets/shared-business-sync-v1.js').includes("rb_users:{path:'/rb_users'"),'รายชื่อผู้ใช้ต้องไม่ถูกเขียนทับผ่านระบบซิงก์รุ่นเก่า');
+assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix338'),'ข้อมูลธุรกิจรุ่นเดิมต้องใช้ชั้นซิงก์กลาง');
 console.log(`business-persistence-coverage: ${cases.length} business areas covered`);
