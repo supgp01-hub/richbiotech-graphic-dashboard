@@ -32,8 +32,8 @@ vm.createContext(context);
 vm.runInContext(source,context);
 
 (async function(){
-  assert.strictEqual(window.rbPersistence.version,'3.1.0');
-  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.1.0');
+  assert.strictEqual(window.rbPersistence.version,'3.2.0');
+  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.2.0');
 
   const first=await window.fbSet('/module/item',{value:'ใหม่',updatedAt:20});
   assert.strictEqual(first,false,'a failed server write must not be reported as synced');
@@ -67,6 +67,16 @@ vm.runInContext(source,context);
   assert.deepStrictEqual(migrated.map(x=>x.path).sort(),['/order_planner/drafts/draft_a','/order_planner/drafts/draft_b'],'legacy writes must become independent child writes');
   store.set('rb_generic_write_queue_v3','[]');
 
+  store.set('rb_generic_write_queue_v3',JSON.stringify([{token:'legacy-orders',path:'/orders',data:[{id:'GR001',name:'A'},{id:'GR002',sourceDraftId:'draft_b',name:'B'}],ts:20}]));
+  assert.strictEqual(window.rbPersistence.migrateUnsafeCollectionWrites(),true,'legacy whole-order writes must be migrated before retry');
+  assert.deepStrictEqual(window.rbPersistence.queue().map(x=>x.path).sort(),['/orders/order_GR001','/orders/planner_draft_b'],'whole-order writes must become non-destructive independent child writes');
+  store.set('rb_generic_write_queue_v3','[]');
+
+  writes.length=0;
+  const collectionSave=await window.fbSet('/orders',[{id:'GR003',name:'C'},{id:'GR004',sourceDraftId:'draft_d',name:'D'}]);
+  assert.strictEqual(collectionSave,true,'legacy collection callers must still complete successfully');
+  assert.deepStrictEqual(writes.map(x=>x.path).sort(),['/orders/order_GR003','/orders/planner_draft_d'],'a collection save must fan out and never overwrite /orders');
+
   blockNext=true;
   const rapidFirst=window.fbSet('/rapid',{value:1});
   await Promise.resolve();
@@ -80,6 +90,6 @@ vm.runInContext(source,context);
   await new Promise(resolve=>setImmediate(resolve));
   assert.strictEqual(writes[writes.length-1].data.value,2,'the newest same-path value must be the final server write');
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'the serialized same-path queue must fully drain');
-  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix335')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
+  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix337')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
   console.log('persistence-reliability-v3: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -3030,6 +3030,16 @@ function fbStopFallback(){
   if(_fbFallbackTimer){clearInterval(_fbFallbackTimer);_fbFallbackTimer=null;}
   fbSetSyncState('online','ออนไลน์','เชื่อมต่อข้อมูลเรียลไทม์แล้ว');fbFlushOrderQueue();
 }
+function fbMigrateLocalOrders(rows){
+  rows=Array.isArray(rows)?rows:[];
+  rows.forEach(function(row){
+    if(!row||!row.id)return;
+    if(!row._fbKey)row._fbKey='order_'+String(row.id).replace(/[^a-zA-Z0-9_-]/g,'_');
+    var clean={};Object.keys(row).forEach(function(key){if(key!=='_fbKey')clean[key]=row[key];});
+    fbSet('/orders/'+row._fbKey,clean);
+  });
+  if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(rows,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(rows));}catch(error){}
+}
 function fbSyncStart(){
   // Firebase Realtime Database uses named SSE events: put and patch.
   if(document.hidden||!fbIsLeader()){fbStopNetwork();fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}
@@ -3059,13 +3069,13 @@ function fbLoadOrders(cb){
           if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(arr,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(arr));}catch(error){}
         } else if(!everSynced){
           var local=lpORD();
-          if(local.length>0){fbSet('/orders',local);}
+          if(local.length>0)fbMigrateLocalOrders(local);
         } else {
           if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(arr,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(arr));}catch(error){}
         }
       } else if(!everSynced){
         var local=lpORD();
-        if(local.length>0){fbSet('/orders',local);}
+        if(local.length>0)fbMigrateLocalOrders(local);
       } else {
         fbSetSyncState('waiting','ใช้ข้อมูลในเครื่อง','ไม่พบข้อมูลออนไลน์ จึงไม่ล้างข้อมูลในเครื่อง');
       }
@@ -3769,7 +3779,11 @@ window.logTL=logTL;window._OF=_OF;
 window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;window.refreshOrderContentFromCloud=refreshOrderContentFromCloud;
 window.addEventListener('rb:content-updated',function(){var p=document.getElementById('om-prod');refreshOrderContentList(p?p.value:'');});
 })();
-</script><script src="snippets/persistence-reliability-v3.js?v=fix335"></script><script>
+</script><script src="snippets/persistence-reliability-v3.js?v=fix337"></script>
+<link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
+<script src="snippets/order-planner-v1.js?v=fix337"></script>
+<link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix316">
+<script src="snippets/commission-center-v1.js?v=fix336"></script><script>
 /* ── Section detector ── */
 window.gAS=function(){
   var p=document.querySelector('.tab-panel.active');if(!p)return null;
@@ -6019,12 +6033,8 @@ html[data-theme="dark"] #rb-bottom-nav{background:#071d20!important;border-color
 html[data-theme="dark"] #rb-bottom-nav button{color:#b4c6c4!important}
 html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;background:#174438!important}
 </style>
-<link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
-<script src="snippets/order-planner-v1.js?v=fix334"></script>
 <link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix308">
 <script src="snippets/facebook-pages-inline-editor-v2.js?v=fix316"></script>
-<link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix316">
-<script src="snippets/commission-center-v1.js?v=fix336"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
 <script src="snippets/shared-business-sync-v1.js?v=fix335"></script>
 </html>

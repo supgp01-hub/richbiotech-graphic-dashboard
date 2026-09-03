@@ -18,12 +18,19 @@
     window.OT = ['กราฟิก', 'รูปภาพ', 'ยิงแอด', 'เทสส่วนตัว', 'คัดคลิป', 'Reels', 'สร้างเพจ', 'Retarget'];
     function fixtureCloudRead() { try { return JSON.parse(localStorage.getItem('rb_fixture_planner_cloud') || '{}'); } catch (error) { return {}; } }
     function fixtureCloudWrite(value) { localStorage.setItem('rb_fixture_planner_cloud', JSON.stringify(value || {})); }
+    function fixtureOrdersRead() { try { return JSON.parse(localStorage.getItem('rb_fixture_planner_orders') || '{}'); } catch (error) { return {}; } }
+    function fixtureOrdersWrite(value) { localStorage.setItem('rb_fixture_planner_orders', JSON.stringify(value || {})); }
     window.fbSet = function (path, value) {
       if (!window.__fixtureOnline) return Promise.resolve(false);
       if (cloudMode && path.indexOf('/order_planner/drafts/') === 0) {
         const cloud = fixtureCloudRead(), key = path.split('/').pop();
         if (value === null) delete cloud[key]; else cloud[key] = JSON.parse(JSON.stringify(value));
         fixtureCloudWrite(cloud);
+      }
+      if (cloudMode && path.indexOf('/orders/') === 0) {
+        const orders = fixtureOrdersRead(), key = path.split('/').pop();
+        if (value === null) delete orders[key]; else orders[key] = JSON.parse(JSON.stringify(value));
+        fixtureOrdersWrite(orders);
       }
       return Promise.resolve(true);
     };
@@ -36,7 +43,11 @@
       const delayMs = Number(fixtureParams.get('delay') || 0);
       if (delayMs > 0) setTimeout(done, delayMs); else done();
     };
-    window.fetch = function () { return Promise.resolve({ ok: true, json: function () { return Promise.resolve({}); } }); };
+    window.fetch = function (url) {
+      const data = String(url).includes('/order_planner/drafts.json') ? fixtureCloudRead()
+        : String(url).includes('/orders.json') ? fixtureOrdersRead() : {};
+      return Promise.resolve({ ok: true, json: function () { return Promise.resolve(JSON.parse(JSON.stringify(data))); } });
+    };
     let mockOrders = historyMode ? [{
       id: 'GR090',
       _fbKey: 'planner_draft_history_1',
@@ -114,7 +125,7 @@
       }
     };
   </script>
-  <script src="../../snippets/persistence-reliability-v3.js?v=fix318"></script>
-  <script src="../../snippets/order-planner-v1.js?v=fix334"></script>
+  <script src="../../snippets/persistence-reliability-v3.js?v=fix337"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix337"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 if(root._rbPersistenceReliabilityV3Loaded)return;
 root._rbPersistenceReliabilityV3Loaded=true;
 
-var VERSION='3.1.0';
+var VERSION='3.2.0';
 var QUEUE_KEY='rb_generic_write_queue_v3';
 var RETRY_MS=5000;
 var originalSet=root.fbSet;
@@ -28,21 +28,24 @@ function writeQueue(queue){
     catch(retryError){memoryQueue=queue.slice();return false;}
   }
 }
-function plannerDraftEntries(value,entry){
+function safeKey(value){return String(value||'item').replace(/[^a-zA-Z0-9_-]/g,'_');}
+function collectionEntries(path,value,entry){
   var rows=[];
   if(Array.isArray(value))rows=value;
   else if(value&&typeof value==='object')Object.keys(value).forEach(function(key){var row=value[key];if(row&&typeof row==='object'){if(!row.id)row=Object.assign({id:key},row);rows.push(row);}});
   return rows.filter(function(row){return row&&row.id;}).map(function(row,index){
-    var key=String(row.id).replace(/[^a-zA-Z0-9_-]/g,'_');
-    return{token:(entry&&entry.token||'sync')+'_draft_'+index,path:'/order_planner/drafts/'+key,data:clone(row),ts:Number(entry&&entry.ts||Date.now())+index};
+    var key=path==='/orders'?safeKey(row._fbKey||((row.sourceDraftId?'planner_':'order_')+safeKey(row.sourceDraftId||row.id))):safeKey(row.id);
+    var data=clone(row);if(data&&data._fbKey)delete data._fbKey;
+    return{token:(entry&&entry.token||'sync')+'_item_'+index,path:path+'/'+key,data:data,ts:Number(entry&&entry.ts||Date.now())+index};
   });
 }
 function migrateUnsafeCollectionWrites(){
   var queue=readQueue(),next=[],changed=false;
   queue.forEach(function(entry){
-    if(!entry||pathOf(entry.path)!=='/order_planner/drafts'){next.push(entry);return;}
+    var path=entry&&pathOf(entry.path);
+    if(path!=='/order_planner/drafts'&&path!=='/orders'){next.push(entry);return;}
     changed=true;
-    plannerDraftEntries(entry.data,entry).forEach(function(child){
+    collectionEntries(path,entry.data,entry).forEach(function(child){
       for(var i=next.length-1;i>=0;i--)if(pathOf(next[i]&&next[i].path)===pathOf(child.path))next.splice(i,1);
       next.push(child);
     });
@@ -115,7 +118,16 @@ function flush(){
   attempt(entry,false).then(function(ok){if(ok&&pendingCount())flush();});
 }
 
-root.fbSet=function reliableFbSet(path,data){var entry=queueWrite(path,data);if(activePaths[entry.path]){schedule();return Promise.resolve(false);}return attempt(entry,true);};
+root.fbSet=function reliableFbSet(path,data){
+  path=pathOf(path);
+  if((path==='/order_planner/drafts'||path==='/orders')&&data!==null){
+    var children=collectionEntries(path,data);
+    if(!children.length)return Promise.resolve(true);
+    return Promise.all(children.map(function(child){return root.fbSet(child.path,child.data);})).then(function(results){return results.every(function(ok){return ok!==false;});});
+  }
+  if((path==='/order_planner/drafts'||path==='/orders')&&data===null){dispatchState();return Promise.resolve(false);}
+  var entry=queueWrite(path,data);if(activePaths[entry.path]){schedule();return Promise.resolve(false);}return attempt(entry,true);
+};
 root.fbGet=function reliableFbGet(path,callback){
   if(typeof originalGet!=='function'){callback(new Error('ไม่พบระบบอ่านข้อมูล'),overlay(path,null));return;}
   originalGet(path,function(error,data){
@@ -123,7 +135,7 @@ root.fbGet=function reliableFbGet(path,callback){
     callback(error&&pending?null:error,overlay(path,data));
   });
 };
-root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:flush,overlay:overlay,queue:readQueue,related:relatedPending,migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites};
+root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:flush,overlay:overlay,queue:readQueue,related:relatedPending,migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites,collectionEntries:collectionEntries};
 root.addEventListener&&root.addEventListener('online',flush);
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===QUEUE_KEY){dispatchState();flush();}});
 migrateUnsafeCollectionWrites();

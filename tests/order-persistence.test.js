@@ -25,6 +25,8 @@ assert.ok(syncSave.includes("if(!row._fbKey)row._fbKey='ord_'"), 'new rows need 
 assert.ok(!syncSave.includes('byId[row.id]'), 'visible GR numbers must not select a database record to overwrite');
 
 assert.ok(html.includes('if(_omIsNew&&idx>=0)'), 'a stale new-order form must not replace an existing visible GR number');
+assert.ok(html.includes('function fbMigrateLocalOrders(rows)'), 'legacy local orders must migrate one record at a time');
+assert.ok(!html.includes("fbSet('/orders',local)"), 'no migration may replace the entire shared orders collection');
 
 const workflowStart = html.indexOf('function persistOMWorkflow(order,options)');
 const workflowEnd = html.indexOf('\n  function saveOM2()', workflowStart);
