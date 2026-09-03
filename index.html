@@ -2916,7 +2916,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix321"><script src="snippets/order-evidence-policy-v1.js?v=fix292"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix321"></script><script src="snippets/storage-resilience-v1.js?v=fix320"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix322"><script src="snippets/order-evidence-policy-v1.js?v=fix292"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix322"></script><script src="snippets/storage-resilience-v1.js?v=fix320"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -4080,8 +4080,8 @@ window.gAS=function(){
     var clipLinks=Array.isArray(order.clipLinks)?order.clipLinks.filter(Boolean):[],workLinks=Array.isArray(order.submitLinks)?order.submitLinks.filter(Boolean):(order.submitLink?[order.submitLink]:[]),imageWorkLinks=Array.isArray(order.latestRevisionImageLinks)?order.latestRevisionImageLinks.filter(Boolean):(Array.isArray(order.imageSubmitLinks)?order.imageSubmitLinks.filter(Boolean):[]);
     grid.appendChild(revisionUniformLinkRows('CREATIVE',[order.rawLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์สคริป',[order.sheetLink],false));grid.appendChild(revisionImageGroup(order));grid.appendChild(revisionUniformLinkRows('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน',[order.sampleLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์คลิป',clipLinks,false));grid.appendChild(revisionUniformLinkRows('ลิงก์แอด',workLinks,true));grid.appendChild(revisionUniformLinkRows('ลิงก์ส่งงานภาพ',imageWorkLinks,true));grid.appendChild(revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[]),true));grid.appendChild(revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[]),true));refs.appendChild(grid);view.appendChild(refs);
     section.insertBefore(view,section.firstChild);
-    var workIds=['om-p1fix-hdr','om-p1fix-gallery','om-p1fix-wrap','om-p1fix-inp','om-submitlinks-section'],workNodes=workIds.map(function(id){return document.getElementById(id);}).filter(Boolean),priorWorkspace=document.getElementById('rb-revision-team-workspace');if(priorWorkspace&&priorWorkspace.parentNode)priorWorkspace.parentNode.removeChild(priorWorkspace);
-    var teamWorkspace=document.createElement('section');teamWorkspace.id='rb-revision-team-workspace';teamWorkspace.className='rb-revision-team-workspace';var teamHead=document.createElement('div');teamHead.className='rb-revision-team-head';teamHead.innerHTML='<div><strong>พื้นที่ส่งผลงานของทีม</strong><small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small></div>';teamWorkspace.appendChild(teamHead);
+    var workIds=['om-submitlinks-section'],workNodes=workIds.map(function(id){return document.getElementById(id);}).filter(Boolean),priorWorkspace=document.getElementById('rb-revision-team-workspace');if(priorWorkspace&&priorWorkspace.parentNode)priorWorkspace.parentNode.removeChild(priorWorkspace);
+    var teamWorkspace=document.createElement('section');teamWorkspace.id='rb-revision-team-workspace';teamWorkspace.className='rb-revision-team-workspace';var teamHead=document.createElement('div');teamHead.className='rb-revision-team-head';teamHead.innerHTML='<div><strong>ลิงก์ผลงานของทีม</strong><small>เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small></div>';teamWorkspace.appendChild(teamHead);
     workNodes.forEach(function(node){teamWorkspace.appendChild(node);});section.appendChild(teamWorkspace);
   }
   window._omRenderRevisionDetailView=renderRevisionDetailView;
@@ -4253,12 +4253,6 @@ window.gAS=function(){
     p1.appendChild(mkProductAssetLink('Insert / Review','om-review','review'));
     var clipExDiv=document.createElement('div');clipExDiv.id='om-clip-extra';clipExDiv.hidden=true;clipExDiv.setAttribute('aria-hidden','true');var noteWrap=mkF('หมายเหตุ',mkTA('om-note','หมายเหตุ...',3));noteWrap.id='om-note-wrap';p1.appendChild(noteWrap);
 p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getElementById('om-clip-extra');if(!cont)return;var row=document.createElement('div');row.className='om-clip-row';row.style.cssText='display:none;';var inp=document.createElement('input');inp.type='text';inp.tabIndex=-1;inp.setAttribute('aria-hidden','true');row.appendChild(inp);cont.appendChild(row);};
-    var fixHdrP1=document.createElement('div');fixHdrP1.id='om-p1fix-hdr';fixHdrP1.style.cssText='font-size:13px;font-weight:700;color:#16a34a;margin:14px 0 6px;';fixHdrP1.textContent='✅ รูปงานที่แก้ไขแล้ว';p1.appendChild(fixHdrP1);
-    var fixGalP1=document.createElement('div');fixGalP1.id='om-p1fix-gallery';fixGalP1.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;';p1.appendChild(fixGalP1);
-    var fixInpP1=document.createElement('input');fixInpP1.id='om-p1fix-inp';fixInpP1.type='file';fixInpP1.accept='image/*';fixInpP1.multiple=true;fixInpP1.style.display='none';
-    fixInpP1.onchange=function(){handleImgUpload(this.files,'fix');this.value='';};
-    var fixBtnP1=document.createElement('button');fixBtnP1.id='om-p1fix-btn';fixBtnP1.type='button';fixBtnP1.textContent='+ อัพโหลดรูปแก้ไข';fixBtnP1.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';fixBtnP1.onclick=function(){fixInpP1.click();};
-    var fixBtnP1Wrap=document.createElement('div');fixBtnP1Wrap.id='om-p1fix-wrap';fixBtnP1Wrap.appendChild(fixBtnP1);p1.appendChild(fixBtnP1Wrap);p1.appendChild(fixInpP1);
     var submitLinkLabels=['VER 1.','VER 2.','เทสส่วนตัว'];
     function submitLinkLabel(index){return index<2?submitLinkLabels[index]:submitLinkLabels[2]+' '+(index-1);}
     var submitLinksSection=document.createElement('div');submitLinksSection.id='om-submitlinks-section';submitLinksSection.style.cssText='margin:4px 0 12px;padding:11px;border:1px solid #b7ddc5;border-radius:10px;background:rgba(230,247,236,.48);';
@@ -4323,27 +4317,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     gl3.appendChild(mkF('Link Ver 2.',mkLink('om-ad')));
     p2.appendChild(gl3);
     var _campExDiv=document.createElement('div');_campExDiv.id='om-camp-extra';p2.appendChild(_campExDiv);window._addCampRow=function(){var cont=document.getElementById('om-camp-extra');if(!cont)return;var n=cont.querySelectorAll('.om-camp-row').length+3;var row=document.createElement('div');row.className='om-camp-row';row.style.cssText='display:grid;grid-template-columns:1fr 1fr auto;gap:0 14px;margin-bottom:4px;align-items:end;';row.appendChild(mkF('แคมเปญ Ver '+n+'.',mkI('om-camp'+n,'แคมเปญ Ver '+n+'...')));row.appendChild(mkF('Link Ver '+n+'.',mkLink('om-link'+n)));var rmCampBtn=document.createElement('button');rmCampBtn.type='button';rmCampBtn.textContent='-';rmCampBtn.style.cssText='width:28px;height:28px;border:1px solid #f87171;border-radius:6px;background:var(--surface-card);color:#ef4444;font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;margin-bottom:2px;';rmCampBtn.onclick=function(){row.parentNode&&row.parentNode.removeChild(row);};row.appendChild(rmCampBtn);cont.appendChild(row);};var _campAddBtn=document.createElement('button');_campAddBtn.type='button';_campAddBtn.textContent='+ เพิ่มแคมเปญ';_campAddBtn.style.cssText='display:inline-block;margin:6px 0 10px 0;padding:5px 16px;background:#1B4332;color:#D8F3DC;border:none;border-radius:20px;cursor:pointer;font-size:13px;';_campAddBtn.onclick=function(){window._addCampRow&&window._addCampRow();};p2.appendChild(_campAddBtn);
-    p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));    var revImgSection=document.createElement('div');revImgSection.id='om-rev-imgs';revImgSection.style.cssText='display:block;border-top:2px dashed #fca5a5;margin-top:12px;padding-top:12px;';
-    var eSect=document.createElement('div');eSect.className='rb-om-evidence-card rb-om-evidence-error';
-    var eHd=document.createElement('div');eHd.className='rb-om-evidence-title';eHd.style.cssText='font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px;';eHd.textContent='📸 ข้อผิดพลาด';
-    var eImgInpR=document.createElement('input');eImgInpR.type='file';eImgInpR.accept='image/*';eImgInpR.multiple=true;eImgInpR.style.display='none';
-    var eImgBtnR=document.createElement('button');eImgBtnR.type='button';eImgBtnR.className='rb-om-evidence-upload';eImgBtnR.textContent='+ อัพโหลดรูปข้อผิดพลาด';
-    eImgBtnR.style.cssText='background:var(--auto-lc21);color:#dc2626;border:1px dashed #dc2626;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';
-    eImgBtnR.onclick=function(){eImgInpR.click();};
-    eImgInpR.onchange=function(){handleImgUpload(this.files,'error');this.value='';};
-    var eGalR=document.createElement('div');eGalR.id='om-error-gallery';eGalR.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;';
-    eSect.appendChild(eHd);eSect.appendChild(eImgBtnR);eSect.appendChild(eImgInpR);eSect.appendChild(eGalR);
-    var fSect=document.createElement('div');fSect.className='rb-om-evidence-card rb-om-evidence-fix';
-    var fHd=document.createElement('div');fHd.className='rb-om-evidence-title';fHd.style.cssText='font-size:13px;font-weight:700;color:#16a34a;margin-bottom:6px;';fHd.textContent='✅ แก้ไขเรียบร้อย';
-    var fImgInpR=document.createElement('input');fImgInpR.type='file';fImgInpR.accept='image/*';fImgInpR.multiple=true;fImgInpR.style.display='none';
-    var fImgBtnR=document.createElement('button');fImgBtnR.type='button';fImgBtnR.className='rb-om-evidence-upload';fImgBtnR.textContent='+ อัพโหลดรูปแก้ไขเรียบร้อย';
-    fImgBtnR.style.cssText='background:var(--auto-lc33);color:#16a34a;border:1px dashed #16a34a;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-bottom:8px;';
-    fImgBtnR.onclick=function(){fImgInpR.click();};
-    fImgInpR.onchange=function(){handleImgUpload(this.files,'fix');this.value='';};
-    var fGalR=document.createElement('div');fGalR.id='om-fix-gallery';fGalR.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;';
-    fSect.appendChild(fHd);fSect.appendChild(fImgBtnR);fSect.appendChild(fImgInpR);fSect.appendChild(fGalR);
-    revImgSection.className='rb-om-audit-evidence';revImgSection.appendChild(eSect);revImgSection.appendChild(fSect);
-    p2.appendChild(revImgSection);
+    p2.appendChild(mkF('หมายเหตุ',mkTA('om-audit-note','หมายเหตุ...')));
     decoratePanel(p2,'⌕','ตรวจออดิต','บันทึกผลตรวจ แคมเปญ และหลักฐานก่อนเปลี่ยนสถานะงาน');
     tabPanels['links']=p2;body.appendChild(p2);
     var p4=document.createElement('div');p4.className='rb-om-panel rb-om-panel-images';p4.style.cssText='padding:18px 20px;display:none;';p4.id='om2-p4-panel';
@@ -4394,21 +4368,19 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     _omUpdateFooter=function(tabKey){
       var isAuditTab=tabKey==='links',isImageTab=tabKey==='imgs';
       var role=window._rbUser&&window._rbUser.role||'',isAuditRole=role==='audit',canAudit=role==='sup'||isAuditRole;
-      var saveBtn2=ge('om-save-btn'),revD=ge('om-rev-imgs');
+      var saveBtn2=ge('om-save-btn');
       var cst=ge('om-st')&&ge('om-st').value||'',isRev=cst==='revision';
       var workerLabel=cst==='inprogress'?'ส่งงาน':(isRev?'ส่งตรวจอีกครั้ง':'กำลังดำเนินการ');
       ftRow.style.display=isAuditTab?'none':'flex';
       if(saveBtn2)saveBtn2.style.display='none';
-      auditRow.style.display='none';if(revD)revD.style.display='none';
+      auditRow.style.display='none';
       if(isAuditTab){
-        if(revD)revD.style.display='block';
         if(canAudit)auditRow.style.display='flex';
         _omSaveBtn.style.display='none';return;
       }
       if(isAuditRole){_omSaveBtn.style.display='none';return;}
       if(isImageTab){_omSaveBtn.style.display='';_omSaveBtn.textContent='▧ บันทึกส่งงานภาพ';_omSaveBtn.onclick=saveOM2;return;}
       if(_omViewMode){_omSaveBtn.style.display='';_omSaveBtn.textContent=workerLabel;_omSaveBtn.onclick=_omInfoAction||saveOM2;return;}
-      if(isRev&&revD)revD.style.display='block';
       _omSaveBtn.style.display='';_omSaveBtn.textContent=_omIsNew?'▤ สั่งงาน':'▤ บันทึกงาน';_omSaveBtn.onclick=saveOM2;
     };
     box.appendChild(hdr);box.appendChild(idRow);box.appendChild(tabBar);box.appendChild(body);box.appendChild(foot);
@@ -4609,7 +4581,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
   
     var _p2el=document.getElementById('om2-p2-panel');if(_p2el){var _cr=window._rbUser?window._rbUser.role:'';var _canEd=_cr==='sup'||_cr==='audit';_p2el.style.pointerEvents=_canEd?'auto':'none';_p2el.style.opacity=_canEd?'1':'0.85';var _rob=_p2el.querySelector('#om2-p2-banner');if(!_canEd&&!_rob){var _b=document.createElement('div');_b.id='om2-p2-banner';_b.style.cssText='background:var(--auto-lc37);border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:13px;color:#713f12;';_b.textContent='🔒 ดูได้เท่านั้น — ไม่สามารถแก้ไขได้';_p2el.insertBefore(_b,_p2el.firstChild);}else if(_canEd&&_rob){_rob.remove();}}
 var _p1el=document.getElementById('om2-p1-panel');if(_p1el){
-var _keep={'rb-revision-detail-view':1,'rb-revision-team-workspace':1,'om-submitlinks-section':1,'om-clip-hdr':1,'om-clip-extra':1,'om-p1fix-hdr':1,'om-p1fix-gallery':1,'om-p1fix-btn':1,'om-p1fix-inp':1,'om-p1fix-wrap':1};
+var _keep={'rb-revision-detail-view':1,'rb-revision-team-workspace':1,'om-submitlinks-section':1,'om-clip-hdr':1,'om-clip-extra':1};
 var _roCardMap={'om-brief-wrap':{bg:'#EFF6FF',bd:'#BFDBFE'},'om-note-wrap':{bg:'#FFFBEB',bd:'#FDE68A'},'om-sample-wrap':{bg:'#F0FDF4',bd:'#BBF7D0'}};
 var _detailSection=_p1el.querySelector('.rb-om-section');var _detailChildren=_detailSection?_detailSection.children:_p1el.children;var _canWorkOutput=!!(_isView&&_cr!=='audit'&&_cr!=='ads');
 Array.prototype.forEach.call(_detailChildren,function(ch){
@@ -4632,7 +4604,7 @@ var fields=ch.querySelectorAll('input,textarea,select,button');
 for(var i=0;i<fields.length;i++){var f=fields[i];var fIsLink=f.hasAttribute('data-link-btn');f.disabled=!!(lock&&!fIsLink);if(lock&&fIsLink){f.style.pointerEvents='auto';}if(f.tagName==='BUTTON'&&!(lock&&!fIsLink)){f.style.cursor='pointer';}}
 });
 if(_detailSection)_detailSection.style.pointerEvents='auto';
-function _unlockTeamWork(){if(!_canWorkOutput||!window._rbUser||/^(audit|ads)$/.test(window._rbUser.role))return;['om-p1fix-wrap','om-submitlinks-section'].forEach(function(i){var b=ge(i);if(b){b.style.pointerEvents='auto';b.style.opacity=1;b.querySelectorAll('input,textarea,button').forEach(function(e){e.disabled=false;e.style.pointerEvents='auto';e.style.opacity=1;});}});_OM2.querySelectorAll('.rb-om-tab,.rb-om-header-close').forEach(function(e){e.disabled=false;});_omSaveBtn.disabled=false;}_unlockTeamWork();setTimeout(_unlockTeamWork,80);setTimeout(_unlockTeamWork,500);
+function _unlockTeamWork(){if(!_canWorkOutput||!window._rbUser||/^(audit|ads)$/.test(window._rbUser.role))return;['om-submitlinks-section'].forEach(function(i){var b=ge(i);if(b){b.style.pointerEvents='auto';b.style.opacity=1;b.querySelectorAll('input,textarea,button').forEach(function(e){e.disabled=false;e.style.pointerEvents='auto';e.style.opacity=1;});}});_OM2.querySelectorAll('.rb-om-tab,.rb-om-header-close').forEach(function(e){e.disabled=false;});_omSaveBtn.disabled=false;}_unlockTeamWork();setTimeout(_unlockTeamWork,80);setTimeout(_unlockTeamWork,500);
 var _revisionSubmit=document.getElementById('om-submitlinks-section');var _allowRevisionSubmit=!!(_canWorkOutput&&ge('om-st')&&ge('om-st').value==='revision');
 if(_revisionSubmit){
   _revisionSubmit.classList.toggle('rb-revision-submit-active',_allowRevisionSubmit);

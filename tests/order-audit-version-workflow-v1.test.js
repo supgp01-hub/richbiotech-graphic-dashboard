@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix321'),'the unified version layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix321'),'the unified version runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix322'),'the unified version layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix322'),'the unified version runtime must be cache-busted');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the correction view');
 assert.ok(workflow.includes("kind==='image'?'#om-image-submitlinks-rows"),'image delivery links must be read from the send-work editor');
@@ -39,9 +39,16 @@ assert.ok(workflow.includes("item.versionKey=versionKey(id,index+1)"),'each save
 assert.ok(workflow.includes('if(!itemJob&&!itemKey)owned=sameSource(item,values[version-1])'),'legacy state must not leak into unrelated jobs');
 assert.ok(persistence.includes('workflowJob===orderJob'),'saving must never copy a visible Audit panel into another job');
 assert.ok(persistence.includes('order.auditVersions=window.rbCollectAuditVersionWorkflow(workflow)'),'the shared version state must save with the order');
-assert.ok(css.includes('.rb-av-flow{display:grid;grid-template-columns:1fr 1.18fr 1fr}'),'desktop team workflow must show submitted, Audit, and correction stages');
-assert.ok(css.includes('@media(max-width:900px)'),'the three-stage workflow must stack on smaller screens');
+assert.ok(workflow.includes("submitted.className='rb-av-stage rb-av-stage-source'"),'submitted work must live in the VER header area');
+assert.ok(workflow.includes('head.appendChild(submitted)'),'submitted work must be placed directly under the VER name');
+assert.ok(workflow.includes('flow.append(audit,teamCorrection'),'the lower team workflow must contain only Audit findings and correction submission');
+assert.ok(css.includes('.rb-av-flow{display:grid;grid-template-columns:1.18fr 1fr}'),'desktop team workflow must show Audit findings beside correction submission');
+assert.ok(css.includes('@media(max-width:900px)'),'the two-stage workflow must stack on smaller screens');
 assert.ok(css.includes('.surface-team'),'the team surface must have a clear synchronized workspace');
+assert.ok(!index.includes("fixHdrP1.textContent='✅ รูปงานที่แก้ไขแล้ว'"),'the duplicate global employee correction uploader must be removed');
+assert.ok(!index.includes("revImgSection.id='om-rev-imgs'"),'the duplicate global Audit evidence uploader must be removed');
+assert.ok(index.includes('order.errorImages=JSON.parse(JSON.stringify(_omErrorImages||[]))'),'legacy Audit images must remain in persistence for backward compatibility');
+assert.ok(index.includes('order.fixImages=JSON.parse(JSON.stringify(_omFixImages||[]))'),'legacy corrected images must remain in persistence for backward compatibility');
 assert.ok(workflow.includes("option.textContent='✓ อัพแล้ว'"),'uploaded source data must keep its explicit green status');
 assert.ok(workflow.includes('window.rbSyncAuditSourceStatus=syncSourceStatus'),'the source status refresher must remain callable');
 

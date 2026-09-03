@@ -29,8 +29,8 @@ assert(source.includes("_OM2.classList.add('rb-revision-edit-mode')"), 'manager 
 assert(source.includes('snippets/order-detail-all-users-v1.css'), 'all-user structured detail stylesheet is not loaded');
 assert(source.includes("if(order.status==='revision')"), 'revision warning must only appear for revision jobs');
 assert(source.includes("statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'}"), 'structured detail must show the actual workflow status');
-assert(source.includes("var workIds=['om-p1fix-hdr','om-p1fix-gallery','om-p1fix-wrap','om-p1fix-inp','om-submitlinks-section']"), 'team workspace must contain only fix-image and current submission controls');
-assert(source.includes("<small>อัปโหลดรูปแก้ไข • เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small>"), 'team workspace subtitle must match the visible controls');
+assert(source.includes("var workIds=['om-submitlinks-section']"), 'team workspace must keep only the current submission link controls');
+assert(source.includes("<small>เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small>"), 'team workspace subtitle must match the visible controls');
 assert(source.includes(':not(#rb-revision-team-workspace)'), 'team submit-link workspace must remain editable');
 assert(source.includes("teamWorkspace.id='rb-revision-team-workspace'"), 'team edit controls must stay grouped in one workspace');
 assert(source.includes("addMeta('บรีฟงาน / สไตล์ที่ต้องการ',order.brief,true,true)"), 'saved brief must use the multiline detail presentation');

@@ -2,6 +2,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 const source = fs.readFileSync('index.html', 'utf8');
+const workflow = fs.readFileSync('snippets/order-audit-version-workflow-v1.js', 'utf8');
 
 assert(source.includes('id="rb-order-modal-theme-v3"'), 'the refined shared order modal theme is missing');
 assert(source.includes("_OM2.id='rb-order-modal'"), 'the order modal theme root is missing');
@@ -21,8 +22,9 @@ assert(source.includes("if(canAudit)auditRow.style.display='flex'"), 'the role-a
 assert(source.includes("_orderRole==='graphic'?'ดูรายละเอียด เปิดลิงก์ และส่งผลงาน'"), 'the Graphic detail guidance is missing');
 assert(source.includes("decoratePanel(p1,'▤','รายละเอียดประเภทงาน'"), 'the job-type page is not using the shared panel layout');
 assert(source.includes("decoratePanel(p2,'⌕','ตรวจออดิต'"), 'the audit page is not using the shared panel layout');
-assert(source.includes("eSect.className='rb-om-evidence-card rb-om-evidence-error'"), 'the centered error-evidence card is missing');
-assert(source.includes("fSect.className='rb-om-evidence-card rb-om-evidence-fix'"), 'the centered fixed-evidence card is missing');
+assert(workflow.includes('รูปชี้ข้อผิดพลาด · Audit'), 'the per-version Audit evidence card is missing');
+assert(workflow.includes('หลักฐานแก้ไข · พนักงาน'), 'the per-version corrected-evidence card is missing');
+assert(!source.includes("revImgSection.id='om-rev-imgs'"), 'the obsolete global evidence cards must not be recreated');
 assert(source.includes('#rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important'), 'the two audit actions must fill the footer evenly');
 assert(source.includes('#rb-order-modal[data-active-tab="links"] #om-draft-status'), 'the audit tab must hide the draft status text');
 assert(source.includes("decoratePanel(p4,'▧','ส่งงานภาพ'"), 'the image-delivery page is not using the shared panel layout');

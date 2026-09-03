@@ -120,12 +120,12 @@
   function teamVersionCard(state,index,mode,rerender){
     var card=document.createElement('article');card.className='rb-av-card rb-av-team-card '+statusClass(state.result);card.setAttribute('data-version-index',String(index));
     card.innerHTML='<header class="rb-av-team-card-head"><div><div class="rb-av-version-line"><b>VER '+(index+1)+'</b><span class="rb-av-result '+statusClass(state.result)+'">'+statusText(state)+'</span></div><strong>'+esc(state.name||'ยังไม่ระบุชื่อแคมเปญ')+'</strong><small>แก้เฉพาะข้อมูลและหลักฐานของเวอร์ชันนี้</small></div></header><div class="rb-av-flow"></div>';
-    var flow=card.querySelector('.rb-av-flow');
-    var submitted=document.createElement('section');submitted.className='rb-av-stage';submitted.innerHTML='<div class="rb-av-stage-title"><b><i>1</i> งานที่ส่ง</b><span>ข้อมูลเดียวกับแท็บส่งงาน</span></div><div class="rb-av-delivery-list"></div>';var links=submitted.querySelector('.rb-av-delivery-list');links.append(linkRow('ลิงก์แอด',state.workLink),linkRow('ลิงก์ภาพ',state.imageLink));
+    var head=card.querySelector('.rb-av-team-card-head'),flow=card.querySelector('.rb-av-flow');
+    var submitted=document.createElement('section');submitted.className='rb-av-stage rb-av-stage-source';submitted.innerHTML='<div class="rb-av-stage-title"><b><i>1</i> งานที่ส่ง</b><span>ข้อมูลเดียวกับแท็บส่งงาน</span></div><div class="rb-av-delivery-list"></div>';var links=submitted.querySelector('.rb-av-delivery-list');links.append(linkRow('ลิงก์แอด',state.workLink),linkRow('ลิงก์ภาพ',state.imageLink));head.appendChild(submitted);
     var audit=document.createElement('section');audit.className='rb-av-stage';audit.innerHTML='<div class="rb-av-stage-title"><b><i>2</i> สิ่งที่ Audit พบ</b><span>'+(state.auditImages.length?'มีรูปชี้จุดผิด '+state.auditImages.length+' รูป':'')+'</span></div>';
     if(state.result==='issue'){var issue=document.createElement('div');issue.className='rb-av-issue-summary';issue.innerHTML='<b>'+esc(state.issueType||'ต้องแก้ไข')+'</b><span>'+esc(state.note||'Audit ยังไม่ได้ระบุรายละเอียด')+'</span>';audit.appendChild(issue);}else{var summary=document.createElement('div');summary.className='rb-av-readonly-summary';summary.textContent=state.result==='pass'?'เวอร์ชันนี้ตรวจผ่านแล้ว':'กำลังรอ Audit ตรวจเวอร์ชันนี้';audit.appendChild(summary);}
     var proof=evidenceBlock(state,mode,rerender),proofSection=proof.querySelector('section:first-child');proofSection.classList.add('rb-av-inline-evidence');audit.appendChild(proofSection);
-    flow.append(submitted,audit,teamCorrection(state,index,mode,rerender));return card;
+    flow.append(audit,teamCorrection(state,index,mode,rerender));return card;
   }
   function auditVersionCard(state,index,mode,rerender){
     var card=document.createElement('article');card.className='rb-av-card '+statusClass(state.result);card.setAttribute('data-version-index',String(index));
