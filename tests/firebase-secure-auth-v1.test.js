@@ -39,6 +39,7 @@ test('supervisor bootstrap is limited to the confirmed company email', () => {
 test('PIN login uses four real single-digit inputs and submits automatically', () => {
   assert.match(auth, /class=\"rb-auth-pin-digit\"/);
   assert.match(auth, /data-pin-index=\"/);
+  assert.match(auth, /type=\"text\" inputmode=\"numeric\"/);
   assert.match(auth, /maxlength=\"1\"/);
   assert.match(auth, /inputmode=\"numeric\"/);
   assert.match(auth, /if\(readPin\(el\)\.length===4&&!pinLoginBusy\)pinLogin\(\)/);
