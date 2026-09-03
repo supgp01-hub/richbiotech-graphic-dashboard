@@ -78,12 +78,12 @@ test('PIN login has an official Firebase REST fallback with a persistent refresh
   assert.match(auth, /sessionStorage\.setItem\(PIN_SESSION_KEY,payload\)/);
   assert.match(auth, /sessionStorage\.getItem\(PIN_SESSION_KEY\)/);
   assert.match(auth, /sessionStorage\.removeItem\(PIN_SESSION_KEY\)/);
-  assert.match(auth, /const user=await pinRestLogin\(PIN_ACCOUNTS\[name\],pin\)/);
+  assert.match(auth, /const user=await pinRestLogin\(loginEmail,pin\)/);
   assert.match(auth, /function activeFirebaseUser\(\)\{return auth\.currentUser\|\|pinSession;\}/);
   assert.match(auth, /async function logout\(\)\{clearPinSession\(\)/);
   assert.match(auth, /const credential=await signInWithEmailAndPassword/);
-  assert.ok(auth.indexOf('const user=await pinRestLogin(PIN_ACCOUNTS[name],pin)') < auth.indexOf('const credential=await signInWithEmailAndPassword'));
-  assert.match(auth, /pinSession=makePinSession\(\{localId:user\.uid,email:user\.email\|\|PIN_ACCOUNTS\[name\]/);
+  assert.ok(auth.indexOf('const user=await pinRestLogin(loginEmail,pin)') < auth.indexOf('const credential=await signInWithEmailAndPassword'));
+    assert.match(auth, /pinSession=makePinSession\(\{localId:user\.uid,email:user\.email\|\|loginEmail/);
   assert.match(auth, /if\(isPinAccount&&!pinSession\)/);
   assert.match(auth, /else if\(!isPinAccount\)\{clearPinSession\(\);\}/);
 });
@@ -101,7 +101,7 @@ test('login page omits the two user-requested helper messages', () => {
 });
 
 test('translated labels cannot change the stable employee account values', () => {
-  assert.match(auth, /EMPLOYEES\.map\(n=>'<option value=\"'/);
+  assert.match(auth, /loginNames\.map\(name=>'<option value=\"'/);
   assert.match(auth, /'วิว':'pin\.view@richbiotech\.team'/);
   assert.match(auth, /id=\"rb-auth-pin-form\" class=\"rb-auth-pin-form\" hidden/);
   assert.match(auth, /error:lastPinError/);
@@ -114,11 +114,50 @@ test('PIN login includes every existing dashboard user', () => {
 });
 
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure18/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure19/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);
   assert.match(auth, /รายชื่อผู้ใช้งาน/);
-  assert.match(auth, /userRows\.length\+' คน/);
+  assert.match(auth, /adminData\.groups\.length\+' คน/);
   assert.match(auth, /ไม่มีคำขอใหม่ที่รออนุมัติ/);
+});
+
+test('USER manager implements the approved first design with English initials and complete actions', () => {
+  assert.match(auth, /function avatarLetter\(value\)/);
+  assert.match(auth, /แก้ไขสิทธิ์/);
+  assert.match(auth, /เปลี่ยน PIN/);
+  assert.match(auth, /ลบ User/);
+  assert.match(auth, /เพิ่ม User ใหม่/);
+  assert.match(auth, /ชื่อ User ภาษาอังกฤษ/);
+  assert.match(auth, /แผนก \/ หน้าที่/);
+  assert.match(auth, /ยืนยัน PIN/);
+  assert.match(auth, /อีเมล Google/);
+});
+
+test('new users and PIN rotations use Firebase Auth without replacing the Supervisor session', () => {
+  assert.match(auth, /accounts:signUp\?key=/);
+  assert.match(auth, /async function signUpPinAccount/);
+  assert.match(auth, /async function createUser/);
+  assert.match(auth, /async function resetUserPin/);
+  assert.match(auth, /patch\['auth_users\/'\+created\.localId\]=replacement/);
+  assert.match(auth, /patch\['auth_users\/'\+old\.uid\+'\/active'\]=false/);
+  assert.doesNotMatch(auth, /createUserWithEmailAndPassword/);
+});
+
+test('deleting a USER only disables access and preserves business records', () => {
+  assert.match(auth, /งานและประวัติจะไม่ถูกลบ/);
+  assert.match(auth, /async function deleteUser/);
+  assert.match(auth, /patch\['auth_users\/'\+account\.uid\+'\/active'\]=false/);
+  assert.doesNotMatch(auth, /db\('orders'.*deleteUser/s);
+});
+
+test('the public login directory contains no PIN and only active Supervisors can write it', () => {
+  assert.equal(rules.login_directory['.read'], true);
+  assert.match(rules.login_directory.$key['.write'], /active.*true/);
+  assert.match(rules.login_directory.$key['.write'], /role.*sup/);
+  assert.match(rules.login_directory.$key['.validate'], /name/);
+  assert.match(rules.login_directory.$key['.validate'], /loginEmail/);
+  assert.doesNotMatch(JSON.stringify(rules.login_directory), /pinHash|password/);
+  assert.match(auth, /loadLoginDirectory/);
 });

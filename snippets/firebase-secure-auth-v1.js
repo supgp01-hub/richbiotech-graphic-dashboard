@@ -16,6 +16,9 @@ const PIN_ACCOUNTS={
   'MY Boss':'pin.myboss@richbiotech.team','Audit':'pin.audit@richbiotech.team'
 };
 const ROLES=[['sup','Supervisor'],['spec','Specialist'],['graphic','Graphic & Ads'],['ads','Ads Optimizer'],['audit','Audit']];
+const ENGLISH_NAMES={'วิว':'View','มอส':'Moss','ดอม':'Dom','เตอร์':'Ter','นุ่น':'Nune','แจ๋ม':'Jam','บอล':'Ball','นุ้ย':'Nui','มายด์':'Mind'};
+let loginAccounts={...PIN_ACCOUNTS};
+let loginNames=[...EMPLOYEES];
 const app=initializeApp(CONFIG);
 const auth=getAuth(app);
 const provider=new GoogleAuthProvider();
@@ -30,6 +33,36 @@ let resolveReady;
 const ready=new Promise(resolve=>{resolveReady=resolve;});
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function displayName(value){return ENGLISH_NAMES[value]||String(value||'User');}
+function avatarLetter(value){const found=displayName(value).match(/[A-Za-z]/);return found?found[0].toUpperCase():'U';}
+function roleLabel(value){return ROLES.find(x=>x[0]===value)?.[1]||value||'ไม่ระบุสิทธิ์';}
+function loginOptions(){return loginNames.map(name=>'<option value="'+esc(name)+'">'+esc(displayName(name))+'</option>').join('');}
+function refreshLoginSelect(){
+  const select=document.getElementById('rb-auth-name');if(!select)return;
+  const selected=select.value;select.innerHTML='<option value="">— เลือกชื่อ —</option>'+loginOptions();
+  if(loginNames.includes(selected))select.value=selected;
+}
+async function loadLoginDirectory(){
+  loginAccounts={...PIN_ACCOUNTS};loginNames=[...EMPLOYEES];
+  try{
+    const response=await nativeFetch(pathUrl('login_directory')+'?v='+Date.now(),{cache:'no-store'});
+    if(response.ok){
+      const rows=Object.values(await response.json()||{}).filter(Boolean);
+      rows.filter(row=>row.active===false).forEach(row=>{
+        const email=String(row.loginEmail||'').toLowerCase(),nameKey=displayName(row.name).toLowerCase();
+        loginNames=loginNames.filter(name=>displayName(name).toLowerCase()!==nameKey&&String(loginAccounts[name]||'').toLowerCase()!==email);
+        delete loginAccounts[row.name];
+      });
+      rows.filter(row=>row.active!==false&&row.name&&row.loginEmail).forEach(row=>{
+        const email=String(row.loginEmail).toLowerCase(),nameKey=displayName(row.name).toLowerCase();
+        loginNames=loginNames.filter(name=>name===row.name||(displayName(name).toLowerCase()!==nameKey&&String(loginAccounts[name]||'').toLowerCase()!==email));
+        loginAccounts[row.name]=email;if(!loginNames.includes(row.name))loginNames.push(row.name);
+      });
+    }
+  }catch(_error){}
+  loginNames.sort((a,b)=>displayName(a).localeCompare(displayName(b),'en'));
+  refreshLoginSelect();
+}
 function makePinSession(data){
   const session={uid:data.localId||data.user_id||'',email:data.email||'',_idToken:data.idToken||data.id_token||'',_refreshToken:data.refreshToken||data.refresh_token||'',_expiresAt:Date.now()+Number(data.expiresIn||data.expires_in||3600)*1000};
   session.getIdToken=async force=>{
@@ -66,7 +99,7 @@ function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
   el=document.createElement('div');el.id='rb-auth-gate';
-  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select><div id="rb-auth-pin-label" class="rb-auth-pin-label">PIN 4 หลัก</div><div id="rb-auth-pin-group" class="rb-auth-pin-group" role="group" aria-labelledby="rb-auth-pin-label" aria-describedby="rb-auth-pin-hint">'+[1,2,3,4].map(i=>'<input class="rb-auth-pin-digit" data-pin-index="'+(i-1)+'" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" placeholder=" " aria-label="PIN หลักที่ '+i+'">').join('')+'</div><div id="rb-auth-pin-hint" class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div></div></section>';
+  el.innerHTML='<section class="rb-auth-card"><header class="rb-auth-head"><div class="rb-auth-brand"><span class="rb-auth-logo">🌿</span><div><div class="rb-auth-title">RICHBIOTECH Graphic &amp; Ads</div><div class="rb-auth-subtitle">ระบบทีมงานและข้อมูลออนไลน์</div></div></div></header><div class="rb-auth-body"><div id="rb-auth-status" class="rb-auth-status"><strong>กำลังตรวจสอบบัญชี</strong>กรุณารอสักครู่ ระบบกำลังเชื่อมต่อข้อมูล</div><div id="rb-auth-pin-form" class="rb-auth-pin-form" hidden><label for="rb-auth-name">เลือกชื่อพนักงาน</label><select id="rb-auth-name"><option value="">— เลือกชื่อ —</option>'+loginOptions()+'</select><div id="rb-auth-pin-label" class="rb-auth-pin-label">PIN 4 หลัก</div><div id="rb-auth-pin-group" class="rb-auth-pin-group" role="group" aria-labelledby="rb-auth-pin-label" aria-describedby="rb-auth-pin-hint">'+[1,2,3,4].map(i=>'<input class="rb-auth-pin-digit" data-pin-index="'+(i-1)+'" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" placeholder=" " aria-label="PIN หลักที่ '+i+'">').join('')+'</div><div id="rb-auth-pin-hint" class="rb-auth-pin-hint">กรอกครบ 4 หลัก ระบบจะเข้าสู่ระบบให้อัตโนมัติ</div><button id="rb-auth-pin-login" class="rb-auth-button" type="button">เข้าสู่ระบบ</button></div><button id="rb-auth-google-login" class="rb-auth-button rb-auth-secondary" type="button" hidden>เข้าแบบ Google สำหรับ Supervisor</button><button id="rb-auth-logout" class="rb-auth-button rb-auth-secondary" type="button" hidden>เปลี่ยนบัญชี</button><div id="rb-auth-error" class="rb-auth-error" aria-live="polite"></div></div></section>';
   document.body.appendChild(el);
   el.querySelector('#rb-auth-pin-login').addEventListener('click',pinLogin);
   const inputs=pinInputs(el);
@@ -158,15 +191,17 @@ async function pinLogin(){
   pinLoginBusy=true;button.disabled=true;button.textContent='กำลังเข้าสู่ระบบ...';
   pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
   try{
-    const user=await pinRestLogin(PIN_ACCOUNTS[name],pin);const p=await ensureProfile(user);
+    const loginEmail=loginAccounts[name];if(!loginEmail)throw new Error('LOGIN_ACCOUNT_NOT_FOUND');
+    const user=await pinRestLogin(loginEmail,pin);const p=await ensureProfile(user);
     if(p){applyProfile(user,p);return;}
   }catch(restError){
     try{
       await setPersistence(auth,browserLocalPersistence);
-      const credential=await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);
+      const loginEmail=loginAccounts[name];if(!loginEmail)throw new Error('LOGIN_ACCOUNT_NOT_FOUND');
+      const credential=await signInWithEmailAndPassword(auth,loginEmail,'rb'+pin);
       const user=credential.user;const refreshToken=user.refreshToken||user.stsTokenManager?.refreshToken||'';
       if(refreshToken){
-        pinSession=makePinSession({localId:user.uid,email:user.email||PIN_ACCOUNTS[name],idToken:await user.getIdToken(),refreshToken,expiresIn:3600});
+        pinSession=makePinSession({localId:user.uid,email:user.email||loginEmail,idToken:await user.getIdToken(),refreshToken,expiresIn:3600});
         savePinSession(pinSession);
       }
       const p=await ensureProfile(user);if(p){applyProfile(user,p);return;}
@@ -222,22 +257,132 @@ function setupAdmin(show){
   if(!button){button=document.createElement('button');button.id='rb-auth-admin-button';button.type='button';button.textContent='🔐 จัดการสิทธิ์ผู้ใช้';button.addEventListener('click',openAdmin);document.body.appendChild(button);}
   button.classList.toggle('is-visible',show);
 }
-async function openAdmin(){
+let adminData={requests:[],groups:[],mode:'add',selectedUid:'',message:'',messageType:''};
+function isPinEmail(value){return /^pin\..+@richbiotech\.team$/i.test(String(value||''));}
+function groupedUsers(users){
+  const groups=new Map();
+  Object.entries(users||{}).forEach(([uid,row])=>{
+    if(!row||row.active===false||!row.name)return;
+    const account={...row,uid:row.uid||uid};const key=displayName(row.name).trim().toLowerCase();
+    if(!groups.has(key))groups.set(key,{key,name:row.name,accounts:[]});groups.get(key).accounts.push(account);
+  });
+  return Array.from(groups.values()).map(group=>{
+    const pinAccount=group.accounts.find(x=>isPinEmail(x.email))||null;
+    const primary=pinAccount||group.accounts[0];
+    return {...group,uid:primary.uid,name:primary.name,role:primary.role,department:primary.department||'',pinAccount,primary,loginKey:primary.loginKey||(pinAccount&&pinAccount.uid)||primary.uid};
+  }).sort((a,b)=>displayName(a.name).localeCompare(displayName(b.name),'en'));
+}
+function adminModal(){
   let modal=document.getElementById('rb-auth-admin');
-  if(!modal){modal=document.createElement('div');modal.id='rb-auth-admin';modal.innerHTML='<section class="rb-auth-admin-card"><header class="rb-auth-admin-head"><div><strong>USER</strong><div style="font-size:11px;color:#71837c;margin-top:3px">รายชื่อผู้ใช้และสิทธิ์การเข้าใช้งานออนไลน์</div></div><button class="rb-auth-admin-close" type="button" aria-label="ปิด">×</button></header><div id="rb-auth-admin-body" class="rb-auth-admin-body"></div></section>';modal.querySelector('.rb-auth-admin-close').addEventListener('click',()=>modal.classList.remove('is-open'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('is-open');});document.body.appendChild(modal);}
+  if(!modal){
+    modal=document.createElement('div');modal.id='rb-auth-admin';
+    modal.innerHTML='<section class="rb-auth-admin-card"><header class="rb-auth-admin-head"><div><strong>USER</strong><div>รายชื่อผู้ใช้และสิทธิ์การเข้าใช้งานออนไลน์</div></div><div class="rb-auth-admin-head-actions"><button class="rb-auth-add-user" type="button">＋ เพิ่ม User ใหม่</button><button class="rb-auth-admin-close" type="button" aria-label="ปิด">×</button></div></header><div id="rb-auth-admin-body" class="rb-auth-admin-body"></div></section>';
+    modal.querySelector('.rb-auth-admin-close').addEventListener('click',()=>modal.classList.remove('is-open'));
+    modal.querySelector('.rb-auth-add-user').addEventListener('click',()=>setAdminMode('add'));
+    modal.addEventListener('click',event=>{if(event.target===modal)modal.classList.remove('is-open');});document.body.appendChild(modal);
+  }
+  return modal;
+}
+function roleOptions(selected){return ROLES.map(x=>'<option value="'+x[0]+'"'+(x[0]===selected?' selected':'')+'>'+esc(x[1])+'</option>').join('');}
+function adminMessage(text,type='error'){adminData.message=text;adminData.messageType=type;const el=document.getElementById('rb-auth-form-message');if(el){el.className='rb-auth-form-message '+(type==='success'?'is-success':'is-error');el.textContent=text;}}
+function selectedGroup(){return adminData.groups.find(group=>group.uid===adminData.selectedUid)||null;}
+function renderAdminPanel(){
+  const group=selectedGroup();
+  if(adminData.mode==='edit'&&group)return '<form id="rb-auth-edit-form" class="rb-auth-user-form"><div class="rb-auth-form-title"><div><strong>แก้ไขสิทธิ์</strong><span>'+esc(displayName(group.name))+'</span></div><button type="button" data-admin-action="cancel">×</button></div><label>สิทธิ์ใช้งาน <b>*</b><select name="role" required>'+roleOptions(group.role)+'</select></label><label>แผนก / หน้าที่ <b>*</b><input name="department" value="'+esc(group.department||roleLabel(group.role))+'" maxlength="60" required></label><p>ระบบจะอัปเดตสิทธิ์ให้บัญชีของ User นี้ทุกช่องทาง โดยไม่เปลี่ยนข้อมูลงานเดิม</p><button class="rb-auth-form-submit" type="submit">บันทึกสิทธิ์</button><div id="rb-auth-form-message" class="rb-auth-form-message"></div></form>';
+  if(adminData.mode==='pin'&&group)return '<form id="rb-auth-pin-reset-form" class="rb-auth-user-form"><div class="rb-auth-form-title"><div><strong>เปลี่ยนรหัส PIN</strong><span>'+esc(displayName(group.name))+'</span></div><button type="button" data-admin-action="cancel">×</button></div><label>PIN ใหม่ 4 หลัก <b>*</b><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></label><label>ยืนยัน PIN ใหม่ <b>*</b><input name="confirmPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></label><p>เมื่อบันทึก PIN เดิมจะถูกปิดทันที และงานทั้งหมดของ User ยังคงอยู่</p><button class="rb-auth-form-submit" type="submit">บันทึก PIN ใหม่</button><div id="rb-auth-form-message" class="rb-auth-form-message"></div></form>';
+  if(adminData.mode==='delete'&&group)return '<form id="rb-auth-delete-form" class="rb-auth-user-form is-danger"><div class="rb-auth-form-title"><div><strong>ลบ User</strong><span>'+esc(displayName(group.name))+'</span></div><button type="button" data-admin-action="cancel">×</button></div><div class="rb-auth-delete-note"><b>งานและประวัติจะไม่ถูกลบ</b><span>ระบบจะปิดเฉพาะสิทธิ์เข้าใช้งานของ User นี้</span></div><label>พิมพ์ชื่อ <b>'+esc(displayName(group.name))+'</b> เพื่อยืนยัน<input name="confirmation" autocomplete="off" required></label><button class="rb-auth-form-submit is-danger" type="submit">ยืนยันลบ User</button><div id="rb-auth-form-message" class="rb-auth-form-message"></div></form>';
+  return '<form id="rb-auth-create-form" class="rb-auth-user-form"><div class="rb-auth-form-title"><div><strong>เพิ่ม User ใหม่</strong><span>กรอกข้อมูลที่มีเครื่องหมาย * ให้ครบ</span></div></div><label>ชื่อ User ภาษาอังกฤษ <b>*</b><input name="name" maxlength="32" placeholder="เช่น Jane" autocomplete="off" required></label><label>สิทธิ์ใช้งาน <b>*</b><select name="role" required><option value="">— เลือกสิทธิ์ —</option>'+roleOptions('')+'</select></label><label>แผนก / หน้าที่ <b>*</b><input name="department" maxlength="60" placeholder="เช่น Graphic & Ads" required></label><label>อีเมล Google <em>ไม่บังคับ</em><input name="contactEmail" type="email" maxlength="100" placeholder="name@company.com"></label><div class="rb-auth-pin-fields"><label>PIN 4 หลัก <b>*</b><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></label><label>ยืนยัน PIN <b>*</b><input name="confirmPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></label></div><p>PIN จะใช้สำหรับเข้าระบบเท่านั้น และจะไม่แสดงในรายชื่อ User</p><button class="rb-auth-form-submit" type="submit">สร้าง User และเปิดสิทธิ์</button><div id="rb-auth-form-message" class="rb-auth-form-message"></div></form>';
+}
+function renderAdmin(){
+  const body=document.getElementById('rb-auth-admin-body');if(!body)return;
+  const current='<div class="rb-auth-current"><span>'+esc(avatarLetter(profile?.name))+'</span><div><strong>'+esc(displayName(profile?.name||'ผู้ดูแล'))+'</strong><small>'+esc(roleLabel(profile?.role))+'</small></div><i>กำลังใช้งาน</i></div>';
+  const directory=adminData.groups.length?adminData.groups.map(group=>{
+    const self=group.accounts.some(x=>x.uid===activeFirebaseUser()?.uid);const noPin=!group.pinAccount;
+    return '<article class="rb-auth-user-row"><span>'+esc(avatarLetter(group.name))+'</span><div class="rb-auth-user-info"><strong>'+esc(displayName(group.name))+'</strong><small>'+esc(group.department||roleLabel(group.role))+' · '+esc(roleLabel(group.role))+'</small></div><div class="rb-auth-user-actions"><button type="button" data-admin-action="edit" data-uid="'+esc(group.uid)+'">แก้ไขสิทธิ์</button><button type="button" data-admin-action="pin" data-uid="'+esc(group.uid)+'"'+(noPin?' disabled title="บัญชีนี้เข้าใช้งานด้วย Google"':'')+'>เปลี่ยน PIN</button><button class="is-danger" type="button" data-admin-action="delete" data-uid="'+esc(group.uid)+'"'+(self?' disabled title="ไม่สามารถลบบัญชีที่กำลังใช้งาน"':'')+'>ลบ</button></div></article>';
+  }).join(''):'<div class="rb-auth-empty">ยังไม่พบรายชื่อผู้ใช้</div>';
+  const pending=adminData.requests.length?'<section class="rb-auth-pending"><h4>คำขอเข้าใช้งาน Google <b>'+adminData.requests.length+'</b></h4>'+adminData.requests.map((request,index)=>'<div class="rb-auth-request" data-uid="'+esc(request.uid)+'"><div><strong>'+esc(request.displayName||'บัญชีใหม่')+'</strong><div class="rb-auth-request-email">'+esc(request.email)+'</div></div><select data-kind="name">'+loginNames.map(name=>'<option value="'+esc(name)+'"'+(displayName(name)===displayName(request.displayName||'')?' selected':'')+'>'+esc(displayName(name))+'</option>').join('')+'</select><select data-kind="role">'+roleOptions('')+'</select><button class="rb-auth-approve" type="button" data-index="'+index+'">อนุมัติ</button></div>').join('')+'</section>':'<div class="rb-auth-no-pending">ไม่มีคำขอใหม่ที่รออนุมัติ</div>';
+  body.innerHTML=current+'<div class="rb-auth-admin-grid"><section class="rb-auth-directory-panel"><div class="rb-auth-directory-head"><span>รายชื่อผู้ใช้งาน</span><b>'+adminData.groups.length+' คน</b></div><div class="rb-auth-directory">'+directory+'</div>'+pending+'</section><aside class="rb-auth-form-panel">'+renderAdminPanel()+'</aside></div>';
+  bindAdmin();if(adminData.message)adminMessage(adminData.message,adminData.messageType);
+}
+function setAdminMode(mode,uid=''){adminData.mode=mode;adminData.selectedUid=uid;adminData.message='';renderAdmin();}
+function setBusy(form,busy,label){Array.from(form.elements).forEach(el=>{el.disabled=busy;});const button=form.querySelector('.rb-auth-form-submit');if(button){button.dataset.label=button.dataset.label||button.textContent;button.textContent=busy?label:button.dataset.label;}}
+function bindAdmin(){
+  const body=document.getElementById('rb-auth-admin-body');if(!body)return;
+  body.querySelectorAll('[data-admin-action]').forEach(button=>button.addEventListener('click',()=>{if(button.disabled)return;const action=button.dataset.adminAction;if(action==='cancel')setAdminMode('add');else setAdminMode(action,button.dataset.uid);}));
+  body.querySelectorAll('.rb-auth-approve').forEach((button,index)=>button.addEventListener('click',()=>approve(adminData.requests[index],button)));
+  body.querySelector('#rb-auth-create-form')?.addEventListener('submit',createUser);
+  body.querySelector('#rb-auth-edit-form')?.addEventListener('submit',saveUserAccess);
+  body.querySelector('#rb-auth-pin-reset-form')?.addEventListener('submit',resetUserPin);
+  body.querySelector('#rb-auth-delete-form')?.addEventListener('submit',deleteUser);
+}
+async function publicDirectory(){try{const response=await nativeFetch(pathUrl('login_directory')+'?v='+Date.now(),{cache:'no-store'});return response.ok?(await response.json()||{}):{};}catch(_error){return {};}}
+async function seedLoginDirectory(groups){
+  const existing=await publicDirectory();const patch={};
+  groups.forEach(group=>{const account=group.pinAccount;if(!account)return;const key=group.loginKey||account.uid;const desired={name:group.name,loginEmail:String(account.email).toLowerCase(),active:true,updatedAt:Date.now()};const old=existing[key];if(!old||old.name!==desired.name||old.loginEmail!==desired.loginEmail||old.active!==true)patch['login_directory/'+key]=desired;});
+  if(Object.keys(patch).length)await db('',json('PATCH',patch));
+}
+async function openAdmin(){
+  const modal=adminModal();
   modal.classList.add('is-open');const body=modal.querySelector('#rb-auth-admin-body');body.innerHTML='<div class="rb-auth-empty">กำลังโหลดคำขอ...</div>';
   try{
     const [requests,users]=await Promise.all([db('access_requests'),db('auth_users')]);
     const approvedEmails=new Set(Object.values(users||{}).filter(Boolean).map(x=>(x.email||'').toLowerCase()));
-    const userRows=Object.values(users||{}).filter(x=>x&&x.active!==false&&x.name).sort((a,b)=>{const ai=EMPLOYEES.indexOf(a.name),bi=EMPLOYEES.indexOf(b.name);return (ai<0?999:ai)-(bi<0?999:bi)||String(a.name).localeCompare(String(b.name),'th');});
     const rows=Object.values(requests||{}).filter(x=>x&&x.status==='pending'&&!approvedEmails.has((x.email||'').toLowerCase()));
-    const roleLabel=value=>ROLES.find(x=>x[0]===value)?.[1]||value||'ไม่ระบุสิทธิ์';
-    const current='<div class="rb-auth-current"><span>'+esc((profile?.name||'ผู้ดูแล').slice(0,2))+'</span><div><strong>'+esc(profile?.name||'ผู้ดูแล')+'</strong><small>'+esc(roleLabel(profile?.role))+'</small></div><i>กำลังใช้งาน</i></div>';
-    const directory=userRows.length?userRows.map(u=>'<div class="rb-auth-user-row"><span>'+esc(String(u.name).slice(0,2))+'</span><div><strong>'+esc(u.name)+'</strong><small>'+esc(roleLabel(u.role))+'</small></div><i class="'+(u.active===false?'is-off':'')+'">'+(u.active===false?'ปิดใช้งาน':'ใช้งานได้')+'</i></div>').join(''):'<div class="rb-auth-empty">ยังไม่พบรายชื่อผู้ใช้</div>';
-    const pending=rows.length?'<section class="rb-auth-pending"><h4>คำขอเข้าใช้งานใหม่ <b>'+rows.length+'</b></h4>'+rows.map((r,i)=>'<div class="rb-auth-request" data-uid="'+esc(r.uid)+'"><div><strong>'+esc(r.displayName||'บัญชีใหม่')+'</strong><div class="rb-auth-request-email">'+esc(r.email)+'</div></div><select data-kind="name">'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'"'+(n===(r.displayName||'')?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select><select data-kind="role">'+ROLES.map(x=>'<option value="'+x[0]+'">'+esc(x[1])+'</option>').join('')+'</select><button class="rb-auth-approve" type="button" data-index="'+i+'">อนุมัติ</button></div>').join('')+'</section>':'<div class="rb-auth-no-pending">ไม่มีคำขอใหม่ที่รออนุมัติ</div>';
-    body.innerHTML=current+'<div class="rb-auth-directory-head"><span>รายชื่อผู้ใช้งาน</span><b>'+userRows.length+' คน</b></div><div class="rb-auth-directory">'+directory+'</div>'+pending;
-    body.querySelectorAll('.rb-auth-approve').forEach((btn,i)=>btn.addEventListener('click',()=>approve(rows[i],btn)));
+    const groups=groupedUsers(users);await seedLoginDirectory(groups);await loadLoginDirectory();
+    adminData={requests:rows,groups,mode:adminData.mode||'add',selectedUid:adminData.selectedUid||'',message:'',messageType:''};
+    if(adminData.selectedUid&&!groups.some(group=>group.uid===adminData.selectedUid)){adminData.mode='add';adminData.selectedUid='';}
+    renderAdmin();
   }catch(error){body.innerHTML='<div class="rb-auth-empty" style="color:#b42318">โหลดคำขอไม่สำเร็จ: '+esc(error.message)+'</div>';}
+}
+function accountLoginEmail(name){const slug=String(name).trim().toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.|\.$/g,'')||'user';return 'pin.'+slug+'.'+Date.now().toString(36)+'@richbiotech.team';}
+async function signUpPinAccount(email,pin){
+  const response=await nativeFetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'rb'+pin,returnSecureToken:true})});
+  const data=await response.json();if(!response.ok||!data.localId)throw new Error(data?.error?.message||'CREATE_AUTH_ACCOUNT_FAILED');return data;
+}
+async function createUser(event){
+  event.preventDefault();const form=event.currentTarget;const values=Object.fromEntries(new FormData(form));const name=String(values.name||'').trim();const role=String(values.role||'');const department=String(values.department||'').trim();const contactEmail=String(values.contactEmail||'').trim().toLowerCase();const pin=String(values.pin||'');const confirmPin=String(values.confirmPin||'');
+  if(!/^[A-Za-z][A-Za-z0-9 ._-]{1,31}$/.test(name)){adminMessage('ชื่อ User ต้องเป็นภาษาอังกฤษ 2–32 ตัวอักษร');return;}
+  if(!ROLES.some(x=>x[0]===role)||!department){adminMessage('กรุณาเลือกสิทธิ์และกรอกแผนก / หน้าที่');return;}
+  if(!/^\d{4}$/.test(pin)){adminMessage('PIN ต้องเป็นตัวเลข 4 หลัก');return;}if(pin!==confirmPin){adminMessage('PIN ทั้งสองช่องไม่ตรงกัน');return;}
+  if(adminData.groups.some(group=>displayName(group.name).toLowerCase()===name.toLowerCase())){adminMessage('มีชื่อ User นี้อยู่แล้ว กรุณาใช้ชื่ออื่น');return;}
+  setBusy(form,true,'กำลังสร้าง User...');
+  try{
+    const now=Date.now();const loginEmail=accountLoginEmail(name);const created=await signUpPinAccount(loginEmail,pin);const loginKey=created.localId;const approver=activeFirebaseUser();
+    const userProfile={uid:created.localId,email:loginEmail,name,role,department,contactEmail,loginKey,active:true,createdAt:now,updatedAt:now,approvedBy:approver.uid};
+    const patch={};patch['auth_users/'+created.localId]=userProfile;patch['login_directory/'+loginKey]={name,loginEmail,active:true,updatedAt:now};
+    await db('',json('PATCH',patch));await loadLoginDirectory();adminData.mode='add';await openAdmin();adminMessage('สร้าง User '+name+' และเปิดสิทธิ์ออนไลน์แล้ว','success');
+  }catch(error){setBusy(form,false,'');adminMessage('สร้าง User ไม่สำเร็จ: '+(error.message||error));}
+}
+async function saveUserAccess(event){
+  event.preventDefault();const form=event.currentTarget;const group=selectedGroup();if(!group)return;const values=Object.fromEntries(new FormData(form));const role=String(values.role||'');const department=String(values.department||'').trim();
+  if(!ROLES.some(x=>x[0]===role)||!department){adminMessage('กรุณาเลือกสิทธิ์และกรอกแผนก / หน้าที่');return;}
+  const currentUid=activeFirebaseUser()?.uid;if(group.accounts.some(x=>x.uid===currentUid)&&role!=='sup'){adminMessage('ไม่สามารถลดสิทธิ์ Supervisor ของบัญชีที่กำลังใช้งาน');return;}
+  if(group.role==='sup'&&role!=='sup'&&adminData.groups.filter(x=>x.role==='sup').length<=1){adminMessage('ต้องมี Supervisor อย่างน้อย 1 คน');return;}
+  setBusy(form,true,'กำลังบันทึก...');
+  try{const now=Date.now(),patch={};group.accounts.forEach(account=>{patch['auth_users/'+account.uid+'/role']=role;patch['auth_users/'+account.uid+'/department']=department;patch['auth_users/'+account.uid+'/updatedAt']=now;patch['auth_users/'+account.uid+'/updatedBy']=currentUid||'';});await db('',json('PATCH',patch));await openAdmin();adminMessage('บันทึกสิทธิ์ของ '+displayName(group.name)+' แล้ว','success');}catch(error){setBusy(form,false,'');adminMessage('บันทึกสิทธิ์ไม่สำเร็จ: '+(error.message||error));}
+}
+async function resetUserPin(event){
+   event.preventDefault();const form=event.currentTarget;const group=selectedGroup();if(!group||!group.pinAccount)return;const values=Object.fromEntries(new FormData(form));const pin=String(values.pin||''),confirmPin=String(values.confirmPin||'');
+  if(!/^\d{4}$/.test(pin)){adminMessage('PIN ต้องเป็นตัวเลข 4 หลัก');return;}if(pin!==confirmPin){adminMessage('PIN ทั้งสองช่องไม่ตรงกัน');return;}
+  setBusy(form,true,'กำลังเปลี่ยน PIN...');
+  try{
+    const now=Date.now(),old=group.pinAccount,loginEmail=accountLoginEmail(displayName(group.name)),created=await signUpPinAccount(loginEmail,pin),loginKey=group.loginKey||old.uid;
+    const replacement={...old,uid:created.localId,email:loginEmail,loginKey,active:true,createdAt:old.createdAt||now,updatedAt:now,pinChangedAt:now,replaces:old.uid};delete replacement.replacedBy;delete replacement.disabledAt;
+    const patch={};patch['auth_users/'+created.localId]=replacement;patch['auth_users/'+old.uid+'/active']=false;patch['auth_users/'+old.uid+'/replacedBy']=created.localId;patch['auth_users/'+old.uid+'/updatedAt']=now;patch['login_directory/'+loginKey]={name:group.name,loginEmail,active:true,updatedAt:now};
+    await db('',json('PATCH',patch));await loadLoginDirectory();adminData.mode='add';adminData.selectedUid='';await openAdmin();adminMessage('เปลี่ยน PIN ของ '+displayName(group.name)+' แล้ว PIN เดิมถูกปิดใช้งาน','success');
+  }catch(error){setBusy(form,false,'');adminMessage('เปลี่ยน PIN ไม่สำเร็จ: '+(error.message||error));}
+}
+async function deleteUser(event){
+  event.preventDefault();const form=event.currentTarget;const group=selectedGroup();if(!group)return;const confirmation=String(new FormData(form).get('confirmation')||'').trim();
+  if(confirmation!==displayName(group.name)){adminMessage('กรุณาพิมพ์ชื่อ '+displayName(group.name)+' ให้ตรงกัน');return;}
+  const currentUid=activeFirebaseUser()?.uid;if(group.accounts.some(x=>x.uid===currentUid)){adminMessage('ไม่สามารถลบบัญชีที่กำลังใช้งาน');return;}
+    if(group.role==='sup'&&adminData.groups.filter(x=>x.role==='sup').length<=1){adminMessage('ต้องมี Supervisor อย่างน้อย 1 คน');return;}
+  setBusy(form,true,'กำลังปิดสิทธิ์...');
+  try{
+    const now=Date.now(),patch={};group.accounts.forEach(account=>{patch['auth_users/'+account.uid+'/active']=false;patch['auth_users/'+account.uid+'/disabledAt']=now;patch['auth_users/'+account.uid+'/updatedAt']=now;});
+    if(group.pinAccount)patch['login_directory/'+group.loginKey]={name:group.name,loginEmail:String(group.pinAccount.email).toLowerCase(),active:false,updatedAt:now};
+    await db('',json('PATCH',patch));await loadLoginDirectory();adminData.mode='add';adminData.selectedUid='';await openAdmin();adminMessage('ปิดสิทธิ์ '+displayName(group.name)+' แล้ว ข้อมูลงานเดิมยังอยู่','success');
+  }catch(error){setBusy(form,false,'');adminMessage('ลบ User ไม่สำเร็จ: '+(error.message||error));}
 }
 async function approve(request,button){
   const row=button.closest('.rb-auth-request');const name=row.querySelector('[data-kind="name"]').value;const role=row.querySelector('[data-kind="role"]').value;
@@ -247,7 +392,7 @@ async function approve(request,button){
     const approver=activeFirebaseUser();
     await db('auth_users/'+request.uid,json('PUT',{uid:request.uid,email:request.email||'',name,role,active:true,createdAt:now,updatedAt:now,approvedBy:approver.uid}));
     await db('access_requests/'+request.uid,json('PATCH',{status:'approved',approvedAt:now,approvedBy:approver.uid,name,role}));
-    await openAdmin();
+    await openAdmin();adminMessage('อนุมัติสิทธิ์ Google แล้ว','success');
   }catch(error){button.disabled=false;button.textContent='ลองอีกครั้ง';alert('อนุมัติไม่สำเร็จ: '+error.message);}
 }
 
@@ -262,7 +407,7 @@ window.fetch=secureFetch;
 window._rbLogout=logout;
 window._rbShowLC=()=>{const dialog=document.getElementById('rb-lc-wrap');if(dialog)dialog.classList.add('lc-open');else signOut(auth);};
 try{sessionStorage.removeItem('rb_session');}catch(_e){}
-gate();
+gate();loadLoginDirectory();
 setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
   onAuthStateChanged(auth,async user=>{
     setupAdmin(false);
@@ -272,7 +417,7 @@ setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
     }
     if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
     const email=(user.email||'').toLowerCase();
-    const isPinAccount=Object.values(PIN_ACCOUNTS).includes(email);
+    const isPinAccount=isPinEmail(email);
     if(isPinAccount&&!pinSession){
       const refreshToken=user.refreshToken||user.stsTokenManager?.refreshToken||'';
       if(refreshToken){

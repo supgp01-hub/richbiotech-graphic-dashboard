@@ -3,18 +3,25 @@
     ".read": false,
     ".write": false,
     "auth_users": {
-      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && ((auth.uid === $uid && auth.token.email === 'supgp01@richbiotech.com' && !data.exists() && newData.child('role').val() === 'sup' && newData.child('active').val() === true) || root.child('auth_users').child(auth.uid).child('role').val() === 'sup')",
+        ".write": "auth != null && ((auth.uid === $uid && auth.token.email === 'supgp01@richbiotech.com' && !data.exists() && newData.child('role').val() === 'sup' && newData.child('active').val() === true) || (root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'))",
         ".validate": "!newData.exists() || (newData.hasChildren(['email','name','role','active']) && newData.child('role').isString() && (newData.child('role').val() === 'sup' || newData.child('role').val() === 'spec' || newData.child('role').val() === 'graphic' || newData.child('role').val() === 'ads' || newData.child('role').val() === 'audit') && newData.child('active').isBoolean())"
       }
     },
+    "login_directory": {
+      ".read": true,
+      "$key": {
+        ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+        ".validate": "!newData.exists() || (newData.hasChildren(['name','loginEmail','active','updatedAt']) && newData.numChildren() === 4 && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 64 && newData.child('loginEmail').isString() && newData.child('loginEmail').val().length > 0 && newData.child('loginEmail').val().length <= 160 && newData.child('active').isBoolean() && newData.child('updatedAt').isNumber())"
+      }
+    },
     "access_requests": {
-      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && ((auth.uid === $uid && (!data.exists() || data.child('status').val() === 'pending') && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending') || root.child('auth_users').child(auth.uid).child('role').val() === 'sup')"
+        ".write": "auth != null && ((auth.uid === $uid && (!data.exists() || data.child('status').val() === 'pending') && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending') || (root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'))"
       }
     },
     "rb_users": {
