@@ -60,6 +60,7 @@ assert.ok(tracker.includes("rbPageSizeGet?window.rbPageSizeGet('links')"), 'Cont
 assert.ok(tracker.includes("[50,100,200].indexOf(n)>=0"), 'Content Tracker must restrict page sizes to approved values');
 assert.ok(tracker.includes("window.rbMultiTab&&!window.rbMultiTab.isLeader()"), 'Content Tracker writes must be serialized by the leader tab');
 assert.ok(bulk.includes("window.rbMultiTab&&!window.rbMultiTab.isLeader()"), 'Content Tracker realtime must run only in the leader tab');
+assert.ok(bulk.includes("function cloudInit(){if(!cloudAllowed()||cloudStarted)return"), 'every visible tab must perform a one-time authenticated tracker read even when it is not the realtime leader');
 
 console.log('multitab-stability-v1: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

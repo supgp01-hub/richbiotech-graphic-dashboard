@@ -7,7 +7,7 @@ const cloud = fs.readFileSync('snippets/bulk-import-v2.js', 'utf8');
 const performance = fs.readFileSync('snippets/performance-v4.js', 'utf8');
 
 assert.ok(index.includes('snippets/runtime-stability-v2.js?v=207'), 'runtime stability controller must load');
-assert.ok(index.includes('snippets/bulk-import-v2.js?v=210'), 'content cloud cache must be refreshed');
+assert.ok(index.includes('snippets/bulk-import-v2.js?v=211'), 'content cloud cache must be refreshed');
 assert.ok(index.includes('snippets/performance-v4.js?v=fix338'), 'content sync cache must be refreshed');
 assert.ok(index.includes("typeof window.initLinksPanel==='function'"), 'Graphic must wait for Content Tracker initialization instead of crashing during a fast online boot');
 assert.ok(index.includes('waitForLinksPanel(attempt+1)'), 'Graphic must retry Content Tracker initialization after later scripts finish loading');
