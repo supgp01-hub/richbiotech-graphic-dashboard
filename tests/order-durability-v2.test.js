@@ -17,7 +17,7 @@ assert.match(source, /setTimeout\(function\(\)\{closeOM2\(true\);\},60\)/,
   'the modal must close automatically after a safe save');
 assert.match(source, /legacyKey&&!active\[legacyKey\]\?legacyKey:'ord_'/,
   'legacy rows must keep a stable internal key instead of being deleted and recreated');
-assert.match(source, /if\(_viewerCode&&\(o\.assignee\|\|''\)!==_viewerCode\)return false/,
+assert.match(source, /if\(_viewerCode&&!rbOrderMatchesAssignee\(o,_viewerCode\)\)return false/,
   'graphic users must only see work assigned to them');
 
 console.log('order-durability-v2: all tests passed');

@@ -1,0 +1,56 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "auth_users": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && ((auth.uid === $uid && auth.token.email === 'supgp01@richbiotech.com' && !data.exists() && newData.child('role').val() === 'sup' && newData.child('active').val() === true) || root.child('auth_users').child(auth.uid).child('role').val() === 'sup')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['email','name','role','active']) && newData.child('role').isString() && (newData.child('role').val() === 'sup' || newData.child('role').val() === 'spec' || newData.child('role').val() === 'graphic' || newData.child('role').val() === 'ads' || newData.child('role').val() === 'audit') && newData.child('active').isBoolean())"
+      }
+    },
+    "access_requests": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && ((auth.uid === $uid && (!data.exists() || data.child('status').val() === 'pending') && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending') || root.child('auth_users').child(auth.uid).child('role').val() === 'sup')"
+      }
+    },
+    "rb_users": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      ".write": false
+    },
+    "maintenance_backups": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      ".write": false
+    },
+    "migration_meta": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      ".write": false
+    },
+    "test": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "timeline_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "facebook_notifications": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "workflow_locks": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "workflow_audit": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "facebook_legacy_cells": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "fbpages_base_snapshot": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "commission_source_snapshot_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "workflow_snapshots": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "content_tracker_v2": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "leave_history": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "order_planner": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "listfacebook_followups": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "orders": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".indexOn": ["id", "deadline", "assignee", "status"] },
+    "listfacebook_base_snapshot": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "specialwork": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "idcards": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'" },
+    "listfacebook_manual": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "lv_data": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "order_assets": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "listfacebook_edits": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "order_form_drafts": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
+    "fbpages_manual": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" }
+  }
+}

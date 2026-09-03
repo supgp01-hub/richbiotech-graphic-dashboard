@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var VERSION='3.2.0',DRAFT_KEY='rb_order_planner_drafts_v1',RULE_KEY='rb_order_planner_rules_v1',DELETE_KEY='rb_order_planner_deleted_v1',PENDING_KEY='rb_order_planner_pending_v1',CLOUD='/order_planner/drafts',RULE_CLOUD='/order_planner/rules',FB='https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
+var VERSION='3.2.0',DRAFT_KEY='rb_order_planner_drafts_v1',RULE_KEY='rb_order_planner_rules_v1',DELETE_KEY='rb_order_planner_deleted_v1',PENDING_KEY='rb_order_planner_pending_v1',CLOUD='/order_planner/drafts',RULE_CLOUD='/order_planner/rules',FB='https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 var modal=null,rows=[],selected={},tab='drafts',weekStart=null,feedbackTimer=null,workerBusy=false,activeDraftId='',autosaveTimer=null,presetOpen=false,statusFilter='all',dateFilter='',pendingDeleteId='',draftBaseline={},externalSyncTimer=null,remoteSyncBusy=false;
 var DEFAULT_RULES={enabled:true,dispatchTime:'08:30',absencePolicy:'reassign',missingPolicy:'hold',overduePolicy:'dispatch',maxActive:4,recurring:true};
 var NAME_ID={MOS:'mos',DOM:'dom',TER:'ter',JAM:'jam',NUNE:'nun',BALL:'bol',VIEW:'wiw',NUI:'nui',MIND:'mnd'};

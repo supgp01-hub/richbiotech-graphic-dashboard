@@ -4,7 +4,7 @@ var SYNC_PENDING='rb_ct_sync_pending_v1';
 var syncTimer=null,syncController=null,syncAttempts=0,syncActive=false;
 window._ctMainPage=window._ctMainPage||1;
 window._ctMainPageSize=window._ctMainPageSize||(window.rbPageSizeGet?window.rbPageSizeGet('links'):(parseInt(localStorage.getItem('rb_ct_page_size_v1'),10)||50));
-function cloudUrl(){var base=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';return base+'/content_tracker_v2.json'}
+function cloudUrl(){var base=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-c4e41-default-rtdb.firebaseio.com';return base+'/content_tracker_v2.json'}
 function trackerActive(){var team=document.getElementById('tab-team'),panel=document.querySelector('[data-sub="links"]');return !document.hidden&&!!team&&team.classList.contains('active')&&!!panel&&panel.classList.contains('gsp-active')&&!!panel.querySelector('#ct-tbody')}
 function status(type,text,title){var e=document.getElementById('ct-sync-status');if(!e){var host=document.querySelector('.ct-header .ct-actions')||document.querySelector('.ct-header');if(!host)return;e=document.createElement('span');e.id='ct-sync-status';e.className='ct-sync-status';e.onclick=function(){window.ctSyncNow(true)};host.insertBefore(e,host.firstChild)}e.className='ct-sync-status '+type;e.textContent=text;e.title=title||'คลิกเพื่อซิงก์อีกครั้ง'}
 function loadContentData(){try{return JSON.parse(localStorage.getItem('rb_olympplus_v1')||'[]')}catch(e){return []}}

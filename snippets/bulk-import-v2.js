@@ -44,7 +44,7 @@ window.ctImportCommit=function(){var a=analyse(),skipDup=document.getElementById
 window.ctParseCSV=parse;
 
 var cloudPath='/content_tracker_v2',cloudWrite=false,client='ct_'+Math.random().toString(36).slice(2),cloudStarted=false;
-function cloudUrl(){var base=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';return base+cloudPath+'.json'}
+function cloudUrl(){var base=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-c4e41-default-rtdb.firebaseio.com';return base+cloudPath+'.json'}
 function unpack(d){if(Array.isArray(d))return d;if(d&&Array.isArray(d.items))return d.items;return null}
 function cloudAllowed(){var team=document.getElementById('tab-team'),panel=document.querySelector('[data-sub="links"]');return !document.hidden&&!!team&&team.classList.contains('active')&&!!panel&&panel.classList.contains('gsp-active')&&!!panel.querySelector('#ct-tbody')}
 window.ctSave=function(){try{localStorage.setItem(typeof CT_KEY!=='undefined'?CT_KEY:'rb_olympplus_v1',JSON.stringify(_ctData||[]))}catch(e){}cloudWrite=true;var payload={items:_ctData||[],updatedAt:Date.now(),source:client};return fetch(cloudUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){cloudWrite=false;if(!r.ok)throw new Error('sync '+r.status);return r}).catch(function(e){cloudWrite=false;throw e})};

@@ -2,7 +2,7 @@
 'use strict';
 if(window.rbWorkflowOps)return;
 var ORD='rb_orders_v1',AUD='rb_ops_audit_v1',SNAP='rb_ops_snapshots_v1',LOCK='rb_ops_locks_v1',TAB=(window.rbMultiTab&&window.rbMultiTab.id)||('tab_'+Math.random().toString(36).slice(2)),MAX_AUDIT=1200,LOCK_TTL=90000;
-var modal=null,activeView='inbox',selected={},search='',filter='all',baseVersion='',lockedKey='',lockTimer=null,originalSp=null,hooked=false,auditHydrated=false,auditHydrating=false,cloudBase=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-graphic-ads-default-rtdb.firebaseio.com';
+var modal=null,activeView='inbox',selected={},search='',filter='all',baseVersion='',lockedKey='',lockTimer=null,originalSp=null,hooked=false,auditHydrated=false,auditHydrating=false,cloudBase=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 function read(key,fallback){try{var value=JSON.parse(localStorage.getItem(key)||'null');return value==null?fallback:value}catch(e){return fallback}}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){return false}}
 function orders(){var value=read(ORD,[]);return Array.isArray(value)?value:[]}
@@ -21,7 +21,7 @@ function fmt(ts){if(!ts)return'-';try{return new Date(ts).toLocaleString('th-TH'
 function statusLabel(k){var m={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'};return m[k]||k||'ไม่ระบุ'}
 function due(row){if(!row||!row.deadline||row.status==='done')return'ok';var now=new Date();now.setHours(0,0,0,0);var d=new Date(row.deadline);d.setHours(0,0,0,0);var days=Math.round((d-now)/86400000);return days<0?'over':days<=3?'soon':'ok'}
 function assigneeCode(name){return window.rbOrderAssigneeCode?window.rbOrderAssigneeCode(name):String(name||'').toUpperCase()}
-function visibleOrders(){var rows=orders(),u=user();if(u.role==='graphic'||u.role==='ads'){var c=assigneeCode(u.name);rows=rows.filter(function(x){return x.assignee===c})}return rows}
+function visibleOrders(){var rows=orders(),u=user();if(u.role==='graphic'||u.role==='ads'){var c=assigneeCode(u.name);rows=rows.filter(function(x){return window.rbOrderMatchesAssignee?window.rbOrderMatchesAssignee(x,c):assigneeCode(x.assignee)===c})}return rows}
 function isMissing(row){return !row||!(row.title||row.name)||!row.deadline||!row.assignee||!row.type}
 function notices(){var rows=visibleOrders(),out=[];rows.forEach(function(o){var d=due(o);if(d==='over')out.push({kind:'danger',title:o.id+' เกิน Deadline',desc:o.title||o.name||'',id:o.id});else if(d==='soon')out.push({kind:'warn',title:o.id+' ใกล้ Deadline',desc:o.title||o.name||'',id:o.id});if(o.status==='revision')out.push({kind:'danger',title:o.id+' ต้องแก้ไข',desc:o.title||o.name||'',id:o.id});if(o.status==='review')out.push({kind:'info',title:o.id+' รอตรวจ',desc:o.title||o.name||'',id:o.id});if(isMissing(o))out.push({kind:'warn',title:o.id+' ข้อมูลยังไม่ครบ',desc:'ตรวจชื่อ ประเภท Deadline และผู้รับผิดชอบ',id:o.id})});return out}
 function stageCounts(rows){var c={all:rows.length,new:0,doing:0,review:0,alert:0};rows.forEach(function(o){if(o.status==='pending')c.new++;if(o.status==='inprogress')c.doing++;if(o.status==='review')c.review++;if(o.status==='revision'||due(o)==='over'||isMissing(o))c.alert++});return c}
