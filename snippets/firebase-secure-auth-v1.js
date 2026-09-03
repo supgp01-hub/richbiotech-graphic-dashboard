@@ -164,8 +164,15 @@ async function tokenUrl(url,user=activeFirebaseUser()){
 async function secureFetch(url,options={}){
   const parsed=new URL(url,location.href);
   if(parsed.origin===new URL(DB).origin){
-    const signed=await tokenUrl(parsed.toString());
-    return nativeFetch(signed,options);
+    let signed=await tokenUrl(parsed.toString());
+    let response=await nativeFetch(signed,options);
+    if((response.status===401||response.status===403)&&activeFirebaseUser()){
+      const current=activeFirebaseUser();
+      const token=await current.getIdToken(true);
+      const retryUrl=new URL(parsed.toString());retryUrl.searchParams.set('auth',token);
+      response=await nativeFetch(retryUrl.toString(),options);
+    }
+    return response;
   }
   return nativeFetch(url,options);
 }

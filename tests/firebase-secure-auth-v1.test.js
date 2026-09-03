@@ -114,13 +114,19 @@ test('PIN login includes every existing dashboard user', () => {
 });
 
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure19/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure20/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);
   assert.match(auth, /รายชื่อผู้ใช้งาน/);
   assert.match(auth, /adminData\.groups\.length\+' คน/);
   assert.match(auth, /ไม่มีคำขอใหม่ที่รออนุมัติ/);
+});
+
+test('Firebase requests refresh an expired token before reporting unauthorized', () => {
+  assert.match(auth, /response\.status===401\|\|response\.status===403/);
+  assert.match(auth, /current\.getIdToken\(true\)/);
+  assert.match(auth, /response=await nativeFetch\(retryUrl\.toString\(\),options\)/);
 });
 
 test('USER manager implements the approved first design with English initials and complete actions', () => {

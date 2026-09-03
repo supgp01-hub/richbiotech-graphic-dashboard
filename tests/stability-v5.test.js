@@ -12,6 +12,8 @@ const performance = fs.readFileSync('snippets/performance-v4.js', 'utf8');
 assert.ok(index.length < 630000, 'initial dashboard HTML should stay below 630 KB');
 assert.equal(index.includes(0), false, 'dashboard HTML must not contain null bytes');
 assert.ok(source.includes('function fbFetch(url,opts,timeout)'), 'Firebase requests need a shared timeout wrapper');
+assert.ok(source.includes('function fbWaitForAuth(timeout)'), 'Firebase reads must wait for the secure auth module');
+assert.ok(source.includes('fbWaitForAuth(limit).then(function(auth){return auth.fetch(url,options);})'), 'Firebase reads must not fall back to anonymous requests while authentication starts');
 assert.ok(source.includes("if(_fbRefreshActive){_fbRefreshAgain=true;return;}"), 'overlapping Firebase refreshes must be coalesced');
 assert.ok(source.includes("_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว'"), 'a successful fallback request must show the system as online');
 assert.ok(source.includes("document.addEventListener('visibilitychange'"), 'hidden tabs must pause realtime work');

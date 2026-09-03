@@ -2942,11 +2942,25 @@ function fbSetSyncState(state,text,title){
   clearTimeout(_fbSyncUiTimer);
   if(state==='saved')_fbSyncUiTimer=setTimeout(function(){fbSetSyncState('online','ออนไลน์','เชื่อมต่อข้อมูลเรียลไทม์แล้ว');},1800);
 }
+function fbWaitForAuth(timeout){
+  var started=Date.now(),limit=Math.max(12000,timeout||FB_REQ_TIMEOUT);
+  return new Promise(function(resolve,reject){
+    (function check(){
+      var auth=window.rbFirebaseAuth;
+      if(auth&&auth.fetch&&auth.ready){
+        Promise.resolve(auth.ready).then(function(){resolve(auth);},reject);return;
+      }
+      if(Date.now()-started>=limit){reject(new Error('AUTH_NOT_READY'));return;}
+      setTimeout(check,100);
+    })();
+  });
+}
 function fbFetch(url,opts,timeout){
-  var controller=typeof AbortController!=='undefined'?new AbortController():null,options=opts||{},timer=null;
-  if(controller){options.signal=controller.signal;timer=setTimeout(function(){controller.abort();},timeout||FB_REQ_TIMEOUT);}
-  var transport=window.rbFirebaseAuth&&window.rbFirebaseAuth.fetch?window.rbFirebaseAuth.fetch:fetch;
-  return transport(url,options).then(function(r){if(timer)clearTimeout(timer);if(!r.ok)throw new Error('HTTP '+r.status);return r;}).catch(function(e){if(timer)clearTimeout(timer);throw e;});
+  var controller=typeof AbortController!=='undefined'?new AbortController():null,options=opts||{},timer=null,limit=timeout||FB_REQ_TIMEOUT;
+  if(controller){options.signal=controller.signal;timer=setTimeout(function(){controller.abort();},limit);}
+  var isFirebase=String(url||'').indexOf(FB_DB)===0;
+  var request=isFirebase?fbWaitForAuth(limit).then(function(auth){return auth.fetch(url,options);}):fetch(url,options);
+  return request.then(function(r){if(timer)clearTimeout(timer);if(!r.ok)throw new Error('HTTP '+r.status);return r;}).catch(function(e){if(timer)clearTimeout(timer);throw e;});
 }
 window.fbGet=function fbGet(path,cb){
   fbFetch(FB_DB+path+'.json',{},FB_REQ_TIMEOUT).then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e,null);});
@@ -6151,5 +6165,5 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
 <script src="snippets/shared-business-sync-v1.js?v=fix338"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure19">
-<script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure19"></script>
+<script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure20"></script>
 </html>
