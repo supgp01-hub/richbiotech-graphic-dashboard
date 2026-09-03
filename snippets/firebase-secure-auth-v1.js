@@ -1,9 +1,13 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithEmailAndPassword,signOut,onAuthStateChanged,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
+window.__RB_SECURE_AUTH__=true;
+window.addEventListener('storage',event=>{if(event.key==='rb_session')event.stopImmediatePropagation();},true);
+
 const CONFIG={apiKey:'AIzaSyCfhpRlo_jVl9_vuBKkwDq0H7kAmC-_nho',authDomain:'richbiotech-c4e41.firebaseapp.com',projectId:'richbiotech-c4e41',storageBucket:'richbiotech-c4e41.firebasestorage.app',messagingSenderId:'238265709540',appId:'1:238265709540:web:dcbac40e5d49467afc8df1'};
 const DB='https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 const SUPERVISOR_EMAIL='supgp01@richbiotech.com';
+const PIN_SESSION_KEY='rb_firebase_pin_session_v1';
 const EMPLOYEES=['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์','MY Boss','Audit'];
 const PIN_ACCOUNTS={
   'วิว':'pin.view@richbiotech.team','มอส':'pin.moss@richbiotech.team','ดอม':'pin.dom@richbiotech.team',
@@ -19,12 +23,37 @@ provider.setCustomParameters({prompt:'select_account'});
 const nativeFetch=window.fetch.bind(window);
 let authUser=null;
 let profile=null;
+let pinSession=restorePinSession();
 let pinLoginBusy=false;
 let lastPinError='';
 let resolveReady;
 const ready=new Promise(resolve=>{resolveReady=resolve;});
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function makePinSession(data){
+  const session={uid:data.localId||data.user_id||'',email:data.email||'',_idToken:data.idToken||data.id_token||'',_refreshToken:data.refreshToken||data.refresh_token||'',_expiresAt:Date.now()+Number(data.expiresIn||data.expires_in||3600)*1000};
+  session.getIdToken=async force=>{
+    if(!force&&session._idToken&&Date.now()<session._expiresAt-60000)return session._idToken;
+    const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:session._refreshToken});
+    const response=await nativeFetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+    const refreshed=await response.json();
+    if(!response.ok||!refreshed.id_token)throw new Error(refreshed?.error?.message||'TOKEN_REFRESH_FAILED');
+    session.uid=refreshed.user_id||session.uid;session._idToken=refreshed.id_token;session._refreshToken=refreshed.refresh_token||session._refreshToken;session._expiresAt=Date.now()+Number(refreshed.expires_in||3600)*1000;
+    savePinSession(session);return session._idToken;
+  };
+  return session;
+}
+function savePinSession(session){try{localStorage.setItem(PIN_SESSION_KEY,JSON.stringify({uid:session.uid,email:session.email,refreshToken:session._refreshToken}));}catch(_e){}}
+function restorePinSession(){try{const saved=JSON.parse(localStorage.getItem(PIN_SESSION_KEY)||'null');return saved?.uid&&saved?.refreshToken?makePinSession({localId:saved.uid,email:saved.email,refreshToken:saved.refreshToken}):null;}catch(_e){return null;}}
+function clearPinSession(){pinSession=null;try{localStorage.removeItem(PIN_SESSION_KEY);}catch(_e){}}
+function activeFirebaseUser(){return auth.currentUser||pinSession;}
+async function pinRestLogin(email,pin){
+  const response=await nativeFetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'rb'+pin,returnSecureToken:true})});
+  const data=await response.json();
+  if(!response.ok||!data.idToken){const error=new Error(data?.error?.message||'INVALID_LOGIN_CREDENTIALS');error.code=data?.error?.message||'INVALID_LOGIN_CREDENTIALS';throw error;}
+  pinSession=makePinSession(data);savePinSession(pinSession);return pinSession;
+}
+async function logout(){clearPinSession();try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
 function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
@@ -43,7 +72,7 @@ function gate(){
     if(readPin(el).length===4)pinLogin();else inputs[0].focus();
   });
   el.querySelector('#rb-auth-google-login').addEventListener('click',googleLogin);
-  el.querySelector('#rb-auth-logout').addEventListener('click',()=>signOut(auth));
+  el.querySelector('#rb-auth-logout').addEventListener('click',logout);
   return el;
 }
 function pinInputs(el=gate()){return Array.from(el.querySelectorAll('.rb-auth-pin-digit'));}
@@ -86,7 +115,7 @@ function setGate(title,message,{login=true,logout=false,error=''}={}){
 }
 function hideGate(){gate().hidden=true;}
 function pathUrl(path){return DB+'/'+String(path||'').replace(/^\/+|\/+$/g,'')+'.json';}
-async function tokenUrl(url,user=auth.currentUser){
+async function tokenUrl(url,user=activeFirebaseUser()){
   if(!user)throw new Error('กรุณาเข้าสู่ระบบ');
   const token=await user.getIdToken();
   const parsed=new URL(url,location.href);parsed.searchParams.set('auth',token);return parsed.toString();
@@ -122,9 +151,14 @@ async function pinLogin(){
   pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
   try{await setPersistence(auth,browserLocalPersistence);await signInWithEmailAndPassword(auth,PIN_ACCOUNTS[name],'rb'+pin);}
   catch(loginError){
-    const code=loginError?.code||'';
-    lastPinError=/too-many-requests/i.test(code)?'มีการลองหลายครั้งเกินไป กรุณารอประมาณ 1 นาทีแล้วลองใหม่':/network-request-failed/i.test(code)?'เชื่อมต่อ Firebase ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองใหม่':'ชื่อหรือ PIN ไม่ถูกต้อง กรุณาลองใหม่';
-    error.textContent=lastPinError;clearPin(el,false);
+    try{
+      const user=await pinRestLogin(PIN_ACCOUNTS[name],pin);const p=await ensureProfile(user);
+      if(p){applyProfile(user,p);return;}
+    }catch(restError){
+      const code=(restError?.code||restError?.message||loginError?.code||'');
+      lastPinError=/too-many|TOO_MANY/i.test(code)?'มีการลองหลายครั้งเกินไป กรุณารอประมาณ 1 นาทีแล้วลองใหม่':/network|fetch|TOKEN/i.test(code)?'เชื่อมต่อ Firebase ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองใหม่':'ชื่อหรือ PIN ไม่ถูกต้อง กรุณาลองใหม่';
+      error.textContent=lastPinError;clearPin(el,false);
+    }
   }
   finally{pinLoginBusy=false;button.disabled=false;button.textContent='เข้าสู่ระบบ';pinInputs(el).forEach(input=>{input.disabled=false;});el.querySelector('#rb-auth-name').disabled=false;if(error.textContent)pinInputs(el)[0].focus();}
 }
@@ -145,7 +179,7 @@ function applyProfile(user,p){
   authUser=user;profile=p;
   window._rbLoginAt=Date.now();
   window._rbUser={uid:user.uid,email:user.email||p.email||'',name:p.name,role:p.role,active:true};
-  try{localStorage.removeItem('rb_users');localStorage.setItem('rb_session',JSON.stringify({uid:user.uid,email:user.email||'',name:p.name,role:p.role,auth:'firebase',expiresAt:Date.now()+3600000}));sessionStorage.removeItem('rb_session');}catch(_e){}
+  try{localStorage.removeItem('rb_users');sessionStorage.removeItem('rb_session');}catch(_e){}
   document.body.classList.toggle('rb-not-sup',p.role!=='sup');
   document.body.classList.toggle('rb-ads-only',p.role==='ads');
   ['rb-cu-name','sb-foot-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=p.name;});
@@ -187,22 +221,28 @@ async function approve(request,button){
   button.disabled=true;button.textContent='กำลังบันทึก...';
   try{
     const now=Date.now();
-    await db('auth_users/'+request.uid,json('PUT',{uid:request.uid,email:request.email||'',name,role,active:true,createdAt:now,updatedAt:now,approvedBy:auth.currentUser.uid}));
-    await db('access_requests/'+request.uid,json('PATCH',{status:'approved',approvedAt:now,approvedBy:auth.currentUser.uid,name,role}));
+    const approver=activeFirebaseUser();
+    await db('auth_users/'+request.uid,json('PUT',{uid:request.uid,email:request.email||'',name,role,active:true,createdAt:now,updatedAt:now,approvedBy:approver.uid}));
+    await db('access_requests/'+request.uid,json('PATCH',{status:'approved',approvedAt:now,approvedBy:approver.uid,name,role}));
     row.remove();const body=document.getElementById('rb-auth-admin-body');if(body&&!body.querySelector('.rb-auth-request'))body.innerHTML='<div class="rb-auth-empty">อนุมัติครบแล้ว</div>';
   }catch(error){button.disabled=false;button.textContent='ลองอีกครั้ง';alert('อนุมัติไม่สำเร็จ: '+error.message);}
 }
 
 window.rbFirebaseAuth={ready,get user(){return authUser;},get profile(){return profile;},db,fetch:secureFetch,urlWithAuth:tokenUrl,openAdmin};
 window.fetch=secureFetch;
-window._rbLogout=()=>signOut(auth);
+window._rbLogout=logout;
 window._rbShowLC=()=>{const dialog=document.getElementById('rb-lc-wrap');if(dialog)dialog.classList.add('lc-open');else signOut(auth);};
-try{localStorage.removeItem('rb_session');sessionStorage.removeItem('rb_session');}catch(_e){}
+try{sessionStorage.removeItem('rb_session');}catch(_e){}
 gate();
 setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
   onAuthStateChanged(auth,async user=>{
     setupAdmin(false);
+    if(!user&&pinSession){
+      setGate('กำลังตรวจสอบสิทธิ์','กำลังเรียกคืนการเข้าสู่ระบบ',{login:false,logout:true});
+      try{const p=await ensureProfile(pinSession);if(p)applyProfile(pinSession,p);return;}catch(_error){clearPinSession();}
+    }
     if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
+    clearPinSession();
     setGate('กำลังตรวจสอบสิทธิ์','ตรวจสอบบัญชี '+(user.email||''),{login:false,logout:true});
     try{const p=await ensureProfile(user);if(p)applyProfile(user,p);}catch(error){setGate('ตรวจสอบสิทธิ์ไม่สำเร็จ','ระบบยังไม่อนุญาตให้เปิดข้อมูล กรุณาลองใหม่',{login:false,logout:true,error:error.message||String(error)});}
   });

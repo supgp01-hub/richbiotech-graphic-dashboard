@@ -54,8 +54,25 @@ test('PIN controls preserve paste and leading zeroes while preventing duplicate 
   assert.match(auth, /autocomplete=\"off\"/);
   assert.match(auth, /if\(pinLoginBusy\)return/);
   assert.match(auth, /pinInputs\(el\)\.forEach\(input=>\{input\.disabled=true;\}\)/);
-  assert.match(auth, /too-many-requests/);
-  assert.match(auth, /network-request-failed/);
+  assert.match(auth, /\/too-many\|TOO_MANY\/i/);
+  assert.match(auth, /\/network\|fetch\|TOKEN\/i/);
+});
+
+test('PIN login has an official Firebase REST fallback with a persistent refreshable session', () => {
+  assert.match(auth, /accounts:signInWithPassword\?key=/);
+  assert.match(auth, /securetoken\.googleapis\.com\/v1\/token\?key=/);
+  assert.match(auth, /grant_type:'refresh_token'/);
+  assert.match(auth, /PIN_SESSION_KEY='rb_firebase_pin_session_v1'/);
+  assert.match(auth, /const user=await pinRestLogin\(PIN_ACCOUNTS\[name\],pin\)/);
+  assert.match(auth, /function activeFirebaseUser\(\)\{return auth\.currentUser\|\|pinSession;\}/);
+  assert.match(auth, /async function logout\(\)\{clearPinSession\(\)/);
+});
+
+test('secure auth prevents the legacy cross-tab session from clearing the Firebase user', () => {
+  assert.match(auth, /window\.__RB_SECURE_AUTH__=true/);
+  assert.match(auth, /event\.key==='rb_session'.*stopImmediatePropagation/);
+  assert.doesNotMatch(auth, /localStorage\.setItem\('rb_session'/);
+  assert.doesNotMatch(auth, /localStorage\.removeItem\('rb_session'/);
 });
 
 test('login page omits the two user-requested helper messages', () => {
