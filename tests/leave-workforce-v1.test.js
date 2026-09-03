@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=fix330'));
-assert.ok(html.includes('leave-workforce-v1.js?v=fix330'));
+assert.ok(html.includes('leave-workforce-v1.css?v=fix331'));
+assert.ok(html.includes('leave-workforce-v1.js?v=fix331'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 
@@ -47,7 +47,7 @@ assert.ok(css.includes('Keep the monthly calendar in its original light palette'
 assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
-assert.ok(source.includes("var VERSION='2.8.0'"));
+assert.ok(source.includes("var VERSION='2.8.1'"));
 assert.ok(source.includes('function unlockCombinedWorkspace()'));
 assert.ok(source.includes('function patchCombinedCloseGuard()'));
 assert.ok(source.includes('function keepCombinedWorkspaceOpen()'));
@@ -100,9 +100,8 @@ assert.ok(source.includes('function dateEntryMarkup(prefix,value)'));
 assert.ok(source.includes('function wireDateEntry(prefix,previewId)'));
 assert.ok(source.includes('function recordPanel(kind,p)'));
 assert.ok(source.includes('function wireRecordFilters(kind,p,pane)'));
-assert.ok(source.includes('ล้างเฉพาะช่องกรอกแล้ว รายการที่บันทึกไว้ไม่เปลี่ยนแปลง'));
-assert.ok(source.includes('pane.querySelector(\'#lvw-cl-reset\').onclick=function(event){event.preventDefault();resetLeave()}'));
-assert.ok(source.includes('pane.querySelector(\'#lvw-cs-reset\').onclick=function(event){event.preventDefault();resetSpecial()}'));
+assert.ok(!source.includes('id="lvw-cl-reset"'));
+assert.ok(!source.includes('id="lvw-cs-reset"'));
 assert.ok(!source.includes('รายการย้อนหลัง 3 รายการ'));
 assert.ok(source.includes('function renderCombinedReport(p)'));
 assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'));
