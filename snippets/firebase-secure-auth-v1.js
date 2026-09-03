@@ -202,8 +202,11 @@ function applyProfile(user,p){
   ['rb-cu-role','sb-foot-role'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ROLES.find(x=>x[0]===p.role)?.[1]||p.role;});
   const av=document.getElementById('sb-foot-av');if(av)av.textContent=p.name.slice(0,2).toUpperCase();
   const uname=document.getElementById('sb-uc-uname');if(uname)uname.textContent=p.name+' ('+(ROLES.find(x=>x[0]===p.role)?.[1]||p.role)+')';
+  const isSupervisor=p.role==='sup';
+  const settingsButton=document.getElementById('sb-settings-btn');if(settingsButton)settingsButton.style.display=isSupervisor?'':'none';
+  const settingsSub=document.getElementById('sb-sub');if(settingsSub)settingsSub.style.display=isSupervisor?'':'none';
   const legacy=document.getElementById('rb-login-modal');if(legacy)legacy.remove();
-  hideGate();setupAdmin(p.role==='sup');
+  hideGate();setupAdmin(isSupervisor);
   resolveReady(window._rbUser);
   window.dispatchEvent(new CustomEvent('rb:auth-ready',{detail:window._rbUser}));
   setTimeout(()=>{
@@ -221,14 +224,18 @@ function setupAdmin(show){
 }
 async function openAdmin(){
   let modal=document.getElementById('rb-auth-admin');
-  if(!modal){modal=document.createElement('div');modal.id='rb-auth-admin';modal.innerHTML='<section class="rb-auth-admin-card"><header class="rb-auth-admin-head"><div><strong>จัดการสิทธิ์ผู้ใช้</strong><div style="font-size:11px;color:#71837c;margin-top:3px">อนุมัติบัญชี Google และกำหนดชื่อพนักงาน</div></div><button class="rb-auth-admin-close" type="button" aria-label="ปิด">×</button></header><div id="rb-auth-admin-body" class="rb-auth-admin-body"></div></section>';modal.querySelector('.rb-auth-admin-close').addEventListener('click',()=>modal.classList.remove('is-open'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('is-open');});document.body.appendChild(modal);}
+  if(!modal){modal=document.createElement('div');modal.id='rb-auth-admin';modal.innerHTML='<section class="rb-auth-admin-card"><header class="rb-auth-admin-head"><div><strong>USER</strong><div style="font-size:11px;color:#71837c;margin-top:3px">รายชื่อผู้ใช้และสิทธิ์การเข้าใช้งานออนไลน์</div></div><button class="rb-auth-admin-close" type="button" aria-label="ปิด">×</button></header><div id="rb-auth-admin-body" class="rb-auth-admin-body"></div></section>';modal.querySelector('.rb-auth-admin-close').addEventListener('click',()=>modal.classList.remove('is-open'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('is-open');});document.body.appendChild(modal);}
   modal.classList.add('is-open');const body=modal.querySelector('#rb-auth-admin-body');body.innerHTML='<div class="rb-auth-empty">กำลังโหลดคำขอ...</div>';
   try{
     const [requests,users]=await Promise.all([db('access_requests'),db('auth_users')]);
     const approvedEmails=new Set(Object.values(users||{}).filter(Boolean).map(x=>(x.email||'').toLowerCase()));
+    const userRows=Object.values(users||{}).filter(x=>x&&x.active!==false&&x.name).sort((a,b)=>{const ai=EMPLOYEES.indexOf(a.name),bi=EMPLOYEES.indexOf(b.name);return (ai<0?999:ai)-(bi<0?999:bi)||String(a.name).localeCompare(String(b.name),'th');});
     const rows=Object.values(requests||{}).filter(x=>x&&x.status==='pending'&&!approvedEmails.has((x.email||'').toLowerCase()));
-    if(!rows.length){body.innerHTML='<div class="rb-auth-empty">ไม่มีคำขอที่รออนุมัติ</div>';return;}
-    body.innerHTML=rows.map((r,i)=>'<div class="rb-auth-request" data-uid="'+esc(r.uid)+'"><div><strong>'+esc(r.displayName||'บัญชีใหม่')+'</strong><div class="rb-auth-request-email">'+esc(r.email)+'</div></div><select data-kind="name">'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'"'+(n===(r.displayName||'')?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select><select data-kind="role">'+ROLES.map(x=>'<option value="'+x[0]+'">'+esc(x[1])+'</option>').join('')+'</select><button class="rb-auth-approve" type="button" data-index="'+i+'">อนุมัติ</button></div>').join('');
+    const roleLabel=value=>ROLES.find(x=>x[0]===value)?.[1]||value||'ไม่ระบุสิทธิ์';
+    const current='<div class="rb-auth-current"><span>'+esc((profile?.name||'ผู้ดูแล').slice(0,2))+'</span><div><strong>'+esc(profile?.name||'ผู้ดูแล')+'</strong><small>'+esc(roleLabel(profile?.role))+'</small></div><i>กำลังใช้งาน</i></div>';
+    const directory=userRows.length?userRows.map(u=>'<div class="rb-auth-user-row"><span>'+esc(String(u.name).slice(0,2))+'</span><div><strong>'+esc(u.name)+'</strong><small>'+esc(roleLabel(u.role))+'</small></div><i class="'+(u.active===false?'is-off':'')+'">'+(u.active===false?'ปิดใช้งาน':'ใช้งานได้')+'</i></div>').join(''):'<div class="rb-auth-empty">ยังไม่พบรายชื่อผู้ใช้</div>';
+    const pending=rows.length?'<section class="rb-auth-pending"><h4>คำขอเข้าใช้งานใหม่ <b>'+rows.length+'</b></h4>'+rows.map((r,i)=>'<div class="rb-auth-request" data-uid="'+esc(r.uid)+'"><div><strong>'+esc(r.displayName||'บัญชีใหม่')+'</strong><div class="rb-auth-request-email">'+esc(r.email)+'</div></div><select data-kind="name">'+EMPLOYEES.map(n=>'<option value="'+esc(n)+'"'+(n===(r.displayName||'')?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select><select data-kind="role">'+ROLES.map(x=>'<option value="'+x[0]+'">'+esc(x[1])+'</option>').join('')+'</select><button class="rb-auth-approve" type="button" data-index="'+i+'">อนุมัติ</button></div>').join('')+'</section>':'<div class="rb-auth-no-pending">ไม่มีคำขอใหม่ที่รออนุมัติ</div>';
+    body.innerHTML=current+'<div class="rb-auth-directory-head"><span>รายชื่อผู้ใช้งาน</span><b>'+userRows.length+' คน</b></div><div class="rb-auth-directory">'+directory+'</div>'+pending;
     body.querySelectorAll('.rb-auth-approve').forEach((btn,i)=>btn.addEventListener('click',()=>approve(rows[i],btn)));
   }catch(error){body.innerHTML='<div class="rb-auth-empty" style="color:#b42318">โหลดคำขอไม่สำเร็จ: '+esc(error.message)+'</div>';}
 }
@@ -240,9 +247,15 @@ async function approve(request,button){
     const approver=activeFirebaseUser();
     await db('auth_users/'+request.uid,json('PUT',{uid:request.uid,email:request.email||'',name,role,active:true,createdAt:now,updatedAt:now,approvedBy:approver.uid}));
     await db('access_requests/'+request.uid,json('PATCH',{status:'approved',approvedAt:now,approvedBy:approver.uid,name,role}));
-    row.remove();const body=document.getElementById('rb-auth-admin-body');if(body&&!body.querySelector('.rb-auth-request'))body.innerHTML='<div class="rb-auth-empty">อนุมัติครบแล้ว</div>';
+    await openAdmin();
   }catch(error){button.disabled=false;button.textContent='ลองอีกครั้ง';alert('อนุมัติไม่สำเร็จ: '+error.message);}
 }
+
+const legacyShowSettings=window._rbShowSP;
+window._rbShowSP=tab=>{
+  if(tab==='user'){openAdmin();return;}
+  if(typeof legacyShowSettings==='function')legacyShowSettings(tab);
+};
 
 window.rbFirebaseAuth={ready,get user(){return authUser;},get profile(){return profile;},db,fetch:secureFetch,urlWithAuth:tokenUrl,openAdmin};
 window.fetch=secureFetch;

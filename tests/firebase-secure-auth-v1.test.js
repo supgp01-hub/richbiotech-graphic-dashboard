@@ -112,3 +112,13 @@ test('PIN login includes every existing dashboard user', () => {
   assert.match(auth, /'MY Boss':'pin\.myboss@richbiotech\.team'/);
   assert.match(auth, /'Audit':'pin\.audit@richbiotech\.team'/);
 });
+
+test('Supervisor USER directory remains accessible after secure login', () => {
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure18/);
+  assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
+  assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
+  assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);
+  assert.match(auth, /รายชื่อผู้ใช้งาน/);
+  assert.match(auth, /userRows\.length\+' คน/);
+  assert.match(auth, /ไม่มีคำขอใหม่ที่รออนุมัติ/);
+});
