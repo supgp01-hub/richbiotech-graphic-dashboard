@@ -49,9 +49,11 @@ async function exercise(browser, role) {
 
 (async () => {
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
-  const [supervisor, graphic] = await Promise.all([exercise(browser, 'sup'), exercise(browser, 'graphic')]);
-  console.log(JSON.stringify({ supervisor, graphic }, null, 2));
-  const ok = supervisor.beforeOpen === 0 && supervisor.afterPagesOpen === 0 && supervisor.afterPagesManual === 1 && supervisor.afterListOpen === 1 && supervisor.pagesButtonVisible && supervisor.listButtonVisible && graphic.beforeOpen === 0 && graphic.afterPagesOpen === 0 && graphic.afterPagesManual === 1 && graphic.afterListOpen === 1 && graphic.pagesButtonVisible && graphic.listButtonVisible && !supervisor.errors.length && !graphic.errors.length;
+  const [supervisor, specialist, audit, graphic] = await Promise.all(['sup','spec','audit','graphic'].map(role => exercise(browser, role)));
+  console.log(JSON.stringify({ supervisor, specialist, audit, graphic }, null, 2));
+  const allowed = [supervisor, specialist, audit].every(result => result.beforeOpen === 0 && result.afterPagesOpen === 0 && result.afterPagesManual === 1 && result.afterListOpen === 1 && result.pagesButtonVisible && result.listButtonVisible && !result.errors.length);
+  const hidden = [graphic].every(result => result.beforeOpen === 0 && result.afterPagesOpen === 0 && result.afterPagesManual === 0 && result.afterListOpen === 0 && !result.pagesButtonVisible && !result.listButtonVisible && !result.errors.length);
+  const ok = allowed && hidden;
   if (!ok) process.exitCode = 1;
   await browser.close();
 })().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

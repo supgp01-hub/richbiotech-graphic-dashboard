@@ -26,6 +26,7 @@ function parseSheet(csv){var lines=String(csv||'').replace(/\r/g,'').split('\n')
 
 function applyEdits(rows){return(rows||[]).map(function(row){var result=copy(row),key=rowKey(row),entry=edits[key];result._fbpKey=key;result._fbpSourceName=row._fbpSourceName||row.name||'';if(entry){['name','prod','st','own'].forEach(function(field){if(Object.prototype.hasOwnProperty.call(entry,field))result[field]=entry[field];});result._fbpEditedAt=entry.updatedAt||0;}return result;});}
 function canEdit(){var role=window._rbUser&&window._rbUser.role||'';return['sup','spec','graphic','ads','audit'].indexOf(role)!==-1;}
+function canRefresh(){var role=window._rbUser&&window._rbUser.role||'';return role==='sup'||role==='spec'||role==='audit';}
 function cloudKey(value){return String(value||'').replace(/[.#$\[\]\/]/g,'_');}
 function saveEdits(key){
   saveObject(EDIT_KEY,edits);
@@ -58,6 +59,7 @@ function formatActualTime(date){return'ข้อมูลล่าสุด '+da
 function setRefreshState(loading,message){var button=document.getElementById('lfb-upd'),timestamp=document.getElementById('lfb-ts');if(button){button.disabled=!!loading;button.textContent=loading?'กำลังดึงข้อมูลจริง...':'อัปเดตข้อมูลล่าสุด';}if(timestamp&&message)timestamp.textContent=message;}
 
 function refreshLiveData(){
+  if(!canRefresh())return Promise.resolve(false);
   if(liveRequest)return liveRequest;
   setRefreshState(true,'กำลังตรวจสถานะจริงจากชีต...');
   liveRequest=fetch(SHEET_URL,{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.text();}).then(function(csv){
@@ -226,7 +228,7 @@ function activate(){installRenderer();decorateHeader();syncCloud(function(){var 
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 
-window._fbpInlineEditorTest={parseCsvLine:parseCsvLine,parseSheet:parseSheet,rowKey:rowKey,applyEdits:applyEdits,mergeMaps:mergeMaps,unique:unique,notificationMarkup:notificationMarkup,cloudKey:cloudKey,canEdit:canEdit};
+window._fbpInlineEditorTest={parseCsvLine:parseCsvLine,parseSheet:parseSheet,rowKey:rowKey,applyEdits:applyEdits,mergeMaps:mergeMaps,unique:unique,notificationMarkup:notificationMarkup,cloudKey:cloudKey,canEdit:canEdit,canRefresh:canRefresh};
 install();
 setTimeout(install,300);
 setTimeout(install,900);

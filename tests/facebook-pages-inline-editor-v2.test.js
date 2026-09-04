@@ -33,6 +33,9 @@ context._rbUser={role:'graphic'};
 assert.equal(api.canEdit(),true,'every active Graphic team role must be able to edit Facebook Pages');
 context._rbUser={role:'ads'};
 assert.equal(api.canEdit(),true,'Ads users must be able to edit Facebook Pages');
+assert.equal(api.canRefresh(),false,'Ads users must not refresh the shared source');
+context._rbUser={role:'audit'};
+assert.equal(api.canRefresh(),true,'Audit users must refresh the shared source');
 assert.ok(source.includes("CLOUD_PATH+'/'+cloudKey(key)"),'each edited page must save independently to prevent concurrent overwrite');
 assert.ok(source.includes("CLOUD_PATH='/workflow_snapshots/fbpages_edits_shared_v1'"),'edits must use the existing active-user shared Firebase area');
 assert.ok(source.includes("LEGACY_CLOUD_PATH='/fbpages_edits_v2'"),'the previous online edits must remain available for non-destructive migration');
@@ -48,7 +51,7 @@ assert.ok(css.includes('table-layout:fixed!important'),'the table must keep prop
 assert.ok(css.includes('.rb-fbp-filter-field>.rb-fbp-filter-label'),'filter labels must use a dedicated selector so the search icon wrapper is not styled as a label');
 assert.ok(css.includes('.rb-fbp-search-field>.rb-icon-input-wrap.rb-search-wide'),'the wrapped search field must align with every dropdown');
 assert.ok(css.includes('display:table-cell!important'),'the action column must retain table-cell layout so row divider lines align');
-assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix317'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix318'));
 assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix308'));
 assert.ok(index.includes('<meta name="rb-build" content="fix318">'));
 

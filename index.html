@@ -2624,7 +2624,7 @@ window._lfbFetch=function(){
   var updBtn=document.getElementById('lfb-upd');
   var tsEl=document.getElementById('lfb-ts');
   var role=window._rbUser&&window._rbUser.role;
-  if(['sup','spec','graphic','ads','audit'].indexOf(role)<0){
+  if(['sup','spec','audit'].indexOf(role)<0){
     if(tsEl)tsEl.textContent='ดูข้อมูลล่าสุดได้ แต่ไม่มีสิทธิ์อัปเดต';
     return Promise.resolve(false);
   }
@@ -6064,7 +6064,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=225">
 <link rel="stylesheet" href="snippets/order-leave-guard-v1.css?v=230">
 <link rel="stylesheet" href="snippets/unified-graphic-headers-v1.css?v=230">
-<script src="snippets/manual-refresh-v1.js?v=214"></script>
+<script src="snippets/manual-refresh-v1.js?v=215"></script>
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=266"></script>
@@ -6169,7 +6169,7 @@ html[data-theme="dark"] #rb-bottom-nav button{color:#b4c6c4!important}
 html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;background:#174438!important}
 </style>
 <link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix308">
-<script src="snippets/facebook-pages-inline-editor-v2.js?v=fix317"></script>
+<script src="snippets/facebook-pages-inline-editor-v2.js?v=fix318"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
 <script src="snippets/shared-business-sync-v1.js?v=fix338"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure19">

@@ -10,7 +10,7 @@ var FB_URL='https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOy
 function load(key,fallback){try{var value=JSON.parse(localStorage.getItem(key)||'null');return value==null?fallback:value}catch(e){return fallback}}
 function save(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
 function stamp(key){try{localStorage.setItem(key,String(Date.now()))}catch(e){}}
-function canRefresh(){var role=window._rbUser&&window._rbUser.role;return ['sup','spec','graphic','ads','audit'].indexOf(role)>=0}
+function canRefresh(){var role=window._rbUser&&window._rbUser.role;return role==='sup'||role==='spec'||role==='audit'}
 function canRefreshCommission(){var role=window._rbUser&&window._rbUser.role;return role==='sup'||role==='spec'||role==='audit'}
 function formatTime(value){var date=new Date(value);return date.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}
 function refreshStatus(id,key){var el=document.getElementById(id);if(!el)return;var value=Number(localStorage.getItem(key)||0);if(!value){el.textContent='ยังไม่ได้อัปเดตในเครื่องนี้';el.classList.add('rb-heavy-stale');return}var age=Date.now()-value;el.textContent=(age>STALE_MS?'ข้อมูลเกิน 20 นาที · ':'อัปเดต: ')+formatTime(value);el.classList.toggle('rb-heavy-stale',age>STALE_MS)}
