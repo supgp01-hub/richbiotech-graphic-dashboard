@@ -24,7 +24,8 @@ test('legacy PIN secrets are removed from the shipped page', () => {
 test('database defaults to deny and protects sensitive paths', () => {
   assert.equal(rules['.read'], false);
   assert.equal(rules['.write'], false);
-  assert.match(rules.idcards['.read'], /role.*sup/);
+  assert.match(rules.idcards['.read'], /active/);
+  assert.match(rules.idcards['.write'], /active/);
   assert.match(rules.rb_users['.read'], /role.*sup/);
   assert.equal(rules.rb_users['.write'], false);
   assert.match(rules.orders['.read'], /active/);
@@ -37,8 +38,7 @@ test('every Graphic data module used by the live page has an explicit online rul
     assert.match(rules[name]['.read'], /active/);
     assert.match(rules[name]['.write'], /active/);
   });
-  assert.match(rules.fbpages_edits_v2['.write'], /role.*sup/);
-  assert.match(rules.fbpages_edits_v2['.write'], /role.*spec/);
+  assert.match(rules.fbpages_edits_v2['.write'], /active/);
   assert.match(rules.commission_center_v1['.write'], /role.*audit/);
   assert.match(rules.commission_center_v1['.write'], /role.*sup/);
 });

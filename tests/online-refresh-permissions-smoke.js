@@ -51,7 +51,7 @@ async function exercise(browser, role) {
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   const [supervisor, graphic] = await Promise.all([exercise(browser, 'sup'), exercise(browser, 'graphic')]);
   console.log(JSON.stringify({ supervisor, graphic }, null, 2));
-  const ok = supervisor.beforeOpen === 0 && supervisor.afterPagesOpen === 0 && supervisor.afterPagesManual === 1 && supervisor.afterListOpen === 1 && supervisor.pagesButtonVisible && supervisor.listButtonVisible && graphic.afterListOpen === 0 && !graphic.pagesButtonVisible && !graphic.listButtonVisible && !supervisor.errors.length && !graphic.errors.length;
+  const ok = supervisor.beforeOpen === 0 && supervisor.afterPagesOpen === 0 && supervisor.afterPagesManual === 1 && supervisor.afterListOpen === 1 && supervisor.pagesButtonVisible && supervisor.listButtonVisible && graphic.beforeOpen === 0 && graphic.afterPagesOpen === 0 && graphic.afterPagesManual === 1 && graphic.afterListOpen === 1 && graphic.pagesButtonVisible && graphic.listButtonVisible && !supervisor.errors.length && !graphic.errors.length;
   if (!ok) process.exitCode = 1;
   await browser.close();
 })().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

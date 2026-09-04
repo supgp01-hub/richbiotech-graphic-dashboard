@@ -2624,7 +2624,7 @@ window._lfbFetch=function(){
   var updBtn=document.getElementById('lfb-upd');
   var tsEl=document.getElementById('lfb-ts');
   var role=window._rbUser&&window._rbUser.role;
-  if(role!=='sup'&&role!=='spec'&&role!=='audit'){
+  if(['sup','spec','graphic','ads','audit'].indexOf(role)<0){
     if(tsEl)tsEl.textContent='ดูข้อมูลล่าสุดได้ แต่ไม่มีสิทธิ์อัปเดต';
     return Promise.resolve(false);
   }
@@ -6064,7 +6064,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=225">
 <link rel="stylesheet" href="snippets/order-leave-guard-v1.css?v=230">
 <link rel="stylesheet" href="snippets/unified-graphic-headers-v1.css?v=230">
-<script src="snippets/manual-refresh-v1.js?v=213"></script>
+<script src="snippets/manual-refresh-v1.js?v=214"></script>
 <script src="snippets/facebook-status-catalog-v1.js?v=225"></script>
 <script src="snippets/order-leave-guard-v1.js?v=230"></script>
 <script src="snippets/unified-graphic-headers-v1.js?v=266"></script>
