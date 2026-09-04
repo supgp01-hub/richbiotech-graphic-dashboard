@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const index=fs.readFileSync('index.html','utf8');
+const health=fs.readFileSync('snippets/system-health-v1.js','utf8');
+const shared=fs.readFileSync('snippets/shared-business-sync-v1.js','utf8');
+const worker=fs.readFileSync('sw.js','utf8');
+
+assert.ok(index.includes('snippets/system-health-v1.js?v=fix341'),'live page must load the system health panel');
+assert.ok(index.includes('snippets/app-shell-v1.js?v=fix341'),'live page must register the resilient app shell');
+assert.ok(index.includes("window.dispatchEvent(new CustomEvent('rb:sync-state'"),'sync state must be observable without polling business data');
+assert.ok(index.includes('window.rbOrderSync={flush:'),'health tools need a safe order queue retry surface');
+assert.ok(health.includes("role','button'"),'online chip must be keyboard accessible');
+assert.ok(health.includes('รายละเอียดรายการที่รอ'),'pending writes must identify what is waiting');
+assert.ok(health.includes('Promise.allSettled'),'one failed retry must not block the other queues');
+assert.ok(shared.includes("VERSION='1.2.0'"),'shared sync must use the optimized version');
+assert.ok(shared.includes('root.rbMultiTab.isLeader()'),'only the active sync leader should pull shared datasets');
+assert.ok(shared.includes('FOCUS_THROTTLE_MS=15000'),'focus events must not create a request storm');
+assert.ok(worker.includes("url.origin!==self.location.origin"),'service worker must never cache Firebase or third-party data');
+assert.ok(worker.includes("request.mode==='navigate'"),'navigation must have an offline shell fallback');
+console.log('system-health-v1: reliability and performance contracts passed');

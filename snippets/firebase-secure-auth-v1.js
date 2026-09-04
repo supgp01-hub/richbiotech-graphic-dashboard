@@ -252,6 +252,7 @@ function applyProfile(user,p){
   resolveReady(window._rbUser);
   window.dispatchEvent(new CustomEvent('rb:auth-ready',{detail:window._rbUser}));
   setTimeout(()=>{
+    const staleLogin=document.getElementById('rb-login-modal');if(staleLogin)staleLogin.remove();
     try{window.fbStopNetwork&&window.fbStopNetwork();}catch(_e){}
     try{window.fbRefreshOrders&&window.fbRefreshOrders();}catch(_e){}
     try{window.fbSyncStart&&window.fbSyncStart();}catch(_e){}

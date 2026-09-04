@@ -3,7 +3,7 @@
 if(root._rbSharedBusinessSyncLoaded)return;
 root._rbSharedBusinessSyncLoaded=true;
 
-var VERSION='1.1.0',PULL_MS=30000,MIGRATION_PREFIX='rb_shared_online_migrated_v1:',muted=false,pullTimer=null;
+var VERSION='1.2.0',PULL_MS=60000,FOCUS_THROTTLE_MS=15000,MIGRATION_PREFIX='rb_shared_online_migrated_v1:',muted=false,pullTimer=null,lastPullAt=0,pullQueued=false;
 var nativeSet=Storage.prototype.setItem,nativeRemove=Storage.prototype.removeItem;
 var descriptors={
   rb_brand_pages_v1:{path:'/brand_pages_v1',kind:'grouped'},
@@ -67,13 +67,26 @@ Storage.prototype.removeItem=function(key){var desc=this===root.localStorage&&!m
 function migrated(key){try{return localStorage.getItem(MIGRATION_PREFIX+key)==='1';}catch(error){return false;}}
 function markMigrated(key){try{muted=true;nativeSet.call(localStorage,MIGRATION_PREFIX+key,'1');}finally{muted=false;}}
 function hydrateOne(key,desc){if(typeof root.fbGet!=='function')return;root.fbGet(desc.path,function(error,remote){if(error)return;var local=localValue(key,desc.kind),hasRemote=remote&&typeof remote==='object'&&Object.keys(remote).length>0;if(!hasRemote){var hasLocal=Array.isArray(local)?local.length>0:Object.keys(local||{}).length>0;if(hasLocal){var normalized=prepare(desc,local,local);setLocal(key,normalized);sync(desc,desc.kind==='timeline'||desc.kind==='whole'?[]:{},normalized);}markMigrated(key);return;}var value=desc.kind==='grouped'?groupedFromCloud(remote):desc.kind==='map'?mapFromCloud(remote):desc.kind==='timeline'?timelineFromCloud(remote):remote;if(!migrated(key)&&desc.kind!=='whole'){var merged=desc.kind==='grouped'?mergeGrouped(local,value):desc.kind==='map'?mergeMap(local,value):mergeTimeline(local,value);setLocal(key,merged);sync(desc,value,merged);value=merged;markMigrated(key);}else if(!migrated(key))markMigrated(key);setLocal(key,value);refreshUi(key);});}
-function pull(){Object.keys(descriptors).forEach(function(key){hydrateOne(key,descriptors[key]);});var who=root._rbUser&&root._rbUser.name;if(who){var draftKey='rb_order_draft_v1_'+encodeURIComponent(who);hydrateOne(draftKey,descriptorFor(draftKey));}clearTimeout(pullTimer);pullTimer=setTimeout(pull,PULL_MS);}
+function canPull(){return !document.hidden&&(typeof navigator==='undefined'||navigator.onLine!==false)&&(!root.rbMultiTab||root.rbMultiTab.isLeader());}
+function schedulePull(delay){clearTimeout(pullTimer);pullTimer=setTimeout(function(){pull(false);},Math.max(250,Number(delay)||PULL_MS));}
+function pull(force){
+  if(!canPull()){schedulePull(PULL_MS);return false;}
+  var now=Date.now(),wait=FOCUS_THROTTLE_MS-(now-lastPullAt);
+  if(!force&&wait>0){schedulePull(wait);return false;}
+  if(pullQueued)return false;
+  pullQueued=true;lastPullAt=now;
+  Object.keys(descriptors).forEach(function(key){hydrateOne(key,descriptors[key]);});
+  var who=root._rbUser&&root._rbUser.name;if(who){var draftKey='rb_order_draft_v1_'+encodeURIComponent(who);hydrateOne(draftKey,descriptorFor(draftKey));}
+  setTimeout(function(){pullQueued=false;},800);
+  schedulePull(PULL_MS);return true;
+}
 function flush(){if(root.rbPersistence&&typeof root.rbPersistence.flush==='function')root.rbPersistence.flush();}
 
 root.rbSharedBusinessSync={version:VERSION,descriptors:clone(descriptors),descriptorFor:descriptorFor,pull:pull,flush:flush,safe:safe,hash:hash,normalizeGrouped:normalizeGrouped,groupedFromCloud:groupedFromCloud,mergeGrouped:mergeGrouped,mapFromCloud:mapFromCloud,mergeMap:mergeMap,timelineFromCloud:timelineFromCloud,mergeTimeline:mergeTimeline};
-root.addEventListener&&root.addEventListener('online',flush);
-root.addEventListener&&root.addEventListener('focus',function(){pull();flush();});
-document.addEventListener&&document.addEventListener('visibilitychange',function(){if(!document.hidden){pull();flush();}});
-setTimeout(pull,150);
+root.addEventListener&&root.addEventListener('online',function(){pull(true);flush();});
+root.addEventListener&&root.addEventListener('focus',function(){pull(false);flush();});
+root.addEventListener&&root.addEventListener('rb:leader-change',function(event){if(event.detail&&event.detail.leader)pull(true);});
+document.addEventListener&&document.addEventListener('visibilitychange',function(){if(!document.hidden){pull(false);flush();}});
+setTimeout(function(){pull(true);},150);
 document.documentElement.setAttribute('data-shared-business-sync',VERSION);
 })(window);

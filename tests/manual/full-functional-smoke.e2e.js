@@ -1,16 +1,16 @@
 const { chromium }=require('playwright');
 const assert=require('assert');
+const {installSecureAuthMock}=require('./secure-auth-mock');
 
 (async()=>{
   const targetUrl=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243-functional';
   const screenshotPath=process.argv[3]||'';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext();
+  await installSecureAuthMock(context,{role:'sup',name:'View'});
   await context.addInitScript(()=>{
-    localStorage.setItem('rb_session',JSON.stringify({name:'View',role:'sup',expiresAt:Date.now()+3600000}));
     localStorage.setItem('rb_theme','dark');
   });
-  await context.route(/firebaseio\.com/,route=>route.abort('blockedbyclient'));
   await context.route(/docs\.google\.com\/spreadsheets/,route=>route.fulfill({status:200,contentType:'text/csv; charset=utf-8',body:'ชื่อเพจ,สินค้า,สถานะ,พนักงาน,Facebook ID\nเพจทดสอบ,Liv CARE,ใช้งาน,MOS,10001'}));
   const page=await context.newPage();
   const errors=[];
@@ -19,12 +19,16 @@ const assert=require('assert');
   await page.goto(targetUrl,{waitUntil:'commit',timeout:60000});
   await page.waitForSelector('#sidebar',{timeout:90000});
   for(let i=0;i<180;i++){
-    if(await page.evaluate(()=>typeof window._icInit==='function'&&document.body&&getComputedStyle(document.body).backgroundColor==='rgb(2, 7, 8)'))break;
+    if(await page.evaluate(()=>typeof window._icInit==='function'&&window._rbUser&&window._rbUser.role==='sup'))break;
     await page.waitForTimeout(500);
-    if(i===179)throw new Error('page runtime did not become ready');
+    if(i===179){console.error('runtime diagnostic',await page.evaluate(()=>({user:window._rbUser||null,secure:!!window.__RB_SECURE_AUTH__,health:!!window.rbSystemHealth,gate:document.getElementById('rb-auth-status')&&document.getElementById('rb-auth-status').innerText})),errors);throw new Error('page runtime did not become ready');}
   }
   const themeDiagnostic=await page.evaluate(()=>({theme:document.documentElement.getAttribute('data-theme'),bodyStyle:document.body.getAttribute('style'),themeCss:!!document.getElementById('rb-dark-theme-deep-teal-v1'),background:getComputedStyle(document.body).backgroundColor}));
   assert.strictEqual(themeDiagnostic.background,'rgb(2, 7, 8)',`Deep Teal page background must be active: ${JSON.stringify(themeDiagnostic)}`);
+  await page.locator('#rb-sync-chip').click();
+  await page.waitForSelector('#rb-health-overlay.is-open',{timeout:5000});
+  assert.match(await page.locator('#rb-health-overlay').innerText(),/สถานะระบบออนไลน์/,'online status chip must open the health panel');
+  await page.locator('#rb-health-overlay [data-rb-health-close]').click();
 
   const sidebarCases=[
     ['Home','#tab-overview'],

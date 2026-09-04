@@ -1,10 +1,11 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
+const {installSecureAuthMock}=require('./secure-auth-mock');
 
 (async()=>{
   const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243';
   const order={
-    id:'GR902',name:'Revision link test',product:'WOLF+',type:'กราฟิก',
+    id:'GR902',_fbKey:'qa_revision_order',name:'Revision link test',product:'WOLF+',type:'กราฟิก',
     deadline:'2026-08-25',status:'revision',assignee:'DOM',
     rawLink:'https://drive.google.com/creative',sheetLink:'https://docs.google.com/script',
     footageLink:'https://drive.google.com/footage',reviewLink:'https://drive.google.com/review',
@@ -13,13 +14,11 @@ const assert=require('assert');
   };
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext();
+  await installSecureAuthMock(context,{role:'graphic',name:'Dom',orders:[order]});
   await context.addInitScript(order=>{
-    localStorage.setItem('rb_session',JSON.stringify({name:'Dom',role:'graphic',expiresAt:Date.now()+3600000}));
     localStorage.setItem('rb_orders_v1',JSON.stringify([order]));
     localStorage.setItem('rb_theme','dark');
   },order);
-  await context.route(/firebaseio\.com/,route=>route.abort('blockedbyclient'));
-  await context.route('https://**',route=>route.abort('blockedbyclient'));
   const page=await context.newPage();
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));

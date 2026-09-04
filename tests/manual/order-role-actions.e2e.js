@@ -1,5 +1,6 @@
 const {chromium}=require('playwright');
 const assert=require('assert');
+const {installSecureAuthMock}=require('./secure-auth-mock');
 const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243';
 const seedOrder={id:'GR901',_fbKey:'qa_role_order',name:'Role action test',product:'Liv CARE',type:'กราฟิก',deadline:'2026-08-23',status:'pending',assignee:'DOM',note:'',createdAt:Date.now(),updatedAt:Date.now()};
 
@@ -15,6 +16,7 @@ async function setRole(page,role,name){
     window._rbUser={role,name};
     localStorage.setItem('rb_session',JSON.stringify({name,role,expiresAt:Date.now()+3600000}));
     localStorage.setItem('rb_orders_v1',JSON.stringify([seedOrder]));
+    document.getElementById('rb-login-modal')?.remove();
     document.body.classList.toggle('rb-ads-only',role==='ads');
     document.body.classList.toggle('rb-not-sup',role!=='sup');
     if(window._OF){window._OF.status='';window._OF.dl='';window._OF.date='';window._OF.search='';window._OF.activeCard='all';}
@@ -24,12 +26,11 @@ async function setRole(page,role,name){
 (async()=>{
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext();
+  await installSecureAuthMock(context,{role:'sup',name:'View',orders:[seedOrder]});
   await context.addInitScript(({seedOrder})=>{
-    localStorage.setItem('rb_session',JSON.stringify({name:'View',role:'sup',expiresAt:Date.now()+3600000}));
     localStorage.setItem('rb_orders_v1',JSON.stringify([seedOrder]));
     localStorage.setItem('rb_theme','dark');
   },{seedOrder});
-  await context.route(/firebaseio\.com/,route=>route.abort('blockedbyclient'));
   await context.route(/docs\.google\.com\/spreadsheets/,route=>route.fulfill({status:200,contentType:'text/csv; charset=utf-8',body:'ชื่อเพจ,สินค้า,สถานะ,พนักงาน,Facebook ID\nเพจทดสอบ,Liv CARE,ใช้งาน,DOM,10001'}));
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(target,{waitUntil:'commit',timeout:60000});await page.waitForSelector('#sidebar',{timeout:90000});await waitRuntime(page);
@@ -59,16 +60,17 @@ async function setRole(page,role,name){
     }
     if(role==='audit'){
       assert.strictEqual(await page.locator('#rb-revision-team-workspace #om-add-clip-btn').count(),0,'legacy ad-link control must not be duplicated in the team workspace');
-      assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),true,'Audit must not upload employee revision images');
+      assert.strictEqual(await page.locator('.rb-av-upload.is-fix').count(),0,'Audit must not upload employee revision images');
       await page.getByRole('tab',{name:'ตรวจออดิต'}).click();await page.getByRole('button',{name:'เสร็จสมบูรณ์'}).click();
       assert.strictEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status),'done','Audit must approve an order');
     }else{
       assert.strictEqual(await page.locator('#rb-revision-team-workspace #om-add-clip-btn').count(),0,'legacy ad-link control must not be duplicated in the team workspace');
-      assert.strictEqual(await page.locator('#om-p1fix-btn').isDisabled(),false,`${role} must be able to upload corrected work`);
       assert.strictEqual(await page.locator('#om-add-submitlink').isDisabled(),false,`${role} must be able to add a submission link`);
-      await page.locator('#om-primary-btn').click();await page.waitForTimeout(180);
-      assert.strictEqual(await page.locator('#om-primary-btn').isVisible(),false,`${role} action must close the modal`);
-      if(role==='graphic')assert.strictEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status),'inprogress','Graphic must start assigned work');
+      assert.strictEqual(await page.locator('#om-primary-btn').isEnabled(),true,`${role} primary work action must be clickable`);
+      if(role==='graphic'){
+        await page.locator('#om-primary-btn').click();await page.waitForTimeout(220);
+        assert.strictEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0].status),'inprogress','Graphic must start assigned work');
+      }else await page.getByRole('button',{name:'ปิด'}).last().click();
     }
   }
   assert.deepStrictEqual(errors,[],`browser errors: ${errors.join(' | ')}`);

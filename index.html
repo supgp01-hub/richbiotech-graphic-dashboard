@@ -2939,6 +2939,9 @@ function fbSetSyncState(state,text,title){
   var el=fbEnsureSyncChip();if(!el)return;
   var map={online:['#D1FAE5','#065F46','#22C55E'],saving:['#DBEAFE','#1D4ED8','#3B82F6'],saved:['#D1FAE5','#065F46','#22C55E'],waiting:['#FEF3C7','#92400E','#F59E0B'],error:['#FEE2E2','#991B1B','#EF4444'],connecting:['#F3F4F6','#4B5563','#9CA3AF']};
   var c=map[state]||map.connecting;el.style.background=c[0];el.style.color=c[1];el.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:'+c[2]+';display:inline-block"></span><span>'+text+'</span>';el.title=title||text;el.setAttribute('data-state',state);
+  if(state==='online'||state==='saved'){try{localStorage.setItem('rb_system_last_sync_ok_v1',String(Date.now()));}catch(e){}}
+  if(state==='error'){try{localStorage.setItem('rb_system_last_sync_error_v1',JSON.stringify({at:Date.now(),message:title||text}));}catch(e){}}
+  try{window.dispatchEvent(new CustomEvent('rb:sync-state',{detail:{state:state,text:text,title:title||text,at:Date.now()}}));}catch(e){}
   clearTimeout(_fbSyncUiTimer);
   if(state==='saved')_fbSyncUiTimer=setTimeout(function(){fbSetSyncState('online','ออนไลน์','เชื่อมต่อข้อมูลเรียลไทม์แล้ว');},1800);
 }
@@ -3251,11 +3254,17 @@ function refreshOrderContentFromCloud(brand){
   }).catch(function(e){console.warn('โหลดข้อมูลคอนเทนต์ล่าสุดไม่สำเร็จ',e);return window._rbOrderContentCloudRows||[];}).then(function(items){if(timer)clearTimeout(timer);_rbOrderContentCloudPromise=null;return items;});
   return _rbOrderContentCloudPromise;
 }
+var _rbOrderRenderQueued=false;
 function refreshOrderViews(){
-  var p=document.querySelector('.gsp[data-sub="order"]');
-  if(p&&p.getAttribute('data-order-init')){renderOrderStats();renderOrders();}
-  window._rbRenderHomeStats&&window._rbRenderHomeStats();
-  window._rbRenderMyWork&&window._rbRenderMyWork();
+  if(_rbOrderRenderQueued)return;
+  _rbOrderRenderQueued=true;
+  (window.requestAnimationFrame||function(fn){setTimeout(fn,16);})(function(){
+    _rbOrderRenderQueued=false;
+    var p=document.querySelector('.gsp[data-sub="order"]'),team=document.getElementById('tab-team');
+    if(p&&p.getAttribute('data-order-init')&&p.classList.contains('gsp-active')&&team&&team.classList.contains('active')){renderOrderStats();renderOrders();}
+    var overview=document.getElementById('tab-overview');if(overview&&overview.classList.contains('active')&&window._rbRenderHomeStats)window._rbRenderHomeStats();
+    var myWork=document.getElementById('rb-mywork-list');if(myWork&&myWork.offsetParent!==null&&window._rbRenderMyWork)window._rbRenderMyWork();
+  });
 }
 function spORD(d){
   /* Compare with the last committed snapshot so edits always reach sync. */
@@ -3862,7 +3871,7 @@ function hookLeaveBtns(){
 setTimeout(hookLeaveBtns,800);
 // Expose order functions globally for cross-IIFE access
 window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
-window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window._rbRefreshOrderViews=refreshOrderViews;
+window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window.fbSetSyncState=fbSetSyncState;window.rbOrderSync={flush:function(){fbFlushOrderQueue(true);},pendingCount:function(){return fbOrderQueueLoad().length;},queue:function(){return fbOrderQueueLoad().slice();}};window._rbRefreshOrderViews=refreshOrderViews;
 window.rbOrderAssetFields=FB_ORDER_ASSET_FIELDS;window.rbOrderHasAssetFields=fbOrderHasAssetFields;window.rbLoadOrderAssets=fbLoadOrderAssets;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
@@ -6187,7 +6196,10 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix308">
 <script src="snippets/facebook-pages-inline-editor-v2.js?v=fix318"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
-<script src="snippets/shared-business-sync-v1.js?v=fix338"></script>
+<script src="snippets/shared-business-sync-v1.js?v=fix341"></script>
+<link rel="stylesheet" href="snippets/system-health-v1.css?v=fix341">
+<script src="snippets/system-health-v1.js?v=fix341"></script>
+<script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure19">
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure20"></script>
 </html>
