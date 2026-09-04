@@ -2,6 +2,8 @@
 'use strict';
 
 var KEY='rb_idcards_v1';
+var SHARED_PATH='/workflow_snapshots/idcards_shared_v1';
+var LEGACY_PATH='/idcards';
 var memoryJson='';
 var nativeGet=Storage.prototype.getItem;
 var nativeSet=Storage.prototype.setItem;
@@ -70,13 +72,48 @@ function installCloudTracker(){
   if(typeof root.fbSet!=='function'||root.fbSet.__rbIdcardTracked)return;
   var original=root.fbSet;
   function trackedSet(path,value){
-    var result=original.apply(this,arguments);
-    if(path==='/idcards')root.__rbIdcardLastSync=Promise.resolve(result);
+    var args=Array.prototype.slice.call(arguments);
+    if(path===LEGACY_PATH)args[0]=SHARED_PATH;
+    var result=original.apply(this,args);
+    if(path===LEGACY_PATH||path===SHARED_PATH)root.__rbIdcardLastSync=Promise.resolve(result);
     return result;
   }
   trackedSet.__rbIdcardTracked=true;
   trackedSet.__rbOriginal=original;
   root.fbSet=trackedSet;
+}
+
+function installCloudReader(){
+  if(typeof root.fbGet!=='function'||root.fbGet.__rbIdcardShared)return;
+  var originalGet=root.fbGet,originalSet=root.fbSet&&root.fbSet.__rbOriginal?root.fbSet.__rbOriginal:root.fbSet;
+  function sharedGet(path,callback){
+    if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);
+    originalGet(SHARED_PATH,function(sharedError,sharedData){
+      var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
+      if(!sharedError&&sharedRows&&sharedRows.length){callback(null,sharedRows);return;}
+      originalGet(LEGACY_PATH,function(legacyError,legacyData){
+        var legacyRows=legacyData&&(Array.isArray(legacyData)?legacyData:Object.values(legacyData)).filter(function(row){return row&&row.id;});
+        if(!legacyError&&legacyRows&&legacyRows.length&&typeof originalSet==='function'){
+          Promise.resolve(originalSet(SHARED_PATH,legacyRows)).then(function(){callback(null,legacyRows);},function(){callback(null,legacyRows);});
+          return;
+        }
+        callback(sharedError||legacyError,sharedData||legacyData||null);
+      });
+    });
+  }
+  sharedGet.__rbIdcardShared=true;
+  sharedGet.__rbOriginal=originalGet;
+  root.fbGet=sharedGet;
+}
+
+function teamRole(){var role=root._rbUser&&root._rbUser.role||'';return role==='ads'||role==='audit';}
+function installTeamPermissions(){
+  if(!root._rbUser||!teamRole())return;
+  ['_icInit','_icEditField','_icUploadOne','_icRemovePhoto','_icBulkUpload','_icShowAddForm','_icRenderAddForm','_icSaveAllDrafts'].forEach(function(name){
+    var original=root[name];if(typeof original!=='function'||original.__rbTeamAccess)return;
+    function teamAccess(){var role=root._rbUser.role;root._rbUser.role='graphic';try{return original.apply(this,arguments);}finally{root._rbUser.role=role;}}
+    teamAccess.__rbTeamAccess=true;teamAccess.__rbOriginal=original;root[name]=teamAccess;
+  });
 }
 
 function enhanceSave(){
@@ -128,8 +165,8 @@ function enhanceAddForm(){
   }
 }
 
-var observer=new MutationObserver(function(){enhanceSave();enhanceAddForm();});
-function start(){installCloudTracker();enhanceSave();enhanceAddForm();observer.observe(document.documentElement,{childList:true,subtree:true});}
+var observer=new MutationObserver(function(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();});
+function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();observer.observe(document.documentElement,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 
 root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,getMemory:function(){return memoryJson;}};

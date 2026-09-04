@@ -3,7 +3,8 @@
 
 var SHEET_URL='https://docs.google.com/spreadsheets/d/1lw9ZR4rBIuR8LJkTVPJc4qCthdOyS7IapYwFozy9ILc/gviz/tq?tqx=out:csv&gid=524471345';
 var EDIT_KEY='rb_fbpages_edits_v2';
-var CLOUD_PATH='/fbpages_edits_v2';
+var CLOUD_PATH='/workflow_snapshots/fbpages_edits_shared_v1';
+var LEGACY_CLOUD_PATH='/fbpages_edits_v2';
 var edits=loadObject(EDIT_KEY);
 var originalRender=null;
 var lastRawData=[];
@@ -24,7 +25,7 @@ function parseCsvLine(line){var cols=[],current='',quoted=false;for(var i=0;i<li
 function parseSheet(csv){var lines=String(csv||'').replace(/\r/g,'').split('\n').filter(function(line){return line.trim();});return lines.slice(1).map(function(line){var cols=parseCsvLine(line);return{type:'',emp:cols[3]||'',own:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:'',flag:false,upd:'',bal:''};}).filter(function(row){return row.name&&(row.prod||row.emp||row.st);});}
 
 function applyEdits(rows){return(rows||[]).map(function(row){var result=copy(row),key=rowKey(row),entry=edits[key];result._fbpKey=key;result._fbpSourceName=row._fbpSourceName||row.name||'';if(entry){['name','prod','st','own'].forEach(function(field){if(Object.prototype.hasOwnProperty.call(entry,field))result[field]=entry[field];});result._fbpEditedAt=entry.updatedAt||0;}return result;});}
-function canEdit(){var role=window._rbUser&&window._rbUser.role||'';return role==='sup'||role==='spec';}
+function canEdit(){var role=window._rbUser&&window._rbUser.role||'';return['sup','spec','graphic','ads','audit'].indexOf(role)!==-1;}
 function cloudKey(value){return String(value||'').replace(/[.#$\[\]\/]/g,'_');}
 function saveEdits(key){
   saveObject(EDIT_KEY,edits);
@@ -33,7 +34,25 @@ function saveEdits(key){
   if(typeof window.fbSet==='function')return window.fbSet(CLOUD_PATH+'/'+cloudKey(key),edits[key]||null);
   return Promise.resolve(false);
 }
-function syncCloud(done){if(cloudLoaded||typeof window.fbGet!=='function'){cloudLoaded=true;if(done)done();return;}window.fbGet(CLOUD_PATH,function(error,data){if(!error&&data&&typeof data==='object'){edits=mergeMaps(edits,data);saveObject(EDIT_KEY,edits);}cloudLoaded=true;if(done)done();});}
+function finishCloudSync(done){saveObject(EDIT_KEY,edits);cloudLoaded=true;if(done)done();}
+function syncCloud(done){
+  if(cloudLoaded||typeof window.fbGet!=='function'){cloudLoaded=true;if(done)done();return;}
+  window.fbGet(CLOUD_PATH,function(error,data){
+    if(!error&&data&&typeof data==='object'&&Object.keys(data).length){edits=mergeMaps(edits,data);finishCloudSync(done);return;}
+    /* Keep the former collection as a read-only migration source.  Nothing is
+       removed, and the shared copy uses a path already writable by every
+       active team account. */
+    window.fbGet(LEGACY_CLOUD_PATH,function(legacyError,legacyData){
+      if(!legacyError&&legacyData&&typeof legacyData==='object')edits=mergeMaps(edits,legacyData);
+      var hasEdits=Object.keys(edits).length>0;
+      if(hasEdits&&typeof window.fbSet==='function'){
+        Promise.resolve(window.fbSet(CLOUD_PATH,edits)).then(function(){finishCloudSync(done);},function(){finishCloudSync(done);});
+        return;
+      }
+      finishCloudSync(done);
+    });
+  });
+}
 
 function formatActualTime(date){return'ข้อมูลล่าสุด '+date.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'})+' · '+date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
 function setRefreshState(loading,message){var button=document.getElementById('lfb-upd'),timestamp=document.getElementById('lfb-ts');if(button){button.disabled=!!loading;button.textContent=loading?'กำลังดึงข้อมูลจริง...':'อัปเดตข้อมูลล่าสุด';}if(timestamp&&message)timestamp.textContent=message;}
@@ -207,7 +226,7 @@ function activate(){installRenderer();decorateHeader();syncCloud(function(){var 
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 
-window._fbpInlineEditorTest={parseCsvLine:parseCsvLine,parseSheet:parseSheet,rowKey:rowKey,applyEdits:applyEdits,mergeMaps:mergeMaps,unique:unique,notificationMarkup:notificationMarkup,cloudKey:cloudKey};
+window._fbpInlineEditorTest={parseCsvLine:parseCsvLine,parseSheet:parseSheet,rowKey:rowKey,applyEdits:applyEdits,mergeMaps:mergeMaps,unique:unique,notificationMarkup:notificationMarkup,cloudKey:cloudKey,canEdit:canEdit};
 install();
 setTimeout(install,300);
 setTimeout(install,900);
