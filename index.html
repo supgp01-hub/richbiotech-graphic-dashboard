@@ -2916,7 +2916,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix324"><script src="snippets/order-evidence-policy-v1.js?v=fix292"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix324"></script><script src="snippets/storage-resilience-v1.js?v=fix320"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix325"><script src="snippets/order-evidence-policy-v1.js?v=fix292"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix325"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -3018,12 +3018,11 @@ function fbQueueOrderOp(method,key,data){
 function fbWaitOrderOp(op,timeout){
   return new Promise(function(resolve){
     if(!op||!op.token){resolve({confirmed:false,durable:false});return;}
-    if(!op.durable){resolve({confirmed:false,durable:false});return;}
     var started=Date.now(),limit=Number(timeout)||FB_REQ_TIMEOUT+1500;
     function check(){
       var pending=fbOrderQueueLoad().some(function(item){return item&&item.token===op.token;});
-      if(!pending){resolve({confirmed:true,durable:true});return;}
-      if(Date.now()-started>=limit){resolve({confirmed:false,durable:true});return;}
+      if(!pending){resolve({confirmed:true,durable:!!op.durable});return;}
+      if(Date.now()-started>=limit){resolve({confirmed:false,durable:!!op.durable});return;}
       fbFlushOrderQueue(false);setTimeout(check,160);
     }
     check();
@@ -3034,7 +3033,7 @@ function fbOrderAssetCounts(row){var out={};FB_ORDER_ASSET_FIELDS.forEach(functi
 function fbOrderHasAssetFields(row){return FB_ORDER_ASSET_FIELDS.some(function(field){return !!row&&Object.prototype.hasOwnProperty.call(row,field);});}
 function fbOrderHasAssets(payload){return FB_ORDER_ASSET_FIELDS.some(function(field){return Array.isArray(payload&&payload[field])&&payload[field].length>0;});}
 function fbOrderCloudRecord(row,withFreshAssets){
-  var clean={};Object.keys(row||{}).forEach(function(key){if(key!=='_fbKey'&&key!=='_assetsLoaded'&&FB_ORDER_ASSET_FIELDS.indexOf(key)<0)clean[key]=row[key];});
+  var clean={};Object.keys(row||{}).forEach(function(key){if(key!=='_fbKey'&&key!=='_assetsLoaded'&&key!=='_assetsChanged'&&FB_ORDER_ASSET_FIELDS.indexOf(key)<0)clean[key]=row[key];});
   if(withFreshAssets){clean.assetCounts=fbOrderAssetCounts(row);clean.assetsUpdatedAt=Date.now();}
   return clean;
 }
@@ -3270,19 +3269,26 @@ function spORD(d){
   before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey]){queueOps.push(fbQueueOrderOp('DELETE',old._fbKey,null));assetWrites.push(Promise.resolve(fbSet('/order_assets/'+old._fbKey,null)));}});
   after.forEach(function(row){
     if(!row||!row.id)return;
-    var old=byKey[row._fbKey],hasFreshAssets=fbOrderHasAssetFields(row),clean=fbOrderCloudRecord(row,hasFreshAssets),changes={};
+    var old=byKey[row._fbKey],hasFreshAssets=fbOrderHasAssetFields(row),assetsChanged=!old||row._assetsChanged===true,clean=fbOrderCloudRecord(row,hasFreshAssets&&assetsChanged),changes={};
     if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderAssetPayload(row))));return;}
     var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
     Object.keys(allKeys).forEach(function(k){if(FB_ORDER_ASSET_FIELDS.indexOf(k)>=0||k==='_assetsLoaded')return;var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
     if(Object.keys(changes).length)queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes));
-    if(hasFreshAssets){var nextAssets=fbOrderAssetPayload(row),oldAssets=fbOrderAssetPayload(old);if(JSON.stringify(nextAssets)!==JSON.stringify(oldAssets))assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null)));}
+    if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null)));}
   });
   var queuedByToken={};queueOps.forEach(function(op){if(op&&op.token)queuedByToken[op.token]=1;});
   fbOrderQueueLoad().forEach(function(op){if(op&&op.token&&!queuedByToken[op.token]){queueOps.push({token:op.token,path:op.path,durable:true});queuedByToken[op.token]=1;}});
   var metaWait=queueOps.map(function(op){return fbWaitOrderOp(op);});
   return Promise.all([Promise.all(metaWait),Promise.all(assetWrites)]).then(function(result){
-    var metadata=result[0]||[],assets=result[1]||[],metadataSafe=metadata.every(function(state){return state&&state.durable;}),online=metadata.every(function(state){return state&&state.confirmed;})&&assets.every(function(ok){return ok!==false;}),assetsOk=assets.every(function(ok){return ok!==false;});
-    return{ok:localResult.ok!==false&&metadataSafe&&assetsOk,localOk:localResult.ok!==false,metadataSafe:metadataSafe,assetsOk:assetsOk,online:online,pending:!online};
+    var metadata=result[0]||[],assets=result[1]||[],metadataSafe=metadata.every(function(state){return state&&(state.durable||state.confirmed);}),metadataOnline=metadata.every(function(state){return state&&state.confirmed;}),assetsOk=assets.every(function(ok){return ok!==false;}),online=metadataOnline&&assetsOk;
+    /* A workflow status is safe when it is either committed locally with a
+       durable retry operation or already confirmed by Firebase.  A full
+       browser cache must not turn a successful online accept/submit into a
+       false failure.  Asset retry state is reported separately so status
+       changes do not become stuck behind an unchanged image payload. */
+    var workflowSafe=((localResult.ok!==false&&metadataSafe)||metadataOnline)&&assetsOk;
+    if(assetsOk){after.forEach(function(row){if(row)delete row._assetsChanged;});if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(after,LS_ORD);}
+    return{ok:workflowSafe,localOk:localResult.ok!==false,metadataSafe:metadataSafe,assetsOk:assetsOk,online:online,pending:!online};
   });
 }
 function lpTL(){try{return JSON.parse(localStorage.getItem(LS_TL)||'[]');}catch(e){return[];}}
@@ -3878,9 +3884,10 @@ window.gAS=function(){
 /* ── ORDERS MODAL v3 — tabbed modal ── */
 (function(){
 
-  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omInfoAction=null, _omViewMode=false, _omUpdateFooter=null, _omIsNew=false, _omDraftTimer=null, _omDraftHydrating=false, _omSummaryOpen=false, _omUploadPending=0, _omAssetsReady=true, _omActionBusy=false;
+  var _OM2=null, _omImages=[], _omBriefImages=[], _omErrorImages=[], _omFixImages=[], _omAssetBaseline='', _switchTab=null, _omInfoPanel=null, _omSaveBtn=null, _omInfoAction=null, _omViewMode=false, _omUpdateFooter=null, _omIsNew=false, _omDraftTimer=null, _omDraftHydrating=false, _omSummaryOpen=false, _omUploadPending=0, _omAssetsReady=true, _omActionBusy=false;
   var FB_ORDER_ASSET_FIELDS=window.rbOrderAssetFields||['images','briefImages','errorImages','fixImages'],fbOrderHasAssetFields=window.rbOrderHasAssetFields||function(){return false;},fbLoadOrderAssets=window.rbLoadOrderAssets||function(){return Promise.resolve({});};
   function ge(id){return (_OM2&&_OM2.querySelector('[id="'+id+'"]'))||document.getElementById(id);}
+  function omAssetSignature(){return JSON.stringify({images:_omImages||[],briefImages:_omBriefImages||[],errorImages:_omErrorImages||[],fixImages:_omFixImages||[]});}
 
   function compressImg(file,cb,fail){
     var r=new FileReader();
@@ -4379,10 +4386,10 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     var auditRow=document.createElement('div');auditRow.id='om-audit-btns';auditRow.style.cssText='display:none;gap:10px;width:100%;';
     var cBtn=document.createElement('button');cBtn.type='button';cBtn.textContent='✅ เสร็จสมบูรณ์';
     cBtn.style.cssText='flex:1;background:#15803d;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .15s;';
-    cBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('pass'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='done';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{message:'กำลังบันทึกผลออดิต...',successMessage:'บันทึกผลออดิตออนไลน์เรียบร้อยแล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
+    cBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('pass'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='done';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังบันทึกผลออดิต...',successMessage:'บันทึกผลออดิตออนไลน์เรียบร้อยแล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
     var rBtn=document.createElement('button');rBtn.type='button';rBtn.textContent='⚠️ ต้องแก้ไข';
     rBtn.style.cssText='flex:1;background:#dc2626;color:white;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(220,38,38,.3);transition:opacity .15s;';
-    rBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('issue'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='revision';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{message:'กำลังส่งรายละเอียดงานแก้ไข...',successMessage:'ส่งงานกลับไปแก้ไขและบันทึกออนไลน์แล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
+    rBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('issue'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=orders.findIndex(function(x){return x.id===ordId;});if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='revision';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังส่งรายละเอียดงานแก้ไข...',successMessage:'ส่งงานกลับไปแก้ไขและบันทึกออนไลน์แล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
     _omUpdateFooter=function(tabKey){
@@ -4445,6 +4452,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     _omBriefImages=(o&&o.briefImages)?JSON.parse(JSON.stringify(o.briefImages)):[];
     _omErrorImages=(o&&o.errorImages)?JSON.parse(JSON.stringify(o.errorImages)):[];
     _omFixImages=(o&&o.fixImages)?JSON.parse(JSON.stringify(o.fixImages)):[];
+    _omAssetBaseline=omAssetSignature();
     var _orderRole=window._rbUser&&window._rbUser.role||'';var _isView=!!id&&window._ordViewMode==='team';var _isAuditView=window._ordViewMode==='audit'||_orderRole==='audit';ge('om-hd').textContent=id?'รายละเอียดงาน':'เพิ่มงานใหม่';var _modeBadge=_OM2.querySelector('.rb-om-id-badge');if(_modeBadge)_modeBadge.textContent=id?'งานในระบบ':'งานใหม่';
     _OM2.setAttribute('data-order-role',_orderRole||'guest');_OM2.setAttribute('data-order-view',id?'detail':'new');var _subtitle=_OM2.querySelector('.rb-om-subtitle');if(_subtitle)_subtitle.textContent=id?(_orderRole==='audit'?'ตรวจหลักฐานและบันทึกผลออดิต':_orderRole==='graphic'?'ดูรายละเอียด เปิดลิงก์ และส่งผลงาน':'ตรวจสอบ แก้ไข และติดตามงานในหน้าต่างเดียว'):'กรอกทีละขั้น ลดข้อมูลตกหล่น';var _footerHintText=ge('om-footer-hint');if(_footerHintText){var _hintLabel=_footerHintText.querySelector('b');if(_hintLabel)_hintLabel.textContent=_orderRole==='audit'?'ข้อมูลพร้อมตรวจ':_orderRole==='graphic'?'ข้อมูลและลิงก์พร้อมใช้งาน':'บันทึกร่างอัตโนมัติแล้ว';}
     ge('om-id').textContent=id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));var _headerCode=ge('om-header-code');if(_headerCode)_headerCode.textContent=ge('om-id').textContent;
@@ -4529,6 +4537,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
         _omBriefImages=JSON.parse(JSON.stringify(assets.briefImages||[]));
         _omErrorImages=JSON.parse(JSON.stringify(assets.errorImages||[]));
         _omFixImages=JSON.parse(JSON.stringify(assets.fixImages||[]));
+        _omAssetBaseline=omAssetSignature();
         _omAssetsReady=true;refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
         setOMSubmitFeedback('โหลดข้อมูลและรูปเรียบร้อยแล้ว','success');
         if(_omUpdateFooter)_omUpdateFooter();
@@ -4556,7 +4565,6 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
         _omInfoAction=function(){
             if(_omActionBusy)return;
             if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอจนรูปพร้อมก่อนส่งงาน','error');return;}
-            if(!_omAssetsReady){setOMSubmitFeedback('ข้อมูลรูปของงานยังโหลดไม่ครบ จึงยังไม่ส่งงานเพื่อป้องกันข้อมูลหาย','error');return;}
             if(_nst==='review'){
               var _clipCont=document.getElementById('om-clip-extra');
               var _hasClip=false;
@@ -4580,7 +4588,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
           var idx=orders.findIndex(function(x){return x.id===ordId;});
           if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดรายการใหม่','error');return;}
           persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst;orders[idx].updatedAt=Date.now();
-          persistOMAndFinish(orders,{message:'กำลังส่งข้อมูลและสถานะงาน...',successMessage:_nst==='review'?'ส่งงานและบันทึกออนไลน์เรียบร้อยแล้ว':'รับงานและบันทึกเรียบร้อยแล้ว',onSuccess:function(){
+          persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังส่งข้อมูลและสถานะงาน...',successMessage:_nst==='review'?'ส่งงานและบันทึกออนไลน์เรียบร้อยแล้ว':'รับงานและบันทึกเรียบร้อยแล้ว',onSuccess:function(){
             if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+((typeof ST!=="undefined"?ST:[]).find(function(s){return s.k===_nst;})||{l:_nst}).l,{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});
             if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
             if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();
@@ -4656,15 +4664,15 @@ if(_revisionSubmit){
     options=options||{};
     if(_omActionBusy)return Promise.resolve(false);
     if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอสักครู่','error');return Promise.resolve(false);}
-    if(!_omAssetsReady){setOMSubmitFeedback('ข้อมูลรูปยังโหลดไม่ครบ ระบบจึงหยุดการบันทึกเพื่อป้องกันข้อมูลเดิมหาย','error');return Promise.resolve(false);}
+    if(!_omAssetsReady&&!options.allowUnloadedAssets){setOMSubmitFeedback('ข้อมูลรูปยังโหลดไม่ครบ ระบบจึงหยุดการบันทึกเพื่อป้องกันข้อมูลเดิมหาย','error');return Promise.resolve(false);}
     setOMActionBusy(true);setOMSubmitFeedback(options.message||'กำลังบันทึกและซิงก์ข้อมูล...','success');
     return Promise.resolve(typeof spORD==='function'?spORD(orders):{ok:false}).then(function(state){
       if(!state||state.ok===false)throw new Error(state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
       if(typeof options.onSuccess==='function')options.onSuccess(state);
-      setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'เก็บแบบร่างในเครื่องแล้ว แต่ยังยืนยันออนไลน์ไม่ได้ กรุณารอแล้วกดบันทึกอีกครั้ง','success');
+      setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'บันทึกรายการแล้ว และระบบจะซิงก์ออนไลน์ให้อัตโนมัติ','success');
       setOMActionBusy(false);
-      if(state.online){setTimeout(function(){closeOM2(true);},60);return true;}
-      return false;
+      setTimeout(function(){closeOM2(true);},state.online?60:420);
+      return true;
     }).catch(function(error){
       console.error('บันทึกคำสั่งงานไม่สำเร็จ',error);setOMActionBusy(false);
       setOMSubmitFeedback('บันทึกไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'error');
@@ -4763,6 +4771,7 @@ if(_revisionSubmit){
     order.briefImages=JSON.parse(JSON.stringify(_omBriefImages||[]));
     order.errorImages=JSON.parse(JSON.stringify(_omErrorImages||[]));
     order.fixImages=JSON.parse(JSON.stringify(_omFixImages||[]));
+    order._assetsChanged=omAssetSignature()!==_omAssetBaseline;
     if(window.rbPersistAuditFields)window.rbPersistAuditFields(order,ge,document);
     var currentSubmitLinks=submitLinkValues(),currentImageSubmitLinks=imageSubmitLinkValues();
     if(options.revisionSubmit){
@@ -4858,6 +4867,7 @@ if(_revisionSubmit){
       briefImages:JSON.parse(JSON.stringify(_omBriefImages)),
       errorImages:JSON.parse(JSON.stringify(_omErrorImages)),
       fixImages:JSON.parse(JSON.stringify(_omFixImages)),
+      _assetsChanged:omAssetSignature()!==_omAssetBaseline,
       createdAt:idx>=0?orders[idx].createdAt:now,
       hook:(function(){var el=ge('om-hook'),old=idx>=0?orders[idx]:null;return el&&el.value!==''?el.value:(old&&old.hook?old.hook:'');})(),
       hook2:(function(){var el=ge('om-hook2'),old=idx>=0?orders[idx]:null;return el&&el.value!==''?el.value:(old&&old.hook2?old.hook2:'');})(),

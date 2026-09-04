@@ -174,9 +174,20 @@
     rerender();syncSourceStatus();
   };
   window.rbValidateAuditVersionDecision=function(kind){
-    var section=document.getElementById('rb-audit-version-workflow'),states=section&&section._rbState||[];if(!states.length)return{ok:false,message:'ยังไม่พบข้อมูลเวอร์ชัน กรุณาเปิดแท็บตรวจออดิตใหม่'};
-    if(kind==='issue'){var issues=states.filter(function(state){return state.result==='issue';});if(!issues.length)return{ok:false,message:'กรุณาเลือกอย่างน้อย 1 VER เป็น “ต้องแก้ไข”'};var missing=issues.filter(function(state){return !state.issueType||!String(state.note||'').trim();});if(missing.length)return{ok:false,message:'กรุณาระบุประเภทปัญหาและรายละเอียดของ '+missing.map(function(state){return'VER '+state.version;}).join(', ')};var requestedAt=Date.now();issues.forEach(function(state,index){state.correctionRequestedAt=requestedAt+index;state.employeeSubmittedAt=0;});}
-    if(kind==='pass'){var notPassed=states.filter(function(state){return state.result!=='pass'&&(state.name||state.link||state.workLink||state.imageLink);});if(notPassed.length)return{ok:false,message:'ยังมีเวอร์ชันที่ไม่ผ่าน: '+notPassed.map(function(state){return'VER '+state.version;}).join(', ')};}
+    var section=document.getElementById('rb-audit-version-workflow'),states=section&&section._rbState||[];
+    /* The two footer buttons are the Audit user's final decision.  Per-VER
+       controls are optional detail, not a form that must be completed in
+       every column before work can move forward. */
+    if(!states.length)return{ok:true};
+    var populated=states.filter(function(state){return state.name||state.link||state.workLink||state.imageLink;});
+    if(!populated.length)populated=states.slice(0,1);
+    var now=Date.now(),generalNote=String(fieldValue('om-audit-note')||'').trim();
+    if(kind==='issue'){
+      var issues=states.filter(function(state){return state.result==='issue';});
+      if(!issues.length&&populated.length){var target=populated[populated.length-1];target.result='issue';issues=[target];}
+      issues.forEach(function(state,index){if(!state.issueType)state.issueType='อื่นๆ';if(!String(state.note||'').trim())state.note=generalNote||'กรุณาตรวจและแก้ไขงานเวอร์ชันนี้';state.correctionRequestedAt=now+index;state.employeeSubmittedAt=0;state.updatedAt=now+index;state.updatedBy=actor();});
+    }
+    if(kind==='pass')populated.forEach(function(state,index){state.result='pass';state.employeeSubmittedAt=0;state.updatedAt=now+index;state.updatedBy=actor();});
     return{ok:true};
   };
   function schedule(force){[0,100,320].forEach(function(delay){setTimeout(function(){var modal=document.getElementById('rb-order-modal');if(modal&&modal.style.display!=='none'){syncSourceStatus();window.rbRenderAuditVersionWorkflow(currentOrder(),force);}},delay);});}

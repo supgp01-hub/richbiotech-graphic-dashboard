@@ -13,12 +13,20 @@ assert.match(source, /if\(_omUploadPending\).*กรุณารอจนรู�
   'save must be blocked while selected images are still processing');
 assert.match(source, /persistOMAndFinish\(orders/,
   'modal actions must wait for a durable save receipt');
-assert.match(source, /setTimeout\(function\(\)\{closeOM2\(true\);\},60\)/,
-  'the modal may close after a confirmed online save');
-assert.match(source, /if\(state\.online\)\{setTimeout\(function\(\)\{closeOM2\(true\);\},60\);return true;\}/,
-  'the modal must stay open until Firebase confirms the save');
+assert.match(source, /setTimeout\(function\(\)\{closeOM2\(true\);\},state\.online\?60:420\)/,
+  'the modal must finish after either an online confirmation or a durable queued save');
 assert.match(source, /function fbWaitOrderOp\(op,timeout\)[\s\S]*Date\.now\(\)-started>=limit/,
   'the save receipt must wait for online confirmation instead of resolving immediately');
+assert.match(source, /state\.durable\|\|state\.confirmed/,
+  'an online confirmation must remain valid when browser storage is full');
+assert.match(source, /assetsChanged=!old\|\|row\._assetsChanged===true/,
+  'status-only actions must not re-upload unchanged image evidence');
+assert.match(source, /order\._assetsChanged=omAssetSignature\(\)!==_omAssetBaseline/,
+  'real image changes must still be detected and protected by the asset save receipt');
+assert.match(source, /if\(!_omAssetsReady&&!options\.allowUnloadedAssets\)/,
+  'status transitions must not be blocked by an unrelated historical image read');
+assert.match(source, /persistOMAndFinish\(orders,\{allowUnloadedAssets:true,message:'กำลังส่งข้อมูลและสถานะงาน\.\.\.'/,
+  'accept, submit, and resubmit must allow safe metadata-only persistence');
 assert.match(source, /window\.fbFlushOrderQueue=function\(\)\{fbFlushOrderQueue\(true\);\}/,
   'the manual retry control must call a real exported queue flush');
 assert.match(source, /old\.attempts=0;old\.nextAttemptAt=0/,

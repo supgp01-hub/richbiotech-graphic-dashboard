@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix324'),'the unified version layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix324'),'the unified version runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix325'),'the unified version layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix325'),'the unified version runtime must be cache-busted');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the correction view');
 assert.ok(workflow.includes("kind==='image'?'#om-image-submitlinks-rows"),'image delivery links must be read from the send-work editor');
@@ -28,11 +28,14 @@ assert.ok(workflow.includes('var orders=clone(typeof window.lpORD'),'a failed on
 assert.ok(workflow.includes("setMessage(document.getElementById('rb-team-version-workflow'),successMessage)"),'save confirmation must remain visible after the synchronized view rerenders');
 assert.ok(workflow.includes("source:'version-audit-correction'"),'employee corrections must append a durable revision history entry');
 assert.ok(workflow.includes('order.latestRevisionImageLinks=clone(imageLinks)'),'the latest corrected image links must reopen after refresh');
-assert.ok(workflow.includes('correctionRequestedAt=requestedAt+index'),'a new Audit correction round must be marked explicitly per version');
+assert.ok(workflow.includes('state.correctionRequestedAt=now+index'),'a new Audit correction round must be marked explicitly per version');
 assert.ok(workflow.includes('correctionDraftUpdatedAt<=state.correctionRequestedAt'),'an older correction must not be resubmitted as if it were new');
 assert.ok(workflow.includes('window.rbValidateAuditVersionDecision'),'overall Audit decisions must validate version-level results');
-assert.ok(index.includes("rbValidateAuditVersionDecision('issue')"),'return-for-correction must require an identified incorrect VER');
-assert.ok(index.includes("rbValidateAuditVersionDecision('pass')"),'completion must require all populated versions to pass');
+assert.ok(index.includes("rbValidateAuditVersionDecision('issue')"),'return-for-correction must apply the overall Audit decision');
+assert.ok(index.includes("rbValidateAuditVersionDecision('pass')"),'completion must apply the overall Audit decision');
+assert.ok(workflow.includes("if(!issues.length&&populated.length)"),'needs-revision must automatically target the latest populated VER when Audit leaves the optional detail blank');
+assert.ok(workflow.includes("if(kind==='pass')populated.forEach"),'complete must mark populated versions passed without forcing every Audit field to be filled');
+assert.ok(!workflow.includes('ยังมีเวอร์ชันที่ไม่ผ่าน:'),'an old per-version result must not block the overall complete button');
 assert.ok(workflow.includes('auditImages:Array.isArray(old.auditImages)'),'Audit evidence must persist per version');
 assert.ok(workflow.includes('fixImages:Array.isArray(old.fixImages)'),'employee evidence must persist per version');
 assert.ok(workflow.includes("item.versionKey=versionKey(id,index+1)"),'each saved version must be owned by job id and VER');
