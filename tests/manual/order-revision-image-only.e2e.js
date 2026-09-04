@@ -19,7 +19,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   await page.locator('.gsnav-btn').filter({hasText:'สั่งงาน'}).click();
   await page.waitForSelector('[data-sub="order"].gsp-active');
   await page.getByRole('button',{name:'แก้ไขงาน'}).first().click();
-  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
+  await page.getByRole('tab',{name:'ส่งงาน/สรุปงาน',exact:true}).click();
   const upload=page.locator('#rb-team-version-workflow .rb-av-upload.is-fix input[type="file"]').first();
   await upload.setInputFiles({name:'corrected.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60"><rect width="80" height="60" fill="#2a9d78"/></svg>')});
   await page.waitForFunction(()=>{const section=document.getElementById('rb-team-version-workflow'),state=section&&section._rbState&&section._rbState[0];return !!(state&&state.fixImages&&state.fixImages.length);},null,{timeout:30000});

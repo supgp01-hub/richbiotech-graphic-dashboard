@@ -33,7 +33,7 @@ const assert=require('assert');
   assert.strictEqual(await page.locator('#om-resend-btn').count(),0,'legacy duplicate resubmit button must not exist for Supervisor');
   assert.match(await page.locator('#om-primary-btn').innerText(),/บันทึกงาน/,'Supervisor edit view must use one save action');
   assert.strictEqual(await page.locator('.rb-om-footer button:visible').count(),1,'Supervisor info tab must show exactly one action');
-  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
+  await page.getByRole('tab',{name:'ส่งงาน/สรุปงาน',exact:true}).click();
   assert.match(await page.locator('#om-primary-btn').innerText(),/บันทึกส่งงานภาพ/,'Supervisor image tab must use its own save action');
   assert.strictEqual(await page.locator('.rb-om-footer button:visible').count(),1,'Supervisor image tab must show exactly one action');
   await page.getByRole('tab',{name:'ตรวจออดิต'}).click();

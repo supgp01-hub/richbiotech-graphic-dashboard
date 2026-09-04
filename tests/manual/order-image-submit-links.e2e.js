@@ -39,7 +39,7 @@ const assert=require('assert');
   await page.locator('#om-add-image-submitlink').click();
   await page.locator('#om-image-submitlinks-rows input').nth(1).fill('https://example.com/image-2');
   console.log('stage: image delivery sync');
-  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
+  await page.getByRole('tab',{name:'ส่งงาน/สรุปงาน',exact:true}).click();
   assert.strictEqual(await page.locator('#om-image-submitlink-box').count(),0,'the image-work page must not render a duplicate image-delivery panel');
   assert.strictEqual(await page.locator('#om-submitlink-list .rb-delivery-link-row').count(),2,'all image-delivery links must synchronize to the send-image tab');
   assert.strictEqual(await page.locator('#om-submitlink-list .rb-delivery-link-row').nth(1).locator('a.rb-delivery-link-value').getAttribute('href'),'https://example.com/image-2');

@@ -5,6 +5,7 @@ const theme=fs.readFileSync('snippets/order-modal-graphite-teal-v1.css','utf8');
 const allUsers=fs.readFileSync('snippets/order-detail-all-users-v1.css','utf8');
 
 assert(source.includes('snippets/order-modal-graphite-teal-v1.css'), 'Graphite Teal stylesheet is not loaded');
+assert(source.includes("{k:'imgs',lbl:'ส่งงาน/สรุปงาน'}"), 'the delivery tab must use the approved ส่งงาน/สรุปงาน label');
 assert(theme.includes('html:not([data-theme=dark]) #rb-order-modal .rb-om-header{background:#22333c!important}'), 'Graphite Teal modal theme is missing');
 assert(source.includes('.rb-revision-ref-copy'), 'reference-link copy control styles are missing');
 assert(source.includes('function revisionCopyUrl(url,button)'), 'reference-link copy behavior is missing');

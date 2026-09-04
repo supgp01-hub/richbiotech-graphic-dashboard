@@ -80,7 +80,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   assert.strictEqual(layout.align,'center');
   assert.strictEqual(layout.justify,'center');
 
-  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
+  await page.getByRole('tab',{name:'ส่งงาน/สรุปงาน',exact:true}).click();
   assert.match(await primary.innerText(),/ส่งตรวจอีกครั้ง/,'image tab must expose the real revision-submit action');
   assert.strictEqual(await page.locator('#om-audit-btns').isVisible(),false,'audit actions must stay hidden on image tab');
   assert.strictEqual(await page.locator('.rb-om-footer button:visible').count(),1,'image tab must not show duplicate footer actions');
@@ -93,7 +93,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
 
   await submitInput.fill('https://drive.google.com/new-revision');
   await page.locator('#om-revision-note').fill('แก้ไขตามหมายเหตุครบแล้ว');
-  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
+  await page.getByRole('tab',{name:'ส่งงาน/สรุปงาน',exact:true}).click();
   assert.match(await primary.innerText(),/ส่งตรวจอีกครั้ง/,'image tab must submit the revision instead of only saving it');
   await primary.click();
   await page.waitForTimeout(300);
