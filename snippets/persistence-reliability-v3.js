@@ -3,7 +3,7 @@
 if(root._rbPersistenceReliabilityV3Loaded)return;
 root._rbPersistenceReliabilityV3Loaded=true;
 
-var VERSION='3.3.1';
+var VERSION='3.3.2';
 var QUEUE_KEY='rb_generic_write_queue_v3';
 var RETRY_MS=5000;
 var MAX_RETRY_MS=30000;
@@ -40,11 +40,12 @@ function collectionEntries(path,value,entry){
     return{token:(entry&&entry.token||'sync')+'_item_'+index,path:path+'/'+key,data:data,ts:Number(entry&&entry.ts||Date.now())+index};
   });
 }
+function isSplitCollection(path){return path==='/order_planner/drafts'||path==='/orders'||path==='/workflow_snapshots/idcards_shared_v1';}
 function migrateUnsafeCollectionWrites(){
   var queue=readQueue(),next=[],changed=false;
   queue.forEach(function(entry){
     var path=entry&&pathOf(entry.path);
-    if(path!=='/order_planner/drafts'&&path!=='/orders'){next.push(entry);return;}
+    if(!isSplitCollection(path)){next.push(entry);return;}
     changed=true;
     collectionEntries(path,entry.data,entry).forEach(function(child){
       for(var i=next.length-1;i>=0;i--)if(pathOf(next[i]&&next[i].path)===pathOf(child.path))next.splice(i,1);
@@ -137,12 +138,12 @@ function flush(force){
 
 root.fbSet=function reliableFbSet(path,data){
   path=pathOf(path);
-  if((path==='/order_planner/drafts'||path==='/orders')&&data!==null){
+  if(isSplitCollection(path)&&data!==null){
     var children=collectionEntries(path,data);
     if(!children.length)return Promise.resolve(true);
     return Promise.all(children.map(function(child){return root.fbSet(child.path,child.data);})).then(function(results){return results.every(function(ok){return ok!==false;});});
   }
-  if((path==='/order_planner/drafts'||path==='/orders')&&data===null){dispatchState();return Promise.resolve(false);}
+  if(isSplitCollection(path)&&data===null){dispatchState();return Promise.resolve(false);}
   var entry=queueWrite(path,data);if(activePaths[entry.path]){schedule();return Promise.resolve(false);}return attempt(entry,true);
 };
 root.fbGet=function reliableFbGet(path,callback){
