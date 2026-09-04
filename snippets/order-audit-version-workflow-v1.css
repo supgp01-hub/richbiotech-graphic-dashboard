@@ -115,6 +115,8 @@ html[data-theme=dark] #rb-order-modal .surface-audit .rb-av-campaign{color:#e1f7
 #rb-order-modal .rb-av-fix-link,#rb-order-modal .rb-av-fix-note{width:100%;box-sizing:border-box;border:1px solid #c6d9d0;border-radius:8px;background:#fff;color:#173c31;padding:8px 9px;font-size:11px}
 #rb-order-modal .rb-av-fix-note{min-height:62px;margin-top:8px;resize:vertical}
 #rb-order-modal .rb-av-stage-fix .rb-av-upload{width:100%;box-sizing:border-box;margin:8px 0 0}
+#rb-order-modal .rb-av-fix-proof{margin-top:9px;padding:8px;border:1px solid #dce9e3;border-radius:8px;background:#f6faf8}
+#rb-order-modal .rb-av-fix-proof .rb-av-gallery{min-height:42px}
 #rb-order-modal .rb-av-submitted{padding:9px 10px;border-radius:8px;background:#e5f8ec;color:#087443;font-size:10.5px;font-weight:800}
 #rb-order-modal .rb-av-audit-correction{display:grid;gap:3px;margin-top:9px}.rb-av-audit-correction span{font-weight:400}
 #rb-order-modal .rb-av-save-message.is-error{background:#ffe4e6;color:#b42335}
@@ -127,6 +129,12 @@ html[data-theme=dark] #rb-order-modal .rb-av-team-card-head,html[data-theme=dark
 html[data-theme=dark] #rb-order-modal .rb-av-team-card-head strong{color:#e3faef}
 html[data-theme=dark] #rb-order-modal .rb-av-stage+.rb-av-stage{border-left-color:#295744}
 html[data-theme=dark] #rb-order-modal .rb-av-inline-evidence{border-color:#2b6250;background:#12372d}
+html[data-theme=dark] #rb-order-modal .rb-av-fix-proof{border-color:#2b6250;background:#12372d}
 @media(max-width:900px){#rb-order-modal .rb-av-flow{grid-template-columns:1fr}#rb-order-modal .rb-av-stage+.rb-av-stage{border-left:0;border-top:1px solid #d7e5de}}
 @media(max-width:620px){#rb-order-modal .rb-av-stage-source .rb-av-delivery-list{grid-template-columns:1fr}}
 @media(max-width:720px){#rb-order-modal .rb-av-card-head{grid-template-columns:52px minmax(0,1fr) auto!important}#rb-order-modal .rb-av-card-head .rb-av-source-links{grid-column:1/-1}#rb-order-modal .rb-av-delivery-link{grid-template-columns:50px minmax(0,1fr) 34px 34px}#rb-order-modal .rb-av-team-card-head strong{white-space:normal}}
+
+/* A notification deep-link briefly identifies the exact revision card. */
+#rb-order-modal .rb-av-card.rb-notification-target{animation:rb-av-target-pulse .85s ease 2;box-shadow:0 0 0 4px rgba(221,62,82,.2),0 12px 28px rgba(23,73,57,.14)}
+@keyframes rb-av-target-pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){#rb-order-modal .rb-av-card.rb-notification-target{animation:none}}

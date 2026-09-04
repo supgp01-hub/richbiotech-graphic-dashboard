@@ -6,7 +6,10 @@ function evidenceOptional(type){
 }
 function evidenceRequired(type,status,hasClip,hasFix,hasSubmit){
   if(evidenceOptional(type))return false;
-  return status==='revision'?!hasSubmit:!hasClip&&!hasFix&&!hasSubmit;
+  /* A correction may be delivered as either a link or an uploaded image.
+     Requiring a link after an employee already attached corrected artwork
+     made the visible "ส่งตรวจอีกครั้ง" action impossible to complete. */
+  return status==='revision'?!hasFix&&!hasSubmit:!hasClip&&!hasFix&&!hasSubmit;
 }
 root.rbOrderEvidenceOptional=evidenceOptional;
 root.rbOrderEvidenceRequired=evidenceRequired;

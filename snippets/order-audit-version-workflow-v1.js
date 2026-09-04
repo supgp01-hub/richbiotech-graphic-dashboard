@@ -6,7 +6,7 @@
   function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];});}
   function role(){return window._rbUser&&window._rbUser.role||'';}
   function canAudit(){var current=role();return current==='sup'||current==='audit';}
-  function isEmployee(){return role()==='graphic';}
+  function isEmployee(){var current=role();return current==='graphic'||current==='spec';}
   function actor(){return window._rbUser&&window._rbUser.name||'';}
   function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return[];}}
   function fieldValue(id){var field=document.getElementById(id);return field?field.value||'':'';}
@@ -83,9 +83,9 @@
     var reader=new FileReader();reader.onload=function(event){var image=new Image();image.onload=function(){var max=960,width=image.width,height=image.height;if(width>max||height>max){if(width>=height){height=Math.round(height*max/width);width=max;}else{width=Math.round(width*max/height);height=max;}}var canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').drawImage(image,0,0,width,height);done({name:file.name,size:file.size,data:canvas.toDataURL('image/jpeg',0.68),at:Date.now(),by:actor()});};image.onerror=function(){done({name:file.name,size:file.size,data:event.target.result,at:Date.now(),by:actor()});};image.src=event.target.result;};reader.readAsDataURL(file);
   }
   function addFiles(files,target,done){var list=Array.prototype.slice.call(files||[]);if(!list.length)return;var pending=list.length;list.forEach(function(file){compress(file,function(image){target.push(image);pending--;if(!pending)done();});});}
-  function renderImages(container,images,editable,onChange){
+  function renderImages(container,images,editable,onChange,context){
     container.innerHTML='';if(!images.length){var empty=document.createElement('span');empty.className='rb-av-empty';empty.textContent='ยังไม่แนบรูป';container.appendChild(empty);return;}
-    images.forEach(function(image,index){var item=document.createElement('div');item.className='rb-av-thumb';var img=document.createElement('img');img.src=image.data;img.alt=image.name||('หลักฐาน '+(index+1));img.onclick=function(){window.open(image.data,'_blank','noopener');};item.appendChild(img);if(editable){var remove=document.createElement('button');remove.type='button';remove.title='ลบรูป';remove.textContent='×';remove.onclick=function(){images.splice(index,1);onChange();};item.appendChild(remove);}container.appendChild(item);});
+    images.forEach(function(image,index){var item=document.createElement('div');item.className='rb-av-thumb';var img=document.createElement('img');img.src=image.data;img.alt=image.name||('หลักฐาน '+(index+1));img.title='กดเพื่อดูรูปขนาดใหญ่';img.onclick=function(){if(typeof window.rbOpenEvidenceLightbox==='function')window.rbOpenEvidenceLightbox(images,index,context||{});else window.open(image.data,'_blank','noopener');};item.appendChild(img);if(editable){var remove=document.createElement('button');remove.type='button';remove.title='ลบรูป';remove.textContent='×';remove.onclick=function(){images.splice(index,1);onChange();};item.appendChild(remove);}container.appendChild(item);});
   }
   function syncDeliveryInput(state,index,value){
     state.fixLink=String(value||'').trim();
@@ -105,7 +105,8 @@
     var grid=document.createElement('div');grid.className='rb-av-evidence-grid';
     var audit=document.createElement('section');audit.innerHTML='<div class="rb-av-evidence-title"><b>รูปชี้ข้อผิดพลาด · Audit</b><span>'+state.auditImages.length+' รูป</span></div><div class="rb-av-gallery rb-av-audit-gallery"></div>';
     var fix=document.createElement('section');fix.innerHTML='<div class="rb-av-evidence-title"><b>หลักฐานแก้ไข · พนักงาน</b><span>'+state.fixImages.length+' รูป</span></div><div class="rb-av-gallery rb-av-fix-gallery"></div>';
-    grid.append(audit,fix);renderImages(audit.querySelector('.rb-av-gallery'),state.auditImages,mode==='audit',rerender);renderImages(fix.querySelector('.rb-av-gallery'),state.fixImages,mode==='employee'&&state.result==='issue',rerender);return grid;
+    var common={jobId:state.jobId,version:state.version};
+    grid.append(audit,fix);renderImages(audit.querySelector('.rb-av-gallery'),state.auditImages,mode==='audit',rerender,{jobId:common.jobId,version:common.version,source:'รูปชี้ข้อผิดพลาด · Audit'});renderImages(fix.querySelector('.rb-av-gallery'),state.fixImages,mode==='employee'&&state.result==='issue',rerender,{jobId:common.jobId,version:common.version,source:'หลักฐานแก้ไข · พนักงาน'});return grid;
   }
   function teamCorrection(state,index,mode,rerender){
     var stage=document.createElement('section');stage.className='rb-av-stage rb-av-stage-fix';
@@ -116,6 +117,7 @@
       var note=document.createElement('textarea');note.className='rb-av-fix-note';note.placeholder='สรุปว่าแก้ไขจุดใดแล้วบ้าง...';note.value=state.fixNote||'';note.oninput=function(){state.fixNote=this.value;state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();};stage.append(link,upload,note);
     }else if(state.employeeSubmittedAt){var sent=document.createElement('div');sent.className='rb-av-submitted';sent.textContent='✓ '+(state.employeeSubmittedBy||'พนักงาน')+' ส่งงานแก้ไขแล้ว รอ Audit ตรวจ';stage.appendChild(sent);}
     else{var message=document.createElement('div');message.className='rb-av-readonly-summary';message.textContent=state.result==='pass'?'เวอร์ชันนี้ผ่านแล้ว':state.result==='pending'?'รอ Audit ตรวจ':'รอพนักงานส่งงานแก้ไข';stage.appendChild(message);}
+    if(state.fixImages.length){var proof=document.createElement('div');proof.className='rb-av-fix-proof';proof.innerHTML='<div class="rb-av-evidence-title"><b>รูปงานแก้ไข</b><span>'+state.fixImages.length+' รูป</span></div><div class="rb-av-gallery rb-av-fix-gallery"></div>';stage.appendChild(proof);renderImages(proof.querySelector('.rb-av-gallery'),state.fixImages,mode==='employee'&&state.result==='issue',rerender,{jobId:state.jobId,version:state.version,source:'หลักฐานแก้ไข · พนักงาน'});}
     return stage;
   }
   function teamVersionCard(state,index,mode,rerender){

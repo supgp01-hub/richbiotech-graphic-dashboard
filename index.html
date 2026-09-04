@@ -2916,7 +2916,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix325"><script src="snippets/order-evidence-policy-v1.js?v=fix292"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix325"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix342"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix342"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix342"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -4100,11 +4100,11 @@ window.gAS=function(){
     });return group;
   }
   function revisionImageGroup(order){
-    var images=[];[['briefImages','รูปตัวอย่าง'],['images','รูปส่งงาน'],['errorImages','รูปข้อผิดพลาด'],['fixImages','รูปแก้ไข']].forEach(function(source){var list=Array.isArray(order&&order[source[0]])?order[source[0]]:[];list.forEach(function(image,index){var normalized=typeof image==='string'?{data:image,name:source[1]+' '+(index+1)}:image;if(normalized&&normalized.data)images.push({data:normalized.data,name:normalized.name||source[1]+' '+(index+1),kind:source[1]});});});
+    var images=[];[['briefImages','รูปตัวอย่าง'],['images','รูปส่งงาน'],['errorImages','รูปข้อผิดพลาด'],['fixImages','รูปแก้ไข']].forEach(function(source){var list=Array.isArray(order&&order[source[0]])?order[source[0]]:[];list.forEach(function(image,index){var normalized=typeof image==='string'?{data:image,name:source[1]+' '+(index+1)}:image;if(normalized&&normalized.data)images.push({data:normalized.data,name:normalized.name||source[1]+' '+(index+1),kind:source[1],by:normalized.by||'',at:normalized.at||0});});});
     var group=document.createElement('div');group.className='rb-revision-image-group';
     var head=document.createElement('div');head.className='rb-revision-image-head';var title=document.createElement('span');title.textContent='รวมภาพ';var count=document.createElement('span');count.className='rb-revision-image-count';count.textContent=images.length?images.length+' รูป':'ยังไม่มีรูป';head.appendChild(title);head.appendChild(count);group.appendChild(head);
     if(!images.length){var empty=document.createElement('div');empty.className='rb-revision-image-empty';empty.textContent='ยังไม่มีภาพในงานนี้';group.appendChild(empty);return group;}
-    var gallery=document.createElement('div');gallery.className='rb-revision-image-gallery';images.forEach(function(image,index){var card=document.createElement('div');card.className='rb-revision-image-card';var thumbnail=document.createElement('img');thumbnail.src=image.data;thumbnail.alt=image.name||('ภาพ '+(index+1));thumbnail.title='กดเพื่อดูภาพใหญ่';thumbnail.onclick=function(){viewImg(image);};var kind=document.createElement('span');kind.className='rb-revision-image-kind';kind.textContent=image.kind;kind.title=image.kind;var download=document.createElement('a');download.className='rb-revision-image-download';download.href=image.data;download.download=image.name||('image-'+(index+1)+'.jpg');download.title='ดาวน์โหลดรูป';download.setAttribute('aria-label','ดาวน์โหลด '+thumbnail.alt);download.textContent='↓';card.appendChild(thumbnail);card.appendChild(kind);card.appendChild(download);gallery.appendChild(card);});group.appendChild(gallery);return group;
+    var gallery=document.createElement('div');gallery.className='rb-revision-image-gallery';images.forEach(function(image,index){var card=document.createElement('div');card.className='rb-revision-image-card';var thumbnail=document.createElement('img');thumbnail.src=image.data;thumbnail.alt=image.name||('ภาพ '+(index+1));thumbnail.title='กดเพื่อดูภาพใหญ่';thumbnail.onclick=function(){if(typeof window.rbOpenEvidenceLightbox==='function')window.rbOpenEvidenceLightbox(images,index,{jobId:order&&order.id||'',source:image.kind});else viewImg(image);};var kind=document.createElement('span');kind.className='rb-revision-image-kind';kind.textContent=image.kind;kind.title=image.kind;var download=document.createElement('a');download.className='rb-revision-image-download';download.href=image.data;download.download=image.name||('image-'+(index+1)+'.jpg');download.title='ดาวน์โหลดรูป';download.setAttribute('aria-label','ดาวน์โหลด '+thumbnail.alt);download.textContent='↓';card.appendChild(thumbnail);card.appendChild(kind);card.appendChild(download);gallery.appendChild(card);});group.appendChild(gallery);return group;
   }
   function renderRevisionDetailView(order,active){
     if(!_OM2)return;_OM2.classList.toggle('rb-revision-detail-mode',!!active);
@@ -4421,7 +4421,21 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
         _omSaveBtn.style.display='none';return;
       }
       if(isAuditRole){_omSaveBtn.style.display='none';return;}
-      if(isImageTab){_omSaveBtn.style.display='';_omSaveBtn.textContent='▧ บันทึกส่งงานภาพ';_omSaveBtn.onclick=saveOM2;return;}
+      if(isImageTab){
+        _omSaveBtn.style.display='';
+        if(_omViewMode){
+          _omSaveBtn.textContent=workerLabel;
+          _omSaveBtn.onclick=function(){
+            var workflow=document.getElementById('rb-team-version-workflow'),states=workflow&&Array.isArray(workflow._rbState)?workflow._rbState:[];
+            var versionEvidence=states.some(function(state){return state&&state.result==='issue'&&(String(state.fixLink||'').trim()||(Array.isArray(state.fixImages)&&state.fixImages.length));});
+            var versionSubmit=workflow&&workflow.querySelector('.rb-av-employee-save');
+            if(cst==='revision'&&versionEvidence&&versionSubmit){versionSubmit.click();return;}
+            (_omInfoAction||saveOM2)();
+          };
+        }
+        else{_omSaveBtn.textContent='▧ บันทึกส่งงานภาพ';_omSaveBtn.onclick=saveOM2;}
+        return;
+      }
       if(_omViewMode){_omSaveBtn.style.display='';_omSaveBtn.textContent=workerLabel;_omSaveBtn.onclick=_omInfoAction||saveOM2;return;}
       _omSaveBtn.style.display='';_omSaveBtn.textContent=_omIsNew?'▤ สั่งงาน':'▤ บันทึกงาน';_omSaveBtn.onclick=saveOM2;
     };
@@ -4439,10 +4453,8 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     d.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);';
     d.innerHTML='<div style="background:#fff;border-radius:16px;padding:32px 28px 24px;width:360px;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);">'
       +'<div style="font-size:38px;margin-bottom:12px;">⚠️</div>'
-      +'<div style="font-size:16px;font-weight:700;color:#1B4332;margin-bottom:14px;">ยังส่งงานไม่ได้</div>'
-      +'<div style="display:flex;justify-content:center;gap:18px;margin-bottom:22px;flex-wrap:wrap;">'
-      +'<div style="font-size:12.5px;color:#991B1B;display:flex;align-items:center;gap:6px;white-space:nowrap;"><span style="font-size:14px;">☐</span>แนบลิงก์แอด</div>'
-      +'<div style="font-size:12.5px;color:#991B1B;display:flex;align-items:center;gap:6px;white-space:nowrap;"><span style="font-size:14px;">☐</span>อัพโหลดรูปแก้ไข</div>'
+      +'<div style="font-size:16px;font-weight:700;color:#1B4332;margin-bottom:10px;">ยังไม่มีหลักฐานสำหรับส่งตรวจ</div>'
+      +'<div style="font-size:12.5px;color:#6b413d;line-height:1.65;margin-bottom:22px;">แนบอย่างน้อย 1 อย่าง: ลิงก์ผลงาน หรืองานภาพที่อัปโหลด<br>ไม่จำเป็นต้องกรอกทั้งสองแบบ</div>'
       +'</div>'
       +'<div style="display:flex;gap:10px;">'
       +'<button id="rbSwClose" style="flex:1;padding:11px 0;border-radius:10px;border:1px solid #e5e7eb;background:#f7f7f8;color:#374151;font-size:13.5px;font-weight:600;cursor:pointer;">ปิด</button>'
@@ -4590,7 +4602,11 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
                   if(_clipInp&&_clipInp.value&&_clipInp.value.trim()){_hasClip=true;break;}
                 }
               }
-              var _hasFix=typeof _omFixImages!=='undefined'&&_omFixImages&&_omFixImages.length>0;
+              /* Both the normal artwork uploader and the per-version correction
+                 uploader are valid evidence. Previously the normal image list
+                 was ignored, so a worker could attach artwork and still be
+                 blocked by the send guard. */
+              var _hasFix=(typeof _omFixImages!=='undefined'&&_omFixImages&&_omFixImages.length>0)||(typeof _omImages!=='undefined'&&_omImages&&_omImages.length>0);
               var _hasSubmit=(typeof submitLinkValues==='function'&&submitLinkValues().some(function(v){return !!v;}))||(typeof imageSubmitLinkValues==='function'&&imageSubmitLinkValues().some(function(v){return !!v;}));
               if(!window.rbOrderEvidenceRequired||window.rbOrderEvidenceRequired((_cjob||{}).type,_cst,_hasClip,_hasFix,_hasSubmit)){
                 if(typeof _rbShowSendWarn==='function')_rbShowSendWarn();
@@ -4664,6 +4680,26 @@ if(_revisionSubmit){
 }var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
 }
 
+  window.rbOpenOrderDestination=function(id,tabKey,version){
+    var previous=window._ordViewMode,role=window._rbUser&&window._rbUser.role||'';
+    window._ordViewMode=role==='audit'?'audit':'team';
+    openOM2(id);window._ordViewMode=previous;
+    setTimeout(function(){
+      if(typeof _switchTab==='function')_switchTab(tabKey||'info');
+      if(typeof window.rbRenderAuditVersionWorkflow==='function'){
+        var destinationOrders=typeof window.lpORD==='function'?window.lpORD():[];
+        var destinationOrder=destinationOrders.find(function(item){return item&&item.id===id;});
+        window.rbRenderAuditVersionWorkflow(destinationOrder||null,true);
+      }
+      if(!version)return;
+      var attempts=0;function revealVersion(){
+        var selector=(tabKey==='links'?'#rb-audit-version-workflow ':'#rb-team-version-workflow ')+'.rb-av-card[data-version-index="'+(Math.max(1,Number(version))-1)+'"]';
+        var target=document.querySelector(selector);if(!target){if(++attempts<24)setTimeout(revealVersion,100);return;}
+        target.classList.add('rb-notification-target');target.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(function(){target.classList.remove('rb-notification-target');},2600);
+      }setTimeout(revealVersion,120);
+    },80);
+  };
   function closeOM2(force){if(_omActionBusy&&!force)return;if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
 
   function submitLinkValues(){var rows=document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
@@ -4684,6 +4720,7 @@ if(_revisionSubmit){
     return Promise.resolve(typeof spORD==='function'?spORD(orders):{ok:false}).then(function(state){
       if(!state||state.ok===false)throw new Error(state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
       if(typeof options.onSuccess==='function')options.onSuccess(state);
+      if(typeof window.rbRefreshOrderNotifications==='function')window.rbRefreshOrderNotifications();
       setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'บันทึกรายการแล้ว และระบบจะซิงก์ออนไลน์ให้อัตโนมัติ','success');
       setOMActionBusy(false);
       setTimeout(function(){closeOM2(true);},state.online?60:420);
@@ -5476,6 +5513,7 @@ setTimeout(function(){if(typeof window.lpORD!=="function")return;var orders=wind
 updBadge();
 })();
 </script>
+<script src="snippets/order-revision-experience-v1.js?v=fix342"></script>
 <script>
 window._rbRenderMyWork = function(){
   var wrap = document.getElementById('rb-mywork');

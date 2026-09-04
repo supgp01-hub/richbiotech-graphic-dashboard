@@ -3,17 +3,18 @@ const assert=require('assert');
 const {installSecureAuthMock}=require('./secure-auth-mock');
 
 (async()=>{
-  const target=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243';
+  const target=process.argv[2]||'http://127.0.0.1:8014/';
   const order={
     id:'GR902',_fbKey:'qa_revision_order',name:'Revision link test',product:'WOLF+',type:'กราฟิก',
     deadline:'2026-08-25',status:'revision',assignee:'DOM',
     rawLink:'https://drive.google.com/creative',sheetLink:'https://docs.google.com/script',
     footageLink:'https://drive.google.com/footage',reviewLink:'https://drive.google.com/review',
-    brief:'Original brief must remain visible',hook:'HOOK-A',hook2:'HOOK-B',
-    submitLinks:['https://drive.google.com/original-submit'],createdAt:Date.now(),updatedAt:Date.now()
+    brief:'Original brief must remain visible',hook:'HOOK-A',hook2:'HOOK-B',camp1:'Revision link test',
+    submitLinks:['https://drive.google.com/original-submit'],createdAt:Date.now(),updatedAt:Date.now(),
+    auditVersions:[{version:1,name:'Revision link test',result:'issue',issueType:'อื่นๆ',note:'แก้ข้อความตามรูปตัวอย่าง',workLink:'https://drive.google.com/original-submit',imageLink:'',auditImages:[{data:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI0OCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjZmVlMmUyIi8+PHRleHQgeD0iOCIgeT0iMjgiIGZpbGw9IiNiOTFlMWUiPkFVRElUPC90ZXh0Pjwvc3ZnPg==',name:'audit-example.svg',by:'Audit',at:Date.now()}],fixImages:[],employeeSubmittedAt:0,correctionRequestedAt:Date.now(),updatedAt:Date.now()}]
   };
   const browser=await chromium.launch({headless:true,channel:'chrome'});
-  const context=await browser.newContext();
+  const context=await browser.newContext({serviceWorkers:'block'});
   await installSecureAuthMock(context,{role:'graphic',name:'Dom',orders:[order]});
   await context.addInitScript(order=>{
     localStorage.setItem('rb_orders_v1',JSON.stringify([order]));
@@ -21,10 +22,37 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   },order);
   const page=await context.newPage();
   const errors=[];
+  const revisionResources=[];
   page.on('pageerror',error=>errors.push(error.message));
+  page.on('response',response=>{if(response.url().includes('order-revision-experience'))revisionResources.push({url:response.url(),status:response.status()});});
+  page.on('requestfailed',request=>{if(request.url().includes('order-revision-experience'))revisionResources.push({url:request.url(),failed:request.failure()});});
   await page.goto(target,{waitUntil:'commit',timeout:60000});
   await page.waitForSelector('#sidebar',{timeout:90000});
   await page.waitForFunction(()=>typeof window.openOM==='function'&&typeof window._rbInitOP==='function',null,{timeout:90000});
+  await page.waitForFunction(()=>typeof window.rbOpenEvidenceLightbox==='function'&&typeof window.rbRefreshOrderNotifications==='function',null,{timeout:90000});
+  const revisionRuntime=await page.evaluate(()=>({destination:typeof window.rbOpenOrderDestination,lightbox:typeof window.rbOpenEvidenceLightbox,notifications:typeof window.rbRefreshOrderNotifications}));
+  assert.deepStrictEqual(revisionRuntime,{destination:'function',lightbox:'function',notifications:'function'},'revision routing, notifications, and large preview must load: '+JSON.stringify(revisionResources));
+  await page.evaluate(order=>{
+    window._rbUser={role:'graphic',name:'Dom'};
+    localStorage.setItem('rb_session',JSON.stringify({name:'Dom',role:'graphic',expiresAt:Date.now()+3600000}));
+    localStorage.setItem('rb_orders_v1',JSON.stringify([order]));
+    document.getElementById('rb-login-modal')?.remove();
+    if(window._rbInitOP)window._rbInitOP();
+  },order);
+
+  await page.evaluate(()=>{window.rbRefreshOrderNotifications();window._rbTogNotif();});
+  const revisionNotice=page.locator('.rbn-item-button').filter({hasText:'GR902'}).first();
+  await revisionNotice.waitFor({state:'visible'});
+  assert.match(await revisionNotice.innerText(),/VER 1/,'revision notification must identify the exact version');
+  await revisionNotice.click();
+  await page.waitForSelector('#rb-order-modal[data-active-tab="imgs"]',{state:'visible'});
+  await page.waitForSelector('#rb-team-version-workflow .rb-av-card[data-version-index="0"]',{state:'visible'});
+  assert.strictEqual(await page.locator('.rb-av-upload.is-fix').first().isVisible(),true,'Graphic users must receive a per-version corrected-image upload');
+  await page.locator('#rb-team-version-workflow .rb-av-audit-gallery img').first().click();
+  await page.waitForSelector('#rb-evidence-lightbox:not([hidden])',{state:'visible'});
+  assert.match(await page.locator('#rb-evidence-lightbox .rb-el-job').innerText(),/GR902 · VER 1/,'large preview must retain job and version context');
+  await page.locator('#rb-evidence-lightbox .rb-el-close').click();
+  await page.locator('#rb-order-modal .rb-om-header-close').click();
   await page.locator('#sidebar button').filter({hasText:'Graphic'}).click();
   await page.locator('.gsnav-btn').filter({hasText:'สั่งงาน'}).click();
   await page.waitForSelector('[data-sub="order"].gsp-active');
@@ -53,7 +81,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   assert.strictEqual(layout.justify,'center');
 
   await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
-  assert.match(await primary.innerText(),/บันทึกส่งงานภาพ/,'image tab must expose only its image-save action');
+  assert.match(await primary.innerText(),/ส่งตรวจอีกครั้ง/,'image tab must expose the real revision-submit action');
   assert.strictEqual(await page.locator('#om-audit-btns').isVisible(),false,'audit actions must stay hidden on image tab');
   assert.strictEqual(await page.locator('.rb-om-footer button:visible').count(),1,'image tab must not show duplicate footer actions');
   await page.getByRole('tab',{name:'ตรวจออดิต'}).click();
@@ -65,6 +93,8 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
 
   await submitInput.fill('https://drive.google.com/new-revision');
   await page.locator('#om-revision-note').fill('แก้ไขตามหมายเหตุครบแล้ว');
+  await page.getByRole('tab',{name:'ส่งงานภาพ',exact:true}).click();
+  assert.match(await primary.innerText(),/ส่งตรวจอีกครั้ง/,'image tab must submit the revision instead of only saving it');
   await primary.click();
   await page.waitForTimeout(300);
   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('rb_orders_v1'))[0]);

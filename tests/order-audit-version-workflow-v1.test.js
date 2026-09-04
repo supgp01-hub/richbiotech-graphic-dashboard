@@ -6,10 +6,10 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix325'),'the unified version layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix325'),'the unified version runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix342'),'the unified version layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix342'),'the unified version runtime must be cache-busted');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
-assert.ok(workflow.includes("return role()==='graphic'"),'Graphic employees must receive the correction view');
+assert.ok(workflow.includes("current==='graphic'||current==='spec'"),'Graphic and Specialist employees must receive the correction view');
 assert.ok(workflow.includes("kind==='image'?'#om-image-submitlinks-rows"),'image delivery links must be read from the send-work editor');
 assert.ok(workflow.includes(":'#om-submitlinks-rows .om-submitlink-row input'"),'ad delivery links must be read from the send-work editor');
 assert.ok(workflow.includes('workLink:workLink,imageLink:imageLink'),'each VER must persist both delivery link types');
