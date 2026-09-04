@@ -27,8 +27,10 @@ assert.ok(bulk.includes("if(pending){var staleSnapshot="), 'a much larger online
 assert.ok(bulk.includes('mergePendingWithCloud(remoteItems,local)'), 'pending local additions must be preserved while recovering the complete online tracker');
 assert.ok(bulk.includes("addEventListener('rb:auth-ready'"), 'a newly signed-in browser must reload tracker data immediately after Firebase authentication');
 assert.ok(bulk.includes("hydrateCloud().then(function(){if(cloudAllowed())cloudInit()})"), 'fresh browsers must download the complete tracker after authentication even before its tab is opened');
+assert.ok(bulk.includes('window._ctCloudRows=items'), 'a large authenticated snapshot must remain renderable when localStorage is full');
+assert.ok(source.includes('if(Array.isArray(window._ctCloudRows))return window._ctCloudRows'), 'the tracker must prefer its verified in-memory Firebase snapshot over a stale browser cache');
 assert.ok(bulk.includes("typeof window.fbGet==='function'"), 'Content Tracker reads must use the authenticated Firebase transport');
-assert.ok(bulk.includes("rbFirebaseAuth.urlWithAuth"), 'Content Tracker realtime updates must carry Firebase authentication');
+assert.ok(bulk.includes('auth.urlWithAuth(cloudUrl())'), 'Content Tracker realtime updates must carry Firebase authentication');
 assert.ok(bulk.includes("if(!items.length&&local.length)"), 'an empty cloud snapshot must not erase populated local tracker data');
 assert.ok(source.includes("window.fbGet('/content_tracker_v2'"), 'order forms must load Content Tracker through authenticated Firebase reads');
 assert.ok(source.includes("rb_ct_backup_v1"), 'tracker data must be backed up before a cloud refresh replaces local rows');

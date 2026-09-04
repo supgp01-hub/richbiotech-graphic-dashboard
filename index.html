@@ -4989,8 +4989,16 @@ var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','I Sure Plus':'#7c3aed',
 var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','I Sure Plus':'','Olymplus':'MOS DOM','Olymplus MAX':'MOS DOM','JUDO':'NUNE JAM','Dragon Blood':'MOS DOM BALL','ขุนแผน':'MOS DOM BALL','Heaven PLUS+':'MOS DOM','THE LORD':'TER JAM','WOLF+':'TER NUNE BALL','เจ้าขุน':'BALL'};
 var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
-function ctLoad(){try{var raw=localStorage.getItem('rb_olympplus_v1'),rows=raw?JSON.parse(raw):null;if(Array.isArray(rows))return rows;if(rows&&Array.isArray(rows.items))return rows.items;}catch(e){}return typeof CT_EMBED!=='undefined'&&Array.isArray(CT_EMBED)?CT_EMBED:[]}
+function ctLoad(){
+  /* Firebase is the source of truth. Large trackers can exceed the remaining
+     localStorage quota on busy browsers, so keep the verified cloud snapshot
+     in memory instead of falling back to an older, smaller cache. */
+  if(Array.isArray(window._ctCloudRows))return window._ctCloudRows;
+  try{var raw=localStorage.getItem('rb_olympplus_v1'),rows=raw?JSON.parse(raw):null;if(Array.isArray(rows))return rows;if(rows&&Array.isArray(rows.items))return rows.items;}catch(e){}
+  return typeof CT_EMBED!=='undefined'&&Array.isArray(CT_EMBED)?CT_EMBED:[];
+}
 function ctSave(){
+  if(Array.isArray(_ctData))window._ctCloudRows=_ctData;
   try{localStorage.setItem(CT_KEY,JSON.stringify(_ctData));}catch(e){}
   try{window.dispatchEvent(new CustomEvent('rb:content-updated'));}catch(e){}
   if(typeof window.ctSave==='function'&&window.ctSave!==ctSave)return window.ctSave(_ctData);
@@ -6048,9 +6056,9 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/bulk-import-v2.css?v=187">
 <link rel="stylesheet" href="snippets/bulk-import-v3.css?v=203">
 <link rel="stylesheet" href="snippets/performance-v4.css?v=205">
-<script src="snippets/bulk-import-v2.js?v=215"></script>
+<script src="snippets/bulk-import-v2.js?v=216"></script>
 <script src="snippets/bulk-import-v3.js?v=267"></script>
-<script src="snippets/performance-v4.js?v=fix339"></script>
+<script src="snippets/performance-v4.js?v=fix340"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=225">

@@ -24,5 +24,7 @@ const vm = require('node:vm');
   await new Promise(resolve=>setTimeout(resolve,20));
   const hydrated=JSON.parse(storage.get('rb_olympplus_v1')||'[]');
   assert.equal(hydrated.length,2428,'a fresh browser with no local cache must receive the complete online tracker immediately after PIN authentication');
+  assert.equal(window._ctCloudRows.length,2428,'the verified cloud snapshot must remain available in memory when rendering');
+  assert.equal(window._ctCloudVerified,true,'the UI must know that its rows came from an authenticated cloud read');
   console.log('content-fresh-browser-v1: authenticated cold-start hydration passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});
