@@ -3023,7 +3023,10 @@ function fbWaitOrderOp(op,timeout){
       var pending=fbOrderQueueLoad().some(function(item){return item&&item.token===op.token;});
       if(!pending){resolve({confirmed:true,durable:!!op.durable});return;}
       if(Date.now()-started>=limit){resolve({confirmed:false,durable:!!op.durable});return;}
-      fbFlushOrderQueue(false);setTimeout(check,160);
+      /* This wait belongs to an explicit user action.  It must be allowed to
+         flush from the current tab even when a stale multi-tab lease says
+         another tab is the background sync leader. */
+      fbFlushOrderQueue(true);setTimeout(check,160);
     }
     check();
   });
@@ -3042,7 +3045,10 @@ function fbLoadOrderAssets(order){
   return new Promise(function(resolve,reject){fbGet('/order_assets/'+order._fbKey,function(error,data){if(error){reject(error);return;}resolve(fbOrderAssetPayload(data||{}));});});
 }
 function fbFlushOrderQueue(force){
-  if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}
+  /* Background refresh stays leader-only, but an explicit save (force=true)
+     must never wait for a hidden, closed, or stale leader tab. Per-order
+     PATCH/PUT writes and operation tokens keep this retry idempotent. */
+  if(!fbIsLeader()&&!force){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}
   if(_fbOrderFlushActive)return;
   var q=fbOrderQueueLoad();if(!q.length){fbSetSyncState(_fbSse&&_fbSse.readyState===1?'online':'saved',_fbSse&&_fbSse.readyState===1?'ออนไลน์':'บันทึกแล้ว');return;}
   if(typeof navigator!=='undefined'&&navigator.onLine===false){fbSetSyncState('waiting','รออินเทอร์เน็ต','มี '+q.length+' รายการรอซิงค์');return;}

@@ -29,6 +29,10 @@ assert.match(source, /persistOMAndFinish\(orders,\{allowUnloadedAssets:true,mess
   'accept, submit, and resubmit must allow safe metadata-only persistence');
 assert.match(source, /window\.fbFlushOrderQueue=function\(\)\{fbFlushOrderQueue\(true\);\}/,
   'the manual retry control must call a real exported queue flush');
+assert.match(source, /if\(!fbIsLeader\(\)&&!force\)/,
+  'an explicit user save must flush from the current tab instead of waiting for a stale leader');
+assert.match(source, /fbFlushOrderQueue\(true\);setTimeout\(check,160\)/,
+  'the durable save receipt must keep driving its own explicit queue operation');
 assert.match(source, /old\.attempts=0;old\.nextAttemptAt=0/,
   'a fresh edit must reset retry backoff for its existing queued order');
 assert.match(source, /legacyKey&&!active\[legacyKey\]\?legacyKey:'ord_'/,
