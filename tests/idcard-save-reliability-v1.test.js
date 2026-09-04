@@ -31,8 +31,10 @@ const runtime=fs.readFileSync(path.join(__dirname,'..','snippets','idcard-save-r
 assert(runtime.includes('root.__rbIdcardLastSync=null'),'each bulk save must clear the previous cloud result before starting');
 assert(runtime.includes("SHARED_PATH='/workflow_snapshots/idcards_shared_v1'"),'ID cards must use the existing active-user shared Firebase area');
 assert(runtime.includes("LEGACY_PATH='/idcards'"),'the legacy ID-card collection must remain available as a migration source');
-assert(runtime.includes('originalSet(SHARED_PATH,legacyRows)'),'legacy ID-card records must be copied without deleting the source');
+assert(runtime.includes('root.fbSet(LEGACY_PATH,legacyRows)'),'legacy ID-card records must be copied without deleting the source');
+assert(runtime.includes("SHARED_PATH+'/'+id"),'ID cards must be written per employee instead of one large photo payload');
+assert(runtime.includes('writes.reduce'),'per-employee writes must be sequenced to prevent request bursts and timeouts');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix277'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix278'),'reliability runtime must be loaded');
 assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix276'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');

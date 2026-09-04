@@ -5,6 +5,7 @@ var KEY='rb_idcards_v1';
 var SHARED_PATH='/workflow_snapshots/idcards_shared_v1';
 var LEGACY_PATH='/idcards';
 var memoryJson='';
+var knownRows={};
 var nativeGet=Storage.prototype.getItem;
 var nativeSet=Storage.prototype.setItem;
 
@@ -72,10 +73,16 @@ function installCloudTracker(){
   if(typeof root.fbSet!=='function'||root.fbSet.__rbIdcardTracked)return;
   var original=root.fbSet;
   function trackedSet(path,value){
-    var args=Array.prototype.slice.call(arguments);
-    if(path===LEGACY_PATH)args[0]=SHARED_PATH;
-    var result=original.apply(this,args);
-    if(path===LEGACY_PATH||path===SHARED_PATH)root.__rbIdcardLastSync=Promise.resolve(result);
+    if(path!==LEGACY_PATH&&path!==SHARED_PATH)return original.apply(this,arguments);
+    var rows=value?(Array.isArray(value)?value:Object.values(value)).filter(function(row){return row&&row.id;}):[];
+    var next={},writes=[];
+    rows.forEach(function(row){
+      var id=String(row.id).replace(/[.#$\[\]\/]/g,'_');next[id]=Number(row.updatedAt||0);
+      if(!Object.prototype.hasOwnProperty.call(knownRows,id)||knownRows[id]!==next[id])writes.push({path:SHARED_PATH+'/'+id,value:row});
+    });
+    Object.keys(knownRows).forEach(function(id){if(!Object.prototype.hasOwnProperty.call(next,id))writes.push({path:SHARED_PATH+'/'+id,value:null});});
+    var result=writes.reduce(function(chain,write){return chain.then(function(ok){return Promise.resolve(original(write.path,write.value)).then(function(saved){return ok!==false&&saved!==false;});});},Promise.resolve(true)).then(function(ok){if(ok!==false)knownRows=next;return ok;});
+    root.__rbIdcardLastSync=result;
     return result;
   }
   trackedSet.__rbIdcardTracked=true;
@@ -85,16 +92,16 @@ function installCloudTracker(){
 
 function installCloudReader(){
   if(typeof root.fbGet!=='function'||root.fbGet.__rbIdcardShared)return;
-  var originalGet=root.fbGet,originalSet=root.fbSet&&root.fbSet.__rbOriginal?root.fbSet.__rbOriginal:root.fbSet;
+  var originalGet=root.fbGet;
   function sharedGet(path,callback){
     if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);
     originalGet(SHARED_PATH,function(sharedError,sharedData){
       var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
-      if(!sharedError&&sharedRows&&sharedRows.length){callback(null,sharedRows);return;}
+      if(!sharedError&&sharedRows&&sharedRows.length){knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=Number(row.updatedAt||0);});callback(null,sharedRows);return;}
       originalGet(LEGACY_PATH,function(legacyError,legacyData){
         var legacyRows=legacyData&&(Array.isArray(legacyData)?legacyData:Object.values(legacyData)).filter(function(row){return row&&row.id;});
-        if(!legacyError&&legacyRows&&legacyRows.length&&typeof originalSet==='function'){
-          Promise.resolve(originalSet(SHARED_PATH,legacyRows)).then(function(){callback(null,legacyRows);},function(){callback(null,legacyRows);});
+        if(!legacyError&&legacyRows&&legacyRows.length&&typeof root.fbSet==='function'){
+          Promise.resolve(root.fbSet(LEGACY_PATH,legacyRows)).then(function(){callback(null,legacyRows);},function(){callback(null,legacyRows);});
           return;
         }
         callback(sharedError||legacyError,sharedData||legacyData||null);
