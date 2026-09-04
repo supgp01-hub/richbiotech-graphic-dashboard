@@ -2916,7 +2916,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix342"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix342"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix342"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix342"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix342"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix342"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix343"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -3008,36 +3008,53 @@ function fbApplyRemoteOrders(data){
   refreshOrderViews();
 }
 function fbOrderQueueLoad(){if(_fbOrderMemoryQueue.length)return _fbOrderMemoryQueue.slice();try{var q=JSON.parse(localStorage.getItem(FB_ORDER_QUEUE)||'[]');return Array.isArray(q)?q:[];}catch(e){return[];}}
-function fbOrderQueueSave(q){q=Array.isArray(q)?q:[];try{localStorage.setItem(FB_ORDER_QUEUE,JSON.stringify(q));_fbOrderMemoryQueue=[];return true;}catch(e){if(window.rbStorageResilience)window.rbStorageResilience.relieve();try{localStorage.setItem(FB_ORDER_QUEUE,JSON.stringify(q));_fbOrderMemoryQueue=[];return true;}catch(retryError){_fbOrderMemoryQueue=q.slice();return false;}}}
+function fbOrderQueueSave(q){
+  return window.rbDurableOrderQueue.persist(q,FB_ORDER_QUEUE,function(memory){_fbOrderMemoryQueue=memory;});
+}
 function fbQueueOrderOp(method,key,data){
   if(!key)return;
   var q=fbOrderQueueLoad(),path='/orders/'+key,found=-1;
   for(var i=0;i<q.length;i++)if(q[i].path===path){found=i;break;}
   var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,ts:Date.now(),attempts:0,nextAttemptAt:0};
   if(found>=0){var old=q[found];if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else q[found]=op;}else q.push(op);
-  var stored=found>=0?q[found]:q[q.length-1],durable=fbOrderQueueSave(q);fbFlushOrderQueue(true);
-  return{token:stored&&stored.token,path:path,durable:durable};
+  var stored=found>=0?q[found]:q[q.length-1],saved=fbOrderQueueSave(q);fbFlushOrderQueue(true);
+  return{token:stored&&stored.token,path:path,durable:saved.durable,durablePromise:saved.promise};
 }
 function fbWaitOrderOp(op,timeout){
   return new Promise(function(resolve){
     if(!op||!op.token){resolve({confirmed:false,durable:false});return;}
-    var started=Date.now(),limit=Number(timeout)||FB_REQ_TIMEOUT+1500;
+    var started=Date.now(),limit=Number(timeout)||FB_REQ_TIMEOUT+1500,settled=false;
+    function finish(confirmed,durable){if(settled)return;settled=true;resolve({confirmed:!!confirmed,durable:!!durable});}
     function check(){
+      if(settled)return;
       var pending=fbOrderQueueLoad().some(function(item){return item&&item.token===op.token;});
-      if(!pending){resolve({confirmed:true,durable:!!op.durable});return;}
-      if(Date.now()-started>=limit){resolve({confirmed:false,durable:!!op.durable});return;}
+      if(!pending){finish(true,!!op.durable);return;}
+      if(Date.now()-started>=limit){finish(false,!!op.durable);return;}
       /* This wait belongs to an explicit user action.  It must be allowed to
          flush from the current tab even when a stale multi-tab lease says
          another tab is the background sync leader. */
       fbFlushOrderQueue(true);setTimeout(check,160);
     }
+    fbFlushOrderQueue(true);
+    if(op.durable)setTimeout(function(){finish(false,true);},320);
+    else if(op.durablePromise)Promise.resolve(op.durablePromise).then(function(ok){if(ok)setTimeout(function(){finish(false,true);},320);});
     check();
   });
+}
+function fbRestoreDurableOrderQueue(){
+  return window.rbDurableOrderQueue.restore(fbOrderQueueLoad()).then(function(merged){
+    if(!merged.length)return false;
+    fbOrderQueueSave(merged);
+    var restored=fbMergePendingOrders(lpORD());
+    if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(restored,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(restored));}catch(error){}
+    refreshOrderViews();fbFlushOrderQueue(true);return true;
+  },function(){return false;});
 }
 function fbOrderAssetPayload(row){var out={};FB_ORDER_ASSET_FIELDS.forEach(function(field){out[field]=Array.isArray(row&&row[field])?row[field]:[];});return out;}
 function fbOrderAssetCounts(row){var out={};FB_ORDER_ASSET_FIELDS.forEach(function(field){out[field]=Array.isArray(row&&row[field])?row[field].length:0;});return out;}
 function fbOrderHasAssetFields(row){return FB_ORDER_ASSET_FIELDS.some(function(field){return !!row&&Object.prototype.hasOwnProperty.call(row,field);});}
 function fbOrderHasAssets(payload){return FB_ORDER_ASSET_FIELDS.some(function(field){return Array.isArray(payload&&payload[field])&&payload[field].length>0;});}
+function fbSetSafely(path,data){return window.rbDurableOrderQueue.accept(path,fbSet(path,data));}
 function fbOrderCloudRecord(row,withFreshAssets){
   var clean={};Object.keys(row||{}).forEach(function(key){if(key!=='_fbKey'&&key!=='_assetsLoaded'&&key!=='_assetsChanged'&&FB_ORDER_ASSET_FIELDS.indexOf(key)<0)clean[key]=row[key];});
   if(withFreshAssets){clean.assetCounts=fbOrderAssetCounts(row);clean.assetsUpdatedAt=Date.now();}
@@ -3281,15 +3298,15 @@ function spORD(d){
   var localResult={ok:true};
   if(window.rbStorageResilience)localResult=window.rbStorageResilience.storeOrders(after,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(after));}catch(error){localResult={ok:false,error:error};}
   refreshOrderViews();
-  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey]){queueOps.push(fbQueueOrderOp('DELETE',old._fbKey,null));assetWrites.push(Promise.resolve(fbSet('/order_assets/'+old._fbKey,null)));}});
+  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey]){queueOps.push(fbQueueOrderOp('DELETE',old._fbKey,null));assetWrites.push(fbSetSafely('/order_assets/'+old._fbKey,null));}});
   after.forEach(function(row){
     if(!row||!row.id)return;
     var old=byKey[row._fbKey],hasFreshAssets=fbOrderHasAssetFields(row),assetsChanged=!old||row._assetsChanged===true,clean=fbOrderCloudRecord(row,hasFreshAssets&&assetsChanged),changes={};
-    if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderAssetPayload(row))));return;}
+    if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderAssetPayload(row)));return;}
     var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
     Object.keys(allKeys).forEach(function(k){if(FB_ORDER_ASSET_FIELDS.indexOf(k)>=0||k==='_assetsLoaded')return;var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
     if(Object.keys(changes).length)queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes));
-    if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(Promise.resolve(fbSet('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null)));}
+    if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null));}
   });
   var queuedByToken={};queueOps.forEach(function(op){if(op&&op.token)queuedByToken[op.token]=1;});
   fbOrderQueueLoad().forEach(function(op){if(op&&op.token&&!queuedByToken[op.token]){queueOps.push({token:op.token,path:op.path,durable:true});queuedByToken[op.token]=1;}});
@@ -3301,7 +3318,7 @@ function spORD(d){
        browser cache must not turn a successful online accept/submit into a
        false failure.  Asset retry state is reported separately so status
        changes do not become stuck behind an unchanged image payload. */
-    var workflowSafe=((localResult.ok!==false&&metadataSafe)||metadataOnline)&&assetsOk;
+    var workflowSafe=metadataSafe&&assetsOk;
     if(assetsOk){after.forEach(function(row){if(row)delete row._assetsChanged;});if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(after,LS_ORD);}
     return{ok:workflowSafe,localOk:localResult.ok!==false,metadataSafe:metadataSafe,assetsOk:assetsOk,online:online,pending:!online};
   });
@@ -3877,8 +3894,9 @@ window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=rend
 window.logTL=logTL;window._OF=_OF;
 window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;window.refreshOrderContentFromCloud=refreshOrderContentFromCloud;
 window.addEventListener('rb:content-updated',function(){var p=document.getElementById('om-prod');refreshOrderContentList(p?p.value:'');});
+fbRestoreDurableOrderQueue();
 })();
-</script><script src="snippets/persistence-reliability-v3.js?v=fix340"></script>
+</script><script src="snippets/persistence-reliability-v3.js?v=fix343"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
 <script src="snippets/order-planner-v1.js?v=fix338"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix316">

@@ -21,7 +21,8 @@ const cases=[
 ];
 
 for(const [label,source,contract] of cases)assert.ok(source.includes(contract),`${label} ต้องมีเส้นทางบันทึกออนไลน์`);
-assert.ok(index.includes('snippets/persistence-reliability-v3.js?v=fix340'),'ทุกโมดูลต้องใช้คิวออนไลน์ที่ลองใหม่ได้');
+assert.ok(index.includes('snippets/persistence-reliability-v3.js?v=fix343'),'ทุกโมดูลต้องใช้คิวออนไลน์ที่ลองใหม่ได้');
+assert.ok(index.includes('snippets/order-durable-queue-v1.js?v=fix343'),'คิวงานต้องมีพื้นที่สำรองถาวรเมื่อ localStorage เต็ม');
 assert.ok(!read('snippets/shared-business-sync-v1.js').includes("rb_users:{path:'/rb_users'"),'รายชื่อผู้ใช้ต้องไม่ถูกเขียนทับผ่านระบบซิงก์รุ่นเก่า');
 assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix341'),'ข้อมูลธุรกิจรุ่นเดิมต้องใช้ชั้นซิงก์กลาง');
 console.log(`business-persistence-coverage: ${cases.length} business areas covered`);

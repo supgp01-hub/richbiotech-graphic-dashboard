@@ -3,7 +3,7 @@
 if(root._rbPersistenceReliabilityV3Loaded)return;
 root._rbPersistenceReliabilityV3Loaded=true;
 
-var VERSION='3.3.2';
+var VERSION='3.4.0';
 var QUEUE_KEY='rb_generic_write_queue_v3';
 var RETRY_MS=5000;
 var MAX_RETRY_MS=30000;
@@ -13,6 +13,8 @@ var memoryQueue=[];
 var active={};
 var activePaths={};
 var retryTimer=null;
+var DURABLE_KEY='generic_write_queue_v3';
+var durableByPath={};
 
 function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return value;}}
 function pathOf(path){var value=String(path||'/').replace(/\/+$/,'');if(!value)value='/';return value.charAt(0)==='/'?value:'/'+value;}
@@ -22,12 +24,15 @@ function readQueue(){
 }
 function writeQueue(queue){
   queue=Array.isArray(queue)?queue:[];
-  try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));memoryQueue=[];return true;}
+  var localDurable=false;
+  try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));memoryQueue=[];localDurable=true;}
   catch(error){
     if(root.rbStorageResilience&&typeof root.rbStorageResilience.relieve==='function')root.rbStorageResilience.relieve();
-    try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));memoryQueue=[];return true;}
-    catch(retryError){memoryQueue=queue.slice();return false;}
+    try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));memoryQueue=[];localDurable=true;}
+    catch(retryError){memoryQueue=queue.slice();}
   }
+  var helper=root.rbDurableOrderQueue,promise=helper&&typeof helper.saveKey==='function'?helper.saveKey(DURABLE_KEY,queue).then(function(ok){return localDurable||ok;},function(){return localDurable;}):Promise.resolve(localDurable);
+  return{durable:localDurable,promise:promise};
 }
 function safeKey(value){return String(value||'item').replace(/[^a-zA-Z0-9_-]/g,'_');}
 function collectionEntries(path,value,entry){
@@ -64,7 +69,7 @@ function queueWrite(path,data){
   path=pathOf(path);
   var queue=readQueue(),next=[],entry={token:'sync_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),path:path,data:clone(data),ts:Date.now()};
   queue.forEach(function(item){if(item&&pathOf(item.path)!==path)next.push(item);});
-  next.push(entry);writeQueue(next);dispatchState();return entry;
+  next.push(entry);var receipt=writeQueue(next);entry.durable=receipt.durable;entry.durablePromise=receipt.promise;durableByPath[path]=receipt.promise;dispatchState();return entry;
 }
 function removeWrite(token){writeQueue(readQueue().filter(function(item){return item&&item.token!==token;}));dispatchState();}
 function pendingCount(){return readQueue().length;}
@@ -144,7 +149,9 @@ root.fbSet=function reliableFbSet(path,data){
     return Promise.all(children.map(function(child){return root.fbSet(child.path,child.data);})).then(function(results){return results.every(function(ok){return ok!==false;});});
   }
   if(isSplitCollection(path)&&data===null){dispatchState();return Promise.resolve(false);}
-  var entry=queueWrite(path,data);if(activePaths[entry.path]){schedule();return Promise.resolve(false);}return attempt(entry,true);
+  var entry=queueWrite(path,data);
+  if(activePaths[entry.path]){schedule();return Promise.resolve(false);}
+  return attempt(entry,true);
 };
 root.fbGet=function reliableFbGet(path,callback){
   if(typeof originalGet!=='function'){callback(new Error('ไม่พบระบบอ่านข้อมูล'),overlay(path,null));return;}
@@ -153,11 +160,14 @@ root.fbGet=function reliableFbGet(path,callback){
     callback(error&&pending?null:error,overlay(path,data));
   });
 };
-root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:function(){flush(true);},overlay:overlay,queue:readQueue,related:relatedPending,migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites,removeDeniedLegacyWrites:removeDeniedLegacyWrites,collectionEntries:collectionEntries};
+root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:function(){flush(true);},overlay:overlay,queue:readQueue,related:relatedPending,waitDurable:function(path){return durableByPath[pathOf(path)]||Promise.resolve(false);},migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites,removeDeniedLegacyWrites:removeDeniedLegacyWrites,collectionEntries:collectionEntries};
 root.addEventListener&&root.addEventListener('online',function(){flush(true);});
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===QUEUE_KEY){dispatchState();flush(false);}});
 migrateUnsafeCollectionWrites();
 removeDeniedLegacyWrites();
+if(root.rbDurableOrderQueue&&typeof root.rbDurableOrderQueue.loadKey==='function')root.rbDurableOrderQueue.loadKey(DURABLE_KEY).then(function(saved){
+  saved=Array.isArray(saved)?saved:[];if(!saved.length)return;var byPath={};saved.concat(readQueue()).forEach(function(item){if(!item||!item.path)return;var old=byPath[pathOf(item.path)];if(!old||Number(item.ts||0)>=Number(old.ts||0))byPath[pathOf(item.path)]=item;});writeQueue(Object.keys(byPath).map(function(path){return byPath[path];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);}));dispatchState();flush(true);
+});
 setTimeout(function(){flush(false);},600);
 document.documentElement.setAttribute('data-persistence-reliability',VERSION);
 })(window);

@@ -15,7 +15,7 @@ const localStorage={
 let requests=0;
 const context={
   Promise,JSON,Math,Date,setTimeout,clearTimeout,console,
-  localStorage,navigator:{onLine:true},window:{rbStorageResilience:null},
+  localStorage,navigator:{onLine:true},window:{rbStorageResilience:null,rbDurableOrderQueue:{persist:(q,key,memory)=>{localStorage.setItem(key,JSON.stringify(q));memory([]);return{durable:true,promise:Promise.resolve(true)};}}},
   FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],
   _fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
   FB_REQ_TIMEOUT:120,FB_DB:'https://example.test',
@@ -33,4 +33,24 @@ vm.runInContext(html.slice(start,end),context);
   assert.equal(receipt.confirmed,true,'the user action must receive an online confirmation');
   assert.equal(JSON.parse(localStorage.getItem(context.FB_ORDER_QUEUE)||'[]').length,0,'the confirmed operation must leave the queue');
   console.log('order-action-queue-v1: non-leader explicit saves are confirmed');
+})().catch(error=>{console.error(error);process.exitCode=1;});
+
+const quotaValues=new Map();
+const quotaContext={
+  Promise,JSON,Math,Date,setTimeout,clearTimeout,console,
+  localStorage:{getItem:key=>quotaValues.has(key)?quotaValues.get(key):null,setItem:()=>{const error=new Error('quota');error.name='QuotaExceededError';throw error;}},
+  navigator:{onLine:true},window:{rbStorageResilience:{relieve:()=>{}},rbDurableOrderQueue:{persist:(q,key,memory)=>{memory(q);return{durable:false,promise:Promise.resolve(true)};}}},
+  FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],_fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
+  FB_REQ_TIMEOUT:120,FB_DB:'https://example.test',FB_ORDER_ASSET_FIELDS:['images','briefImages','errorImages','fixImages'],
+  fbIsLeader:()=>false,fbSetSyncState:()=>{},fbFetch:()=>new Promise(()=>{})
+};
+vm.createContext(quotaContext);
+vm.runInContext(html.slice(start,end),quotaContext);
+(async()=>{
+  const started=Date.now();
+  const op=quotaContext.fbQueueOrderOp('PATCH','order_GR112',{status:'review'});
+  const receipt=await quotaContext.fbWaitOrderOp(op,1200);
+  assert.equal(receipt.durable,true,'IndexedDB must provide a durable receipt when localStorage is full');
+  assert.ok(Date.now()-started<900,'durable saves must not wait for the full network timeout');
+  console.log('order-action-queue-v1: quota fallback is durable and prompt');
 })().catch(error=>{console.error(error);process.exitCode=1;});

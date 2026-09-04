@@ -32,8 +32,8 @@ vm.createContext(context);
 vm.runInContext(source,context);
 
 (async function(){
-  assert.strictEqual(window.rbPersistence.version,'3.3.2');
-  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.3.2');
+  assert.strictEqual(window.rbPersistence.version,'3.4.0');
+  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.4.0');
 
   const first=await window.fbSet('/module/item',{value:'ใหม่',updatedAt:20});
   assert.strictEqual(first,false,'a failed server write must not be reported as synced');
@@ -100,6 +100,6 @@ vm.runInContext(source,context);
   await new Promise(resolve=>setImmediate(resolve));
   assert.strictEqual(writes[writes.length-1].data.value,2,'the newest same-path value must be the final server write');
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'the serialized same-path queue must fully drain');
-  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix340')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
+  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix343')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
   console.log('persistence-reliability-v3: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><title>Order save resilience fixture</title></head>
+<body>
+  <button id="save" type="button">ทดสอบบันทึกเมื่อพื้นที่เดิมเต็ม</button>
+  <button id="recover" type="button">ทดสอบกู้คิวหลังเปิดใหม่</button>
+  <output id="result">พร้อมทดสอบ</output>
+  <script src="../../snippets/order-durable-queue-v1.js"></script>
+  <script>
+    var originalSet=Storage.prototype.setItem;
+    document.getElementById('save').onclick=function(){
+      var started=performance.now(),queue=[{token:'fixture-op',path:'/orders/order_GR987',method:'PATCH',data:{id:'GR987',status:'review',auditVersions:[{version:1,result:'issue',note:'fixture only'}]},ts:Date.now()}];
+      Storage.prototype.setItem=function(key,value){if(key==='fixture_full_storage')throw new DOMException('quota','QuotaExceededError');return originalSet.call(this,key,value);};
+      window.rbDurableOrderQueue.persist(queue,'fixture_full_storage',function(){}).promise.then(function(ok){Storage.prototype.setItem=originalSet;document.getElementById('result').textContent=(ok?'ปลอดภัย':'ล้มเหลว')+' '+Math.round(performance.now()-started)+' ms';});
+    };
+    document.getElementById('recover').onclick=function(){window.rbDurableOrderQueue.load().then(function(queue){document.getElementById('result').textContent=queue.some(function(item){return item.token==='fixture-op';})?'กู้คิวสำเร็จ':'ไม่พบคิว';});};
+  </script>
+</body>
+</html>

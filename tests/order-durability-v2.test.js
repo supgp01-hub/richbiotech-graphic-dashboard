@@ -2,11 +2,12 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const source = fs.readFileSync('index.html', 'utf8');
+const durableQueue = fs.readFileSync('snippets/order-durable-queue-v1.js', 'utf8');
 
 assert.match(source, /FB_ORDER_ASSET_FIELDS=\['images','briefImages','errorImages','fixImages'\]/,
   'large image evidence must be separated from order metadata');
-assert.match(source, /fbSet\('\/order_assets\/'\+row\._fbKey/,
-  'order assets must persist to their own per-order path');
+assert.match(source, /fbSetSafely\('\/order_assets\/'\+row\._fbKey/,
+  'order assets must persist through the durable per-order path');
 assert.match(source, /fbLoadOrderAssets\(o\)\.then/,
   'historical evidence must lazy-load when an order is opened');
 assert.match(source, /if\(_omUploadPending\).*กรุณารอจนรูปพร้อมก่อนบันทึก/,
@@ -19,6 +20,12 @@ assert.match(source, /function fbWaitOrderOp\(op,timeout\)[\s\S]*Date\.now\(\)-s
   'the save receipt must wait for online confirmation instead of resolving immediately');
 assert.match(source, /state\.durable\|\|state\.confirmed/,
   'an online confirmation must remain valid when browser storage is full');
+assert.match(durableQueue, /root\.indexedDB\.open\(DB_NAME,1\)/,
+  'order actions must have an IndexedDB durability fallback when localStorage is full');
+assert.match(durableQueue, /function done\(ok\)\{if\(ok\)\{resolve\(true\)/,
+  'a fast network failure must not outrun a successful durable asset receipt');
+assert.match(source, /setTimeout\(function\(\)\{finish\(false,true\);\},320\)/,
+  'a durable save must finish promptly instead of waiting for the full network timeout');
 assert.match(source, /assetsChanged=!old\|\|row\._assetsChanged===true/,
   'status-only actions must not re-upload unchanged image evidence');
 assert.match(source, /order\._assetsChanged=omAssetSignature\(\)!==_omAssetBaseline/,
