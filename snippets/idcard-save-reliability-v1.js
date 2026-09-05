@@ -97,14 +97,20 @@ function installCloudReader(){
     if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);
     originalGet(SHARED_PATH,function(sharedError,sharedData){
       var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
-      if(!sharedError&&sharedRows&&sharedRows.length){knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=Number(row.updatedAt||0);});callback(null,sharedRows);return;}
+      var isSupervisor=!!(root._rbUser&&root._rbUser.role==='sup');
+      if(!isSupervisor){
+        sharedRows=sharedRows||[];knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=Number(row.updatedAt||0);});
+        callback(sharedError,sharedRows);return;
+      }
       originalGet(LEGACY_PATH,function(legacyError,legacyData){
         var legacyRows=legacyData&&(Array.isArray(legacyData)?legacyData:Object.values(legacyData)).filter(function(row){return row&&row.id;});
-        if(!legacyError&&legacyRows&&legacyRows.length&&typeof root.fbSet==='function'){
-          Promise.resolve(root.fbSet(LEGACY_PATH,legacyRows)).then(function(){callback(null,legacyRows);},function(){callback(null,legacyRows);});
+        var mergedById={};(sharedRows||[]).concat(legacyRows||[]).forEach(function(row){var id=String(row.id);var old=mergedById[id];if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))mergedById[id]=row;});
+        var mergedRows=Object.values(mergedById);
+        if(mergedRows.length&&typeof root.fbSet==='function'){
+          Promise.resolve(root.fbSet(LEGACY_PATH,mergedRows)).then(function(){callback(null,mergedRows);},function(){callback(null,mergedRows);});
           return;
         }
-        callback(sharedError||legacyError,sharedData||legacyData||null);
+        callback(sharedError||legacyError,mergedRows);
       });
     });
   }
