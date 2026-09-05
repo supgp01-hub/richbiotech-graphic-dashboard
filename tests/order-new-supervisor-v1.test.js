@@ -6,5 +6,5 @@ assert.ok(index.includes("_omSaveBtn.onclick=saveOM2"),'the order action must sa
 assert.ok(index.includes("ab.id='ord-add-btn'")&&index.includes('window.openOM(null)'),'Add new order must open a genuinely new order');
 assert.ok(index.includes("ge('om-st').value=o?(o.status||''):'pending'"),'new Supervisor orders must start in assigned status');
 assert.ok(index.includes("setOMSubmitFeedback('กำลังบันทึกงาน...','success')"),'the sticky footer must show save progress');
-assert.ok(index.includes('<meta name="rb-build" content="fix362">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix363">'));
 console.log('order-new-supervisor-v1: all tests passed');

@@ -11,6 +11,6 @@ assert.ok(auditSync.includes("section.querySelectorAll('input,select,textarea,bu
 assert.ok(detailCss.includes('#rb-order-modal[data-order-mode="edit"] #om-add-clip-wrap{display:none!important}'),'existing order detail must hide the obsolete standalone ad-link button');
 assert.ok(index.includes('clipExDiv.hidden=true'),'legacy ad-link data must remain hidden and readable without exposing the removed control');
 assert.ok(!index.includes("document.getElementById('om-add-clip-btn')"),'removed ad-link control must not remain as a stale interaction target');
-assert.ok(index.includes('<meta name="rb-build" content="fix362">'),'the page must expose the current workflow build');
+assert.ok(index.includes('<meta name="rb-build" content="fix363">'),'the page must expose the current workflow build');
 
 console.log('order-detail-edit-controls-v1: all tests passed');
