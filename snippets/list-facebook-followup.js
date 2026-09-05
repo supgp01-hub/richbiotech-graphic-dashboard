@@ -239,14 +239,16 @@ function persistAccountDetail(reopenCredentials){
   var values={};['type','name','emp','prod','st','fbid','passFb','email','emailPass','twofa','limit','bal','note'].forEach(function(key){var element=document.getElementById('lfbi-'+key);values[key]=element?element.value:'';});
   var followDate=document.getElementById('lfbi-follow-date');values.followupNextDate=needsSystemFollowup({st:values.st})&&followDate?followDate.value:'';
   if(button)button.disabled=true;if(state)state.textContent='กำลังบันทึก...';
-  window._lfbSaveAccountRecord(selectedKey,values).then(function(result){credentialsEditing=false;credentialsOpen=!!reopenCredentials;renderAll();var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=result.online?'บันทึกและซิงก์เรียบร้อย':'บันทึกในเครื่องแล้ว · รอซิงก์ออนไลน์';}).catch(function(error){var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=error&&error.message?error.message:'บันทึกไม่สำเร็จ';}).finally(function(){var target=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');if(target)target.disabled=false;});
+  window._lfbSaveAccountRecord(selectedKey,values).then(function(result){credentialsEditing=false;credentialsOpen=!!reopenCredentials;var detail=document.getElementById('lfb-account-detail');if(detail)detail.removeAttribute('data-editing');renderAll();var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=result.online?'บันทึกและซิงก์เรียบร้อย':'บันทึกในเครื่องแล้ว · รอซิงก์ออนไลน์';}).catch(function(error){var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=error&&error.message?error.message:'บันทึกไม่สำเร็จ';}).finally(function(){var target=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');if(target)target.disabled=false;});
 }
 function renderAll(){
   var data=window._listfbData||[];
   if(!window._lfbFilter)window._lfbFilter={};
   var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='all';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;if(!filter.pageSize)filter.pageSize=listPageSize();
   var query=document.getElementById('lfb-q');if(query&&query.value!==String(filter.q||''))query.value=String(filter.q||'');
-  var counts=stageCounts(data);employeeOptions(data);statusOptions();renderStats(data,counts);renderStages(counts);renderViewButtons();renderRows(data);renderAccountDetail();
+  var counts=stageCounts(data);employeeOptions(data);statusOptions();renderStats(data,counts);renderStages(counts);renderViewButtons();renderRows(data);
+  var detail=document.getElementById('lfb-account-detail'),active=document.activeElement;
+  if(!detail||detail.getAttribute('data-editing')!=='1'||!active||!detail.contains(active))renderAccountDetail();
   var warning=document.getElementById('lfb-follow-source-warning');if(warning)warning.hidden=!data.length||data.some(function(row){return Object.prototype.hasOwnProperty.call(row,'follow');});
 }
 function syncFollowups(){
@@ -294,7 +296,7 @@ function bindHybrid(root){
     var stage=event.target.closest('.lfb-follow-stage');if(stage){window._lfbFilter.stage=stage.getAttribute('data-stage');window._lfbFilter.followView='stage';window._lfbFilter.page=1;renderAll();return;}
     var summary=event.target.closest('.lfb-follow-stat');if(summary){var view=summary.getAttribute('data-summary');window._lfbFilter.followView=view==='done'?'done':view;window._lfbFilter.page=1;renderAll();return;}
     var viewButton=event.target.closest('.lfb-hybrid-view-filter');if(viewButton){window._lfbFilter.followView=viewButton.getAttribute('data-view');window._lfbFilter.page=1;renderAll();return;}
-    var row=event.target.closest('.lfb-follow-row');if(row&&!event.target.closest('.lfb-name-btn')){selectedKey=row.getAttribute('data-key');credentialsOpen=false;credentialsEditing=false;renderAll();return;}
+    var row=event.target.closest('.lfb-follow-row');if(row&&!event.target.closest('.lfb-name-btn')){selectedKey=row.getAttribute('data-key');credentialsOpen=false;credentialsEditing=false;var detail=document.getElementById('lfb-account-detail');if(detail)detail.removeAttribute('data-editing');renderAll();return;}
     var directPage=event.target.closest('[data-rbps-page]');if(directPage){window._lfbFilter.page=Math.max(1,Number(directPage.getAttribute('data-rbps-page'))||1);renderAll();return;}
     var pager=event.target.closest('[data-page]');if(pager){window._lfbFilter.page+=Number(pager.getAttribute('data-page'))||0;renderAll();return;}
     if(event.target.closest('#lfb-follow-save')){persistSelected();return;}
@@ -310,6 +312,7 @@ function bindHybrid(root){
     if(event.target&&event.target.id==='lfbi-st'){inlineStatusHelp(event.target.value);updateAccountFollowupDate(event.target.value);}
     if(event.target&&event.target.matches('[data-rbps-size],[data-lfb-page-size]')){window._lfbFilter.pageSize=saveListPageSize(event.target.value);window._lfbFilter.page=1;renderAll();}
   });
+  root.addEventListener('input',function(event){var detail=event.target&&event.target.closest&&event.target.closest('#lfb-account-detail');if(detail&&event.target.matches('input,select,textarea'))detail.setAttribute('data-editing','1');});
   var followOverlay=document.getElementById('lfb-followup-overlay');if(followOverlay)followOverlay.addEventListener('click',function(event){if(event.target===followOverlay)closeFollowupModal();});
   document.getElementById('lfb2-upd').addEventListener('click',function(){Promise.resolve(window._listfbFetch()).then(function(){syncFollowups();renderAll();});});
   document.getElementById('lfb-add').addEventListener('click',function(){window._lfbOpenEditor('');});
@@ -321,7 +324,8 @@ function bindHybrid(root){
 
 function hybridInit(){
   var root=document.getElementById('lfb-root');if(!root)return;
-  if(root.getAttribute('data-followup-hybrid')==='1'){renderAll();syncFollowups();return;}
+  if(root.getAttribute('data-followup-hybrid')==='1'&&root.querySelector('#lfb-add')&&root.querySelector('#lfb-editor-overlay')&&root.querySelector('#lfb-account-detail')){renderAll();syncFollowups();return;}
+  root.removeAttribute('data-followup-hybrid');
   if(typeof legacyInit==='function')legacyInit();
   var overlay=document.getElementById('lfb-editor-overlay');if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);
   hybridHtml(overlay);root.setAttribute('data-followup-hybrid','1');

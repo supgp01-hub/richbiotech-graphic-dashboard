@@ -81,5 +81,8 @@ assert.ok(source.includes('id="lfbi-follow-date" type="date"'), 'account status 
 assert.ok(source.includes("updateAccountFollowupDate(event.target.value)"), 'the date field must react immediately to the existing status rules');
 assert.ok(source.includes('values.followupNextDate=needsSystemFollowup'), 'account saves must forward the selected follow-up date only for tracked statuses');
 assert.ok(source.includes("stage:nextStage,nextDate:nextDate"), 'a tracked status save must create a dated follow-up record for the table');
+assert.ok(source.includes("detail.getAttribute('data-editing')!=='1'"), 'background refreshes must not replace the account form while a user is typing');
+assert.ok(source.includes("detail.setAttribute('data-editing','1')"), 'typing in the account form must enter a protected editing state');
+assert.ok(source.includes("root.querySelector('#lfb-editor-overlay')"), 'the List Facebook workspace must rebuild if its add/edit dialog is missing');
 
 console.log('list-facebook-followup: all tests passed');

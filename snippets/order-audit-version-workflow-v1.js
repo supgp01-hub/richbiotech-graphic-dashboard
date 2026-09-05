@@ -8,6 +8,16 @@
   function canAudit(){var current=role();return current==='sup'||current==='audit';}
   function isEmployee(){var current=role();return current==='graphic'||current==='spec';}
   function actor(){return window._rbUser&&window._rbUser.name||'';}
+  function canonicalName(value){
+    var raw=String(value||'').trim().toLowerCase().replace(/\s+/g,'');
+    var aliases={view:'view','วิว':'view',moss:'moss','มอส':'moss',dom:'dom','ดอม':'dom',ter:'ter','เตอร์':'ter',nune:'nune','นุ่น':'nune',jam:'jam','แจ๋ม':'jam',ball:'ball','บอล':'ball',nui:'nui','นุ้ย':'nui',mind:'mind','มายด์':'mind'};
+    return aliases[raw]||raw;
+  }
+  function canSubmitCorrection(order){
+    var current=role();
+    if(current==='sup'||current==='spec')return true;
+    return current==='graphic'&&canonicalName(order&&order.assignee)===canonicalName(actor());
+  }
   function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return[];}}
   function fieldValue(id){var field=document.getElementById(id);return field?field.value||'':'';}
   function jobId(order){var id=document.getElementById('om-id');return String(order&&order.id||id&&id.textContent||'').trim();}
@@ -113,8 +123,10 @@
     stage.innerHTML='<div class="rb-av-stage-title"><b><i>3</i> ส่งงานแก้ไข</b><span>'+(state.employeeSubmittedAt?'ส่งแล้ว':'ยังไม่ส่ง')+'</span></div>';
     if(mode==='employee'&&state.result==='issue'){
       var link=document.createElement('input');link.type='url';link.className='rb-av-fix-link';link.placeholder='วางลิงก์งานแก้ไขของ VER '+(index+1);link.value=state.fixLink||'';link.oninput=function(){state.fixLink=this.value;state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();};link.onchange=function(){syncDeliveryInput(state,index,this.value);};
-      var upload=document.createElement('label');upload.className='rb-av-upload is-fix';upload.innerHTML='↑ อัปโหลดงานแก้ไข VER '+(index+1)+'<input type="file" accept="image/*" multiple hidden>';upload.querySelector('input').onchange=function(){addFiles(this.files,state.fixImages,function(){state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();rerender();});};
-      var note=document.createElement('textarea');note.className='rb-av-fix-note';note.placeholder='สรุปว่าแก้ไขจุดใดแล้วบ้าง...';note.value=state.fixNote||'';note.oninput=function(){state.fixNote=this.value;state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();};stage.append(link,upload,note);
+      var upload=document.createElement('label');upload.className='rb-av-upload is-fix';upload.innerHTML='<b>↑ ลากรูปมาวาง หรือกดเลือกไฟล์</b><small>อัปได้หลายรูป · JPG / PNG / WEBP</small><input type="file" accept="image/*" multiple hidden>';upload.querySelector('input').onchange=function(){addFiles(this.files,state.fixImages,function(){state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();rerender();});};
+      ['dragenter','dragover'].forEach(function(name){upload.addEventListener(name,function(event){event.preventDefault();upload.classList.add('is-dragging');});});
+      ['dragleave','drop'].forEach(function(name){upload.addEventListener(name,function(event){event.preventDefault();upload.classList.remove('is-dragging');if(name==='drop'&&event.dataTransfer)addFiles(event.dataTransfer.files,state.fixImages,function(){state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();rerender();});});});
+      var note=document.createElement('textarea');note.className='rb-av-fix-note';note.placeholder='หมายเหตุถึง Audit (ไม่บังคับ)';note.value=state.fixNote||'';note.oninput=function(){state.fixNote=this.value;state.employeeSubmittedAt=0;state.correctionDraftUpdatedAt=Date.now();};stage.append(upload,link,note);
     }else if(state.employeeSubmittedAt){var sent=document.createElement('div');sent.className='rb-av-submitted';sent.textContent='✓ '+(state.employeeSubmittedBy||'พนักงาน')+' ส่งงานแก้ไขแล้ว รอ Audit ตรวจ';stage.appendChild(sent);}
     else{var message=document.createElement('div');message.className='rb-av-readonly-summary';message.textContent=state.result==='pass'?'เวอร์ชันนี้ผ่านแล้ว':state.result==='pending'?'รอ Audit ตรวจ':'รอพนักงานส่งงานแก้ไข';stage.appendChild(message);}
     if(state.fixImages.length){var proof=document.createElement('div');proof.className='rb-av-fix-proof';proof.innerHTML='<div class="rb-av-evidence-title"><b>รูปงานแก้ไข</b><span>'+state.fixImages.length+' รูป</span></div><div class="rb-av-gallery rb-av-fix-gallery"></div>';stage.appendChild(proof);renderImages(proof.querySelector('.rb-av-gallery'),state.fixImages,mode==='employee'&&state.result==='issue',rerender,{jobId:state.jobId,version:state.version,source:'หลักฐานแก้ไข · พนักงาน'});}
@@ -171,8 +183,8 @@
     var auditPanel=document.getElementById('om2-p2-panel'),teamPanel=document.getElementById('om2-p4-panel'),id=document.getElementById('om-id');if(!auditPanel||!teamPanel||!id)return;
     order=order||currentOrder()||{};var currentJobId=jobId(order),oldAudit=document.getElementById('rb-audit-version-workflow'),oldTeam=document.getElementById('rb-team-version-workflow');
     var carried=null;[oldAudit,oldTeam].some(function(section){if(section&&section.getAttribute('data-job-id')===currentJobId&&Array.isArray(section._rbState)){carried=collect(section);return true;}return false;});if(oldAudit)oldAudit.remove();if(oldTeam)oldTeam.remove();
-    var states=initialVersions(order,carried),mode=canAudit()?'audit':isEmployee()?'employee':'readonly',rendering=false;
-    function rerender(){if(rendering)return;rendering=true;var audit=document.getElementById('rb-audit-version-workflow'),team=document.getElementById('rb-team-version-workflow');if(audit)audit.remove();if(team)team.remove();buildSection(auditPanel,'rb-audit-version-workflow',states,mode,'audit',rerender);buildSection(teamPanel,'rb-team-version-workflow',states,mode,'team',rerender);rendering=false;}
+    var states=initialVersions(order,carried),auditMode=canAudit()?'audit':'readonly',teamMode=canSubmitCorrection(order)?'employee':'readonly',rendering=false;
+    function rerender(){if(rendering)return;rendering=true;var audit=document.getElementById('rb-audit-version-workflow'),team=document.getElementById('rb-team-version-workflow');if(audit)audit.remove();if(team)team.remove();buildSection(auditPanel,'rb-audit-version-workflow',states,auditMode,'audit',rerender);buildSection(teamPanel,'rb-team-version-workflow',states,teamMode,'team',rerender);rendering=false;}
     rerender();syncSourceStatus();
   };
   window.rbValidateAuditVersionDecision=function(kind){

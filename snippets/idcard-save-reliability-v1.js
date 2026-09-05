@@ -176,5 +176,14 @@ var observer=new MutationObserver(function(){installCloudTracker();installCloudR
 function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();observer.observe(document.documentElement,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 
+/* Authentication can change without reloading the page. Rebuild this view so
+   it always uses the active user's shared read access instead of stale state. */
+if(typeof root.addEventListener==='function')root.addEventListener('rb:auth-ready',function(){
+  installCloudTracker();installCloudReader();installTeamPermissions();
+  root._icDone=false;
+  var panel=document.querySelector('.gsp[data-sub="idcard"]');
+  if(panel&&panel.classList.contains('gsp-active')&&typeof root._icInit==='function')root._icInit();
+});
+
 root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,getMemory:function(){return memoryJson;}};
 })(window);

@@ -30,6 +30,8 @@ test('database defaults to deny and protects sensitive paths', () => {
   assert.equal(rules.rb_users['.write'], false);
   assert.match(rules.orders['.read'], /active/);
   assert.match(rules.orders['.write'], /active/);
+  assert.match(rules.idcards['.read'], /active/, 'every active user must be able to view ID-card rows');
+  assert.match(rules.idcards['.write'], /role.*sup/, 'view access must not broaden ID-card write access');
 });
 
 test('every Graphic data module used by the live page has an explicit online rule', () => {

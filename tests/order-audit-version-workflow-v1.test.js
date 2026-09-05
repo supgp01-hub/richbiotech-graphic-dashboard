@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix342'),'the unified version layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix342'),'the unified version runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix350'),'the unified version layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix350'),'the unified version runtime must be cache-busted');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("current==='graphic'||current==='spec'"),'Graphic and Specialist employees must receive the correction view');
 assert.ok(workflow.includes("kind==='image'?'#om-image-submitlinks-rows"),'image delivery links must be read from the send-work editor');
@@ -18,7 +18,11 @@ assert.ok(workflow.includes("buildSection(teamPanel,'rb-team-version-workflow'")
 assert.ok(workflow.includes("buildSection(auditPanel,'rb-audit-version-workflow'"),'the Audit tab must receive the same shared version state');
 assert.ok(workflow.includes('แก้เฉพาะข้อมูลและหลักฐานของเวอร์ชันนี้'),'employees must be told that corrections are version-specific');
 assert.ok(workflow.includes('สิ่งที่ Audit พบ'),'the team view must show Audit findings');
-assert.ok(workflow.includes('อัปโหลดงานแก้ไข VER'),'employee evidence uploads must identify the target version');
+assert.ok(workflow.includes('ลากรูปมาวาง หรือกดเลือกไฟล์'),'employee evidence uploads must offer a clear multi-image drop zone');
+assert.ok(workflow.includes("current==='graphic'&&canonicalName(order&&order.assignee)===canonicalName(actor())"),'Graphic users must only submit corrections for their own assigned work');
+assert.ok(workflow.includes("current==='sup'||current==='spec'"),'Supervisor and Specialist must be able to assist with correction submissions');
+assert.ok(workflow.includes("auditMode=canAudit()?'audit':'readonly'"),'Audit editing must remain separate from employee correction permissions');
+assert.ok(workflow.includes("teamMode=canSubmitCorrection(order)?'employee':'readonly'"),'the correction area must calculate its own permission mode');
 assert.ok(workflow.includes('state.fixNote=this.value'),'employee correction notes must persist per version');
 assert.ok(workflow.includes('state.fixLink=this.value'),'employee correction links must persist per version without replacing the audited source in memory');
 assert.ok(workflow.includes('employeeSubmittedAt'),'the workflow must distinguish new corrections waiting for Audit');

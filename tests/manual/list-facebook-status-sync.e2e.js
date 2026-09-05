@@ -14,6 +14,13 @@ const assert = require('assert');
   await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.locator('#lfb-account-save').waitFor({ state: 'visible' });
 
+  await page.locator('#lfb-add').click();
+  await page.locator('#lfb-editor-overlay.is-open').waitFor({ state: 'visible' });
+  await page.locator('#lfbe-name').fill('QA Add Account');
+  await page.locator('#lfb-editor-save').click();
+  await page.waitForFunction(() => (window._listfbData || []).some((item) => item && item.name === 'QA Add Account'));
+  assert.ok((await page.evaluate(() => window.__writes)).some((write) => /\/listfacebook_manual\//.test(write.path)), 'adding an account must write through the shared manual-account path');
+
   const fordRow = page.locator('.lfb-follow-row').filter({ hasText: 'Ford Mustang' });
   assert.match(await fordRow.locator('.lfb-stage-cell').innerText(), /ยังไม่เริ่ม/, 'the fixture must begin in the old tracked state');
 
@@ -22,6 +29,11 @@ const assert = require('assert');
   const stageOptions = await page.locator('#lfb-follow-stage-input option').allTextContents();
   assert.deepStrictEqual(stageOptions, ['ยังไม่เริ่ม', 'กำลังแก้', 'แก้แล้ว'], 'รอ Facebook must be removed from the tracking choices');
   await page.locator('.lfb-followup-close').click();
+
+  await fordRow.click();
+  await page.locator('#lfbi-note').fill('Draft must survive refresh');
+  await page.evaluate(() => window._lfbRender());
+  assert.equal(await page.locator('#lfbi-note').inputValue(), 'Draft must survive refresh', 'background rendering must not erase a field while the user is typing');
 
   await page.locator('#lfbi-st').selectOption('เปลี่ยนเฟสใหม่แล้ว');
   await page.locator('#lfb-account-save').click();
