@@ -21,6 +21,7 @@ const syncStart = html.indexOf('function spORD(d)');
 const syncEnd = html.indexOf('\nfunction lpTL()', syncStart);
 const syncSave = html.slice(syncStart, syncEnd);
 assert.ok(syncSave.includes('loadOrderSnapshot(LS_ORD)'), 'order and Audit saves must diff against the last committed snapshot, not the already-mutated live array');
+assert.ok(syncSave.includes("window.rbOrderDeletion.mark(old,curUser())"), 'deleted orders must remain protected by an online tombstone');
 assert.ok(syncSave.includes("legacyKey&&!active[legacyKey]?legacyKey:'ord_'"), 'legacy rows must reuse one unambiguous key while new rows receive collision-safe keys');
 assert.ok(syncSave.includes('legacyIdCount[row.id]===1'), 'a duplicated visible GR number must never select an existing database record to overwrite');
 

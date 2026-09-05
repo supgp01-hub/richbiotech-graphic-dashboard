@@ -1,0 +1,12 @@
+(function(root){
+'use strict';
+var KEY='rb_order_delete_guard_v1',TTL=7*24*60*60*1000;
+function load(){var marks={};try{marks=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){}var now=Date.now(),changed=false;Object.keys(marks).forEach(function(key){if(!marks[key]||now-Number(marks[key].at||0)>TTL){delete marks[key];changed=true;}});if(changed)try{localStorage.setItem(KEY,JSON.stringify(marks));}catch(e){}return marks;}
+function save(marks){try{localStorage.setItem(KEY,JSON.stringify(marks));return true;}catch(e){return false;}}
+function rows(data){if(!data||data==='null')return[];var deleted=load(),out=[];Object.keys(data).forEach(function(key){var src=data[key];if(!src||typeof src!=='object'||!src.id||src._deleted===true||deleted[key])return;var row={};Object.keys(src).forEach(function(k){if(k!=='_fbKey')row[k]=src[k];});row._fbKey=key;out.push(row);});return out;}
+function merge(rowsValue,queue){var map={},order=[];(rowsValue||[]).forEach(function(row){if(!row||!row._fbKey)return;map[row._fbKey]=row;order.push(row._fbKey);});(queue||[]).forEach(function(op){var key=String(op.path||'').split('/').pop();if(!key)return;if(op.method==='DELETE'||(op.data&&op.data._deleted===true)){delete map[key];return;}if(!map[key]){map[key]={_fbKey:key};order.push(key);}Object.keys(op.data||{}).forEach(function(k){map[key][k]=op.data[k];});});Object.keys(load()).forEach(function(key){delete map[key];});return order.filter(function(key,i){return order.indexOf(key)===i&&map[key]&&map[key].id&&map[key]._deleted!==true;}).map(function(key){return map[key];});}
+function mark(row,user){var key=row&&row._fbKey,marks=load(),at=Date.now();if(key){marks[key]={id:row.id||'',at:at};save(marks);}return{id:row&&row.id||'',_deleted:true,deletedAt:at,deletedBy:user||''};}
+function hasCloudMark(data){return !!(data&&Object.keys(data).some(function(key){return data[key]&&data[key]._deleted===true;}));}
+function report(id,result,status){return Promise.resolve(result).then(function(state){if(state&&state.online)status('saved','ลบงานแล้ว','ลบ '+id+' ออกจากระบบออนไลน์แล้ว');else if(state&&state.ok)status('waiting','ลบแล้ว · รอซิงก์','ซ่อน '+id+' แล้ว ระบบจะยืนยันการลบออนไลน์อัตโนมัติ');else status('error','ลบไม่สำเร็จ','ระบบจะลองใหม่อัตโนมัติ');return state;},function(error){status('error','ลบไม่สำเร็จ',(error&&error.message)||'ระบบจะลองใหม่อัตโนมัติ');return{ok:false,error:error};});}
+root.rbOrderDeletion={load:load,rows:rows,merge:merge,mark:mark,hasCloudMark:hasCloudMark,report:report};
+})(window);

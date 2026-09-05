@@ -2916,7 +2916,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix342"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix342"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix342"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix343"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix342"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix342"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix342"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix343"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -2973,15 +2973,10 @@ window.fbSet=function fbSet(path,data){
   return fbFetch(FB_DB+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)},FB_REQ_TIMEOUT).then(function(){fbSetSyncState('saved','บันทึกแล้ว');return true;}).catch(function(e){fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'บันทึกไม่สำเร็จ',e.message||'บันทึกไม่สำเร็จ');console.warn('FB write err',e);return false;});
 }
 function fbOrdersFromData(data){
-  if(!data||data==='null')return[];
-  var keys=Object.keys(data),out=[];
-  keys.forEach(function(key){var src=data[key];if(!src||typeof src!=='object'||!src.id)return;var row={};Object.keys(src).forEach(function(k){if(k!=='_fbKey')row[k]=src[k];});row._fbKey=key;out.push(row);});
-  return out;
+  return window.rbOrderDeletion.rows(data);
 }
 function fbMergePendingOrders(rows){
-  var map={},order=[];(rows||[]).forEach(function(row){if(!row||!row._fbKey)return;map[row._fbKey]=row;order.push(row._fbKey);});
-  fbOrderQueueLoad().forEach(function(op){var key=op.path.split('/').pop();if(op.method==='DELETE'){delete map[key];return;}if(!map[key]){map[key]={_fbKey:key};order.push(key);}Object.keys(op.data||{}).forEach(function(k){map[key][k]=op.data[k];});});
-  return order.filter(function(key,i){return order.indexOf(key)===i&&map[key]&&map[key].id;}).map(function(key){return map[key];});
+  return window.rbOrderDeletion.merge(rows,fbOrderQueueLoad());
 }
 function fbRememberOrders(rows){
   try{var safe=window.rbStorageResilience?window.rbStorageResilience.compactOrders(rows):(Array.isArray(rows)?rows:[]);var json=JSON.stringify(safe);if(json.length&&json.length<800000)localStorage.setItem('rb_orders_last_good_v1',json);}catch(e){}
@@ -3144,7 +3139,7 @@ function fbLoadOrders(cb){
         var arr=fbMergeRemoteSnapshot(data);
         if(arr.length>0){
           if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(arr,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(arr));}catch(error){}
-        } else if(!everSynced){
+        } else if(!everSynced&&!window.rbOrderDeletion.hasCloudMark(data)){
           var local=lpORD();
           if(local.length>0)fbMigrateLocalOrders(local);
         } else {
@@ -3298,7 +3293,7 @@ function spORD(d){
   var localResult={ok:true};
   if(window.rbStorageResilience)localResult=window.rbStorageResilience.storeOrders(after,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(after));}catch(error){localResult={ok:false,error:error};}
   refreshOrderViews();
-  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey]){queueOps.push(fbQueueOrderOp('DELETE',old._fbKey,null));assetWrites.push(fbSetSafely('/order_assets/'+old._fbKey,null));}});
+  before.forEach(function(old){if(old&&old._fbKey&&!active[old._fbKey]){queueOps.push(fbQueueOrderOp('PUT',old._fbKey,window.rbOrderDeletion.mark(old,curUser())));assetWrites.push(fbSetSafely('/order_assets/'+old._fbKey,null));}});
   after.forEach(function(row){
     if(!row||!row.id)return;
     var old=byKey[row._fbKey],hasFreshAssets=fbOrderHasAssetFields(row),assetsChanged=!old||row._assetsChanged===true,clean=fbOrderCloudRecord(row,hasFreshAssets&&assetsChanged),changes={};
@@ -3736,9 +3731,11 @@ function saveOrder(){
 }
 function delOrder(id){
   var orders=lpORD();var o=orders.find(function(x){return x.id===id;});
-  spORD(orders.filter(function(x){return x.id!==id;}));
+  if(!o)return Promise.resolve({ok:false});fbSetSyncState('saving','กำลังลบงาน...','กำลังยืนยันการลบ '+id+' กับระบบออนไลน์');
+  var result=spORD(orders.filter(function(x){return x.id!==id;}));
   logTL('📋 สั่งงาน','ลบงาน',id+(o?' "'+(o.name||o.title||'')+'"':''),o?{jn:(o.name||o.title||''),jt:o.type,as:o.assignee}:null);
   renderOrderStats();renderOrders();
+  return window.rbOrderDeletion.report(id,result,fbSetSyncState);
 }
 
 // ── TIMELINE MODAL ──
