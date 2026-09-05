@@ -8,7 +8,7 @@ const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'u
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
 assert.ok(html.includes('commission-center-v1.css?v=fix316'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix354'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix357'),'commission runtime must be loaded');
 assert.ok(js.includes('loadAll(false)'),'commission data must paint from cache without starting hidden-page network work');
 assert.ok(js.includes('loadAll(true)'),'commission data must hydrate when its page is opened');
 assert.ok(js.includes('function saveSourceLocal(rows)'),'large commission cache must be stored through a quota-safe helper');
@@ -22,7 +22,10 @@ assert.ok(js.includes('เลือกการ์ดเพื่อดูรา
 assert.ok(js.includes('function enforceAdsAccess()'),'Ads users must be able to open the commission tab');
 assert.ok(js.includes("return'supervisor'"),'Supervisor must have team view');
 assert.ok(js.includes('data-cc-view'),'Supervisor must be able to preview every user view');
-assert.ok(js.includes('Graphic & Ads รายบุคคล'),'employee preview options must be grouped clearly');
+assert.ok(js.includes('<option value="staff:team"'),'Supervisor must have one consolidated Graphic & Ads preview');
+assert.ok(js.includes('Graphic & Ads · มุมมองพนักงาน'),'the consolidated employee view must be labelled by department');
+assert.ok(js.includes("key==='staff:team'?'Graphic & Ads'"),'the preview notice must identify the department instead of an individual employee');
+assert.ok(!js.includes('employees().map(function(emp){var value=\'staff:\'+emp'),'individual employee names must not be generated in the view selector');
 assert.ok(js.includes("actualRoleView()!=='audit'"),'Supervisor preview must not gain Audit edit permission');
 assert.ok(js.includes('ตัวอย่างนี้เป็นแบบอ่านอย่างเดียว'),'preview mode must explain its read-only permission');
 assert.ok(js.includes("CLOUD_STORE='/commission_center_v1'"),'commission edits must persist to shared storage');
