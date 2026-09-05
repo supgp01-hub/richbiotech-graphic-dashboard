@@ -7,8 +7,8 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'snippets','commission-center-v1.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'snippets','commission-center-v1.css'),'utf8');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix316'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix357'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix358'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix358'),'commission runtime must be loaded');
 assert.ok(js.includes('loadAll(false)'),'commission data must paint from cache without starting hidden-page network work');
 assert.ok(js.includes('loadAll(true)'),'commission data must hydrate when its page is opened');
 assert.ok(js.includes('function saveSourceLocal(rows)'),'large commission cache must be stored through a quota-safe helper');
@@ -26,8 +26,13 @@ assert.ok(js.includes('<option value="staff:team"'),'Supervisor must have one co
 assert.ok(js.includes('Graphic & Ads · มุมมองพนักงาน'),'the consolidated employee view must be labelled by department');
 assert.ok(js.includes("key==='staff:team'?'Graphic & Ads'"),'the preview notice must identify the department instead of an individual employee');
 assert.ok(!js.includes('employees().map(function(emp){var value=\'staff:\'+emp'),'individual employee names must not be generated in the view selector');
-assert.ok(js.includes("actualRoleView()!=='audit'"),'Supervisor preview must not gain Audit edit permission');
-assert.ok(js.includes('ตัวอย่างนี้เป็นแบบอ่านอย่างเดียว'),'preview mode must explain its read-only permission');
+assert.ok(js.includes("actual==='audit'||actual==='supervisor'"),'Supervisor must have full Audit entry permission');
+assert.ok(js.includes('สิทธิ์ Supervisor แบบเต็ม'),'Supervisor Audit management permission must be explained');
+assert.ok(js.includes('function productsForEmployee(employee)'),'Audit entry must filter products by responsible employee');
+assert.ok(js.includes('data-cc-action="toggle-product-form"'),'Supervisor must be able to open the add-product form');
+assert.ok(js.includes("CLOUD_STORE+'/catalog/'"),'new product assignments must persist to shared storage');
+assert.ok(js.includes('data-cc-product-employee'),'new products must be assigned to responsible employees');
+assert.ok(js.includes('ตัวอย่างนี้เป็นแบบอ่านอย่างเดียว'),'staff preview mode must explain its read-only permission');
 assert.ok(js.includes("CLOUD_STORE='/commission_center_v1'"),'commission edits must persist to shared storage');
 assert.ok(js.includes("CLOUD_STORE+'/records/'"),'commission rows must save independently so concurrent Audit work cannot overwrite other records');
 assert.ok(js.includes("CLOUD_STORE+'/locks/'"),'period locks must save independently from commission rows');
