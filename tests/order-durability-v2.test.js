@@ -44,7 +44,7 @@ assert.match(source, /old\.attempts=0;old\.nextAttemptAt=0/,
   'a fresh edit must reset retry backoff for its existing queued order');
 assert.match(source, /legacyKey&&!active\[legacyKey\]\?legacyKey:'ord_'/,
   'legacy rows must keep a stable internal key instead of being deleted and recreated');
-assert.match(source, /if\(_viewerCode&&!rbOrderMatchesAssignee\(o,_viewerCode\)\)return false/,
-  'graphic users must only see work assigned to them');
+assert.match(source, /orders=rbOrdersForViewer\(lpORD\(\),viewerContext\)/,
+  'graphic users must only see the shared viewer-scoped work rows');
 
 console.log('order-durability-v2: all tests passed');

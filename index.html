@@ -3430,10 +3430,13 @@ var _OM=null;
 function initOrderPanel(){
   var panel=document.querySelector('.gsp[data-sub="order"]');
   if(!panel)return;
-  var _rbu=window._rbUser;
-  if(_rbu&&_rbu.role==='graphic'){
-    _OF.assignee=rbOrderAssigneeCode(_rbu.name)||'__none__';
-    window._rbOrderLockedAssignee=_OF.assignee;
+  var _viewerContext=rbEnsureOrderViewerState(panel),_rbu=_viewerContext.user;
+  if(_viewerContext.isGraphic){
+    /* The signed-in employee guard is the only assignee filter here.  Keeping
+       a second, stale team filter was able to hide Ball's rows while the
+       counters (correctly) still showed them. */
+    _OF.assignee='';
+    window._rbOrderLockedAssignee=_viewerContext.code;
     var _ocr=document.getElementById('ord-chip-row');if(_ocr)_ocr.style.display='none';
   }else if(window._rbOrderLockedAssignee){
     if(_OF.assignee===window._rbOrderLockedAssignee)_OF.assignee='';
@@ -3501,7 +3504,7 @@ function initOrderPanel(){
   resetBtn.onclick=function(){
     _OF.status='';_OF.type='';_OF.search='';_OF.dl='';_OF.date='';_OF.activeCard='all';_OF.sort='priority';
     var _cu=window._rbUser;
-    _OF.assignee=_cu&&_cu.role==='graphic'?(rbOrderAssigneeCode(_cu.name)||'__none__'):'';
+    _OF.assignee='';window._rbOrderLockedAssignee=_cu&&_cu.role==='graphic'?(rbOrderAssigneeCode(_cu.name)||'__none__'):'';
     si.value='';dtI.value='';dtClr.style.display='none';tys.value='';sortSel.value='priority';_activeTeam='';
     chipRow.querySelectorAll('button').forEach(function(c){c.style.background='white';c.style.color='#374151';c.style.borderColor='#d1d5db';});
     renderOrderStats();renderOrders();
@@ -3531,9 +3534,8 @@ function initOrderPanel(){
 window._rbInitOP=initOrderPanel;
 function renderOrderStats(){
   var sr=document.getElementById('ord-stats');if(!sr)return;sr.innerHTML='';
-  var orders=lpORD();
-
-  var _rbuS=window._rbUser;if(_rbuS&&_rbuS.role==='graphic'){orders=orders.filter(function(o){return rbOrderMatchesAssignee(o,_rbuS.name);});}  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
+  var orders=rbOrdersForViewer(lpORD());
+  var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
   orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
   [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'มอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
     var isAct=_OF.activeCard===card.k;
@@ -3549,19 +3551,15 @@ function renderOrderStats(){
 
 function renderOrders(){
   var wrap=document.getElementById('ord-tw');if(!wrap)return;
-  var orders=lpORD();
-  var _viewer=window._rbUser||null,_viewerCode=_viewer&&_viewer.role==='graphic'?(rbOrderAssigneeCode(_viewer.name)||'__none__'):'';
+  var viewerContext=rbOrderViewerContext(),orders=rbOrdersForViewer(lpORD(),viewerContext);
   var f=orders.filter(function(o){
-    /* This guard is independent from UI filters, so changing user/role in the
-       same tab can never leak another employee's work or hide the supervisor's. */
-    if(_viewerCode&&!rbOrderMatchesAssignee(o,_viewerCode))return false;
     if(_OF.status&&o.status!==_OF.status)return false;
     if(_OF.type&&o.type!==_OF.type)return false;
     if(_OF.search){var terms=_OF.search.toLowerCase().trim().split(/\s+/);var hay=[o.id,o.name,o.title,o.product,o.type,o.assignee,o.note,o.pageName,o.fbName].join(' ').toLowerCase();if(!terms.every(function(q){return hay.indexOf(q)>=0;}))return false;}
     if(_OF.dl==='soon'&&dlSt(o.deadline)!=='soon')return false;
     if(_OF.dl==='over'&&dlSt(o.deadline)!=='over')return false;
     if(_OF.date&&(o.deadline||'')!==_OF.date)return false;
-    if(_OF.assignee&&!rbOrderMatchesAssignee(o,_OF.assignee))return false;
+    if(!viewerContext.isGraphic&&_OF.assignee&&!rbOrderMatchesAssignee(o,_OF.assignee))return false;
     return true;
   });
   function ordTs(v){if(!v)return 0;var n=typeof v==='number'?v:new Date(v).getTime();return isNaN(n)?0:n;}
@@ -3576,7 +3574,7 @@ function renderOrders(){
     return urgency(a)-urgency(b)||ordDl(a.deadline)-ordDl(b.deadline)||ordTs(b.updatedAt)-ordTs(a.updatedAt);
   });
   var sum=document.getElementById('ord-result-summary');
-  if(sum){var sortNames={priority:'งานด่วนก่อน',deadline:'Deadline ใกล้ก่อน',newest:'แก้ไขล่าสุด',oldest:'งานเก่าก่อน',name:'ชื่องาน ก-ฮ'};var _sumUser=window._rbUser;var _sumIsGraphic=_sumUser&&_sumUser.role==='graphic';var _sumTotal=orders.length;if(_sumIsGraphic){_sumTotal=orders.filter(function(o){return rbOrderMatchesAssignee(o,_sumUser.name);}).length;}var hasFilter=!!(_OF.status||_OF.type||_OF.search||_OF.dl||_OF.date||(_OF.assignee&&!_sumIsGraphic));sum.innerHTML='<span>แสดง <strong>'+f.length+'</strong> จาก '+_sumTotal+' งาน'+(_sumIsGraphic?'ของฉัน':'')+' · เรียง '+(sortNames[_OF.sort]||sortNames.priority)+'</span>'+(hasFilter?'<button type="button" class="ord-reset-link" onclick="document.querySelector(\'#ord-type-filter\')&&document.querySelector(\'#ord-type-filter\').parentNode.querySelector(\'button[title=&quot;แสดงงานทั้งหมด&quot;]\').click()">ล้างตัวกรองทั้งหมด</button>':'');}
+  if(sum){var sortNames={priority:'งานด่วนก่อน',deadline:'Deadline ใกล้ก่อน',newest:'แก้ไขล่าสุด',oldest:'งานเก่าก่อน',name:'ชื่องาน ก-ฮ'};var _sumIsGraphic=viewerContext.isGraphic,_sumTotal=orders.length;var hasFilter=!!(_OF.status||_OF.type||_OF.search||_OF.dl||_OF.date||(_OF.assignee&&!_sumIsGraphic));sum.innerHTML='<span>แสดง <strong>'+f.length+'</strong> จาก '+_sumTotal+' งาน'+(_sumIsGraphic?'ของฉัน':'')+' · เรียง '+(sortNames[_OF.sort]||sortNames.priority)+'</span>'+(hasFilter?'<button type="button" class="ord-reset-link" onclick="document.querySelector(\'#ord-type-filter\')&&document.querySelector(\'#ord-type-filter\').parentNode.querySelector(\'button[title=&quot;แสดงงานทั้งหมด&quot;]\').click()">ล้างตัวกรองทั้งหมด</button>':'');}
   wrap.innerHTML='';
   if(f.length===0){var em=document.createElement('div');em.textContent='ไม่พบรายการงาน';em.style.cssText='padding:40px;text-align:center;color:var(--text-muted2);font-size:14px;font-style:italic;';wrap.appendChild(em);return;}
   var tbl=document.createElement('table');tbl.className='ord-table';tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;';
@@ -3891,9 +3889,14 @@ window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=rend
 window.logTL=logTL;window._OF=_OF;
 window.orderContentRows=orderContentRows;window.refreshOrderContentList=refreshOrderContentList;window.refreshOrderContentFromCloud=refreshOrderContentFromCloud;
 window.addEventListener('rb:content-updated',function(){var p=document.getElementById('om-prod');refreshOrderContentList(p?p.value:'');});
+window.addEventListener('rb:auth-ready',function(){
+  var panel=document.querySelector('.gsp[data-sub="order"]');if(!panel)return;
+  rbEnsureOrderViewerState(panel);
+  if(panel.getAttribute('data-order-init')){renderOrderStats();renderOrders();}
+});
 fbRestoreDurableOrderQueue();
 })();
-</script><script src="snippets/persistence-reliability-v3.js?v=fix343"></script>
+</script><script src="snippets/order-viewer-filter-state-v1.js?v=fix348"></script><script src="snippets/persistence-reliability-v3.js?v=fix343"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
 <script src="snippets/order-planner-v1.js?v=fix338"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix316">
