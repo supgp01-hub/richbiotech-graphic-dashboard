@@ -12,4 +12,5 @@ assert.ok(index.includes('window.rbOrderAssigneeCode=rbOrderAssigneeCode'),'all 
 assert.ok(index.includes('window.rbOrderMatchesAssignee=rbOrderMatchesAssignee'),'all user surfaces must share normalized assignee matching');
 assert.ok(index.includes("var leaveReady=typeof lvGetCycle==='function'"),'assigned work must still render while leave data is initializing');
 assert.ok(index.includes('orders.filter(function(o){ return rbOrderMatchesAssignee(o,code); })'),'my-work cards must use normalized assignee matching');
+assert.ok(index.includes('rbOrderAssigneeCode(e.name)===rbOrderAssigneeCode(u.name)'),'English Ball login must select the Thai Ball employee card by normalized assignee code');
 console.log('order-user-role-actions-v1: all tests passed');

@@ -77,5 +77,9 @@ assert.ok(source.includes('<em>กำลังดู</em>'), 'the selected summa
 assert.ok(source.includes("query.value=String(filter.q||'')"), 'returning to List Facebook must visibly clear a stale search query');
 assert.equal(source.includes("['waiting','รอ Facebook']"), false, 'รอ Facebook must be removed from every tracking-stage selector and summary');
 assert.ok(source.includes('window._lfbReconcileFollowupStatus=reconcileFollowupStatus'), 'Facebook status saves must reconcile the shared tracking record');
+assert.ok(source.includes('id="lfbi-follow-date" type="date"'), 'account status editing must show the next follow-up date in the same panel');
+assert.ok(source.includes("updateAccountFollowupDate(event.target.value)"), 'the date field must react immediately to the existing status rules');
+assert.ok(source.includes('values.followupNextDate=needsSystemFollowup'), 'account saves must forward the selected follow-up date only for tracked statuses');
+assert.ok(source.includes("stage:nextStage,nextDate:nextDate"), 'a tracked status save must create a dated follow-up record for the table');
 
 console.log('list-facebook-followup: all tests passed');
