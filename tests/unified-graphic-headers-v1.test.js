@@ -20,6 +20,6 @@ assert.ok(index.includes('snippets/unified-graphic-headers-v1.css?v=230'));
 assert.ok(index.includes('snippets/unified-graphic-headers-v1.js?v=266'));
 assert.ok(js.includes("title:'สั่งงาน Graphic'")&&js.includes("title:'รวมลิงก์ Content'")&&js.includes("title:'จัดการ Facebook Pages'"),'page titles must omit the word ศูนย์');
 assert.ok(!js.includes("title:'ศูนย์"),'unified page titles must not retain the word ศูนย์');
-assert.ok(index.includes('<meta name="rb-build" content="fix361">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix362">'));
 assert.ok(index.includes('<div class="ct-title">Content Tracker')&&!index.includes('OLYMPPLUS Content Tracker'),'the Links title must omit the OLYMPPLUS prefix');
 console.log('unified-graphic-headers-v1: all tests passed');

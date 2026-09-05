@@ -23,8 +23,15 @@ const rankingHtml=staffRanking([
 assert.ok(rankingHtml.includes('FIRST')&&rankingHtml.includes('SECOND')&&rankingHtml.includes('THIRD'),'ranking must render the three highest earners');
 assert.ok(!rankingHtml.includes('FOURTH'),'ranking must exclude employees below third place');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix360'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix360'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix362'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix362'),'commission runtime must be loaded');
+assert.ok(js.includes('data-cc-staff-product'),'monthly detail must provide product tabs');
+assert.ok(js.includes("num(r.ads)>0||num(r.commission)>0"),'monthly detail must hide zero-value dates');
+assert.ok(js.includes('data-cc-action="save-all-goals"'),'supervisor must be able to save every employee goal');
+assert.ok(js.includes("CLOUD_STORE+'/goals/'"),'goals must use targeted cloud persistence');
+assert.ok(js.includes('ภาพรวมค่าคอมทุกคน'),'supervisor overview must include every employee');
+assert.ok(css.includes('.cc-month-table'),'monthly product table styles must be loaded');
+assert.ok(css.includes('.cc-goal-grid'),'goal editor styles must be loaded');
 assert.ok(js.includes('loadAll(false)'),'commission data must paint from cache without starting hidden-page network work');
 assert.ok(js.includes('loadAll(true)'),'commission data must hydrate when its page is opened');
 assert.ok(js.includes('function saveSourceLocal(rows)'),'large commission cache must be stored through a quota-safe helper');
