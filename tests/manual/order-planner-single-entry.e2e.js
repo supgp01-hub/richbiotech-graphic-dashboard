@@ -3,6 +3,7 @@ const assert = require('assert');
 
 (async () => {
   const targetUrl = process.argv[2] || 'http://127.0.0.1:8014/tests/fixtures/order-planner-harness.html?v=fix303';
+  const sampleFile = process.argv[3] || '';
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const page = await browser.newPage();
   page.setDefaultTimeout(20000);
@@ -29,8 +30,17 @@ const assert = require('assert');
   assert.strictEqual(await page.locator('.rbp-draft-list').count(), 1, 'planner must show the draft list on the left');
   assert.strictEqual(await page.locator('.rbp-detail-editor').count(), 1, 'planner must show the single-entry form on the right');
   const editor = page.locator('.rbp-detail-editor');
+  await editor.locator('[data-field="deadline"]').fill('2026-09-10');
+  assert.strictEqual(await editor.locator('[data-field="scheduledDate"]').inputValue(), '2026-09-10', 'planner schedule date must update immediately from Deadline');
+  assert.strictEqual(await editor.locator('[data-field="scheduledDate"]').getAttribute('readonly'), '', 'the synchronized schedule date must not drift from manual editing');
   assert.strictEqual(await editor.locator('[data-field="workStatus"]').inputValue(), 'pending', 'the Add New status must default to pending');
   assert.strictEqual(await editor.locator('[data-upload="brief"]').count(), 1, 'the Add New sample-image upload must be present');
+  if (sampleFile) {
+    await editor.locator('[data-upload="brief"]').setInputFiles(sampleFile);
+    await editor.locator('.rbp-brief-gallery img').waitFor({state:'visible', timeout:15000});
+    assert.strictEqual(await editor.locator('.rbp-brief-gallery img').count(), 1, 'uploaded sample image must render a visible preview');
+    assert.match(await editor.locator('.rbp-brief-gallery img').getAttribute('src'), /^data:image\//, 'sample preview must use durable image data');
+  }
   assert.strictEqual(await editor.locator('.rbp-parity-guard').count(), 1, 'the Add New leave guard must be present');
   assert.strictEqual(await editor.locator('[data-field="contentChoice"] option').count(), 1, 'the job DropDown must wait for a product instead of rendering every Content Tracker row');
   assert.strictEqual(await editor.locator('[data-field="product"] option').count(), 13, 'the product DropDown must expose every product plus its placeholder');

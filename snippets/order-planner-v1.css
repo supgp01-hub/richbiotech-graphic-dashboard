@@ -216,6 +216,9 @@ html[data-theme=dark] #rb-order-planner .rbp-content-status{background:#173d2e;c
 html[data-theme=dark] #rb-order-planner .rbp-content-status.is-loading,html[data-theme=dark] #rb-order-planner .rbp-content-status.is-empty{background:#3d3018;color:#ffe0a1}
 html[data-theme=dark] #rb-order-planner .rbp-parity-guard.is-bad{background:#3b1d22;color:#ffb8c0}
 html[data-theme=dark] #rb-order-planner .rbp-upload-block{background:rgba(23,61,46,.55)}
+#rb-order-planner .rbp-synced-date input[readonly]{background:#eef9f2;color:#155e3f;font-weight:700;cursor:not-allowed}
+#rb-order-planner .rbp-synced-date small{display:block;margin-top:4px;color:#47836d;font-size:10px}
+html[data-theme=dark] #rb-order-planner .rbp-synced-date input[readonly]{background:#173d2e;color:#a8efc8}
 html[data-theme=dark] #rb-order-planner .rbp-preset-menu button:hover{background:#173d2e}
 html[data-theme=dark] #rb-order-planner .rbp-sync-strip{background:#3d3018;color:#ffe0a1}
 html[data-theme=dark] #rb-order-planner .rbp-sync-strip span{background:rgba(255,255,255,.04)}
