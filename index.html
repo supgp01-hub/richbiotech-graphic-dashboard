@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix351">
+<meta name="rb-build" content="fix352">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3130,10 +3130,11 @@ function fbSyncStart(){
 }
 function fbLoadOrders(cb){
   var SYNCED_KEY='rb_orders_synced_v1';
-  if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');refreshOrderViews();if(cb)cb();return;}
+  var isLeader=fbIsLeader();
+  if(!isLeader)fbSetSyncState('connecting','กำลังอัปเดต...','กำลังดึงงานล่าสุดสำหรับแท็บนี้');
   fbGet('/orders',function(err,data){
     if(!err){
-      fbSetSyncState('online','ออนไลน์',_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว');
+      fbSetSyncState('online',isLeader?'ออนไลน์':'พร้อมใช้งาน',isLeader?(_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว'):'อัปเดตข้อมูลแล้ว · เรียลไทม์ผ่านแท็บหลัก');
       var everSynced=localStorage.getItem(SYNCED_KEY)==='1';
       if(data){
         var arr=fbMergeRemoteSnapshot(data);
@@ -3158,13 +3159,14 @@ function fbLoadOrders(cb){
 }
 function fbRefreshOrders(cb){
   var SYNCED_KEY='rb_orders_synced_v1';
-  if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');refreshOrderViews();if(cb)cb(null);return;}
+  var isLeader=fbIsLeader();
+  if(!isLeader)fbSetSyncState('connecting','กำลังอัปเดต...','กำลังดึงงานล่าสุดสำหรับแท็บนี้');
   if(cb)_fbRefreshCallbacks.push(cb);
   if(_fbRefreshActive){_fbRefreshAgain=true;return;}
   _fbRefreshActive=true;
   fbGet('/orders',function(err,data){
     if(!err){
-      fbSetSyncState('online','ออนไลน์',_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว');
+      fbSetSyncState('online',isLeader?'ออนไลน์':'พร้อมใช้งาน',isLeader?(_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว'):'อัปเดตข้อมูลแล้ว · เรียลไทม์ผ่านแท็บหลัก');
       if(data){
         var arr=fbMergeRemoteSnapshot(data);
         if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(arr,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(arr));}catch(error){}
@@ -3179,14 +3181,14 @@ function fbRefreshOrders(cb){
     if(_fbRefreshAgain){_fbRefreshAgain=false;setTimeout(function(){fbRefreshOrders();},80);}
   });
 }
-window.addEventListener('online',function(){if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbFlushOrderQueue();fbRefreshOrders();fbSyncStart();});
+window.addEventListener('online',function(){if(!fbIsLeader()){fbRefreshOrders();return;}fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbFlushOrderQueue();fbRefreshOrders();fbSyncStart();});
 window.addEventListener('offline',function(){fbSetSyncState('waiting','รออินเทอร์เน็ต','การแก้ไขจะเก็บไว้และซิงค์เมื่อออนไลน์');});
 window.addEventListener('storage',function(e){if(e.key===LS_ORD){if(window.rbStorageResilience)window.rbStorageResilience.clearOrderMemory();refreshOrderViews();}if(e.key===FB_ORDER_QUEUE&&fbIsLeader())fbFlushOrderQueue();});
 window.addEventListener('rb:leader-change',function(e){var lead=!!(e.detail&&e.detail.leader);if(!lead){fbStopNetwork();fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');refreshOrderViews();return;}if(!document.hidden&&navigator.onLine!==false){fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbRefreshOrders();fbFlushOrderQueue();fbSyncStart();}});
 document.addEventListener('visibilitychange',function(){
   if(document.hidden){fbStopNetwork();return;}
   if(window.rbMultiTab)window.rbMultiTab.claim();
-  if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');refreshOrderViews();return;}
+  if(!fbIsLeader()){fbRefreshOrders();return;}
   if(typeof navigator==='undefined'||navigator.onLine!==false){fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbRefreshOrders();fbFlushOrderQueue();fbSyncStart();}
 });
 window.addEventListener('pagehide',fbStopNetwork);
@@ -3537,14 +3539,18 @@ function renderOrderStats(){
   var orders=rbOrdersForViewer(lpORD());
   var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
   orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
+  if(_OF.activeCard&&_OF.activeCard!=='all'&&c[_OF.activeCard]===0){
+    _OF.status='';_OF.dl='';_OF.activeCard='all';
+  }
   [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'มอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
     var isAct=_OF.activeCard===card.k;
-    var el=document.createElement('div');el.style.cssText='background:'+card.bg+';border-radius:10px;padding:10px 14px;cursor:pointer;flex:1;min-width:80px;text-align:center;transition:all .15s;box-sizing:border-box;'+(isAct?'outline:3px solid '+card.col+';box-shadow:0 6px 16px rgba(0,0,0,.18);transform:translateY(-3px);':'outline:3px solid transparent;');
-    el.onmouseenter=function(){this.style.opacity='.8';};el.onmouseleave=function(){this.style.opacity='1';};
+    var disabled=card.k!=='all'&&card.n===0;
+    var el=document.createElement('div');el.setAttribute('aria-disabled',disabled?'true':'false');el.style.cssText='background:'+card.bg+';border-radius:10px;padding:10px 14px;cursor:'+(disabled?'default':'pointer')+';flex:1;min-width:80px;text-align:center;transition:all .15s;box-sizing:border-box;opacity:'+(disabled?'.58':'1')+';'+(isAct?'outline:3px solid '+card.col+';box-shadow:0 6px 16px rgba(0,0,0,.18);transform:translateY(-3px);':'outline:3px solid transparent;');
+    el.onmouseenter=function(){if(!disabled)this.style.opacity='.8';};el.onmouseleave=function(){this.style.opacity=disabled?'.58':'1';};
     var n=document.createElement('div');n.textContent=card.n;n.style.cssText='font-size:24px;font-weight:800;color:'+card.col+';line-height:1;';
     var l=document.createElement('div');l.textContent=card.l;l.style.cssText='font-size:10px;color:'+card.col+';margin-top:3px;white-space:nowrap;';
     el.appendChild(n);el.appendChild(l);
-    el.onclick=(function(card){return function(){_OF.dl='';_OF.status='';_OF.date='';_OF.activeCard=card.k;var fdt=document.getElementById('ord-fst');if(fdt)fdt.value='';var dtClrBtn=fdt?fdt.parentNode.querySelector('button'):null;if(dtClrBtn)dtClrBtn.style.display='none';if(card.k==='soon'||card.k==='over'){_OF.dl=card.k;}else if(card.k!=='all'){_OF.status=card.k;}renderOrderStats();initOrderPanel();};})(card);
+    el.onclick=(function(card,disabled){return function(){if(disabled)return;_OF.dl='';_OF.status='';_OF.date='';_OF.activeCard=card.k;var fdt=document.getElementById('ord-fst');if(fdt)fdt.value='';var dtClrBtn=fdt?fdt.parentNode.querySelector('button'):null;if(dtClrBtn)dtClrBtn.style.display='none';if(card.k==='soon'||card.k==='over'){_OF.dl=card.k;}else if(card.k!=='all'){_OF.status=card.k;}renderOrderStats();initOrderPanel();};})(card,disabled);
     sr.appendChild(el);
   });
 }
@@ -3562,6 +3568,9 @@ function renderOrders(){
     if(!viewerContext.isGraphic&&_OF.assignee&&!rbOrderMatchesAssignee(o,_OF.assignee))return false;
     return true;
   });
+  if(!f.length&&orders.length&&!_OF.search&&!_OF.type&&!_OF.date&&(!_OF.assignee||viewerContext.isGraphic)&&(_OF.status||_OF.dl)){
+    _OF.status='';_OF.dl='';_OF.activeCard='all';f=orders.slice();
+  }
   function ordTs(v){if(!v)return 0;var n=typeof v==='number'?v:new Date(v).getTime();return isNaN(n)?0:n;}
   function ordDl(v){if(!v)return Number.MAX_SAFE_INTEGER;var n=new Date(v+'T00:00:00').getTime();return isNaN(n)?Number.MAX_SAFE_INTEGER:n;}
   function urgency(o){if(o.status==='done')return 4;var d=dlSt(o.deadline);if(d==='over')return 0;if(d==='soon')return 1;if(!o.deadline)return 3;return 2;}
@@ -6257,5 +6266,5 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <script src="snippets/system-health-v1.js?v=fix341"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure19">
-<script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure21"></script>
+<script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure22"></script>
 </html>

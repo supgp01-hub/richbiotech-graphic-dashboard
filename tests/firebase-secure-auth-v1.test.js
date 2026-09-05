@@ -121,8 +121,16 @@ test('login directory keeps active replacement accounts visible regardless of st
   assert.match(auth, /if\(activeNames\.has\(nameKey\)\|\|activeEmails\.has\(email\)\)return/);
 });
 
+test('PIN login waits for and caches the latest rotated account directory', () => {
+  assert.match(auth, /LOGIN_DIRECTORY_CACHE_KEY='rb_login_directory_cache_v1'/);
+  assert.match(auth, /localStorage\.getItem\(LOGIN_DIRECTORY_CACHE_KEY\)/);
+  assert.match(auth, /localStorage\.setItem\(LOGIN_DIRECTORY_CACHE_KEY/);
+  assert.match(auth, /if\(!loginDirectoryUsable\)await loginDirectoryReady/);
+  assert.match(auth, /controller\.abort\(\),8000/);
+});
+
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure21/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure22/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);

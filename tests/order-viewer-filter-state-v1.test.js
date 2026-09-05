@@ -19,6 +19,12 @@ assert.ok(source.includes("if(!viewerContext.isGraphic&&_OF.assignee&&!rbOrderMa
   'an employee table must not be filtered a second time by a stale team chip');
 assert.ok(source.includes("window.addEventListener('rb:auth-ready'"),
   'a newly authenticated employee must immediately refresh an initialized order panel');
+assert.ok(source.includes("if(_OF.activeCard&&_OF.activeCard!=='all'&&c[_OF.activeCard]===0)"),
+  'a stale zero-count summary card must be cleared before it can hide every assigned job');
+assert.ok(source.includes("if(disabled)return;_OF.dl=''"),
+  'zero-count summary cards must not create an empty employee table');
+assert.ok(source.includes("if(!f.length&&orders.length&&!_OF.search&&!_OF.type&&!_OF.date"),
+  'the table must defensively recover from a stale summary filter');
 
 const filters={status:'review',type:'กราฟิก',search:'old',dl:'over',assignee:'MOS',date:'2026-09-05',activeCard:'review',sort:'name'};
 const attrs={};
@@ -39,5 +45,14 @@ assert.deepEqual(context.rbOrdersForViewer([
   {id:'GR1',assignee:'BALL'},{id:'GR2',assignee:'MOS'},{id:'GR3',assignee:'ball '}
 ]).map(row=>row.id),['GR1','GR3'],
   'Ball must see every Ball spelling accepted by the shared assignee matcher and no other employee work');
+
+['Moss','Dom','Ter','Nune','Jam','Ball'].forEach(name=>{
+  context._rbUser={uid:name.toLowerCase()+'-uid',name,role:'graphic'};
+  const own=context.rbOrdersForViewer([
+    {id:'OWN-'+name,assignee:name.toUpperCase()},
+    {id:'OTHER-'+name,assignee:name==='Ball'?'DOM':'BALL'}
+  ]);
+  assert.deepEqual(own.map(row=>row.id),['OWN-'+name],name+' must receive only their complete assigned workload');
+});
 
 console.log('order-viewer-filter-state-v1: counters and rows stay aligned for employee accounts');

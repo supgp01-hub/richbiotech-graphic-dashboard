@@ -8,6 +8,7 @@ const CONFIG={apiKey:'AIzaSyCfhpRlo_jVl9_vuBKkwDq0H7kAmC-_nho',authDomain:'richb
 const DB='https://richbiotech-c4e41-default-rtdb.firebaseio.com';
 const SUPERVISOR_EMAIL='supgp01@richbiotech.com';
 const PIN_SESSION_KEY='rb_firebase_pin_session_v3';
+const LOGIN_DIRECTORY_CACHE_KEY='rb_login_directory_cache_v1';
 const EMPLOYEES=['วิว','มอส','ดอม','เตอร์','นุ่น','แจ๋ม','บอล','นุ้ย','มายด์','MY Boss','Audit'];
 const PIN_ACCOUNTS={
   'วิว':'pin.view@richbiotech.team','มอส':'pin.moss@richbiotech.team','ดอม':'pin.dom@richbiotech.team',
@@ -29,6 +30,8 @@ let profile=null;
 let pinSession=restorePinSession();
 let pinLoginBusy=false;
 let lastPinError='';
+let loginDirectoryReady=Promise.resolve();
+let loginDirectoryUsable=false;
 let resolveReady;
 const ready=new Promise(resolve=>{resolveReady=resolve;});
 
@@ -46,26 +49,37 @@ function refreshLoginSelect(){
   const selected=select.value;select.innerHTML='<option value="">— เลือกชื่อ —</option>'+loginOptions();
   if(loginNames.includes(selected))select.value=selected;
 }
+function applyLoginDirectoryRows(rows){
+  rows=Array.isArray(rows)?rows.filter(Boolean):[];
+  const activeRows=rows.filter(row=>row.active!==false&&row.name&&row.loginEmail).map(row=>({...row,name:canonicalLoginName(row.name)}));
+  const activeNames=new Set(activeRows.map(row=>displayName(row.name).toLowerCase()));
+  const activeEmails=new Set(activeRows.map(row=>String(row.loginEmail).toLowerCase()));
+  rows.filter(row=>row.active===false).forEach(row=>{
+    const name=canonicalLoginName(row.name),email=String(row.loginEmail||'').toLowerCase(),nameKey=displayName(name).toLowerCase();
+    if(activeNames.has(nameKey)||activeEmails.has(email))return;
+    loginNames=loginNames.filter(item=>displayName(item).toLowerCase()!==nameKey&&String(loginAccounts[item]||'').toLowerCase()!==email);
+    delete loginAccounts[name];
+  });
+  activeRows.forEach(row=>{
+    const email=String(row.loginEmail).toLowerCase(),nameKey=displayName(row.name).toLowerCase();
+    loginNames=loginNames.filter(name=>name===row.name||(displayName(name).toLowerCase()!==nameKey&&String(loginAccounts[name]||'').toLowerCase()!==email));
+    loginAccounts[row.name]=email;if(!loginNames.includes(row.name))loginNames.push(row.name);
+  });
+}
 async function loadLoginDirectory(){
   loginAccounts={...PIN_ACCOUNTS};loginNames=[...EMPLOYEES];
+  try{const cached=JSON.parse(localStorage.getItem(LOGIN_DIRECTORY_CACHE_KEY)||'null');if(cached&&Array.isArray(cached.rows)){applyLoginDirectoryRows(cached.rows);loginDirectoryUsable=true;}}catch(_error){}
+  loginNames.sort((a,b)=>displayName(a).localeCompare(displayName(b),'en'));refreshLoginSelect();
   try{
-    const response=await nativeFetch(pathUrl('login_directory')+'?v='+Date.now(),{cache:'no-store'});
+    const controller=typeof AbortController!=='undefined'?new AbortController():null;
+    const timer=controller?setTimeout(()=>controller.abort(),8000):null;
+    const response=await nativeFetch(pathUrl('login_directory')+'?v='+Date.now(),{cache:'no-store',signal:controller?.signal});
+    if(timer)clearTimeout(timer);
     if(response.ok){
       const rows=Object.values(await response.json()||{}).filter(Boolean);
-      const activeRows=rows.filter(row=>row.active!==false&&row.name&&row.loginEmail).map(row=>({...row,name:canonicalLoginName(row.name)}));
-      const activeNames=new Set(activeRows.map(row=>displayName(row.name).toLowerCase()));
-      const activeEmails=new Set(activeRows.map(row=>String(row.loginEmail).toLowerCase()));
-      rows.filter(row=>row.active===false).forEach(row=>{
-        const name=canonicalLoginName(row.name),email=String(row.loginEmail||'').toLowerCase(),nameKey=displayName(name).toLowerCase();
-        if(activeNames.has(nameKey)||activeEmails.has(email))return;
-        loginNames=loginNames.filter(item=>displayName(item).toLowerCase()!==nameKey&&String(loginAccounts[item]||'').toLowerCase()!==email);
-        delete loginAccounts[name];
-      });
-      activeRows.forEach(row=>{
-        const email=String(row.loginEmail).toLowerCase(),nameKey=displayName(row.name).toLowerCase();
-        loginNames=loginNames.filter(name=>name===row.name||(displayName(name).toLowerCase()!==nameKey&&String(loginAccounts[name]||'').toLowerCase()!==email));
-        loginAccounts[row.name]=email;if(!loginNames.includes(row.name))loginNames.push(row.name);
-      });
+      loginAccounts={...PIN_ACCOUNTS};loginNames=[...EMPLOYEES];applyLoginDirectoryRows(rows);
+      loginDirectoryUsable=true;
+      try{localStorage.setItem(LOGIN_DIRECTORY_CACHE_KEY,JSON.stringify({rows,updatedAt:Date.now()}));}catch(_error){}
     }
   }catch(_error){}
   loginNames.sort((a,b)=>displayName(a).localeCompare(displayName(b),'en'));
@@ -206,6 +220,7 @@ async function pinLogin(){
   pinLoginBusy=true;button.disabled=true;button.textContent='กำลังเข้าสู่ระบบ...';
   pinInputs(el).forEach(input=>{input.disabled=true;});el.querySelector('#rb-auth-name').disabled=true;
   try{
+    if(!loginDirectoryUsable)await loginDirectoryReady;
     const loginEmail=loginAccounts[name];if(!loginEmail)throw new Error('LOGIN_ACCOUNT_NOT_FOUND');
     const user=await pinRestLogin(loginEmail,pin);const p=await ensureProfile(user);
     if(p){applyProfile(user,p);return;}
@@ -444,7 +459,7 @@ window.fetch=secureFetch;
 window._rbLogout=logout;
 window._rbShowLC=()=>{const dialog=document.getElementById('rb-lc-wrap');if(dialog)dialog.classList.add('lc-open');else signOut(auth);};
 try{sessionStorage.removeItem('rb_session');}catch(_e){}
-gate();loadLoginDirectory();
+gate();loginDirectoryReady=loadLoginDirectory();
 setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
   onAuthStateChanged(auth,async user=>{
     setupAdmin(false);

@@ -48,7 +48,10 @@ assert.equal(follower.rbMultiTab.isLeader(), true, 'a follower must take over af
 
 assert.ok(index.indexOf('multitab-stability-v1.js?v=205') < index.indexOf('list-facebook-editor.css'), 'leader election must load before feature scripts');
 assert.ok(index.includes("function fbIsLeader(){return !window.rbMultiTab||window.rbMultiTab.isLeader();}"), 'Firebase realtime must use one leader tab');
-assert.ok(index.includes("if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}"), 'follower tabs must not flush the shared order queue');
+assert.ok(index.includes("if(!fbIsLeader()&&!force){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');return;}"), 'follower tabs must not flush the shared order queue in the background');
+assert.ok(index.includes("if(!isLeader)fbSetSyncState('connecting','กำลังอัปเดต...'"), 'every follower tab must hydrate its own order cache from Firebase');
+assert.equal(index.includes("if(!fbIsLeader()){fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');refreshOrderViews();if(cb)cb();return;}"),false,'a follower tab must never skip its initial order snapshot');
+assert.ok(index.includes("if(!fbIsLeader()){fbRefreshOrders();return;}"), 'a follower returning online or visible must fetch a fresh snapshot without starting realtime twice');
 assert.ok(index.includes('var q=false,pending=[];function schedule(ms)'), 'icon observer must process only added nodes');
 assert.equal(index.includes('new MutationObserver(schedule).observe(document.documentElement'), true, 'targeted icon observer must remain active for dynamic UI');
 assert.equal(index.includes('setTimeout(function(){window._lfbFetch&&window._lfbFetch();},0)'), false, 'hidden Facebook Pages table must not render at startup');

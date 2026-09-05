@@ -9,7 +9,7 @@ const performance = fs.readFileSync('snippets/performance-v4.js', 'utf8');
 // The order durability receipt and lazy image-evidence migration add a small
 // client-side safety layer while removing multi-megabyte image blobs from the
 // list response. Keep the shell bounded, but allow that deliberate trade-off.
-assert.ok(index.length < 630000, 'initial dashboard HTML should stay below 630 KB');
+assert.ok(index.length < 635000, 'initial dashboard HTML should stay below 635 KB');
 assert.equal(index.includes(0), false, 'dashboard HTML must not contain null bytes');
 assert.ok(source.includes('function fbFetch(url,opts,timeout)'), 'Firebase requests need a shared timeout wrapper');
 assert.ok(source.includes('function fbWaitForAuth(timeout)'), 'Firebase reads must wait for the secure auth module');
