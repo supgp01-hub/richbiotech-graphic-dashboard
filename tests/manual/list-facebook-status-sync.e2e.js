@@ -36,16 +36,18 @@ const assert = require('assert');
   assert.equal(await page.locator('#lfbi-note').inputValue(), 'Draft must survive refresh', 'background rendering must not erase a field while the user is typing');
 
   await page.locator('#lfbi-st').selectOption('เปลี่ยนเฟสใหม่แล้ว');
+  await page.locator('#lfbi-name').fill('Ford Mustang Renamed');
   await page.locator('#lfb-account-save').click();
   await page.waitForFunction(() => {
-    const row = (window._listfbData || []).find((item) => item && item.name === 'Ford Mustang');
-    return row && row.st === 'เปลี่ยนเฟสใหม่แล้ว';
+    const row = (window._listfbData || []).find((item) => item && item.name === 'Ford Mustang Renamed');
+    return row && row.st === 'เปลี่ยนเฟสใหม่แล้ว' && Number(row.updatedAt) > 0;
   });
 
-  const updatedRow = page.locator('.lfb-follow-row').filter({ hasText: 'Ford Mustang' });
+  const updatedRow = page.locator('.lfb-follow-row').filter({ hasText: 'Ford Mustang Renamed' });
   assert.match(await updatedRow.locator('.lfb-status-cell').innerText(), /เปลี่ยนเฟสใหม่แล้ว/, 'the Facebook status must update immediately after save');
   assert.match(await updatedRow.locator('.lfb-stage-cell').innerText(), /ไม่ติดตาม/, 'a safe Facebook status must leave the tracking queue');
   assert.strictEqual((await updatedRow.locator('.lfb-updated').innerText()).trim(), '-\nไม่ติดตาม', 'a safe status must clear the next follow-up date');
+  assert.match(await page.locator('#lfb-account-detail .lfb-account-updated').innerText(), /แก้ไขล่าสุด:/, 'the account editor must show the current save timestamp');
 
   const savedState = await page.evaluate(() => {
     const map = JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1') || '{}');

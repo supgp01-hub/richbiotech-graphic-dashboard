@@ -247,8 +247,12 @@ function renderAll(){
   var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='all';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;if(!filter.pageSize)filter.pageSize=listPageSize();
   var query=document.getElementById('lfb-q');if(query&&query.value!==String(filter.q||''))query.value=String(filter.q||'');
   var counts=stageCounts(data);employeeOptions(data);statusOptions();renderStats(data,counts);renderStages(counts);renderViewButtons();renderRows(data);
-  var detail=document.getElementById('lfb-account-detail'),active=document.activeElement;
-  if(!detail||detail.getAttribute('data-editing')!=='1'||!active||!detail.contains(active))renderAccountDetail();
+  /* Keep a dirty editor mounted until its explicit save/cancel path finishes.
+     Focus can briefly move to the page during an async refresh; using
+     document.activeElement here used to redraw the form and discard an
+     unsaved name or status. */
+  var detail=document.getElementById('lfb-account-detail');
+  if(!detail||detail.getAttribute('data-editing')!=='1')renderAccountDetail();
   var warning=document.getElementById('lfb-follow-source-warning');if(warning)warning.hidden=!data.length||data.some(function(row){return Object.prototype.hasOwnProperty.call(row,'follow');});
 }
 function syncFollowups(){
@@ -313,6 +317,7 @@ function bindHybrid(root){
     if(event.target&&event.target.matches('[data-rbps-size],[data-lfb-page-size]')){window._lfbFilter.pageSize=saveListPageSize(event.target.value);window._lfbFilter.page=1;renderAll();}
   });
   root.addEventListener('input',function(event){var detail=event.target&&event.target.closest&&event.target.closest('#lfb-account-detail');if(detail&&event.target.matches('input,select,textarea'))detail.setAttribute('data-editing','1');});
+  root.addEventListener('change',function(event){var detail=event.target&&event.target.closest&&event.target.closest('#lfb-account-detail');if(detail&&event.target.matches('input,select,textarea'))detail.setAttribute('data-editing','1');});
   var followOverlay=document.getElementById('lfb-followup-overlay');if(followOverlay)followOverlay.addEventListener('click',function(event){if(event.target===followOverlay)closeFollowupModal();});
   document.getElementById('lfb2-upd').addEventListener('click',function(){Promise.resolve(window._listfbFetch()).then(function(){syncFollowups();renderAll();});});
   document.getElementById('lfb-add').addEventListener('click',function(){window._lfbOpenEditor('');});
