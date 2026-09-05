@@ -34,6 +34,10 @@ const ready=new Promise(resolve=>{resolveReady=resolve;});
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function displayName(value){return ENGLISH_NAMES[value]||String(value||'User');}
+function canonicalLoginName(value){
+  const raw=String(value||'').trim(),key=raw.toLowerCase();
+  return EMPLOYEES.find(name=>name.toLowerCase()===key||displayName(name).toLowerCase()===key)||raw;
+}
 function avatarLetter(value){const found=displayName(value).match(/[A-Za-z]/);return found?found[0].toUpperCase():'U';}
 function roleLabel(value){return ROLES.find(x=>x[0]===value)?.[1]||value||'ไม่ระบุสิทธิ์';}
 function loginOptions(){return loginNames.map(name=>'<option value="'+esc(name)+'">'+esc(displayName(name))+'</option>').join('');}
@@ -48,12 +52,16 @@ async function loadLoginDirectory(){
     const response=await nativeFetch(pathUrl('login_directory')+'?v='+Date.now(),{cache:'no-store'});
     if(response.ok){
       const rows=Object.values(await response.json()||{}).filter(Boolean);
+      const activeRows=rows.filter(row=>row.active!==false&&row.name&&row.loginEmail).map(row=>({...row,name:canonicalLoginName(row.name)}));
+      const activeNames=new Set(activeRows.map(row=>displayName(row.name).toLowerCase()));
+      const activeEmails=new Set(activeRows.map(row=>String(row.loginEmail).toLowerCase()));
       rows.filter(row=>row.active===false).forEach(row=>{
-        const email=String(row.loginEmail||'').toLowerCase(),nameKey=displayName(row.name).toLowerCase();
-        loginNames=loginNames.filter(name=>displayName(name).toLowerCase()!==nameKey&&String(loginAccounts[name]||'').toLowerCase()!==email);
-        delete loginAccounts[row.name];
+        const name=canonicalLoginName(row.name),email=String(row.loginEmail||'').toLowerCase(),nameKey=displayName(name).toLowerCase();
+        if(activeNames.has(nameKey)||activeEmails.has(email))return;
+        loginNames=loginNames.filter(item=>displayName(item).toLowerCase()!==nameKey&&String(loginAccounts[item]||'').toLowerCase()!==email);
+        delete loginAccounts[name];
       });
-      rows.filter(row=>row.active!==false&&row.name&&row.loginEmail).forEach(row=>{
+      activeRows.forEach(row=>{
         const email=String(row.loginEmail).toLowerCase(),nameKey=displayName(row.name).toLowerCase();
         loginNames=loginNames.filter(name=>name===row.name||(displayName(name).toLowerCase()!==nameKey&&String(loginAccounts[name]||'').toLowerCase()!==email));
         loginAccounts[row.name]=email;if(!loginNames.includes(row.name))loginNames.push(row.name);
@@ -347,6 +355,19 @@ async function signUpPinAccount(email,pin){
   const response=await nativeFetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'rb'+pin,returnSecureToken:true})});
   const data=await response.json();if(!response.ok||!data.localId)throw new Error(data?.error?.message||'CREATE_AUTH_ACCOUNT_FAILED');return data;
 }
+async function verifyPinReplacement(uid,email,pin){
+  const loginResponse=await nativeFetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'rb'+pin,returnSecureToken:true})});
+  const loginData=await loginResponse.json();
+  if(!loginResponse.ok||loginData.localId!==uid||!loginData.idToken)throw new Error('PIN_VERIFY_FAILED');
+  const profileUrl=new URL(pathUrl('auth_users/'+uid));profileUrl.searchParams.set('auth',loginData.idToken);profileUrl.searchParams.set('v',Date.now());
+  const profileResponse=await nativeFetch(profileUrl.toString(),{cache:'no-store'});const checked=profileResponse.ok?await profileResponse.json():null;
+  if(!checked||checked.active!==true||String(checked.email||'').toLowerCase()!==String(email).toLowerCase())throw new Error('PROFILE_VERIFY_FAILED');
+  return true;
+}
+async function discardPinAccount(created){
+  if(!created?.idToken)return;
+  try{await nativeFetch('https://identitytoolkit.googleapis.com/v1/accounts:delete?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:created.idToken})});}catch(_error){}
+}
 async function createUser(event){
   event.preventDefault();const form=event.currentTarget;const values=Object.fromEntries(new FormData(form));const name=String(values.name||'').trim();const role=String(values.role||'');const department=String(values.department||'').trim();const contactEmail=String(values.contactEmail||'').trim().toLowerCase();const pin=String(values.pin||'');const confirmPin=String(values.confirmPin||'');
   if(!/^[A-Za-z][A-Za-z0-9 ._-]{1,31}$/.test(name)){adminMessage('ชื่อ User ต้องเป็นภาษาอังกฤษ 2–32 ตัวอักษร');return;}
@@ -373,12 +394,20 @@ async function resetUserPin(event){
    event.preventDefault();const form=event.currentTarget;const group=selectedGroup();if(!group||!group.pinAccount)return;const values=Object.fromEntries(new FormData(form));const pin=String(values.pin||''),confirmPin=String(values.confirmPin||'');
   if(!/^\d{4}$/.test(pin)){adminMessage('PIN ต้องเป็นตัวเลข 4 หลัก');return;}if(pin!==confirmPin){adminMessage('PIN ทั้งสองช่องไม่ตรงกัน');return;}
   setBusy(form,true,'กำลังเปลี่ยน PIN...');
+  let created=null,replacementStaged=false,switchConfirmed=false;
   try{
-    const now=Date.now(),old=group.pinAccount,loginEmail=accountLoginEmail(displayName(group.name)),created=await signUpPinAccount(loginEmail,pin),loginKey=group.loginKey||old.uid;
+    const now=Date.now(),old=group.pinAccount,loginEmail=accountLoginEmail(displayName(group.name)),loginKey=group.loginKey||old.uid;
+    created=await signUpPinAccount(loginEmail,pin);
     const replacement={...old,uid:created.localId,email:loginEmail,loginKey,active:true,createdAt:old.createdAt||now,updatedAt:now,pinChangedAt:now,replaces:old.uid};delete replacement.replacedBy;delete replacement.disabledAt;
-    const patch={};patch['auth_users/'+created.localId]=replacement;patch['auth_users/'+old.uid+'/active']=false;patch['auth_users/'+old.uid+'/replacedBy']=created.localId;patch['auth_users/'+old.uid+'/updatedAt']=now;patch['login_directory/'+loginKey]={name:group.name,loginEmail,active:true,updatedAt:now};
-    await db('',json('PATCH',patch));await loadLoginDirectory();adminData.mode='add';adminData.selectedUid='';await openAdmin();adminMessage('เปลี่ยน PIN ของ '+displayName(group.name)+' แล้ว PIN เดิมถูกปิดใช้งาน','success');
-  }catch(error){setBusy(form,false,'');adminMessage('เปลี่ยน PIN ไม่สำเร็จ: '+(error.message||error));}
+    await db('auth_users/'+created.localId,json('PUT',replacement));replacementStaged=true;
+    await verifyPinReplacement(created.localId,loginEmail,pin);
+    const patch={};patch['auth_users/'+old.uid+'/active']=false;patch['auth_users/'+old.uid+'/replacedBy']=created.localId;patch['auth_users/'+old.uid+'/updatedAt']=now;patch['login_directory/'+loginKey]={name:group.name,loginEmail,active:true,updatedAt:now};
+    try{await db('',json('PATCH',patch));switchConfirmed=true;}catch(writeError){const directory=await publicDirectory();switchConfirmed=String(directory?.[loginKey]?.loginEmail||'').toLowerCase()===loginEmail;if(!switchConfirmed)throw writeError;}
+    await loadLoginDirectory();adminData.mode='add';adminData.selectedUid='';await openAdmin();adminMessage('เปลี่ยน PIN ของ '+displayName(group.name)+' และตรวจสอบการเข้าใช้งานแล้ว','success');
+  }catch(error){
+    if(created&&replacementStaged&&!switchConfirmed){try{await db('auth_users/'+created.localId,json('PATCH',{active:false,disabledAt:Date.now(),updatedAt:Date.now()}));}catch(_cleanupError){}await discardPinAccount(created);}
+    setBusy(form,false,'');adminMessage('ยังไม่เปลี่ยน PIN เพราะระบบตรวจสอบบัญชีใหม่ไม่ผ่าน PIN เดิมยังใช้งานได้ กรุณาลองอีกครั้ง');
+  }
 }
 async function deleteUser(event){
   event.preventDefault();const form=event.currentTarget;const group=selectedGroup();if(!group)return;const confirmation=String(new FormData(form).get('confirmation')||'').trim();

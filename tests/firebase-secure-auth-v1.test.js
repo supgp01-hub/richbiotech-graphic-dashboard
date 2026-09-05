@@ -113,8 +113,14 @@ test('PIN login includes every existing dashboard user', () => {
   assert.match(auth, /'Audit':'pin\.audit@richbiotech\.team'/);
 });
 
+test('login directory keeps active replacement accounts visible regardless of stale row order', () => {
+  assert.match(auth, /function canonicalLoginName/);
+  assert.match(auth, /const activeNames=new Set/);
+  assert.match(auth, /if\(activeNames\.has\(nameKey\)\|\|activeEmails\.has\(email\)\)return/);
+});
+
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure20/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure21/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);
@@ -146,9 +152,16 @@ test('new users and PIN rotations use Firebase Auth without replacing the Superv
   assert.match(auth, /async function signUpPinAccount/);
   assert.match(auth, /async function createUser/);
   assert.match(auth, /async function resetUserPin/);
-  assert.match(auth, /patch\['auth_users\/'\+created\.localId\]=replacement/);
+  assert.match(auth, /await db\('auth_users\/'\+created\.localId,json\('PUT',replacement\)\)/);
   assert.match(auth, /patch\['auth_users\/'\+old\.uid\+'\/active'\]=false/);
   assert.doesNotMatch(auth, /createUserWithEmailAndPassword/);
+});
+
+test('PIN rotation verifies the replacement before disabling the previous login', () => {
+  assert.match(auth, /async function verifyPinReplacement/);
+  assert.match(auth, /await db\('auth_users\/'\+created\.localId,json\('PUT',replacement\)\)/);
+  assert.ok(auth.indexOf('await verifyPinReplacement(created.localId,loginEmail,pin)') < auth.indexOf("patch['auth_users/'+old.uid+'/active']=false"));
+  assert.match(auth, /PIN เดิมยังใช้งานได้/);
 });
 
 test('deleting a USER only disables access and preserves business records', () => {
