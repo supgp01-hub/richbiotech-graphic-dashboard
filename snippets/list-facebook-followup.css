@@ -141,6 +141,9 @@
 #lfb-root .lfb-account-follow-date label small{color:#8b6b6d;font-size:8px;font-weight:500}
 #lfb-root .lfb-account-actions{position:sticky;bottom:-14px;display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:12px -14px -14px;padding:11px 14px;border-top:1px solid var(--surface-card-border);background:var(--surface-tint)}
 #lfb-root .lfb-account-actions>span{margin-right:auto;color:#27815f;font-size:9px}
+#lfb-root .lfb-editor-btn-danger{border-color:#ef4444;background:#fff;color:#c62828}
+#lfb-root .lfb-editor-btn-danger:hover{background:#fff1f2;border-color:#dc2626;color:#991b1b}
+#lfb-root .lfb-editor-btn-danger:disabled{opacity:.55;cursor:wait}
 #lfb-root .lfb-followup-overlay{position:fixed;inset:0;z-index:9997;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(11,35,28,.6);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 #lfb-root .lfb-followup-overlay.is-open{display:flex}
 #lfb-root .lfb-followup-modal{display:flex;flex-direction:column;width:min(560px,96vw);max-height:90vh;overflow:hidden;border-radius:16px;background:var(--surface-card);box-shadow:0 24px 70px rgba(0,0,0,.3)}

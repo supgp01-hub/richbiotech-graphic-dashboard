@@ -63,6 +63,10 @@ assert.ok(source.includes("event.stopImmediatePropagation();\n    openFollowupMo
 assert.ok(source.includes('id="lfb-followup-title">แก้ไขข้อมูลติดตาม'), 'the tracking popup must have a clear edit-follow-up title');
 assert.ok(source.includes('window._lfbSaveAccountRecord(selectedKey,values)'), 'right-panel edits must use the existing account persistence path');
 assert.ok(source.includes('id="lfb-credentials-open"'), 'the permanent account editor must expose a clear more-information control');
+assert.ok(source.includes('id="lfb-account-delete"'), 'the permanent account editor must expose the requested delete-account button');
+assert.ok(source.includes('จะไม่กลับมาเมื่ออัปเดตข้อมูล'), 'account deletion must clearly warn that it is permanent before continuing');
+assert.ok(source.includes("window._lfbDeleteAccountRecord(key)"), 'confirmed deletion must use the durable shared account deletion path');
+assert.ok(source.includes("window.fbSet(FOLLOW_CLOUD_PATH+'/'+key,null)"), 'deleting an account must also remove its obsolete follow-up record');
 assert.ok(source.includes('id="lfb-credentials-drawer"'), 'login details must live in the compact left drawer instead of the permanent form');
 assert.ok(source.includes('id="lfb-credentials-edit"'), 'the credentials drawer must require an explicit edit action');
 assert.ok(source.includes('id="lfb-credentials-cancel"') && source.includes('id="lfb-credentials-save"'), 'credential editing must support safe cancel and save actions');
