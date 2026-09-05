@@ -32,11 +32,11 @@ vm.createContext(context);
 vm.runInContext(source,context);
 
 (async function(){
-  assert.strictEqual(window.rbPersistence.version,'3.4.0');
-  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.4.0');
+  assert.strictEqual(window.rbPersistence.version,'3.5.0');
+  assert.strictEqual(document.documentElement['data-persistence-reliability'],'3.5.0');
 
   const first=await window.fbSet('/module/item',{value:'ใหม่',updatedAt:20});
-  assert.strictEqual(first,false,'a failed server write must not be reported as synced');
+  assert.strictEqual(first,true,'a durable local receipt must release the UI even while the server retry remains queued');
   assert.strictEqual(window.rbPersistence.pendingCount(),1,'a failed write must remain queued');
 
   let loaded;
@@ -54,6 +54,10 @@ vm.runInContext(source,context);
   window.fbGet('/whole',(error,data)=>{assert.ifError(error);whole=data;});
   assert.deepStrictEqual(JSON.parse(JSON.stringify(whole)),{kept:true},'a queued parent snapshot must replace stale remote data');
 
+  // The UI receipt resolves as soon as the write is durable; allow the two
+  // deliberately failed network attempts to finish before forcing a retry.
+  await new Promise(resolve=>setImmediate(resolve));
+  await new Promise(resolve=>setImmediate(resolve));
   online=true;
   window.rbPersistence.flush();
   await new Promise(resolve=>setImmediate(resolve));
@@ -92,14 +96,16 @@ vm.runInContext(source,context);
   await Promise.resolve();
   const writesBeforeSecond=writes.length;
   const rapidSecond=await window.fbSet('/rapid',{value:2});
-  assert.strictEqual(rapidSecond,false,'a newer save on the same path must wait instead of racing the active write');
+  assert.strictEqual(rapidSecond,true,'a newer save on the same path must be accepted into the durable queue without freezing the UI');
   assert.strictEqual(writes.length,writesBeforeSecond,'the newer same-path value must not be sent concurrently');
   releaseBlocked(true);
   await rapidFirst;
+  await new Promise(resolve=>setImmediate(resolve));
   window.rbPersistence.flush();
+  await new Promise(resolve=>setImmediate(resolve));
   await new Promise(resolve=>setImmediate(resolve));
   assert.strictEqual(writes[writes.length-1].data.value,2,'the newest same-path value must be the final server write');
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'the serialized same-path queue must fully drain');
-  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix343')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
+  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix354')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
   console.log('persistence-reliability-v3: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

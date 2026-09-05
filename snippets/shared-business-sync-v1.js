@@ -87,6 +87,8 @@ root.addEventListener&&root.addEventListener('online',function(){pull(true);flus
 root.addEventListener&&root.addEventListener('focus',function(){pull(false);flush();});
 root.addEventListener&&root.addEventListener('rb:leader-change',function(event){if(event.detail&&event.detail.leader)pull(true);});
 document.addEventListener&&document.addEventListener('visibilitychange',function(){if(!document.hidden){pull(false);flush();}});
-setTimeout(function(){pull(true);},150);
+/* Cached data paints first; non-critical shared collections hydrate once the
+   browser is idle so login and the active work queue keep network priority. */
+if(root.requestIdleCallback)root.requestIdleCallback(function(){pull(true);},{timeout:2500});else setTimeout(function(){pull(true);},1500);
 document.documentElement.setAttribute('data-shared-business-sync',VERSION);
 })(window);

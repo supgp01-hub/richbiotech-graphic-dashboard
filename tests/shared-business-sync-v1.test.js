@@ -56,5 +56,6 @@ assert.deepEqual(
   'first migration must preserve unsynced records from another user device'
 );
 assert.equal(document.documentElement['data-shared-business-sync'],'1.2.0');
-assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix341'),'the online business sync layer must be loaded by the live page');
+assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix354'),'the online business sync layer must be loaded by the live page');
+assert.ok(source.includes('requestIdleCallback'),'non-critical shared hydration must wait until the browser is idle');
 console.log('shared-business-sync-v1: all tests passed');

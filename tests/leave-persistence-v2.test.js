@@ -13,7 +13,7 @@ const localStorage={
   setItem:(key,value)=>store.set(key,String(value)),
   removeItem:key=>store.delete(key)
 };
-const document={visibilityState:'visible',documentElement:{setAttribute(){}}};
+const document={visibilityState:'visible',hidden:false,documentElement:{setAttribute(){}},getElementById(id){return id==='tab-schedule'?{classList:{contains(value){return value==='active';}}}:null;}};
 const window={
   LV_DATA:{},LV_UID:1,document,localStorage,
   lvDK:(y,m,d)=>`${y}-${m}-${d}`,
@@ -69,7 +69,7 @@ vm.createContext(context);vm.runInContext(source,context);
   assert.strictEqual(accepted,'remote-applied','a newer team revision must replace an older local snapshot');
   assert.strictEqual(window.LV_DATA['2026-9-2'][0].empId,'jam');
   const index=fs.readFileSync('index.html','utf8');
-  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix320'));
-assert.ok(index.includes('<meta name="rb-build" content="fix353">'));
+  assert.ok(index.includes('snippets/leave-persistence-v2.js?v=fix354'));
+assert.ok(index.includes('<meta name="rb-build" content="fix354">'));
   console.log('leave-persistence-v2: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

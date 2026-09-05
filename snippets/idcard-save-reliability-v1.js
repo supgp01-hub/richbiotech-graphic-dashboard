@@ -178,7 +178,9 @@ function enhanceAddForm(){
   }
 }
 
-var observer=new MutationObserver(function(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();});
+var observerTimer=null;
+function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();},80);}
+var observer=new MutationObserver(function(mutations){for(var i=0;i<mutations.length;i++){for(var j=0;j<mutations[i].addedNodes.length;j++){var node=mutations[i].addedNodes[j];if(node.nodeType===1&&(node.id==='ic-root'||node.id==='ic-add-panel'||node.matches&&node.matches('[data-sub="idcard"]')||node.querySelector&&node.querySelector('#ic-root,#ic-add-panel,[data-sub="idcard"]'))){scheduleEnhance();return;}}}});
 function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();observer.observe(document.documentElement,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 

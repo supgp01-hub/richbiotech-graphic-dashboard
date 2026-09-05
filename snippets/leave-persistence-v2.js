@@ -94,6 +94,7 @@ function fetchRemote(){
   remoteLoading=true;
   root.fbGet(CLOUD_PATH,function(error,remote){remoteLoading=false;if(error||!remote){flush();return;}acceptRemote(remote);});
 }
+function leavePageActive(){var panel=root.document&&root.document.getElementById&&root.document.getElementById('tab-schedule');return !!panel&&panel.classList.contains('active')&&!root.document.hidden;}
 function saveAll(){var keys=Object.keys(object(root.LV_DATA));if(!keys.length)keys=['__empty__'];return queueSnapshot(keys);}
 function saveDay(y,m,d,rows){
   var key=typeof root.lvDK==='function'?root.lvDK(y,m,d):(y+'-'+m+'-'+d),data=normalizeData(root.LV_DATA),before=normalizeRows(data[key]),next=[],keep={},ops={};
@@ -106,17 +107,19 @@ function waitForSync(timeout){
   timeout=Math.max(500,Number(timeout)||4500);
   return new Promise(function(resolve){var started=Date.now();(function check(){if(!readPending()){resolve(true);return;}if(Date.now()-started>=timeout){resolve(false);return;}setTimeout(check,120);})();});
 }
-function load(){var local=readLocal();lastRevision=Math.max(lastRevision,local.t);if(Object.keys(local.d).length){root.LV_DATA=clone(local.d);root.LV_UID=Math.max(number(root.LV_UID)||1,local.u||1);render();}fetchRemote();flush();}
+function load(){var local=readLocal();lastRevision=Math.max(lastRevision,local.t);if(Object.keys(local.d).length){root.LV_DATA=clone(local.d);root.LV_UID=Math.max(number(root.LV_UID)||1,local.u||1);render();}if(leavePageActive()||readPending())fetchRemote();flush();}
 function install(){
   if(typeof root.lvSaveLS!=='function'||typeof root.lvSaveDay!=='function')return setTimeout(install,200);
   root.lvSaveLS=saveAll;root.lvSaveDay=saveDay;root.lvLoadLS=load;
   if(root._lvPoll){clearInterval(root._lvPoll);root._lvPoll=null;}
-  root._lvPoll=setInterval(function(){if(!root.document||root.document.visibilityState==='visible')fetchRemote();flush();},30000);
+  root._lvPoll=setInterval(function(){if(leavePageActive()||readPending())fetchRemote();flush();},60000);
   if(root.document&&root.document.documentElement)root.document.documentElement.setAttribute('data-leave-persistence',VERSION);
   load();
 }
 
 root.addEventListener&&root.addEventListener('online',flush);
+root.document&&root.document.addEventListener&&root.document.addEventListener('click',function(event){var button=event.target&&event.target.closest&&event.target.closest('#sidebar button,#rb-bottom-nav button');if(button&&String(button.textContent||'').indexOf('วันหยุด')>=0)setTimeout(fetchRemote,0);});
+root.document&&root.document.addEventListener&&root.document.addEventListener('visibilitychange',function(){if(leavePageActive())fetchRemote();});
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===PENDING_KEY)flush();if(event.key===LOCAL_KEY&&!readPending()){var next=readLocal();if(next.t>lastRevision){lastRevision=next.t;applyEnvelope(next);}}});
 root.rbLeavePersistence={version:VERSION,waitForSync:waitForSync,flush:flush,pending:function(){return!!readPending();}};
 root._rbLeavePersistenceTest={normalize:normalize,normalizeData:normalizeData,mergePending:mergePending,acceptRemote:acceptRemote,readPending:readPending,flush:flush,waitForSync:waitForSync,version:VERSION};

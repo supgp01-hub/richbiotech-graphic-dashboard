@@ -37,6 +37,6 @@ assert(runtime.includes('(sharedRows||[]).concat(legacyRows||[])'),'Supervisor m
 assert(runtime.includes("SHARED_PATH+'/'+id"),'ID cards must be written per employee instead of one large photo payload');
 assert(runtime.includes('writes.reduce'),'per-employee writes must be sequenced to prevent request bursts and timeouts');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix351'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix354'),'reliability runtime must be loaded');
 assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix276'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');

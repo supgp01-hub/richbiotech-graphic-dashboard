@@ -3,7 +3,7 @@
 if(root._rbPersistenceReliabilityV3Loaded)return;
 root._rbPersistenceReliabilityV3Loaded=true;
 
-var VERSION='3.4.0';
+var VERSION='3.5.0';
 var QUEUE_KEY='rb_generic_write_queue_v3';
 var RETRY_MS=5000;
 var MAX_RETRY_MS=30000;
@@ -150,8 +150,13 @@ root.fbSet=function reliableFbSet(path,data){
   }
   if(isSplitCollection(path)&&data===null){dispatchState();return Promise.resolve(false);}
   var entry=queueWrite(path,data);
-  if(activePaths[entry.path]){schedule();return Promise.resolve(false);}
-  return attempt(entry,true);
+  /* The write is already protected by localStorage/IndexedDB at this point.
+     Let the UI continue immediately while the network confirmation drains in
+     the background; slow Firebase responses must not freeze staff actions. */
+  if(activePaths[entry.path]){schedule();return entry.durable?Promise.resolve(true):Promise.resolve(entry.durablePromise).then(function(ok){return !!ok;});}
+  var network=attempt(entry,true);
+  if(entry.durable)return Promise.resolve(true);
+  return Promise.resolve(entry.durablePromise).then(function(ok){return ok?true:network;},function(){return network;});
 };
 root.fbGet=function reliableFbGet(path,callback){
   if(typeof originalGet!=='function'){callback(new Error('ไม่พบระบบอ่านข้อมูล'),overlay(path,null));return;}
