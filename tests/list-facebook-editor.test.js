@@ -11,11 +11,11 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=297"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=298"), 'the deployed page must cache-bust the current Facebook editor');
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
 assert.ok(indexSource.includes('list-facebook-followup.css?v=297'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=fix351"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix352">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=fix353"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix353">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(editorSource.includes('window._lfbSaveAccountRecord=function'), 'the permanent account editor must save through the existing account data store');
 assert.ok(editorSource.includes("window._lfbReconcileFollowupStatus(key,entry.st,previousStatus,values.followupNextDate)"), 'account status saves must synchronize the follow-up state and selected date');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
@@ -83,6 +83,13 @@ assert.equal(window._lfbEditorTest.sourceSchemaCurrent({ schemaVersion: 4 }), fa
 assert.equal(window._lfbEditorTest.sourceSchemaCurrent({}), false, 'old shared snapshots must trigger a one-time source migration');
 assert.equal(window._lfbEditorTest.mergeEditMaps({ a: { updatedAt: 200, st: 'เปลี่ยนเฟสใหม่แล้ว' } }, { a: { updatedAt: 100, st: 'รหัส 2FA ผิด' } }).a.st, 'เปลี่ยนเฟสใหม่แล้ว', 'a stale cloud response must not overwrite a newer saved status');
 assert.equal(window._lfbEditorTest.mergeEditMaps({ a: { updatedAt: 100 } }, { a: { updatedAt: 200, st: 'ใช้งาน' } }).a.st, 'ใช้งาน', 'a genuinely newer shared status must still synchronize into the dashboard');
+const preservedManual = window._lfbEditorTest.mergeManualRows(
+  [{ id: 'local-new', name: 'เพิ่งเพิ่ม', updatedAt: 300 }, { id: 'same', name: 'แก้ล่าสุด', updatedAt: 400 }],
+  { same: { name: 'ข้อมูลเก่า', updatedAt: 100 }, remote: { name: 'จากส่วนกลาง', updatedAt: 200 } }
+);
+assert.equal(preservedManual.length, 3, 'a delayed cloud response must preserve locally added manual accounts');
+assert.equal(preservedManual.find((row) => row.id === 'same').name, 'แก้ล่าสุด', 'a delayed cloud response must not roll back a newer manual-account edit');
+assert.equal(preservedManual.find((row) => row.id === 'remote').name, 'จากส่วนกลาง', 'new remote manual accounts must still merge into this browser');
 const safe = window._lfbEditorTest.safeSnapshot(rows);
 assert.equal(safe[0].passFb, 'FbPass123', 'shared snapshot includes the full Facebook password after explicit authorization');
 assert.equal(safe[0].emailPass, 'MailPass456', 'shared snapshot includes the full email password after explicit authorization');

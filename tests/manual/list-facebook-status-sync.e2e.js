@@ -21,6 +21,16 @@ const assert = require('assert');
   await page.waitForFunction(() => (window._listfbData || []).some((item) => item && item.name === 'QA Add Account'));
   assert.ok((await page.evaluate(() => window.__writes)).some((write) => /\/listfacebook_manual\//.test(write.path)), 'adding an account must write through the shared manual-account path');
 
+  const addedRow = page.locator('.lfb-follow-row').filter({ hasText: 'QA Add Account' });
+  await addedRow.locator('.lfb-employee').click();
+  await page.locator('#lfbi-name').fill('QA Add Account Renamed');
+  await page.locator('#lfbi-note').fill('manual account edit persists');
+  await page.locator('#lfb-account-save').click();
+  await page.waitForFunction(() => (window._listfbData || []).some((item) => item && item.name === 'QA Add Account Renamed' && item.note === 'manual account edit persists'));
+  const manualWrite = await page.evaluate(() => window.__writes.filter((write) => /\/listfacebook_manual\//.test(write.path)).pop());
+  assert.equal(manualWrite.value.name, 'QA Add Account Renamed', 'editing a manually added account must update the same manual record');
+  assert.equal(manualWrite.value._source, undefined, 'internal rendering metadata must never be written to shared account data');
+
   const fordRow = page.locator('.lfb-follow-row').filter({ hasText: 'Ford Mustang' });
   assert.match(await fordRow.locator('.lfb-stage-cell').innerText(), /ยังไม่เริ่ม/, 'the fixture must begin in the old tracked state');
 
