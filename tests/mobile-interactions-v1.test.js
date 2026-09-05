@@ -9,7 +9,7 @@ function expect(pattern, message) {
   if (!pattern.test(html)) throw new Error(message);
 }
 
-expect(/content="fix360"/, 'mobile interaction build marker is missing');
+expect(/content="fix361"/, 'mobile interaction build marker is missing');
 expect(/#rb-dd-popover\{position:fixed;z-index:100200;/, 'custom DropDown must render above the planner modal');
 expect(/\(!e\.pointerType\|\|e\.pointerType==='mouse'\)&&e\.button!==0/, 'touch pointer must not be rejected by the mouse-button guard');
 expect(/Mobile WebViews may emit click without a usable pointerdown/, 'click-only mobile fallback is missing');

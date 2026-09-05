@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix360">
+<meta name="rb-build" content="fix361">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3892,7 +3892,7 @@ fbRestoreDurableOrderQueue();
 })();
 </script><script src="snippets/order-viewer-filter-state-v1.js?v=fix348"></script><script src="snippets/persistence-reliability-v3.js?v=fix354"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix303">
-<script src="snippets/order-planner-v1.js?v=fix338"></script>
+<script src="snippets/order-planner-v1.js?v=fix361"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix360">
 <script src="snippets/commission-center-v1.js?v=fix360"></script><script>
 /* ── Section detector ── */
@@ -4132,7 +4132,7 @@ window.gAS=function(){
     var statusLabels={pending:'มอบหมาย',inprogress:'กำลังดำเนินการ',review:'รอตรวจ',revision:'ต้องแก้ไข',done:'เสร็จสมบูรณ์'};addMeta('ชื่องาน',order.name||order.title,true);addMeta('สินค้า',order.product);addMeta('ประเภทงาน',order.type);addMeta('HOOK',revisionText(order.hook)+(order.hook2?' • '+order.hook2:''));addMeta('Deadline',order.deadline);addMeta('ผู้รับผิดชอบ',order.assignee);addMeta('สถานะ',statusLabels[order.status]||order.status);addMeta('บรีฟงาน / สไตล์ที่ต้องการ',order.brief,true,true);if(order.note)addMeta('หมายเหตุ',order.note,true,true);info.appendChild(meta);view.appendChild(info);
     var refs=document.createElement('div');refs.className='rb-revision-block';var refsHead=document.createElement('div');refsHead.className='rb-revision-block-head';refsHead.innerHTML='<strong>รายละเอียดงานและลิงก์อ้างอิง</strong><span>แยกสถานะลิงก์ที่แก้ไขได้และข้อมูลที่ดูอย่างเดียว</span>';refs.appendChild(refsHead);var grid=document.createElement('div');grid.className='rb-revision-ref-grid';var productAssets=PRODUCT_ASSET_LINKS[order.product]||{};
     var clipLinks=Array.isArray(order.clipLinks)?order.clipLinks.filter(Boolean):[],workLinks=Array.isArray(order.submitLinks)?order.submitLinks.filter(Boolean):(order.submitLink?[order.submitLink]:[]),imageWorkLinks=Array.isArray(order.latestRevisionImageLinks)?order.latestRevisionImageLinks.filter(Boolean):(Array.isArray(order.imageSubmitLinks)?order.imageSubmitLinks.filter(Boolean):[]);
-    grid.appendChild(revisionUniformLinkRows('CREATIVE',[order.rawLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์สคริป',[order.sheetLink],false));grid.appendChild(revisionImageGroup(order));grid.appendChild(revisionUniformLinkRows('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน',[order.sampleLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์คลิป',clipLinks,false));grid.appendChild(revisionUniformLinkRows('ลิงก์แอด',workLinks,true));grid.appendChild(revisionUniformLinkRows('ลิงก์ส่งงานภาพ',imageWorkLinks,true));grid.appendChild(revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[]),true));grid.appendChild(revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[]),true));refs.appendChild(grid);view.appendChild(refs);
+    grid.appendChild(revisionUniformLinkRows('CREATIVE',[order.rawLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์สคริป',[order.sheetLink],false));grid.appendChild(revisionImageGroup(order));grid.appendChild(revisionUniformLinkRows('ลิงก์ตัวอย่าง/ลิงก์รายละเอียดงาน',[order.sampleLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์ส่งงาน',[order.deliveryLink],false));grid.appendChild(revisionUniformLinkRows('ลิงก์คลิป',clipLinks,false));grid.appendChild(revisionUniformLinkRows('ลิงก์แอด',workLinks,true));grid.appendChild(revisionUniformLinkRows('ลิงก์ส่งงานภาพ',imageWorkLinks,true));grid.appendChild(revisionUniformLinkRows('FOOTAGE',[order.footageLink].concat(productAssets.footage||[]),true));grid.appendChild(revisionUniformLinkRows('INSERT / REVIEW',[order.reviewLink].concat(productAssets.review||[]),true));refs.appendChild(grid);view.appendChild(refs);
     section.insertBefore(view,section.firstChild);
     var workIds=['om-submitlinks-section'],workNodes=workIds.map(function(id){return document.getElementById(id);}).filter(Boolean),priorWorkspace=document.getElementById('rb-revision-team-workspace');if(priorWorkspace&&priorWorkspace.parentNode)priorWorkspace.parentNode.removeChild(priorWorkspace);
     var teamWorkspace=document.createElement('section');teamWorkspace.id='rb-revision-team-workspace';teamWorkspace.className='rb-revision-team-workspace';var teamHead=document.createElement('div');teamHead.className='rb-revision-team-head';teamHead.innerHTML='<div><strong>ลิงก์ผลงานของทีม</strong><small>เพิ่มลิงก์แอดหรือลิงก์ส่งงานภาพ</small></div>';teamWorkspace.appendChild(teamHead);
