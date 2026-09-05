@@ -11,9 +11,20 @@ assert.ok(parseDateSource,'date parser must be present');
 const parseDate=Function(parseDateSource[0]+';return parseDate')();
 assert.strictEqual(parseDate('05/07/69'),'2026-07-05','short Buddhist year 69 must map to 2026');
 assert.strictEqual(parseDate('05/07/2569'),'2026-07-05','full Buddhist year 2569 must map to 2026');
+const rankingSource=js.match(/function staffRanking\(ranked\)\{[^\r\n]+/);
+assert.ok(rankingSource,'staff ranking renderer must be present');
+const staffRanking=Function('money','esc',rankingSource[0]+';return staffRanking')(value=>'฿'+value,value=>String(value));
+const rankingHtml=staffRanking([
+  {employee:'FIRST',sum:{commission:500,products:3,days:20}},
+  {employee:'SECOND',sum:{commission:300,products:2,days:18}},
+  {employee:'THIRD',sum:{commission:100,products:1,days:12}},
+  {employee:'FOURTH',sum:{commission:50,products:1,days:8}}
+]);
+assert.ok(rankingHtml.includes('FIRST')&&rankingHtml.includes('SECOND')&&rankingHtml.includes('THIRD'),'ranking must render the three highest earners');
+assert.ok(!rankingHtml.includes('FOURTH'),'ranking must exclude employees below third place');
 
-assert.ok(html.includes('commission-center-v1.css?v=fix359'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix359'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.css?v=fix360'),'commission stylesheet must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix360'),'commission runtime must be loaded');
 assert.ok(js.includes('loadAll(false)'),'commission data must paint from cache without starting hidden-page network work');
 assert.ok(js.includes('loadAll(true)'),'commission data must hydrate when its page is opened');
 assert.ok(js.includes('function saveSourceLocal(rows)'),'large commission cache must be stored through a quota-safe helper');
@@ -50,6 +61,16 @@ assert.ok(js.includes('พนักงานทุกคนดูค่าคอ
 assert.ok(css.includes('.cc-team-grid'),'team cards must have a responsive layout');
 assert.ok(js.includes('พนักงาน + วันที่ + สินค้า'),'duplicate protection must be visible');
 assert.ok(js.includes('function commissionForAds(value)'),'new Audit entries must use the daily ad-spend tier rule');
+assert.ok(js.includes('function auditViewEnhanced()'),'Audit must show a live commission summary while entering ad spend');
+assert.ok(js.includes('function updateAuditPreview(app,activeInput)'),'live commission totals must update without saving');
+assert.ok(js.includes('data-cc-live-commission'),'Audit must visibly expose the commission calculated for today');
+assert.ok(js.includes('function staffRanking(ranked)'),'staff view must rank the top three commission earners from current period data');
+assert.ok(js.includes('ถ้วยรางวัลค่าคอมประจำรอบ'),'staff view must label the three-place award podium');
+assert.ok(js.includes('function staffDetailModal(employee,allRows)'),'staff detail must open in a focused popup');
+assert.ok(js.includes('data-cc-action="toggle-staff-daily"'),'the popup must switch to daily ad-spend detail');
+assert.ok(js.includes('data-cc-daily-date'),'daily commission detail must support selecting a date');
+assert.ok(css.includes('.cc-modal-backdrop'),'staff detail popup must have modal styling');
+assert.ok(css.includes('.cc-podium'),'top-three ranking must have a responsive podium layout');
 assert.ok(js.includes("gid:'647383985'"),'July 2569 Google Sheet must be imported');
 assert.ok(js.includes("gid:'1514012256'"),'August 2569 Google Sheet must be imported');
 assert.ok(js.includes("employee:'BALL',range:'CZ7:DN37'"),'each team member must use the correct source block');

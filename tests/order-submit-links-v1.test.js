@@ -9,7 +9,7 @@ assert.ok(index.includes("submitLinks:submitLinkValues(),"),'all delivery-link s
 assert.ok(index.includes("o&&Array.isArray(o.submitLinks)?o.submitLinks.slice():(o&&o.submitLink?[o.submitLink]:[])"),'all saved delivery links must reopen without truncation');
 assert.ok(index.includes("order.submitLinks=currentSubmitLinks;order.submitLink=order.submitLinks[0]||'';"),'normal status workflow saves must preserve delivery links and the legacy first-link field');
 assert.ok(index.includes('order.revisionSubmissions.push({links:currentSubmitLinks.slice()'),'revision delivery links must append to history without overwriting the original');
-assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix359\">"),'deployed page must expose the current build');
+assert.ok(index.includes("<meta name=\"rb-build\" content=\"fix360\">"),'deployed page must expose the current build');
 assert.ok(index.includes("document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input')"),'the save workflow must collect every delivery-link row');
 assert.ok(!index.includes('id="om-audit-submitlink-list"'),'the Audit tab must not duplicate submitted links in a separate text block');
 assert.ok(index.includes("i===0?'om-uplink':i===1?'om-ad':'om-link'+(i+1)"),'submitted links must populate Link Ver 1, Link Ver 2, and every additional Link Ver field');
