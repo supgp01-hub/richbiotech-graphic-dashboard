@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix355">
+<meta name="rb-build" content="fix356">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -554,7 +554,6 @@
   #rb-sync-chip{top:9px!important;right:104px!important;left:auto!important;transform:none!important;padding:5px 8px!important;font-size:10px!important;}
   #rb-notif-panel{width:min(320px,calc(100vw - 20px))!important;right:-6px!important;}
   #sb-user-card{bottom:74px!important;}
-  #rb-tl-btn{bottom:74px!important;}
   #rb-toast{bottom:74px!important;}
   #ord-tw{overflow-x:auto!important;-webkit-overflow-scrolling:touch;}
   #ord-tw table{min-width:680px!important;}
@@ -3799,25 +3798,11 @@ function openTLM(){if(!_TLM)buildTLModal();_TLM.style.display='flex';var delBtn=
 window.openTLM=openTLM;
 function closeTLM(){_tlCurSec=null;if(_TLM)_TLM.style.display='none';document.body.style.overflow='';}
 
-// ── FLOATING UI: TL button + User selector ──
-function addFloatingUI(){
-  if(document.getElementById('rb-tl-btn'))return;
-
-  // TL button
-  var btn=document.createElement('button');btn.id='rb-tl-btn';
-  btn.innerHTML='🕐<br><span style="font-size:10px;display:block;margin-top:1px;line-height:1.2;">ประวัติ</span>';
-  btn.style.cssText='position:fixed;bottom:24px;right:24px;background:#1B4332;color:white;border:none;border-radius:14px;padding:10px 14px;cursor:pointer;font-size:20px;z-index:9000;box-shadow:0 4px 20px rgba(0,0,0,.3);text-align:center;min-width:52px;transition:all .15s;';
-  btn.onmouseenter=function(){this.style.background='#14532d';this.style.transform='scale(1.07)';};
-  btn.onmouseleave=function(){this.style.background='#1B4332';this.style.transform='scale(1)';};
-  btn.onclick=openTLM;document.body.appendChild(btn);
-}
-
 document.addEventListener('click',function(e){
   if(!e.target.closest('.gsnav-btn'))return;
   setTimeout(function(){var p=document.querySelector('.gsp.gsp-active[data-sub="order"]');if(!p)return;if(!p.getAttribute('data-order-init'))initOrderPanel();else{renderOrderStats();renderOrders();}},60);
 },true);
 
-setTimeout(addFloatingUI,500);
 setTimeout(function(){var p=document.querySelector('.gsp.gsp-active[data-sub="order"]');if(p)initOrderPanel();},700);
 
 
