@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const index=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8'),css=fs.readFileSync('snippets/audit-deduction-center-v1.css','utf8');
-assert.ok(index.includes('audit-deduction-center-v1.js?v=fix378'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix378'));
+assert.ok(index.includes('audit-deduction-center-v1.js?v=fix379'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix379'));
 assert.ok(js.includes("PATH='/workflow_audit/deductions_v1'"));assert.ok(js.includes("id:'revision_unfixed'")&&js.includes('amount:50,days:2'));assert.ok(js.includes("id:'personal_test_missing'")&&js.includes('amount:100'));assert.ok(js.includes("id:'ads_table_uncleared'")&&js.includes("id:'listfb_red'")&&js.includes("id:'no_backup_page'")&&js.includes("id:'order_not_submitted'"));assert.ok(js.includes('function adjustedDue(start,days,e)')&&js.includes('while(off(d,e))'));assert.ok(js.includes('function detectOrders(now)')&&js.includes('function detectList(now)'));assert.ok(js.includes('ยกเว้นพร้อมเหตุผล')&&js.includes('ยืนยันยอดหัก'));assert.ok(css.includes('@media(max-width:760px)'));
 assert.ok(js.includes("SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet="),'audit log sheet must use the cross-origin JSONP import source');
 assert.ok(js.includes('sheetImports:{}')&&js.includes('syncMeta:{}')&&js.includes("data-action=\"sheet\""),'sheet imports must persist and expose a manual sync button');
@@ -15,4 +15,5 @@ assert.ok(js.includes("if(teamViewer())return!state.view||state.view==='supervis
 assert.ok(js.includes('รายการของทุกคน')&&!js.includes('พนักงาน · งานที่ต้องแก้</option>'),'team viewer selector must expose only team-wide views');
 assert.ok(js.includes("function ico(n)")&&css.includes("font-family:'Noto Sans Thai','Bai Jamjuree'"),'the live audit UI must use the approved typography and icon system');
 assert.ok(css.includes('.adc-workbench{display:grid;grid-template-columns:')&&css.includes('.adc-flow{display:grid'),'audit view must use the approved split workspace and timeline');
+assert.ok(css.includes('.adc-daily{display:none!important}'),'the selected audit detail must not list sibling jobs from the same deduction day');
 console.log('audit deduction center static contract: passed');

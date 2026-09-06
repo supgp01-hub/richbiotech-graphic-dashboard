@@ -6,8 +6,8 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const persistence=fs.readFileSync('snippets/order-audit-persistence-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix350'),'the unified version layout must be cache-busted');
-assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix350'),'the unified version runtime must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.css?v=fix379'),'the unified version layout must be cache-busted');
+assert.ok(index.includes('order-audit-version-workflow-v1.js?v=fix379'),'the unified version runtime must be cache-busted');
 assert.ok(workflow.includes("return current==='sup'||current==='audit'"),'Supervisor and Audit must be able to record audit results');
 assert.ok(workflow.includes("current==='graphic'||current==='spec'"),'Graphic and Specialist employees must receive the correction view');
 assert.ok(workflow.includes("kind==='image'?'#om-image-submitlinks-rows"),'image delivery links must be read from the send-work editor');
@@ -19,6 +19,10 @@ assert.ok(workflow.includes("buildSection(auditPanel,'rb-audit-version-workflow'
 assert.ok(workflow.includes('แก้เฉพาะข้อมูลและหลักฐานของเวอร์ชันนี้'),'employees must be told that corrections are version-specific');
 assert.ok(workflow.includes('สิ่งที่ Audit พบ'),'the team view must show Audit findings');
 assert.ok(workflow.includes('ลากรูปมาวาง หรือกดเลือกไฟล์'),'employee evidence uploads must offer a clear multi-image drop zone');
+assert.ok(workflow.includes('function hasRequiredFixImage(state)'),'revision confirmation must require a corrected-work image for every affected VER');
+assert.ok(workflow.includes("var incomplete=issues.filter(function(state){return !hasRequiredFixImage(state);})"),'a correction link or note alone must not pass validation');
+assert.ok(workflow.includes('ยังส่งงานแก้ไขไม่ได้')&&workflow.includes('ไปแนบรูปงานแก้ไข'),'missing evidence must open a clear blocking alert with a recovery action');
+assert.ok(workflow.includes("save.setAttribute('aria-disabled',missing.length?'true':'false')"),'the confirmation control must expose its blocked readiness state');
 assert.ok(workflow.includes("current==='graphic'&&canonicalName(order&&order.assignee)===canonicalName(actor())"),'Graphic users must only submit corrections for their own assigned work');
 assert.ok(workflow.includes("current==='sup'||current==='spec'"),'Supervisor and Specialist must be able to assist with correction submissions');
 assert.ok(workflow.includes("auditMode=canAudit()?'audit':'readonly'"),'Audit editing must remain separate from employee correction permissions');
@@ -66,5 +70,6 @@ assert.ok(css.includes('@media(max-width:980px)'),'the redesigned Audit form mus
 assert.ok(css.includes('@container audit-workspace (max-width:760px)'),'the redesigned Audit form must adapt to the modal content width');
 assert.ok(css.includes('#rb-order-modal .rb-om-window{max-width:1120px'),'all three workflow tabs must keep the same desktop width');
 assert.ok(!css.includes('[data-active-tab="links"] .rb-om-window'),'tab switching must not change the modal width');
+assert.ok(css.includes('.rb-av-fix-requirement.is-missing')&&css.includes('.rb-av-alert-overlay'),'required evidence and the blocking alert must have distinct accessible styling');
 
 console.log('order-audit-version-workflow-v1: all tests passed');

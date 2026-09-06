@@ -1,6 +1,6 @@
 (function(){
 'use strict';if(window._rbAuditDeductionLoaded)return;window._rbAuditDeductionLoaded=true;
-var VERSION='fix378',KEY='rb_audit_deductions_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
+var VERSION='fix379',KEY='rb_audit_deductions_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
 var RULES=[
  {id:'revision_unfixed',name:'ไม่แก้ไขงานที่พบข้อผิดพลาด',amount:50,days:2,source:'งานสั่งงาน',detail:'ให้เวลาแก้ไข 2 วัน เริ่มหักวันที่ 3'},
  {id:'personal_test_missing',name:'เทสส่วนตัวไม่ครบ 15 คอนเทนต์ต่อรอบเดือน',amount:100,days:0,source:'งานสั่งงาน',detail:'ตรวจเมื่อจบรอบเดือน'},
