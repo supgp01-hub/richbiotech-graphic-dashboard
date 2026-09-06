@@ -6,6 +6,7 @@ var SHARED_PATH='/workflow_snapshots/idcards_shared_v1';
 var LEGACY_PATH='/idcards';
 var memoryJson='';
 var knownRows={};
+var localWriteVersion=0;
 var nativeGet=Storage.prototype.getItem;
 var nativeSet=Storage.prototype.setItem;
 
@@ -37,6 +38,7 @@ Storage.prototype.setItem=function(key,value){
   if(this!==root.localStorage||key!==KEY)return nativeSet.call(this,key,value);
   value=String(value);
   memoryJson=value;
+  localWriteVersion++;
   try{return nativeSet.call(this,key,value);}catch(error){
     if(!isQuota(error))throw error;
     if(root.rbStorageResilience)root.rbStorageResilience.relieve();
@@ -47,6 +49,22 @@ Storage.prototype.setItem=function(key,value){
     }
   }
 };
+
+function rowFingerprint(row){
+  try{return JSON.stringify(row||{});}catch(error){return String(row&&row.updatedAt||'');}
+}
+
+function mergeChangedLocal(remoteRows,readVersion){
+  var remote=(remoteRows||[]).filter(function(row){return row&&row.id;});
+  if(localWriteVersion===readVersion)return remote;
+  var local=[];try{local=JSON.parse(memoryJson||nativeGet.call(root.localStorage,KEY)||'[]');}catch(error){}
+  if(!Array.isArray(local))local=Object.values(local||{});
+  var byId={};remote.concat(local).forEach(function(row){
+    if(!row||!row.id)return;var old=byId[row.id];
+    if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))byId[row.id]=row;
+  });
+  return Object.values(byId);
+}
 
 if(typeof root.addEventListener==='function')root.addEventListener('storage',function(event){
   if(event.storageArea===root.localStorage&&event.key===KEY)memoryJson=event.newValue||'';
@@ -77,7 +95,7 @@ function installCloudTracker(){
     var rows=value?(Array.isArray(value)?value:Object.values(value)).filter(function(row){return row&&row.id;}):[];
     var next={},writes=[];
     rows.forEach(function(row){
-      var id=String(row.id).replace(/[.#$\[\]\/]/g,'_');next[id]=Number(row.updatedAt||0);
+      var id=String(row.id).replace(/[.#$\[\]\/]/g,'_');next[id]=rowFingerprint(row);
       if(!Object.prototype.hasOwnProperty.call(knownRows,id)||knownRows[id]!==next[id])writes.push({path:SHARED_PATH+'/'+id,value:row});
     });
     Object.keys(knownRows).forEach(function(id){if(!Object.prototype.hasOwnProperty.call(next,id))writes.push({path:SHARED_PATH+'/'+id,value:null});});
@@ -95,17 +113,18 @@ function installCloudReader(){
   var originalGet=root.fbGet;
   function sharedGet(path,callback){
     if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);
+    var readVersion=localWriteVersion;
     originalGet(SHARED_PATH,function(sharedError,sharedData){
       var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
       var isSupervisor=!!(root._rbUser&&root._rbUser.role==='sup');
       if(!isSupervisor){
-        sharedRows=sharedRows||[];knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=Number(row.updatedAt||0);});
+        sharedRows=mergeChangedLocal(sharedRows||[],readVersion);knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=rowFingerprint(row);});
         callback(sharedError,sharedRows);return;
       }
       originalGet(LEGACY_PATH,function(legacyError,legacyData){
         var legacyRows=legacyData&&(Array.isArray(legacyData)?legacyData:Object.values(legacyData)).filter(function(row){return row&&row.id;});
         var mergedById={};(sharedRows||[]).concat(legacyRows||[]).forEach(function(row){var id=String(row.id);var old=mergedById[id];if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))mergedById[id]=row;});
-        var mergedRows=Object.values(mergedById);
+        var mergedRows=mergeChangedLocal(Object.values(mergedById),readVersion);
         if(mergedRows.length&&typeof root.fbSet==='function'){
           Promise.resolve(root.fbSet(LEGACY_PATH,mergedRows)).then(function(){callback(null,mergedRows);},function(){callback(null,mergedRows);});
           return;
@@ -193,5 +212,5 @@ if(typeof root.addEventListener==='function')root.addEventListener('rb:auth-read
   if(panel&&panel.classList.contains('gsp-active')&&typeof root._icInit==='function')root._icInit();
 });
 
-root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,getMemory:function(){return memoryJson;}};
+root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,getMemory:function(){return memoryJson;}};
 })(window);

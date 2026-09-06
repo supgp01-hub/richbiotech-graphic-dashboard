@@ -19,12 +19,19 @@ const context={window,document,MutationObserver,Storage:StorageMock,requestAnima
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'..','snippets','idcard-save-reliability-v1.js'),'utf8'),context);
 
-const rows=[{id:'ic_1',employee:'Nune',photo:{name:'card.jpg',size:500000,data:'data:image/jpeg;base64,'+'x'.repeat(2400)}}];
+const rows=[{id:'ic_1',employee:'Nune',updatedAt:2,photo:{name:'card.jpg',size:500000,data:'data:image/jpeg;base64,'+'x'.repeat(2400)}}];
 localStorage.setItem('rb_idcards_v1',JSON.stringify(rows));
 assert.strictEqual(JSON.parse(localStorage.getItem('rb_idcards_v1'))[0].photo.data.length>2000,true,'full image must remain readable from memory');
 assert.strictEqual(JSON.parse(localStorage.values.rb_idcards_v1)[0].photo.data,undefined,'quota fallback must keep only compact photo metadata on disk');
 assert.strictEqual(window.__rbIdcardCacheCompacted,true,'quota fallback state must be exposed');
 assert(window.rbIdcardReliability,'reliability API must be installed');
+assert.notStrictEqual(
+  window.rbIdcardReliability.rowFingerprint({id:'ic_same',status:'pending',updatedAt:123}),
+  window.rbIdcardReliability.rowFingerprint({id:'ic_same',status:'passed',updatedAt:123}),
+  'records changed within the same millisecond must still be detected'
+);
+const merged=window.rbIdcardReliability.mergeChangedLocal([{id:'ic_1',employee:'Old cloud value',updatedAt:1}],0);
+assert.strictEqual(merged.find(row=>row.id==='ic_1').employee,'Nune','a late cloud read must not overwrite a newer local edit');
 
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const runtime=fs.readFileSync(path.join(__dirname,'..','snippets','idcard-save-reliability-v1.js'),'utf8');
@@ -36,7 +43,9 @@ assert(runtime.includes("root._rbUser&&root._rbUser.role==='sup'"),'only Supervi
 assert(runtime.includes('(sharedRows||[]).concat(legacyRows||[])'),'Supervisor migration must merge shared and legacy rows without dropping either source');
 assert(runtime.includes("SHARED_PATH+'/'+id"),'ID cards must be written per employee instead of one large photo payload');
 assert(runtime.includes('writes.reduce'),'per-employee writes must be sequenced to prevent request bursts and timeouts');
+assert(runtime.includes('next[id]=rowFingerprint(row)'),'change detection must compare complete record content, not timestamps alone');
+assert(runtime.includes('mergeChangedLocal(sharedRows||[],readVersion)'),'a slow shared read must preserve edits made while it was loading');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix354'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix365'),'reliability runtime must be loaded');
 assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix276'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');
