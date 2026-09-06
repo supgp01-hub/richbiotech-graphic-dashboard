@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix380">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix381">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix380'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix380'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix381'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix381'),'planner script must be loaded');
 assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
 assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
@@ -51,7 +51,7 @@ assert.ok(js.includes("plannerLinkControl('ลิงก์ส่งงาน','d
 assert.ok(index.includes("revisionUniformLinkRows('ลิงก์ส่งงาน',[order.deliveryLink],false)"),'the delivery link must be visible in the shared order detail');
 assert.ok(js.includes('function plannerContentRows(')&&js.includes('function applyPlannerContent('),'Content Tracker suggestions must populate the same Hook and reference-link fields');
 assert.ok(js.includes("'contentChoice'")&&js.includes('function plannerJobs('),'the planner must expose a visible Content Tracker DropDown instead of a hidden datalist');
-assert.ok(js.includes("window.refreshOrderContentFromCloud")&&js.includes('content.then(function()'),'opening the planner must refresh Content Tracker before rebuilding its DropDowns');
+assert.ok(js.includes("window.refreshOrderContentFromCloud")&&js.includes('content.then(renderPlannerWhenIdle)'),'opening the planner must refresh Content Tracker without rebuilding a field while it is being edited');
 assert.ok(js.includes('function applyPlannerProductAssets(')&&index.includes('window._rbProductAssetLinks=PRODUCT_ASSET_LINKS'),'product Footage and Insert / Review links must share the Add New catalog');
 assert.ok(js.includes("if(field==='hook'){applyPlannerContent(d,true)"),'each Hook/version must populate only its matching Content Tracker links');
 assert.ok(js.includes('assignmentDate=d.deadline||d.scheduledDate')&&js.includes('leaveCodes(assignmentDate)'),'automatic assignment must use the Add New Deadline for leave checks');
@@ -104,7 +104,7 @@ assert.ok(js.includes('markDraftDeleted(d.id)'),'draft and history deletion must
 assert.ok(js.includes("DELETE_KEY='rb_order_planner_deleted_v1'"),'deleted planner records must remain protected from stale cloud snapshots');
 assert.ok(js.includes("if(action==='add'){var added=blank();markDraftPending(added.id);rows.push(added);activeDraftId=added.id;saveDraftsImmediately()"),'adding a row must guard and queue its cloud save before a fast refresh');
 assert.ok(js.includes("window.addEventListener('pagehide',function(){if(isSupervisor()&&rows.length)saveDraftsImmediately()"),'leaving or refreshing must flush pending planner edits into the durable queue');
-assert.ok(js.includes("latestLocal=mergeDraftCollections([],(rows||[]).concat(localDrafts())"),'a delayed online read must use the latest on-screen and locally saved rows, not the stale opening snapshot');
+assert.ok(js.includes("latestLocal=overlayDraftEdits(mergeDraftCollections([],(rows||[]).concat(localDrafts())"),'a delayed online read must use the latest protected on-screen and locally saved rows, not the stale opening snapshot');
 assert.ok(js.includes("if(e.key===DRAFT_KEY||e.key===DELETE_KEY)scheduleExternalSync(false)"),'planner tabs must react to saved and deleted work from another tab without creating a refresh loop');
 assert.ok(js.includes("window.addEventListener('focus',function(){if(Date.now()>=briefFileDialogUntil)refreshPlannerFromCloud()})")&&js.includes("if(!document.hidden&&Date.now()>=briefFileDialogUntil)refreshPlannerFromCloud()"),'returning to a planner tab must refresh shared data without rebuilding the file input while its chooser is open');
 assert.ok(js.includes("PENDING_KEY='rb_order_planner_pending_v1'")&&js.includes('function confirmPendingDrafts('),'new and edited planner rows must remain protected until an online read confirms them');
@@ -114,6 +114,13 @@ assert.ok(js.includes('localTime>remoteTime||protectedChange'),'a pending local 
 assert.ok(js.includes('list.forEach(touchDraft)'),'scheduling and immediate dispatch must assign a new monotonic record version before saving');
 assert.ok(js.includes('includePendingDraftOps(rows,draftWriteOps(rows,draftBaseline))'),'pending link and date fields must be written even if the local baseline already contains their values');
 assert.ok(js.includes("if(e.type==='change')saveDraftsImmediately()"),'completed date, link and dropdown edits must flush immediately without waiting for another action');
+assert.ok(js.includes('protectDraftEdit(d)')&&js.includes('overlayDraftEdits('),'every edited planner field must stay protected from a delayed online snapshot');
+assert.ok(js.includes('if(plannerIsEditing()){queueDeferredCloudRefresh();return Promise.resolve(rows)}'),'online refresh must wait while a planner control is being edited');
+const protectedEdit={id:'active-edit',name:'ค่าที่เลือกใหม่',type:'กราฟิก',deadline:'2026-09-12',scheduledDate:'2026-09-12',status:'draft',updatedAt:mergeNow};
+filter.protectDraftEdit(protectedEdit);
+const overlaid=filter.overlayDraftEdits([{id:'active-edit',name:'ค่าเดิม',type:'กราฟิก',deadline:'2026-09-05',scheduledDate:'2026-09-05',status:'draft',updatedAt:mergeNow-500}]);
+assert.strictEqual(overlaid[0].deadline,'2026-09-12','an in-progress date selection must not snap back to the previous online date');
+assert.strictEqual(overlaid[0].name,'ค่าที่เลือกใหม่','the edit guard must protect text and dropdown fields as well as dates');
 const scheduledLocal=filter.mergeDraftCollections([],[{id:'scheduled-tie',name:'งานตั้งเวลา',type:'กราฟิก',deadline:'2026-09-04',scheduledDate:'2026-09-03',status:'scheduled',orderId:'GR094',updatedAt:mergeNow}],mergeNow)[0];
 const staleScheduledRemote=Object.assign({},scheduledLocal,{status:'draft',orderId:''});
 filter.markDraftPending(scheduledLocal.id);

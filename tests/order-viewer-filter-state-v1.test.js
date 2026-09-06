@@ -5,7 +5,7 @@ const vm=require('vm');
 const source=fs.readFileSync('index.html','utf8');
 const guard=fs.readFileSync('snippets/order-viewer-filter-state-v1.js','utf8');
 
-assert.ok(source.includes('snippets/order-viewer-filter-state-v1.js?v=fix348'),
+assert.ok(source.includes('snippets/order-viewer-filter-state-v1.js?v=fix381'),
   'the viewer state guard must be cache-busted into the dashboard');
 assert.ok(guard.includes('function rows(source,ctx)'),
   'order counters and rows need one shared viewer filter');
@@ -25,6 +25,10 @@ assert.ok(source.includes("if(disabled)return;_OF.dl=''"),
   'zero-count summary cards must not create an empty employee table');
 assert.ok(source.includes("if(!f.length&&orders.length&&!_OF.search&&!_OF.type&&!_OF.date"),
   'the table must defensively recover from a stale summary filter');
+assert.ok(source.includes("['deadline_latest','Deadline ล่าสุดก่อน']")&&source.includes("if(mode==='deadline_latest')"),
+  'the work table must default to a clearly labelled latest Deadline first order');
+assert.ok(source.includes('return bd-ad||ordTs(b.updatedAt)-ordTs(a.updatedAt)'),
+  'latest Deadline sorting must place newer work above older work');
 
 const filters={status:'review',type:'กราฟิก',search:'old',dl:'over',assignee:'MOS',date:'2026-09-05',activeCard:'review',sort:'name'};
 const attrs={};
@@ -39,7 +43,7 @@ context.window=context;
 vm.runInNewContext(guard,context);
 const viewer=context.rbEnsureOrderViewerState(panel);
 assert.equal(viewer.code,'BALL');
-assert.deepEqual(JSON.parse(JSON.stringify(filters)),{status:'',type:'',search:'',dl:'',assignee:'',date:'',activeCard:'all',sort:'priority'},
+assert.deepEqual(JSON.parse(JSON.stringify(filters)),{status:'',type:'',search:'',dl:'',assignee:'',date:'',activeCard:'all',sort:'deadline_latest'},
   'Ball must not inherit a hidden filter from the previous account');
 assert.deepEqual(context.rbOrdersForViewer([
   {id:'GR1',assignee:'BALL'},{id:'GR2',assignee:'MOS'},{id:'GR3',assignee:'ball '}

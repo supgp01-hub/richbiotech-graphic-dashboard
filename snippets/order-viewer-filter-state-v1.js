@@ -12,9 +12,9 @@ function rows(source,ctx){
 function reset(ctx){
   var viewer=ctx||context(),filters=root._OF;
   if(!filters)return;
-  filters.status='';filters.type='';filters.search='';filters.dl='';filters.assignee='';filters.date='';filters.activeCard='all';filters.sort='priority';
+  filters.status='';filters.type='';filters.search='';filters.dl='';filters.assignee='';filters.date='';filters.activeCard='all';filters.sort='deadline_latest';
   var search=document.getElementById('ord-search'),date=document.getElementById('ord-fst'),type=document.getElementById('ord-type-filter'),sort=document.getElementById('ord-sort');
-  if(search)search.value='';if(date)date.value='';if(type)type.value='';if(sort)sort.value='priority';
+  if(search)search.value='';if(date)date.value='';if(type)type.value='';if(sort)sort.value='deadline_latest';
   if(date&&date.parentNode){var clear=date.parentNode.querySelector('button');if(clear)clear.style.display='none';}
   var chips=document.getElementById('ord-chip-row');if(chips)chips.querySelectorAll('button').forEach(function(chip){chip.style.background='white';chip.style.color='#374151';chip.style.borderColor='#d1d5db';});
   root._rbOrderLockedAssignee=viewer.isGraphic?viewer.code:'';

@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix380">
+<meta name="rb-build" content="fix381">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3425,7 +3425,7 @@ window.rbOrderAssigneeCode=rbOrderAssigneeCode;
 function rbOrderMatchesAssignee(order,nameOrCode){var expected=rbOrderAssigneeCode(nameOrCode);var actual=rbOrderAssigneeCode(order&&order.assignee);return !!expected&&actual===expected;}
 window.rbOrderMatchesAssignee=rbOrderMatchesAssignee;
 
-var _OF={status:'',type:'',search:'',dl:'',assignee:'',date:'',activeCard:'all',sort:'priority'};
+var _OF={status:'',type:'',search:'',dl:'',assignee:'',date:'',activeCard:'all',sort:'deadline_latest'};
 var _OM=null;
 
 function initOrderPanel(){
@@ -3499,14 +3499,14 @@ function initOrderPanel(){
   [['','ประเภททั้งหมด']].concat(OT.map(function(t){return[t,rbOrderTypeLabel(t)];})).forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];tys.appendChild(o);});
   tys.onchange=function(){_OF.type=this.value;renderOrders();};
   var sortSel=document.createElement('select');sortSel.id='ord-sort';sortSel.title='เรียงลำดับงาน';sortSel.style.cssText='border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;background:var(--surface-card);';
-  sortSel.className='rb-priority-select';[['priority','งานด่วนก่อน'],['deadline','Deadline ใกล้ก่อน'],['newest','แก้ไขล่าสุด'],['oldest','งานเก่าก่อน'],['name','ก-ฮ ชื่องาน']].forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];sortSel.appendChild(o);});
-  sortSel.value=_OF.sort||'priority';sortSel.onchange=function(){_OF.sort=this.value;renderOrders();};
+  sortSel.className='rb-priority-select';[['deadline_latest','Deadline ล่าสุดก่อน'],['priority','งานด่วนก่อน'],['deadline','Deadline ใกล้ก่อน'],['newest','แก้ไขล่าสุด'],['oldest','งานเก่าก่อน'],['name','ก-ฮ ชื่องาน']].forEach(function(op){var o=document.createElement('option');o.value=op[0];o.textContent=op[1];sortSel.appendChild(o);});
+  sortSel.value=_OF.sort||'deadline_latest';sortSel.onchange=function(){_OF.sort=this.value;renderOrders();};
   var resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='ล้างตัวกรอง';resetBtn.title='แสดงงานทั้งหมด';resetBtn.style.cssText='border:1px solid #d1d5db;background:var(--surface-card);color:#4b5563;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;';
   resetBtn.onclick=function(){
-    _OF.status='';_OF.type='';_OF.search='';_OF.dl='';_OF.date='';_OF.activeCard='all';_OF.sort='priority';
+    _OF.status='';_OF.type='';_OF.search='';_OF.dl='';_OF.date='';_OF.activeCard='all';_OF.sort='deadline_latest';
     var _cu=window._rbUser;
     _OF.assignee='';window._rbOrderLockedAssignee=_cu&&_cu.role==='graphic'?(rbOrderAssigneeCode(_cu.name)||'__none__'):'';
-    si.value='';dtI.value='';dtClr.style.display='none';tys.value='';sortSel.value='priority';_activeTeam='';
+    si.value='';dtI.value='';dtClr.style.display='none';tys.value='';sortSel.value='deadline_latest';_activeTeam='';
     chipRow.querySelectorAll('button').forEach(function(c){c.style.background='white';c.style.color='#374151';c.style.borderColor='#d1d5db';});
     renderOrderStats();renderOrders();
   };
@@ -3574,15 +3574,16 @@ function renderOrders(){
   function ordDl(v){if(!v)return Number.MAX_SAFE_INTEGER;var n=new Date(v+'T00:00:00').getTime();return isNaN(n)?Number.MAX_SAFE_INTEGER:n;}
   function urgency(o){if(o.status==='done')return 4;var d=dlSt(o.deadline);if(d==='over')return 0;if(d==='soon')return 1;if(!o.deadline)return 3;return 2;}
   f.sort(function(a,b){
-    var mode=_OF.sort||'priority';
+    var mode=_OF.sort||'deadline_latest';
     if(mode==='newest')return ordTs(b.updatedAt||b.createdAt)-ordTs(a.updatedAt||a.createdAt);
     if(mode==='oldest')return ordTs(a.createdAt||a.updatedAt)-ordTs(b.createdAt||b.updatedAt);
     if(mode==='name')return String(a.name||a.title||'').localeCompare(String(b.name||b.title||''),'th');
+    if(mode==='deadline_latest'){var ad=ordDl(a.deadline),bd=ordDl(b.deadline);if(ad===Number.MAX_SAFE_INTEGER)return bd===Number.MAX_SAFE_INTEGER?ordTs(b.updatedAt)-ordTs(a.updatedAt):1;if(bd===Number.MAX_SAFE_INTEGER)return-1;return bd-ad||ordTs(b.updatedAt)-ordTs(a.updatedAt);}
     if(mode==='deadline')return ordDl(a.deadline)-ordDl(b.deadline)||ordTs(b.updatedAt)-ordTs(a.updatedAt);
     return urgency(a)-urgency(b)||ordDl(a.deadline)-ordDl(b.deadline)||ordTs(b.updatedAt)-ordTs(a.updatedAt);
   });
   var sum=document.getElementById('ord-result-summary');
-  if(sum){var sortNames={priority:'งานด่วนก่อน',deadline:'Deadline ใกล้ก่อน',newest:'แก้ไขล่าสุด',oldest:'งานเก่าก่อน',name:'ชื่องาน ก-ฮ'};var _sumIsGraphic=viewerContext.isGraphic,_sumTotal=orders.length;var hasFilter=!!(_OF.status||_OF.type||_OF.search||_OF.dl||_OF.date||(_OF.assignee&&!_sumIsGraphic));sum.innerHTML='<span>แสดง <strong>'+f.length+'</strong> จาก '+_sumTotal+' งาน'+(_sumIsGraphic?'ของฉัน':'')+' · เรียง '+(sortNames[_OF.sort]||sortNames.priority)+'</span>'+(hasFilter?'<button type="button" class="ord-reset-link" onclick="document.querySelector(\'#ord-type-filter\')&&document.querySelector(\'#ord-type-filter\').parentNode.querySelector(\'button[title=&quot;แสดงงานทั้งหมด&quot;]\').click()">ล้างตัวกรองทั้งหมด</button>':'');}
+  if(sum){var sortNames={deadline_latest:'Deadline ล่าสุดก่อน',priority:'งานด่วนก่อน',deadline:'Deadline ใกล้ก่อน',newest:'แก้ไขล่าสุด',oldest:'งานเก่าก่อน',name:'ชื่องาน ก-ฮ'};var _sumIsGraphic=viewerContext.isGraphic,_sumTotal=orders.length;var hasFilter=!!(_OF.status||_OF.type||_OF.search||_OF.dl||_OF.date||(_OF.assignee&&!_sumIsGraphic));sum.innerHTML='<span>แสดง <strong>'+f.length+'</strong> จาก '+_sumTotal+' งาน'+(_sumIsGraphic?'ของฉัน':'')+' · เรียง '+(sortNames[_OF.sort]||sortNames.deadline_latest)+'</span>'+(hasFilter?'<button type="button" class="ord-reset-link" onclick="document.querySelector(\'#ord-type-filter\')&&document.querySelector(\'#ord-type-filter\').parentNode.querySelector(\'button[title=&quot;แสดงงานทั้งหมด&quot;]\').click()">ล้างตัวกรองทั้งหมด</button>':'');}
   wrap.innerHTML='';
   if(f.length===0){var em=document.createElement('div');em.textContent='ไม่พบรายการงาน';em.style.cssText='padding:40px;text-align:center;color:var(--text-muted2);font-size:14px;font-style:italic;';wrap.appendChild(em);return;}
   var tbl=document.createElement('table');tbl.className='ord-table';tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;';
@@ -3890,9 +3891,9 @@ window.addEventListener('rb:auth-ready',function(){
 });
 fbRestoreDurableOrderQueue();
 })();
-</script><script src="snippets/order-viewer-filter-state-v1.js?v=fix348"></script><script src="snippets/persistence-reliability-v3.js?v=fix354"></script>
-<link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix380">
-<script src="snippets/order-planner-v1.js?v=fix380"></script>
+</script><script src="snippets/order-viewer-filter-state-v1.js?v=fix381"></script><script src="snippets/persistence-reliability-v3.js?v=fix354"></script>
+<link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix381">
+<script src="snippets/order-planner-v1.js?v=fix381"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix363">
 <link rel="stylesheet" href="snippets/audit-deduction-center-v1.css?v=fix380">
 <script src="snippets/commission-center-v1.js?v=fix363"></script>
