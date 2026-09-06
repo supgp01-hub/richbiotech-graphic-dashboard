@@ -72,6 +72,6 @@ assert(runtime.includes("matches('[data-sub=\"idcard\"],#ic-tbody tr')"),'newly 
 assert(runtime.includes("panel.id='ic-list-filters'"),'the ID-card table must expose employee and status filters');
 assert(runtime.includes("row.setAttribute('data-rbps-ignore','filter')"),'filtered rows must be excluded from pagination counts');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix370'),'reliability runtime must be loaded');
-assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix370'),'reliability styles must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix371'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix371'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');

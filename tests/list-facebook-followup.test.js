@@ -88,5 +88,9 @@ assert.ok(source.includes("stage:nextStage,nextDate:nextDate"), 'a tracked statu
 assert.ok(source.includes("detail.getAttribute('data-editing')!=='1'"), 'background refreshes must not replace the account form while a user is typing');
 assert.ok(source.includes("detail.setAttribute('data-editing','1')"), 'typing in the account form must enter a protected editing state');
 assert.ok(source.includes("root.querySelector('#lfb-editor-overlay')"), 'the List Facebook workspace must rebuild if its add/edit dialog is missing');
+assert.ok(source.includes("accountField('พนักงาน','emp','select')"), 'the employee editor must use a dropdown');
+assert.ok(source.includes("accountField('สินค้า','prod','select')"), 'the product editor must use a dropdown');
+assert.deepEqual(api.accountDropdownValues('emp', 'LEGACY', [{ emp: 'MOS' }, { emp: 'mos' }]).slice(0, 2), ['LEGACY', 'BALL'], 'employee choices must retain a saved legacy value and deduplicate team names');
+assert.deepEqual(api.accountDropdownValues('prod', 'WOLF+', [{ prod: 'JUDO' }, { prod: 'judo' }, { prod: '' }]), ['WOLF+', 'JUDO'], 'product choices must retain the saved value and deduplicate products');
 
 console.log('list-facebook-followup: all tests passed');
