@@ -66,10 +66,10 @@ function mergeChangedLocal(remoteRows,readVersion){
   return Object.values(byId);
 }
 
-var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:3};
+var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:4};
 function statusRank(value){
   value=value==null?'':String(value);
-  return Object.prototype.hasOwnProperty.call(STATUS_ORDER,value)?STATUS_ORDER[value]:4;
+  return Object.prototype.hasOwnProperty.call(STATUS_ORDER,value)?STATUS_ORDER[value]:5;
 }
 function sortRecordsByStatus(rows){
   return (rows||[]).map(function(row,index){return{row:row,index:index};}).sort(function(a,b){

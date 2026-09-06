@@ -53,10 +53,10 @@ assert(runtime.includes("SHARED_PATH+'/'+id"),'ID cards must be written per empl
 assert(runtime.includes('writes.reduce'),'per-employee writes must be sequenced to prevent request bursts and timeouts');
 assert(runtime.includes('next[id]=rowFingerprint(row)'),'change detection must compare complete record content, not timestamps alone');
 assert(runtime.includes('mergeChangedLocal(sharedRows||[],readVersion)'),'a slow shared read must preserve edits made while it was loading');
-assert(runtime.includes("var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:3}"),'status priority must keep vacant rows first and failed rows last');
+assert(runtime.includes("var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:4}"),'status priority must keep vacant rows first and failed rows after passed rows');
 assert(runtime.includes("root.rbPageSizePagination.apply('idcard')"),'pagination must refresh after rows are reordered');
 assert(runtime.includes("matches('[data-sub=\"idcard\"],#ic-tbody tr')"),'newly rendered ID-card rows must trigger automatic sorting');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix366'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix367'),'reliability runtime must be loaded');
 assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix276'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');
