@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix379">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix380">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix373'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix373'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix380'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix380'),'planner script must be loaded');
 assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
 assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
@@ -37,8 +37,9 @@ assert.ok(js.includes('function renderDraftsV3(')&&js.includes('ฟอร์ม�
 assert.ok(js.includes("workStatus:d.workStatus||'pending'")&&js.includes("status:d.workStatus||'pending'"),'the planner must retain the selected Add New work status');
 assert.ok(js.includes('BRIEF_PRESETS')&&js.includes('data-action="toggle-presets"')&&js.includes('data-action="apply-preset"'),'the Add New brief preset workflow must be available');
 assert.ok(js.includes('data-upload="brief"')&&js.includes('function handlePlannerFileChange('),'sample-image upload must work from the planner form');
-assert.ok(js.includes('onclick="window.rbOrderPlanner.beginBriefUpload()"')&&js.includes('onchange="window.rbOrderPlanner.handleBriefFiles(this)"'),'the file input must capture its change directly even if the online refresh rebuilds the planner');
-assert.ok(js.includes('function beginBriefUpload(){briefFileDialogUntil=Date.now()+60000}')&&js.includes('function handleBriefFiles(input){briefFileDialogUntil=0;handlePlannerFileChange({target:input})}'),'the file chooser lifecycle must be explicit and bounded');
+assert.ok(js.includes("input.id='rbp-brief-file-stable'")&&js.includes("input.addEventListener('change'"),'the file chooser must live outside the rerendered draft editor');
+assert.ok(js.includes("input.setAttribute('data-draft-id',draft.id)")&&js.includes('briefUploadDraftId=draftId||activeDraftId'),'the stable chooser must remain bound to the exact selected draft');
+assert.ok(js.includes('function finishBriefUpload(draftId)')&&js.includes('briefFileDialogUntil=Date.now()+60000'),'the chooser and image-processing lifecycle must stay protected until completion');
 assert.ok(js.includes('function syncPlannerDate(')&&js.includes('วันที่สั่ง (ตาม Deadline)'),'planner schedule date must visibly follow Deadline');
 assert.ok(js.includes('function normalizeBriefImages(')&&js.includes('setTimeout(function(){done(original)},4000)'),'sample images must recover from legacy storage and stalled browser decoding');
 assert.ok(js.includes("briefUploadState[draftId]='กำลังเตรียม")&&js.includes('reader.onerror=function()')&&js.includes("var current=rows.find(function(row){return row.id===draftId}")&&js.includes(".catch(function(error){clearBriefUploadPreviews(draftId)"),'sample-image upload must show progress, survive an online refresh, and recover visibly from read failures');

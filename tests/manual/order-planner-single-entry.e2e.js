@@ -34,9 +34,11 @@ const assert = require('assert');
   assert.strictEqual(await editor.locator('[data-field="scheduledDate"]').inputValue(), '2026-09-10', 'planner schedule date must update immediately from Deadline');
   assert.strictEqual(await editor.locator('[data-field="scheduledDate"]').getAttribute('readonly'), '', 'the synchronized schedule date must not drift from manual editing');
   assert.strictEqual(await editor.locator('[data-field="workStatus"]').inputValue(), 'pending', 'the Add New status must default to pending');
-  assert.strictEqual(await editor.locator('[data-upload="brief"]').count(), 1, 'the Add New sample-image upload must be present');
+  assert.strictEqual(await editor.locator('.rbp-upload-btn').count(), 1, 'the Add New sample-image upload must be present');
+  assert.strictEqual(await page.locator('#rbp-brief-file-stable').count(), 1, 'the upload input must survive planner rerenders');
   if (sampleFile) {
-    await editor.locator('[data-upload="brief"]').setInputFiles(sampleFile);
+    await page.locator('#rbp-brief-file-stable').evaluate((input) => input.setAttribute('data-draft-id', document.querySelector('.rbp-detail-editor').getAttribute('data-id')));
+    await page.locator('#rbp-brief-file-stable').setInputFiles(sampleFile);
     await editor.locator('.rbp-brief-gallery img').waitFor({state:'visible', timeout:15000});
     assert.strictEqual(await editor.locator('.rbp-brief-gallery img').count(), 1, 'uploaded sample image must render a visible preview');
     assert.match(await editor.locator('.rbp-brief-gallery img').getAttribute('src'), /^data:image\//, 'sample preview must use durable image data');
