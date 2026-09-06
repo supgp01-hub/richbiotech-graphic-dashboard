@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix371">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix372">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix303'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix371'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix372'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix372'),'planner script must be loaded');
 assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
 assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
@@ -39,7 +39,11 @@ assert.ok(js.includes('BRIEF_PRESETS')&&js.includes('data-action="toggle-presets
 assert.ok(js.includes('data-upload="brief"')&&js.includes('function handlePlannerFileChange('),'sample-image upload must work from the planner form');
 assert.ok(js.includes('function syncPlannerDate(')&&js.includes('วันที่สั่ง (ตาม Deadline)'),'planner schedule date must visibly follow Deadline');
 assert.ok(js.includes('function normalizeBriefImages(')&&js.includes('setTimeout(function(){done(original)},4000)'),'sample images must recover from legacy storage and stalled browser decoding');
-assert.ok(js.includes("briefUploadState[draftId]='กำลังเตรียมรูป")&&js.includes('reader.onerror=function()')&&js.includes("var current=rows.find(function(row){return row.id===draftId}")&&js.includes(".catch(function(error){delete briefUploadState[draftId]"),'sample-image upload must show progress, survive an online refresh, and recover visibly from read failures');
+assert.ok(js.includes("briefUploadState[draftId]='กำลังเตรียม")&&js.includes('reader.onerror=function()')&&js.includes("var current=rows.find(function(row){return row.id===draftId}")&&js.includes(".catch(function(error){clearBriefUploadPreviews(draftId)"),'sample-image upload must show progress, survive an online refresh, and recover visibly from read failures');
+assert.ok(js.includes('briefUploadPreviews[draftId]=valid.map')&&js.includes('window.URL.createObjectURL(file)')&&js.includes('clearBriefUploadPreviews(draftId)'),'sample-image upload must show an immediate preview and release its temporary browser URL');
+assert.ok(js.includes('var localOk=write(DRAFT_KEY,rows)')&&!js.includes('if(!write(DRAFT_KEY,rows))return Promise.resolve(false)'),'an exhausted browser cache must not prevent the image draft from syncing online');
+assert.ok(js.includes('pendingDraftMemory[id]=now')&&js.includes('Object.keys(pendingDraftMemory)'),'pending image drafts must remain protected in memory when browser storage is full');
+assert.ok(css.includes('.rbp-brief-thumb.is-loading'),'an image being processed must have a clear preview state');
 assert.ok(js.includes("plannerLinkControl('ลิงก์ส่งงาน','deliveryLink'")&&js.includes("deliveryLink:d.deliveryLink||''"),'planner drafts and dispatched orders must retain the requested delivery link');
 assert.ok(index.includes("revisionUniformLinkRows('ลิงก์ส่งงาน',[order.deliveryLink],false)"),'the delivery link must be visible in the shared order detail');
 assert.ok(js.includes('function plannerContentRows(')&&js.includes('function applyPlannerContent('),'Content Tracker suggestions must populate the same Hook and reference-link fields');
@@ -126,4 +130,13 @@ assert.strictEqual(forcedPendingOps[0].data.scheduledDate,'2026-09-05','the forc
 const integrityDraft={id:'draft-integrity',orderId:'GR500',name:'งานกู้คืน',status:'dispatched'};
 assert.deepStrictEqual(Array.from(filter.missingDispatchedDrafts([integrityDraft],[]),x=>x.id),['draft-integrity'],'a dispatched draft without an order must be detected');
 assert.strictEqual(filter.missingDispatchedDrafts([integrityDraft],[{id:'GR500',sourceDraftId:'draft-integrity'}]).length,0,'an existing exact planner order must never be duplicated');
-console.log('order-planner-v1: all tests passed');
+let quotaCloudWrites=0;
+sandbox.localStorage.setItem=function(){throw new Error('QuotaExceededError')};
+sandbox.window.fbSet=function(){quotaCloudWrites++;return Promise.resolve(true)};
+filter.rememberDrafts([]);
+filter.markDraftPending('quota-image');
+filter.saveDrafts([{id:'quota-image',name:'งานมีรูป',status:'draft',briefImages:['data:image/png;base64,AA=='],updatedAt:Date.now()}]).then(function(ok){
+  assert.strictEqual(ok,true,'a successful online image save must succeed even when localStorage is full');
+  assert.ok(quotaCloudWrites>0,'an image draft must still be sent online after a local quota error');
+  console.log('order-planner-v1: all tests passed');
+}).catch(function(error){console.error(error);process.exitCode=1});

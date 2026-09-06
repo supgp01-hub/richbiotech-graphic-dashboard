@@ -162,6 +162,7 @@ html[data-theme="dark"] #rb-order-planner .rbp-select-visible,html[data-theme="d
 #rb-order-planner .rbp-brief-gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 #rb-order-planner .rbp-gallery-empty{color:var(--text-muted2);font-size:9.5px}
 #rb-order-planner .rbp-brief-thumb{position:relative;width:92px;margin:0;padding:5px;border:1px solid var(--surface-card-border);border-radius:8px;background:var(--surface-card)}
+#rb-order-planner .rbp-brief-thumb.is-loading{opacity:.78;border-color:#2aa876;box-shadow:0 0 0 2px rgba(42,168,118,.12)}
 #rb-order-planner .rbp-brief-thumb img{display:block;width:80px;height:54px;border-radius:5px;object-fit:cover}
 #rb-order-planner .rbp-brief-thumb figcaption{overflow:hidden;margin-top:3px;color:var(--text-muted2);font-size:8.5px;text-overflow:ellipsis;white-space:nowrap}
 #rb-order-planner .rbp-brief-thumb button{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border:0;border-radius:50%;background:#d43a48;color:#fff;cursor:pointer}
