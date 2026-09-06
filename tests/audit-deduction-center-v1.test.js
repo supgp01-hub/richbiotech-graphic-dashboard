@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const index=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8'),css=fs.readFileSync('snippets/audit-deduction-center-v1.css','utf8');
-assert.ok(index.includes('audit-deduction-center-v1.js?v=fix376'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix376'));
+assert.ok(index.includes('audit-deduction-center-v1.js?v=fix377'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix377'));
 assert.ok(js.includes("PATH='/workflow_audit/deductions_v1'"));assert.ok(js.includes("id:'revision_unfixed'")&&js.includes('amount:50,days:2'));assert.ok(js.includes("id:'personal_test_missing'")&&js.includes('amount:100'));assert.ok(js.includes("id:'ads_table_uncleared'")&&js.includes("id:'listfb_red'")&&js.includes("id:'no_backup_page'")&&js.includes("id:'order_not_submitted'"));assert.ok(js.includes('function adjustedDue(start,days,e)')&&js.includes('while(off(d,e))'));assert.ok(js.includes('function detectOrders(now)')&&js.includes('function detectList(now)'));assert.ok(js.includes('ยกเว้นพร้อมเหตุผล')&&js.includes('ยืนยันยอดหัก'));assert.ok(css.includes('@media(max-width:620px)'));
 assert.ok(js.includes("SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet="),'audit log sheet must use the cross-origin JSONP import source');
 assert.ok(js.includes('sheetImports:{}')&&js.includes('syncMeta:{}')&&js.includes("data-action=\"sheet\""),'sheet imports must persist and expose a manual sync button');
@@ -10,4 +10,7 @@ assert.ok(js.includes('versionCount:vs.length')&&!js.includes("+'_v'+(v.version"
 assert.ok(js.includes("view()!=='staff'||x.employee===me"),'staff must only see their own deductions');
 assert.ok(js.includes('function jsonpRows()')&&js.includes("document.head.appendChild(script)"),'Google Sheets import must work cross-origin on GitHub Pages');
 assert.ok(js.includes('function archiveCharge(x)'),'confirmed deductions must remain visible after the source job is later fixed');
+assert.ok(js.includes("function teamViewer(){return usr().role==='sup'||usr().role==='spec'}"),'Supervisor and Specialist must receive team-wide visibility');
+assert.ok(js.includes("if(teamViewer())return!state.view||state.view==='supervisor'?'supervisor':'audit'"),'team viewers must never be forced into the employee-only view');
+assert.ok(js.includes('รายการของทุกคน')&&!js.includes('พนักงาน · งานที่ต้องแก้</option>'),'team viewer selector must expose only team-wide views');
 console.log('audit deduction center static contract: passed');

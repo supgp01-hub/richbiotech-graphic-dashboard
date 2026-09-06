@@ -19,6 +19,17 @@ const context={window,document,localStorage,MutationObserver,Date,Math,JSON,Obje
 vm.runInNewContext(fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8'),context);
 const api=window._rbAuditDeductionTest;
 
+assert.equal(api.view(),'supervisor','Supervisor must start in a team-wide view');
+window._rbUser={name:'Specialist',role:'spec'};
+assert.equal(api.view(),'supervisor','Specialist must see the team-wide overview');
+assert.equal(api.manage(),false,'Specialist visibility must remain read-only');
+window._rbUser={name:'Audit',role:'audit'};
+assert.equal(api.view(),'audit','Audit must see the team audit queue');
+window._rbUser={name:'BALL',role:'graphic'};
+assert.equal(api.view(),'staff','employees must stay in their own-item view');
+assert.equal(api.manage(),false,'employees must not receive audit controls');
+window._rbUser={name:'Supervisor',role:'sup'};
+
 const detected=new Date(2026,7,10,9).getTime();
 window._orders=[
   {id:'GR100',_fbKey:'a',assignee:'BALL',name:'งานเดียวหลายเวอร์ชัน',status:'revision',auditVersions:[
