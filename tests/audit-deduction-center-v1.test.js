@@ -1,0 +1,5 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const index=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8'),css=fs.readFileSync('snippets/audit-deduction-center-v1.css','utf8');
+assert.ok(index.includes('audit-deduction-center-v1.js?v=fix374'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix374'));
+assert.ok(js.includes("PATH='/workflow_audit/deductions_v1'"));assert.ok(js.includes("id:'revision_unfixed'")&&js.includes('amount:50,days:2'));assert.ok(js.includes("id:'personal_test_missing'")&&js.includes('amount:100'));assert.ok(js.includes("id:'ads_table_uncleared'")&&js.includes("id:'listfb_red'")&&js.includes("id:'no_backup_page'")&&js.includes("id:'order_not_submitted'"));assert.ok(js.includes('function adjustedDue(start,days,e)')&&js.includes('while(off(d,e))'));assert.ok(js.includes('function detectOrders(now)')&&js.includes('function detectList(now)'));assert.ok(js.includes('ยกเว้นพร้อมเหตุผล')&&js.includes('ยืนยันยอดหัก'));assert.ok(css.includes('@media(max-width:620px)'));
+console.log('audit deduction center static contract: passed');
