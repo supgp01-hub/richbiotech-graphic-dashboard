@@ -43,10 +43,15 @@ assert.deepStrictEqual(Array.from(sorted,row=>row.id),['vacant','waiting','passe
 assert.strictEqual(window.rbIdcardReliability.matchesFilters('บอล','has','บอล','has'),true,'employee and status filters must work together');
 assert.strictEqual(window.rbIdcardReliability.matchesFilters('บอล','missing','บอล','has'),false,'a mismatched status must be excluded');
 assert.strictEqual(window.rbIdcardReliability.matchesFilters('แจ๋ม','has','บอล','all'),false,'a mismatched employee must be excluded');
+localStorage.values.other='x'.repeat(840);
+assert.doesNotThrow(function(){localStorage.setItem('rb_idcards_v1',JSON.stringify([{id:'memory_only',updatedAt:3,photo:{data:'x'.repeat(2400)}}]));},'full browser storage must not stop the following online save');
+assert.strictEqual(JSON.parse(localStorage.getItem('rb_idcards_v1'))[0].id,'memory_only','the complete pending save must remain available in memory');
+assert.strictEqual(window.__rbIdcardMemoryOnly,true,'memory-only fallback must be exposed when even compact metadata cannot fit');
 
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const runtime=fs.readFileSync(path.join(__dirname,'..','snippets','idcard-save-reliability-v1.js'),'utf8');
 assert(runtime.includes('root.__rbIdcardLastSync=null'),'each bulk save must clear the previous cloud result before starting');
+assert(runtime.includes('root.__rbIdcardMemoryOnly=true'),'a completely full browser cache must fall back to the online save path');
 assert(runtime.includes("SHARED_PATH='/workflow_snapshots/idcards_shared_v1'"),'ID cards must use the existing active-user shared Firebase area');
 assert(runtime.includes("LEGACY_PATH='/idcards'"),'the legacy ID-card collection must remain available as a migration source');
 assert(runtime.includes('root.fbSet(LEGACY_PATH,mergedRows)'),'legacy ID-card records must be copied without deleting the source');
@@ -62,6 +67,6 @@ assert(runtime.includes("matches('[data-sub=\"idcard\"],#ic-tbody tr')"),'newly 
 assert(runtime.includes("panel.id='ic-list-filters'"),'the ID-card table must expose employee and status filters');
 assert(runtime.includes("row.setAttribute('data-rbps-ignore','filter')"),'filtered rows must be excluded from pagination counts');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix368'),'reliability runtime must be loaded');
-assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix368'),'reliability styles must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix369'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix369'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');

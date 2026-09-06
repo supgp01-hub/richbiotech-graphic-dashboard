@@ -9,6 +9,7 @@ var knownRows={};
 var localWriteVersion=0;
 var nativeGet=Storage.prototype.getItem;
 var nativeSet=Storage.prototype.setItem;
+var nativeRemove=Storage.prototype.removeItem;
 
 function isQuota(error){
   if(root.rbStorageResilience&&root.rbStorageResilience.isQuotaError)return root.rbStorageResilience.isQuotaError(error);
@@ -44,8 +45,21 @@ Storage.prototype.setItem=function(key,value){
     if(root.rbStorageResilience)root.rbStorageResilience.relieve();
     try{return nativeSet.call(this,key,value);}catch(retryError){
       if(!isQuota(retryError))throw retryError;
-      compactUntilStored(this,value);
+      try{compactUntilStored(this,value);}catch(compactError){
+        if(!isQuota(compactError))throw compactError;
+        /* The previous ID-card cache can itself consume the last available
+           bytes. The complete new value is already held in memory, so remove
+           only that stale cache and retry with photo metadata. */
+        try{nativeRemove.call(this,KEY);}catch(removeError){}
+        try{compactUntilStored(this,value);}catch(finalError){
+          if(!isQuota(finalError))throw finalError;
+          /* Never stop the following Firebase write just because this device
+             has no local cache space left. */
+          root.__rbIdcardMemoryOnly=true;
+        }
+      }
       root.__rbIdcardCacheCompacted=true;
+      return;
     }
   }
 };
@@ -222,6 +236,7 @@ function enhanceSave(){
     if(!count){toast('ยังไม่มีข้อมูลให้บันทึก กรุณากรอกอย่างน้อย 1 รายการ','ic-save-error');return false;}
     root.__rbIdcardLastSync=null;
     root.__rbIdcardCacheCompacted=false;
+    root.__rbIdcardMemoryOnly=false;
     var button=document.querySelector('#ic-add-panel button[onclick*="_icSaveAllDrafts"]');
     if(button){button.disabled=true;button.textContent='กำลังบันทึก '+count+' รายการ...';}
     try{
@@ -238,7 +253,8 @@ function enhanceSave(){
           return false;
         }
         toast('บันทึก '+count+' รายการขึ้นระบบออนไลน์แล้ว','ic-save-success');
-        if(root.__rbIdcardCacheCompacted)toast('บันทึกออนไลน์แล้ว พื้นที่เครื่องใกล้เต็มจึงลดเฉพาะรูปตัวอย่างในแคช','ic-save-warning');
+        if(root.__rbIdcardMemoryOnly)toast('บันทึกออนไลน์แล้ว แต่พื้นที่เครื่องเต็มจึงไม่เก็บรูปซ้ำในเครื่อง','ic-save-warning');
+        else if(root.__rbIdcardCacheCompacted)toast('บันทึกออนไลน์แล้ว พื้นที่เครื่องใกล้เต็มจึงลดเฉพาะรูปตัวอย่างในแคช','ic-save-warning');
         return true;
       },function(error){
         toast('เก็บรายการไว้ในเครื่องแล้ว แต่ซิงก์ออนไลน์ไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'ic-save-warning');
