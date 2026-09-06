@@ -7,6 +7,7 @@ var LEGACY_PATH='/idcards';
 var memoryJson='';
 var knownRows={};
 var localWriteVersion=0;
+var pendingSync=null;
 var nativeGet=Storage.prototype.getItem;
 var nativeSet=Storage.prototype.setItem;
 var nativeRemove=Storage.prototype.removeItem;
@@ -78,6 +79,11 @@ function mergeChangedLocal(remoteRows,readVersion){
     if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))byId[row.id]=row;
   });
   return Object.values(byId);
+}
+
+function localRows(){
+  var rows=[];try{rows=JSON.parse(memoryJson||nativeGet.call(root.localStorage,KEY)||'[]');}catch(error){}
+  return Array.isArray(rows)?rows:Object.values(rows||{});
 }
 
 var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:4};
@@ -179,6 +185,8 @@ function installCloudTracker(){
     });
     Object.keys(knownRows).forEach(function(id){if(!Object.prototype.hasOwnProperty.call(next,id))writes.push({path:SHARED_PATH+'/'+id,value:null});});
     var result=writes.reduce(function(chain,write){return chain.then(function(ok){return Promise.resolve(original(write.path,write.value)).then(function(saved){return ok!==false&&saved!==false;});});},Promise.resolve(true)).then(function(ok){if(ok!==false)knownRows=next;return ok;});
+    pendingSync=result;root.__rbIdcardSyncPending=true;
+    result.then(function(){if(pendingSync===result){pendingSync=null;root.__rbIdcardSyncPending=false;}},function(){if(pendingSync===result){pendingSync=null;root.__rbIdcardSyncPending=false;}});
     root.__rbIdcardLastSync=result;
     return result;
   }
@@ -192,6 +200,11 @@ function installCloudReader(){
   var originalGet=root.fbGet;
   function sharedGet(path,callback){
     if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);
+    if(pendingSync){
+      var waiting=pendingSync;
+      Promise.resolve(waiting).then(function(){sharedGet(path,callback);},function(){callback(null,localRows());});
+      return;
+    }
     var readVersion=localWriteVersion;
     originalGet(SHARED_PATH,function(sharedError,sharedData){
       var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
@@ -223,7 +236,15 @@ function installTeamPermissions(){
   ['_icInit','_icEditField','_icUploadOne','_icRemovePhoto','_icBulkUpload','_icShowAddForm','_icRenderAddForm','_icSaveAllDrafts'].forEach(function(name){
     var original=root[name];if(typeof original!=='function'||original.__rbTeamAccess)return;
     function teamAccess(){var role=root._rbUser.role;root._rbUser.role='graphic';try{return original.apply(this,arguments);}finally{root._rbUser.role=role;}}
-    teamAccess.__rbTeamAccess=true;teamAccess.__rbOriginal=original;root[name]=teamAccess;
+    teamAccess.__rbTeamAccess=true;teamAccess.__rbReliable=!!original.__rbReliable;teamAccess.__rbOriginal=original;root[name]=teamAccess;
+  });
+}
+
+function syncDraftFieldsFromDom(){
+  document.querySelectorAll('#ic-add-panel .ic-add-row').forEach(function(row){
+    row.querySelectorAll('input[type="text"],select').forEach(function(field){
+      try{field.dispatchEvent(new Event('change',{bubbles:true}));}catch(error){if(typeof field.onchange==='function')field.onchange();}
+    });
   });
 }
 
@@ -232,6 +253,7 @@ function enhanceSave(){
   var original=root._icSaveAllDrafts;
   function reliableSave(){
     installCloudTracker();
+    syncDraftFieldsFromDom();
     var count=draftCount();
     if(!count){toast('ยังไม่มีข้อมูลให้บันทึก กรุณากรอกอย่างน้อย 1 รายการ','ic-save-error');return false;}
     root.__rbIdcardLastSync=null;
@@ -266,7 +288,7 @@ function enhanceSave(){
       return false;
     }
   }
-  reliableSave.__rbReliable=true;reliableSave.__rbOriginal=original;root._icSaveAllDrafts=reliableSave;
+  reliableSave.__rbReliable=true;reliableSave.__rbTeamAccess=!!original.__rbTeamAccess;reliableSave.__rbOriginal=original;root._icSaveAllDrafts=reliableSave;
 }
 
 function enhanceAddForm(){
@@ -293,5 +315,5 @@ if(typeof root.addEventListener==='function')root.addEventListener('rb:auth-read
   if(panel&&panel.classList.contains('gsp-active')&&typeof root._icInit==='function')root._icInit();
 });
 
-root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,statusRank:statusRank,sortRecordsByStatus:sortRecordsByStatus,sortStatusRows:sortStatusRows,matchesFilters:matchesFilters,enhanceFilters:enhanceFilters,applyFilters:applyFilters,getFilterState:function(){return{employee:filterState.employee,status:filterState.status};},getMemory:function(){return memoryJson;}};
+root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,localRows:localRows,statusRank:statusRank,sortRecordsByStatus:sortRecordsByStatus,sortStatusRows:sortStatusRows,matchesFilters:matchesFilters,enhanceFilters:enhanceFilters,applyFilters:applyFilters,syncDraftFieldsFromDom:syncDraftFieldsFromDom,getFilterState:function(){return{employee:filterState.employee,status:filterState.status};},getMemory:function(){return memoryJson;}};
 })(window);
