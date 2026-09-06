@@ -40,6 +40,9 @@ const sorted=window.rbIdcardReliability.sortRecordsByStatus([
   {id:'expired',status:'expired'}
 ]);
 assert.deepStrictEqual(Array.from(sorted,row=>row.id),['vacant','waiting','passed','failed','expired'],'ID-card rows must follow the approved status order');
+assert.strictEqual(window.rbIdcardReliability.matchesFilters('บอล','has','บอล','has'),true,'employee and status filters must work together');
+assert.strictEqual(window.rbIdcardReliability.matchesFilters('บอล','missing','บอล','has'),false,'a mismatched status must be excluded');
+assert.strictEqual(window.rbIdcardReliability.matchesFilters('แจ๋ม','has','บอล','all'),false,'a mismatched employee must be excluded');
 
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const runtime=fs.readFileSync(path.join(__dirname,'..','snippets','idcard-save-reliability-v1.js'),'utf8');
@@ -56,7 +59,9 @@ assert(runtime.includes('mergeChangedLocal(sharedRows||[],readVersion)'),'a slow
 assert(runtime.includes("var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:4}"),'status priority must keep vacant rows first and failed rows after passed rows');
 assert(runtime.includes("root.rbPageSizePagination.apply('idcard')"),'pagination must refresh after rows are reordered');
 assert(runtime.includes("matches('[data-sub=\"idcard\"],#ic-tbody tr')"),'newly rendered ID-card rows must trigger automatic sorting');
+assert(runtime.includes("panel.id='ic-list-filters'"),'the ID-card table must expose employee and status filters');
+assert(runtime.includes("row.setAttribute('data-rbps-ignore','filter')"),'filtered rows must be excluded from pagination counts');
 assert(runtime.includes("['_icInit','_icEditField'"),'all team roles must receive the ID-card editor controls');
-assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix367'),'reliability runtime must be loaded');
-assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix276'),'reliability styles must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.js?v=fix368'),'reliability runtime must be loaded');
+assert(html.includes('snippets/idcard-save-reliability-v1.css?v=fix368'),'reliability styles must be loaded');
 console.log('idcard-save-reliability-v1 tests passed');

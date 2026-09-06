@@ -87,6 +87,50 @@ function sortStatusRows(){
   if(changed&&root.rbPageSizePagination&&typeof root.rbPageSizePagination.apply==='function')root.rbPageSizePagination.apply('idcard');
 }
 
+var filterState={employee:'',status:'all'};
+function matchesFilters(employee,status,employeeFilter,statusFilter){
+  return (!employeeFilter||String(employee||'')===String(employeeFilter))&&(statusFilter==='all'||String(status||'')===String(statusFilter));
+}
+function syncEmployeeFilter(select){
+  if(!select)return;
+  var names={};document.querySelectorAll('#ic-tbody select[data-icf="employee"]').forEach(function(field){
+    var value=String(field.value||'');if(!value)return;
+    var option=field.options&&field.options[field.selectedIndex];names[value]=option?option.textContent:value;
+  });
+  var signature=Object.keys(names).sort().map(function(value){return value+'='+names[value];}).join('|');
+  if(select.getAttribute('data-options')===signature)return;
+  select.setAttribute('data-options',signature);select.innerHTML='';
+  var all=document.createElement('option');all.value='';all.textContent='พนักงานทั้งหมด';select.appendChild(all);
+  Object.keys(names).sort(function(a,b){return names[a].localeCompare(names[b],'th');}).forEach(function(value){var option=document.createElement('option');option.value=value;option.textContent=names[value];select.appendChild(option);});
+  select.value=filterState.employee;
+}
+function enhanceFilters(){
+  var rootNode=document.getElementById('ic-root'),tbody=document.getElementById('ic-tbody');if(!rootNode||!tbody)return;
+  var panel=document.getElementById('ic-list-filters');
+  if(!panel){
+    panel=document.createElement('div');panel.id='ic-list-filters';panel.className='ic-list-filters';
+    panel.innerHTML='<label><span>พนักงาน</span><select id="ic-filter-employee" aria-label="กรองตามพนักงาน"></select></label><label><span>สถานะ</span><select id="ic-filter-status" aria-label="กรองตามสถานะ"><option value="all">สถานะทั้งหมด</option><option value="vacant">ว่าง</option><option value="">รอตรวจสอบ</option><option value="has">ผ่าน</option><option value="missing">ไม่ผ่าน</option><option value="expired">บัตรหมดอายุ</option></select></label><button type="button" id="ic-filter-clear">ล้างตัวกรอง</button>';
+    var table=tbody.closest('table'),host=table&&table.parentElement;if(host)host.insertAdjacentElement('beforebegin',panel);else rootNode.insertBefore(panel,tbody);
+    panel.querySelector('#ic-filter-employee').addEventListener('change',function(){filterState.employee=this.value;applyFilters();});
+    panel.querySelector('#ic-filter-status').addEventListener('change',function(){filterState.status=this.value;applyFilters();});
+    panel.querySelector('#ic-filter-clear').addEventListener('click',function(){filterState={employee:'',status:'all'};panel.querySelector('#ic-filter-employee').value='';panel.querySelector('#ic-filter-status').value='all';applyFilters();});
+  }
+  syncEmployeeFilter(panel.querySelector('#ic-filter-employee'));panel.querySelector('#ic-filter-status').value=filterState.status;
+}
+function applyFilters(){
+  var tbody=document.getElementById('ic-tbody');if(!tbody)return;
+  var rows=Array.prototype.filter.call(tbody.children,function(row){return row.tagName==='TR'&&row.querySelector('select[data-icf="status"]');}),shown=0;
+  rows.forEach(function(row){
+    var employee=row.querySelector('select[data-icf="employee"]'),status=row.querySelector('select[data-icf="status"]');
+    var matches=matchesFilters(employee&&employee.value,status&&status.value,filterState.employee,filterState.status);row.hidden=!matches;
+    if(matches){row.removeAttribute('data-rbps-ignore');shown++;}else row.setAttribute('data-rbps-ignore','filter');
+  });
+  var empty=document.getElementById('ic-filter-empty');
+  if(!shown&&rows.length){if(!empty){empty=document.createElement('tr');empty.id='ic-filter-empty';empty.setAttribute('data-rbps-ignore','filter');empty.innerHTML='<td colspan="8">ไม่พบรายการที่ตรงกับตัวกรอง</td>';tbody.appendChild(empty);}empty.hidden=false;}else if(empty)empty.remove();
+  var clear=document.getElementById('ic-filter-clear');if(clear)clear.hidden=!filterState.employee&&filterState.status==='all';
+  if(root.rbPageSizePagination&&typeof root.rbPageSizePagination.apply==='function')root.rbPageSizePagination.apply('idcard');
+}
+
 if(typeof root.addEventListener==='function')root.addEventListener('storage',function(event){
   if(event.storageArea===root.localStorage&&event.key===KEY)memoryJson=event.newValue||'';
 });
@@ -219,9 +263,9 @@ function enhanceAddForm(){
 }
 
 var observerTimer=null;
-function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();},80);}
+function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();enhanceFilters();applyFilters();},80);}
 var observer=new MutationObserver(function(mutations){for(var i=0;i<mutations.length;i++){for(var j=0;j<mutations[i].addedNodes.length;j++){var node=mutations[i].addedNodes[j];if(node.nodeType===1&&(node.id==='ic-root'||node.id==='ic-add-panel'||node.matches&&node.matches('[data-sub="idcard"],#ic-tbody tr')||node.querySelector&&node.querySelector('#ic-root,#ic-add-panel,[data-sub="idcard"],#ic-tbody tr'))){scheduleEnhance();return;}}}});
-function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();observer.observe(document.documentElement,{childList:true,subtree:true});}
+function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();enhanceFilters();applyFilters();observer.observe(document.documentElement,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 
 /* Authentication can change without reloading the page. Rebuild this view so
@@ -233,5 +277,5 @@ if(typeof root.addEventListener==='function')root.addEventListener('rb:auth-read
   if(panel&&panel.classList.contains('gsp-active')&&typeof root._icInit==='function')root._icInit();
 });
 
-root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,statusRank:statusRank,sortRecordsByStatus:sortRecordsByStatus,sortStatusRows:sortStatusRows,getMemory:function(){return memoryJson;}};
+root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,statusRank:statusRank,sortRecordsByStatus:sortRecordsByStatus,sortStatusRows:sortStatusRows,matchesFilters:matchesFilters,enhanceFilters:enhanceFilters,applyFilters:applyFilters,getFilterState:function(){return{employee:filterState.employee,status:filterState.status};},getMemory:function(){return memoryJson;}};
 })(window);
