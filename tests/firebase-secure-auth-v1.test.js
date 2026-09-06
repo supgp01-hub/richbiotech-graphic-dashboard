@@ -130,13 +130,21 @@ test('PIN login waits for and caches the latest rotated account directory', () =
 });
 
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure22/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure23/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);
   assert.match(auth, /รายชื่อผู้ใช้งาน/);
   assert.match(auth, /adminData\.groups\.length\+' คน/);
   assert.match(auth, /ไม่มีคำขอใหม่ที่รออนุมัติ/);
+});
+
+test('USER manager launcher lives inside the account menu instead of floating over content', () => {
+  const css = fs.readFileSync(path.join(root, 'snippets', 'firebase-secure-auth-v1.css'), 'utf8');
+  assert.match(auth, /getElementById\('sb-uc-foot2'\)/);
+  assert.match(auth, /accountMenu\.insertBefore\(button,accountMenu\.firstChild\)/);
+  assert.match(css, /#rb-auth-admin-button\{position:static/);
+  assert.doesNotMatch(css, /#rb-auth-admin-button\{position:fixed/);
 });
 
 test('Firebase requests refresh an expired token before reporting unauthorized', () => {

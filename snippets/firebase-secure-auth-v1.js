@@ -285,7 +285,11 @@ function applyProfile(user,p){
 }
 function setupAdmin(show){
   let button=document.getElementById('rb-auth-admin-button');
-  if(!button){button=document.createElement('button');button.id='rb-auth-admin-button';button.type='button';button.textContent='🔐 จัดการสิทธิ์ผู้ใช้';button.addEventListener('click',openAdmin);document.body.appendChild(button);}
+  if(!button){
+    button=document.createElement('button');button.id='rb-auth-admin-button';button.type='button';button.innerHTML='<span aria-hidden="true">⚙</span><span>จัดการสิทธิ์ผู้ใช้</span>';button.setAttribute('aria-label','จัดการสิทธิ์ผู้ใช้');button.addEventListener('click',()=>{document.getElementById('sb-user-card')?.classList.remove('uc-open');openAdmin();});
+    const accountMenu=document.getElementById('sb-uc-foot2');
+    if(accountMenu)accountMenu.insertBefore(button,accountMenu.firstChild);else document.body.appendChild(button);
+  }
   button.classList.toggle('is-visible',show);
 }
 let adminData={requests:[],groups:[],mode:'add',selectedUid:'',message:'',messageType:''};
