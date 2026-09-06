@@ -66,6 +66,27 @@ function mergeChangedLocal(remoteRows,readVersion){
   return Object.values(byId);
 }
 
+var STATUS_ORDER={vacant:0,'':1,has:2,missing:3,expired:3};
+function statusRank(value){
+  value=value==null?'':String(value);
+  return Object.prototype.hasOwnProperty.call(STATUS_ORDER,value)?STATUS_ORDER[value]:4;
+}
+function sortRecordsByStatus(rows){
+  return (rows||[]).map(function(row,index){return{row:row,index:index};}).sort(function(a,b){
+    return statusRank(a.row&&a.row.status)-statusRank(b.row&&b.row.status)||a.index-b.index;
+  }).map(function(item){return item.row;});
+}
+function sortStatusRows(){
+  var tbody=document.getElementById('ic-tbody');if(!tbody)return;
+  var rows=Array.prototype.filter.call(tbody.children,function(row){return row.tagName==='TR'&&row.querySelector('select[data-icf="status"]');});
+  if(rows.length<2)return;
+  var sorted=rows.map(function(row,index){var select=row.querySelector('select[data-icf="status"]');return{row:row,index:index,rank:statusRank(select&&select.value)};}).sort(function(a,b){return a.rank-b.rank||a.index-b.index;});
+  var changed=sorted.some(function(item,index){return item.row!==rows[index];});
+  if(changed){var fragment=document.createDocumentFragment();sorted.forEach(function(item){fragment.appendChild(item.row);});tbody.appendChild(fragment);}
+  sorted.forEach(function(item,index){if(item.row.cells&&item.row.cells[1])item.row.cells[1].textContent=String(index+1);});
+  if(changed&&root.rbPageSizePagination&&typeof root.rbPageSizePagination.apply==='function')root.rbPageSizePagination.apply('idcard');
+}
+
 if(typeof root.addEventListener==='function')root.addEventListener('storage',function(event){
   if(event.storageArea===root.localStorage&&event.key===KEY)memoryJson=event.newValue||'';
 });
@@ -198,9 +219,9 @@ function enhanceAddForm(){
 }
 
 var observerTimer=null;
-function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();},80);}
-var observer=new MutationObserver(function(mutations){for(var i=0;i<mutations.length;i++){for(var j=0;j<mutations[i].addedNodes.length;j++){var node=mutations[i].addedNodes[j];if(node.nodeType===1&&(node.id==='ic-root'||node.id==='ic-add-panel'||node.matches&&node.matches('[data-sub="idcard"]')||node.querySelector&&node.querySelector('#ic-root,#ic-add-panel,[data-sub="idcard"]'))){scheduleEnhance();return;}}}});
-function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();observer.observe(document.documentElement,{childList:true,subtree:true});}
+function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();},80);}
+var observer=new MutationObserver(function(mutations){for(var i=0;i<mutations.length;i++){for(var j=0;j<mutations[i].addedNodes.length;j++){var node=mutations[i].addedNodes[j];if(node.nodeType===1&&(node.id==='ic-root'||node.id==='ic-add-panel'||node.matches&&node.matches('[data-sub="idcard"],#ic-tbody tr')||node.querySelector&&node.querySelector('#ic-root,#ic-add-panel,[data-sub="idcard"],#ic-tbody tr'))){scheduleEnhance();return;}}}});
+function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();observer.observe(document.documentElement,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 
 /* Authentication can change without reloading the page. Rebuild this view so
@@ -212,5 +233,5 @@ if(typeof root.addEventListener==='function')root.addEventListener('rb:auth-read
   if(panel&&panel.classList.contains('gsp-active')&&typeof root._icInit==='function')root._icInit();
 });
 
-root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,getMemory:function(){return memoryJson;}};
+root.rbIdcardReliability={isQuota:isQuota,enhanceSave:enhanceSave,installCloudTracker:installCloudTracker,installCloudReader:installCloudReader,rowFingerprint:rowFingerprint,mergeChangedLocal:mergeChangedLocal,statusRank:statusRank,sortRecordsByStatus:sortRecordsByStatus,sortStatusRows:sortStatusRows,getMemory:function(){return memoryJson;}};
 })(window);
