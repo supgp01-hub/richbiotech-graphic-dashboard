@@ -1,6 +1,6 @@
 (function(){
 'use strict';if(window._rbAuditDeductionLoaded)return;window._rbAuditDeductionLoaded=true;
-var VERSION='fix386',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
+var VERSION='fix387',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
 var RULES=[
  {id:'revision_unfixed',name:'ไม่แก้ไขงานที่พบข้อผิดพลาด',amount:50,days:2,source:'งานสั่งงาน',detail:'ให้เวลาแก้ไข 2 วัน เริ่มหักวันที่ 3'},
  {id:'personal_test_missing',name:'เทสส่วนตัวไม่ครบ 15 คอนเทนต์ต่อรอบเดือน',amount:100,days:0,source:'งานสั่งงาน',detail:'ตรวจเมื่อจบรอบเดือน'},
@@ -71,5 +71,11 @@ function saveListFromAudit(button,x){
  }).catch(function(error){button.disabled=false;if(stateEl)stateEl.textContent='บันทึกไม่สำเร็จ · '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง');toast('บันทึกไม่สำเร็จ · ข้อมูลเดิมยังคงอยู่');return false})
 }
 var baseAction=action;action=function(e){if(e&&e.dataset.action==='list-save'){var x=state.items.find(function(v){return v.id===e.dataset.id});return saveListFromAudit(e,x)}return baseAction(e)};
-if(window._rbAuditDeductionTest){window._rbAuditDeductionTest.canEditList=canEditList;window._rbAuditDeductionTest.listEditor=listEditor;window._rbAuditDeductionTest.saveListFromAudit=saveListFromAudit;window._rbAuditDeductionTest.auditRecommendedNextDate=auditRecommendedNextDate}
+function listFollowupDue(row,follow,now){
+ var selected=parseDate((follow||{}).nextDate||row.followDate||row.upd),edited=parseDate(row.updatedAt||row.upd);
+ if(edited&&(!selected||ymd(selected)<ymd(edited))){selected=add(edited,7)}
+ return selected?adjustedDue(selected,0,row.emp):new Date(now)
+}
+detectList=function(now){var out=[],follow={};try{follow=JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1')||'{}')||{}}catch(e){};(window._listfbData||[]).forEach(function(row,i){var f=follow[row._key]||{},st=f.stage==='waiting'?'working':f.stage,statusText=String(row.st||'').trim(),bad=window.rbFacebookStatusNeedsFollowup?window.rbFacebookStatusNeedsFollowup(statusText):['ใช้งาน','ว่าง','ปิดใช้งาน','เปลี่ยนเฟสใหม่แล้ว'].indexOf(statusText)<0&&/แดง|จำกัด|ปิด|ระงับ|ติดตาม|ไม่ผ่าน|ยืนยัน|สแกน|เอกสาร|captcha|what/i.test(statusText+' '+String(row.follow||''));if(!bad||st==='done'||st==='none')return;var due=listFollowupDue(row,f,now);if(due<=now)out.push(item('listfb_red',row._key||row.fbid||i,row.emp,'List Facebook · '+(row.name||row.fbid||'บัญชีต้องติดตาม'),parseDate(row.updatedAt||row.upd)||due,due,{listKey:row._key,note:'สถานะ '+(row.st||'ต้องติดตาม')}))});return out};
+if(window._rbAuditDeductionTest){window._rbAuditDeductionTest.canEditList=canEditList;window._rbAuditDeductionTest.listEditor=listEditor;window._rbAuditDeductionTest.saveListFromAudit=saveListFromAudit;window._rbAuditDeductionTest.auditRecommendedNextDate=auditRecommendedNextDate;window._rbAuditDeductionTest.detectList=detectList;window._rbAuditDeductionTest.listFollowupDue=listFollowupDue}
 })();
