@@ -85,7 +85,7 @@
       localStorage.removeItem('rb_order_planner_drafts_v1');
     }
     window.lpORD = function () { return mockOrders.slice(); };
-    window.spORD = function (rows) { mockOrders = rows.slice(); };
+    window.spORD = function (rows) { mockOrders = rows.slice(); return Promise.resolve({ ok: true, online: true }); };
     window.lvGetDay = function () { return []; };
     const contentRows = [{
         name: 'โปรโมชัน Valore Clinic',
@@ -126,6 +126,31 @@
     };
   </script>
   <script src="../../snippets/persistence-reliability-v3.js?v=fix337"></script>
-  <script src="../../snippets/order-planner-v1.js?v=fix361"></script>
+  <script src="../../snippets/order-planner-v1.js?v=fix383"></script>
+  <script>
+    if (fixtureParams.get('qa') === '1') {
+      const uploadTest = document.createElement('button');
+      uploadTest.type = 'button';
+      uploadTest.textContent = 'QA แนบรูปจำลอง';
+      uploadTest.style.cssText = 'position:fixed;z-index:1000000;right:20px;bottom:20px;padding:10px;background:#fff;';
+      uploadTest.onclick = function () {
+        window.__qaUpload = { stage: 'clicked' };
+        try {
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100"><rect width="160" height="100" fill="#dff5e8"/><text x="20" y="55" font-size="18">UPLOAD QA</text></svg>';
+        const file = new File([svg], 'upload-qa.svg', { type: 'image/svg+xml' });
+        const transfer = new DataTransfer(); transfer.items.add(file);
+        const input = document.getElementById('rbp-brief-file-stable');
+        if (!input) { window.__qaUpload.stage = 'no-input'; return; }
+        const editor = document.querySelector('.rbp-detail-editor[data-id]');
+        input.setAttribute('data-draft-id', editor ? editor.getAttribute('data-id') : '');
+        input.files = transfer.files;
+        window.__qaUpload = { stage: 'dispatching', files: input.files.length, id: input.getAttribute('data-draft-id') };
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        window.__qaUpload.stage = 'dispatched';
+        } catch (error) { window.__qaUpload = { stage: 'error', message: error.message }; }
+      };
+      document.body.insertBefore(uploadTest, document.body.firstChild);
+    }
+  </script>
 </body>
 </html>

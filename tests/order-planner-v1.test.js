@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix382">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix383">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
-assert.ok(index.includes('snippets/order-planner-v1.css?v=fix382'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix382'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.css?v=fix383'),'planner stylesheet must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix383'),'planner script must be loaded');
 assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
 assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
@@ -20,6 +20,10 @@ assert.ok(js.includes("sourceDraftId:d.id")&&js.includes("autoDispatched:true"),
 assert.ok(js.includes("orderKey='planner_'+cloudKey(d.id)"),'automatic dispatch must use an idempotent per-draft database key');
 assert.ok(js.includes('function repairDispatchedOrders(')&&js.includes("integrityRecoveredBy='ระบบตรวจสอบแพลน'"),'dispatched drafts must automatically rebuild a missing downstream order');
 assert.ok(js.includes("typeof window.fbSet==='function'"),'automatic dispatch writes must use the shared retry queue');
+assert.ok(js.includes("function getJSON(path){if(typeof window.fbGet==='function')"),'the worker must read authenticated cloud data with pending local writes overlaid');
+assert.ok(!js.includes("fetchJSON(FB+CLOUD+'.json')"),'the worker must never bypass authenticated shared reads and dispatch stale draft data');
+assert.ok(js.includes('runWorker(ids,snapshots)'),'manual dispatch must use the exact immutable form snapshots selected by the Supervisor');
+assert.ok(js.includes('function persistPlannerOrder(order,orderKey)')&&js.includes('window.spORD(current)'),'planner dispatch must save through the same durable local-and-online order pipeline as Add New');
 assert.ok(js.includes("if(!/^GR\\d+$/.test(id))return"),'draft timestamps must never be mistaken for visible GR order numbers');
 assert.ok(js.includes("typeof window.lvGetDay!=='function'")&&js.includes('function chooseAssignee('),'automatic assignment must check the existing leave calendar');
 assert.ok(js.includes("d.repeat==='weekly'")&&js.includes("d.repeat==='none'"),'weekly and monthly recurring plans must be supported');
