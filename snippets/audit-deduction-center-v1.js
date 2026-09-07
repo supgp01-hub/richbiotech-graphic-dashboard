@@ -1,6 +1,6 @@
 (function(){
 'use strict';if(window._rbAuditDeductionLoaded)return;window._rbAuditDeductionLoaded=true;
-var VERSION='fix385',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
+var VERSION='fix386',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
 var RULES=[
  {id:'revision_unfixed',name:'ไม่แก้ไขงานที่พบข้อผิดพลาด',amount:50,days:2,source:'งานสั่งงาน',detail:'ให้เวลาแก้ไข 2 วัน เริ่มหักวันที่ 3'},
  {id:'personal_test_missing',name:'เทสส่วนตัวไม่ครบ 15 คอนเทนต์ต่อรอบเดือน',amount:100,days:0,source:'งานสั่งงาน',detail:'ตรวจเมื่อจบรอบเดือน'},
@@ -32,7 +32,25 @@ function toast(t){var old=document.querySelector('.adc-toast');if(old)old.remove
 function mount(){var root=document.querySelector('[data-sub="audit"]');if(!root)return false;if(root.dataset.auditMounted==='1')return true;root.dataset.auditMounted='1';if(!state.period)state.period=defaultPeriod();if(!state.view)state.view=defaultView();state.store=load();state.checkMeta=loadCheck();render();root.dataset.auditHydrated='1';hydrate(false);refreshRules(false);return true}window._rbAuditDeductionMount=mount;window._rbAuditDeductionRefresh=render;window._rbAuditDeductionTest={RULES:RULES,parseDate:parseDate,adjustedDue:adjustedDue,range:range,item:item,status:status,employee:emp,parseCsv:parseCsv,sheetRowToItem:sheetRowToItem,periodFromLabel:periodFromLabel,chargeId:chargeId,detectOrders:detectOrders,detectList:detectList,sumRows:sumRows,sourceGroup:sourceGroup,shortTitle:shortTitle,view:view,manage:manage,defaultView:defaultView,teamViewer:teamViewer};window.addEventListener('rb:auth-ready',function(){state.view=defaultView();if(!mount())return;hydrate(false)});window.addEventListener('storage',function(e){if([KEY,CHECK_KEY,'rb_orders_v1','rb_listfacebook_followups_v1','rb_listfacebook_edits_v1','rb_listfacebook_manual_v1','lv_dash_v5'].indexOf(e.key)>=0&&document.querySelector('[data-sub="audit"].gsp-active')){if(e.key===CHECK_KEY)state.checkMeta=loadCheck();render()}});new MutationObserver(function(){var root=document.querySelector('[data-sub="audit"]');if(root&&root.dataset.auditMounted!=='1')mount()}).observe(document.documentElement,{childList:true,subtree:true});setTimeout(mount,1200);
 function canManageListOwner(){var r=usr().role;return r==='sup'||r==='audit'||r==='spec'}
 canEditList=function(x){return !!x&&(canManageListOwner()||x.employee===emp(usr().name))};
-var baseListEditor=listEditor;listEditor=function(x){var html=baseListEditor(x);return canManageListOwner()?html:html.replace('data-list-field="emp" ','data-list-field="emp" disabled ')};
+function auditNeedsFollowup(status){return window.rbFacebookStatusNeedsFollowup?window.rbFacebookStatusNeedsFollowup(status):['ใช้งาน','ว่าง','ปิดใช้งาน','เปลี่ยนเฟสใหม่แล้ว'].indexOf(String(status||'').trim())<0}
+function auditRecommendedNextDate(status,current,now){
+ if(window._lfbRecommendedNextDate)return window._lfbRecommendedNextDate(status,current,now);
+ if(!auditNeedsFollowup(status))return'';
+ var today=new Date(now||Date.now());today.setHours(0,0,0,0);var chosen=/^\d{4}-\d{2}-\d{2}$/.test(String(current||''))?new Date(String(current)+'T00:00:00'):null;
+ if(chosen&&!Number.isNaN(chosen.getTime())&&chosen.getTime()>=today.getTime())return String(current);
+ var next=new Date(now||Date.now());next.setHours(12,0,0,0);next.setDate(next.getDate()+7);return next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0')
+}
+var baseListEditor=listEditor;listEditor=function(x){
+ var html=baseListEditor(x),row=listRow(x),follow={};
+ try{follow=JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1')||'{}')[x.listKey]||{}}catch(e){}
+ if(row){var next=auditRecommendedNextDate(row.st,follow.nextDate,Date.now());html=html.replace(/(<input data-list-field="followupNextDate" type="date" value=")[^"]*(")/,'$1'+esc(next)+'$2');if(!auditNeedsFollowup(row.st))html=html.replace('data-list-field="followupNextDate" ','data-list-field="followupNextDate" disabled ')}
+ html=html.replace('<time>แก้ไขล่าสุด: ','<time><small>วันที่แก้ไขล่าสุด</small><b>').replace('</time>','</b></time>');
+ return canManageListOwner()?html:html.replace('data-list-field="emp" ','data-list-field="emp" disabled ')
+};
+var baseBind=bind;bind=function(root){
+ baseBind(root);
+ root.querySelectorAll('[data-list-editor] [data-list-field="st"]').forEach(function(statusField){statusField.addEventListener('change',function(){var host=this.closest('[data-list-editor]'),dateField=host&&host.querySelector('[data-list-field="followupNextDate"]');if(!dateField)return;dateField.value=auditRecommendedNextDate(this.value,dateField.value,Date.now());dateField.disabled=!canEditList(state.items.find(function(v){return v.id===host.dataset.listEditor}))||!auditNeedsFollowup(this.value)})})
+};
 function saveListFromAudit(button,x){
  if(!x||!x.listKey||!canEditList(x)){toast('คุณไม่มีสิทธิ์แก้ไขบัญชีนี้');return Promise.resolve(false)}
  if(typeof window._lfbSaveAccountRecord!=='function'){toast('ไม่พบระบบบันทึก List Facebook · กรุณารีเฟรชหน้าเว็บ');return Promise.resolve(false)}
@@ -40,6 +58,7 @@ function saveListFromAudit(button,x){
  if(!host){toast('ไม่พบแบบฟอร์มที่เลือก');return Promise.resolve(false)}
  host.querySelectorAll('[data-list-field]').forEach(function(field){if(!field.disabled)values[field.dataset.listField]=field.value});
  if(!canManageListOwner())delete values.emp;
+ values.followupNextDate=auditRecommendedNextDate(values.st,values.followupNextDate,Date.now());
  button.disabled=true;if(stateEl)stateEl.textContent='กำลังบันทึกและตรวจข้อมูลออนไลน์...';
  return Promise.resolve(window._lfbSaveAccountRecord(x.listKey,values)).then(function(result){
   if(!result||result.online===false){button.disabled=false;if(stateEl)stateEl.textContent='บันทึกไว้ในเครื่องแล้ว แต่ยังยืนยันข้อมูลออนไลน์ไม่ได้';toast('ยังซิงก์ออนไลน์ไม่สำเร็จ · รายการยังไม่ถูกปิด');return false}
@@ -52,5 +71,5 @@ function saveListFromAudit(button,x){
  }).catch(function(error){button.disabled=false;if(stateEl)stateEl.textContent='บันทึกไม่สำเร็จ · '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง');toast('บันทึกไม่สำเร็จ · ข้อมูลเดิมยังคงอยู่');return false})
 }
 var baseAction=action;action=function(e){if(e&&e.dataset.action==='list-save'){var x=state.items.find(function(v){return v.id===e.dataset.id});return saveListFromAudit(e,x)}return baseAction(e)};
-if(window._rbAuditDeductionTest){window._rbAuditDeductionTest.canEditList=canEditList;window._rbAuditDeductionTest.listEditor=listEditor;window._rbAuditDeductionTest.saveListFromAudit=saveListFromAudit}
+if(window._rbAuditDeductionTest){window._rbAuditDeductionTest.canEditList=canEditList;window._rbAuditDeductionTest.listEditor=listEditor;window._rbAuditDeductionTest.saveListFromAudit=saveListFromAudit;window._rbAuditDeductionTest.auditRecommendedNextDate=auditRecommendedNextDate}
 })();

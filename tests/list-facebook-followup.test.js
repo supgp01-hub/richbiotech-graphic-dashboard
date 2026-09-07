@@ -46,6 +46,9 @@ assert.deepEqual(api.filteredRows(searchRows).map(row => row._key), ['search-hit
 const day = 24 * 60 * 60 * 1000;
 const baseNow = new Date(2026, 7, 23, 10, 0, 0).getTime();
 assert.equal(api.automaticNextDate(baseNow), '2026-08-30', 'saving a follow-up must automatically schedule the next review seven days later');
+assert.equal(api.recommendedNextDate('รหัส 2FA ผิด', '2026-08-20', baseNow), '2026-08-30', 'a stale follow-up date must move to seven days after the latest save');
+assert.equal(api.recommendedNextDate('รหัส 2FA ผิด', '2026-09-05', baseNow), '2026-09-05', 'a future date selected by the team must be preserved');
+assert.equal(api.recommendedNextDate('ใช้งาน', '2026-09-05', baseNow), '', 'a safe status must clear its follow-up date');
 assert.equal(api.followupTiming({}, baseNow).nextDate, '', 'accounts that have not been saved for follow-up must not receive a false deadline in the table');
 assert.equal(api.followupTiming({ stage: 'working', updatedAt: baseNow, nextDate: '2026-08-30' }, baseNow).level, 0, 'the first day must use the grey severity');
 assert.equal(api.followupTiming({ stage: 'working', updatedAt: baseNow, nextDate: '2026-08-30' }, baseNow + 6 * day).level, 6, 'severity must increase as the deadline approaches');
@@ -56,6 +59,7 @@ assert.equal(api.mergeFollowupMaps({ a: { updatedAt: 200, stage: 'none' } }, { a
 
 assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follow-up data must use a separate cloud path');
 assert.ok(source.includes('window._lfbSyncFollowups=syncFollowups'), 'audit refresh must be able to fetch the latest shared follow-up state');
+assert.ok(source.includes('window._lfbRecommendedNextDate=recommendedNextDate'), 'List Facebook and Audit must share one next-date rule');
 assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
 assert.ok(source.includes('<h3>แก้ไขข้อมูลบัญชี</h3>'), 'the full account editor must be permanently visible in the right panel');
 assert.ok(source.includes('แก้ไขล่าสุด: '), 'the account editor header must show the latest edit date and time');
@@ -84,7 +88,7 @@ assert.equal(source.includes("['waiting','รอ Facebook']"), false, 'รอ Fa
 assert.ok(source.includes('window._lfbReconcileFollowupStatus=reconcileFollowupStatus'), 'Facebook status saves must reconcile the shared tracking record');
 assert.ok(source.includes('id="lfbi-follow-date" type="date"'), 'account status editing must show the next follow-up date in the same panel');
 assert.ok(source.includes("updateAccountFollowupDate(event.target.value)"), 'the date field must react immediately to the existing status rules');
-assert.ok(source.includes('values.followupNextDate=needsSystemFollowup'), 'account saves must forward the selected follow-up date only for tracked statuses');
+assert.ok(source.includes('values.followupNextDate=recommendedNextDate'), 'account saves must normalize the selected follow-up date with the shared status rule');
 assert.ok(source.includes("stage:nextStage,nextDate:nextDate"), 'a tracked status save must create a dated follow-up record for the table');
 assert.ok(source.includes("detail.getAttribute('data-editing')!=='1'"), 'background refreshes must not replace the account form while a user is typing');
 assert.ok(source.includes("detail.setAttribute('data-editing','1')"), 'typing in the account form must enter a protected editing state');

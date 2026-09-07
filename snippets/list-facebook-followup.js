@@ -122,8 +122,7 @@ function updateAccountFollowupDate(value){
   var wrap=document.getElementById('lfbi-follow-date-wrap'),input=document.getElementById('lfbi-follow-date');if(!wrap||!input)return;
   var requires=needsSystemFollowup({st:value}),saved=followups[selectedKey]||{};
   wrap.hidden=!requires;
-  if(requires&&!input.value)input.value=saved.nextDate||automaticNextDate(Date.now());
-  if(!requires)input.value='';
+  input.value=recommendedNextDate(value,input.value||saved.nextDate,Date.now());
 }
 function formatWhen(timestamp){
   if(!timestamp)return'-';
@@ -154,6 +153,12 @@ function formatDateValue(value){
   return new Date(timestamp).toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 function automaticNextDate(timestamp){return addDaysValue(timestamp||Date.now(),7);}
+function recommendedNextDate(status,current,now){
+  now=now||Date.now();
+  if(!needsSystemFollowup({st:status}))return'';
+  var saved=dateAtMidnight(current),today=dateAtMidnight(dateValue(now));
+  return !Number.isNaN(saved)&&saved>=today?String(current):automaticNextDate(now);
+}
 function defaultListView(){
   window._lfbFilter={stage:'new',followView:'all',fE:'ALL',fStatus:'ALL',q:'',page:1,pageSize:listPageSize()};
   selectedKey='';
@@ -242,7 +247,7 @@ function renderAccountDetail(){
   ['type','name','emp','prod','st','fbid','passFb','email','emailPass','twofa','limit','bal','note'].forEach(function(key){var element=document.getElementById('lfbi-'+key);if(element)element.value=row[key]||'';});
   ['passFb','email','emailPass','twofa'].forEach(function(key){var element=document.getElementById('lfbi-'+key);if(element)element.disabled=!credentialsEditing;});
   inlineStatusHelp(row.st);
-  var followDate=document.getElementById('lfbi-follow-date');if(followDate)followDate.value=(followups[selectedKey]||{}).nextDate||'';
+  var followDate=document.getElementById('lfbi-follow-date');if(followDate)followDate.value=recommendedNextDate(row.st,(followups[selectedKey]||{}).nextDate,Date.now());
   updateAccountFollowupDate(row.st);
 }
 function openCredentialsDrawer(editing){credentialsOpen=true;credentialsEditing=!!editing;renderAccountDetail();}
@@ -262,7 +267,7 @@ function persistAccountDetail(reopenCredentials){
   var state=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state'),button=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');
   if(!selectedKey||typeof window._lfbSaveAccountRecord!=='function'){if(state)state.textContent='ไม่พบบัญชีที่เลือก กรุณาเลือกบัญชีอีกครั้ง';return;}
   var values={};['type','name','emp','prod','st','fbid','passFb','email','emailPass','twofa','limit','bal','note'].forEach(function(key){var element=document.getElementById('lfbi-'+key);values[key]=element?element.value:'';});
-  var followDate=document.getElementById('lfbi-follow-date');values.followupNextDate=needsSystemFollowup({st:values.st})&&followDate?followDate.value:'';
+  var followDate=document.getElementById('lfbi-follow-date');values.followupNextDate=recommendedNextDate(values.st,followDate?followDate.value:'',Date.now());
   if(button)button.disabled=true;if(state)state.textContent='กำลังบันทึก...';
   window._lfbSaveAccountRecord(selectedKey,values).then(function(result){credentialsEditing=false;credentialsOpen=!!reopenCredentials;var detail=document.getElementById('lfb-account-detail');if(detail)detail.removeAttribute('data-editing');renderAll();var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=result.online?'บันทึกและซิงก์เรียบร้อย':'บันทึกในเครื่องแล้ว · ระบบจะซิงก์ให้อัตโนมัติ';}).catch(function(error){var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=error&&error.message?error.message:'บันทึกไม่สำเร็จ';}).finally(function(){var target=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');if(target)target.disabled=false;});
 }
@@ -308,7 +313,7 @@ function reconcileFollowupStatus(key,status,previousStatus,requestedDate){
   var requires=needsSystemFollowup({st:status}),previous=followups[key]||{},stage=normalizeStage(previous.stage),history=Array.isArray(previous.history)?previous.history.slice():[],now=Date.now(),changed=String(status||'')!==String(previousStatus||''),entry;
   if(requires){
     if(stage==='done'&&!changed)return Promise.resolve(true);
-    var nextDate=!Number.isNaN(dateAtMidnight(requestedDate))?requestedDate:(previous.nextDate||automaticNextDate(now));
+    var nextDate=recommendedNextDate(status,requestedDate||previous.nextDate,now);
     var nextStage=stage&&stage!=='none'&&stage!=='done'?stage:'new';
     var action=changed?'สถานะ Facebook เปลี่ยนเป็น “'+String(status||'ไม่ระบุ')+'” · กำหนดติดตาม '+formatDateValue(nextDate):previous.nextDate!==nextDate?'ปรับวันติดตามครั้งถัดไปเป็น '+formatDateValue(nextDate):'บันทึกเข้าคิวติดตามจากหน้าแก้ไขบัญชี';
     history.unshift({action:action,by:currentUser()||'ไม่ระบุ',at:now});history=history.slice(0,20);
@@ -374,7 +379,8 @@ function hybridInit(){
 window._lfbInit=hybridInit;
 window._lfbRender=renderAll;
 window._lfbEditorActivate=function(){if(typeof legacyActivate==='function')legacyActivate();defaultListView();hybridInit();return true;};
-window._lfbFollowupTest={isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,automaticNextDate:automaticNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
+window._lfbRecommendedNextDate=recommendedNextDate;
+window._lfbFollowupTest={isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,automaticNextDate:automaticNextDate,recommendedNextDate:recommendedNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
 window._lfbReconcileFollowupStatus=reconcileFollowupStatus;
 window._lfbSyncFollowups=syncFollowups;
 window._lfbOpenFollowup=openFollowupModal;

@@ -63,4 +63,8 @@ assert.equal(api.parseCsv(csv)[1][1],'ข้อความ, มีจุลภ�
 
 window._listfbData=[{_key:'safe-account',emp:'BALL',name:'Safe account',st:'ใช้งาน',upd:'07/09/2569'}];
 assert.equal(api.detectList(new Date(2026,8,7).getTime()).length,0,'a corrected safe account must leave the deduction queue after recheck');
+const followNow=new Date(2026,8,7,10).getTime();
+assert.equal(api.auditRecommendedNextDate('รหัส 2FA ผิด','2026-08-30',followNow),'2026-09-14','audit must replace a past follow-up date with seven days after the save');
+assert.equal(api.auditRecommendedNextDate('รหัส 2FA ผิด','2026-09-20',followNow),'2026-09-20','audit must preserve a manually selected future date');
+assert.equal(api.auditRecommendedNextDate('ใช้งาน','2026-09-20',followNow),'','audit must clear the date after the account becomes safe');
 console.log('audit deduction logic: passed');
