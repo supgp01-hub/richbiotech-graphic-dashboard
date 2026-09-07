@@ -55,6 +55,7 @@ assert.equal(api.followupTiming({ stage: 'none', updatedAt: baseNow, nextDate: '
 assert.equal(api.mergeFollowupMaps({ a: { updatedAt: 200, stage: 'none' } }, { a: { updatedAt: 100, stage: 'new' } }).a.stage, 'none', 'stale cloud tracking data must not overwrite a newer local closure');
 
 assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follow-up data must use a separate cloud path');
+assert.ok(source.includes('window._lfbSyncFollowups=syncFollowups'), 'audit refresh must be able to fetch the latest shared follow-up state');
 assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
 assert.ok(source.includes('<h3>แก้ไขข้อมูลบัญชี</h3>'), 'the full account editor must be permanently visible in the right panel');
 assert.ok(source.includes('แก้ไขล่าสุด: '), 'the account editor header must show the latest edit date and time');

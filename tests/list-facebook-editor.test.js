@@ -11,11 +11,11 @@ eval(editorSource);
 
 assert.ok(editorSource.includes("pageSize:50"), 'large Facebook lists must be paginated at a lightweight page size');
 assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'only the current page may be rendered into the DOM');
-assert.ok(indexSource.includes("list-facebook-editor.js?v=fix355"), 'the deployed page must cache-bust the current Facebook editor');
+assert.ok(indexSource.includes("list-facebook-editor.js?v=fix384"), 'the deployed page must cache-bust the current Facebook editor');
 assert.ok(indexSource.includes('list-facebook-editor.css?v=223'), 'the deployed page must cache-bust the Facebook editor layout');
 assert.ok(indexSource.includes('list-facebook-followup.css?v=fix355'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=fix373"), 'the deployed page must load the follow-up workflow');
-assert.ok(indexSource.includes('<meta name="rb-build" content="fix383">'), 'the deployed page must expose its current build for cache diagnosis');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=fix384"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes('<meta name="rb-build" content="fix384">'), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(editorSource.includes('window._lfbSaveAccountRecord=function'), 'the permanent account editor must save through the existing account data store');
 assert.ok(editorSource.includes("window._lfbReconcileFollowupStatus(key,entry.st,previousStatus,values.followupNextDate)"), 'account status saves must synchronize the follow-up state and selected date');
 assert.ok(indexSource.includes('no-cache, no-store, must-revalidate'), 'the dashboard HTML must discourage browsers from reusing a stale build');
@@ -69,6 +69,7 @@ assert.equal(shiftedDeleted.length, 0, 'a uniquely identified sheet account must
 const deletedManual = window._lfbEditorTest.applyStored([], { 'manual-1': { deleted: true, deletedAt: 500 } }, [{ id: 'manual-1', name: 'บัญชีใหม่' }]);
 assert.equal(deletedManual.length, 0, 'a deletion tombstone must prevent a stale browser from restoring a manual account');
 assert.ok(editorSource.includes('window._lfbDeleteAccountRecord=function'), 'account deletion must persist through the shared account store');
+assert.ok(editorSource.includes('window._listfbRefreshFromCloud=refreshCentralData'), 'audit refresh must be able to fetch the latest shared Facebook account edits');
 assert.ok(editorSource.includes("cloudSet('/listfacebook_edits/'+key,tombstone)"), 'every deletion must write a tombstone so another Chrome cannot restore it');
 
 const additive = window._lfbEditorTest.mergeRows(rows, [

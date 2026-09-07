@@ -7,3 +7,14 @@ html[data-theme=dark] #adc-app{--adc-ink:#d8f3e9;--adc-line:#28584f;background:#
 /* The detail pane is for the selected audit item only. Daily grouping remains
    active in the deduction calculation without listing sibling jobs here. */
 .adc-daily{display:none!important}
+
+/* Latest-check feedback and compact source labels keep live audit rows scannable. */
+.adc-sync-info.is-sheet{background:#f6faf9;color:#667c77}
+.adc-sync-info.is-error{background:#fff0f1;color:#a92e37}
+.adc-sync-info.is-error .adc-icon{color:#dc3545}
+.adc-btn:disabled{opacity:.6;cursor:wait;transform:none}
+.adc-kind{display:inline-flex;margin-left:6px;padding:2px 6px;border-radius:999px;background:#e7f4f1;color:#317267;font-size:9px;font-style:normal;font-weight:600;vertical-align:middle}
+.adc-kind.is-orders{background:#e8f3ff;color:#24608c}
+.adc-kind.is-facebook{background:#e8efff;color:#315da4}
+.adc-kind.is-sheet{background:#f1ebff;color:#6e49a7}
+.adc-kind.is-audit{background:#fff2dc;color:#95620d}

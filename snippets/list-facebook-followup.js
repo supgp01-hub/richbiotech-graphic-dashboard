@@ -291,7 +291,7 @@ function syncFollowups(){
   if(syncPromise)return syncPromise;
   syncPromise=new Promise(function(resolve){
     if(typeof window.fbGet!=='function'){resolve(false);return;}
-    window.fbGet(FOLLOW_CLOUD_PATH,function(error,value){if(!error&&value){followups=mergeFollowupMaps(followups,objectMap(value));saveLocal();renderAll();resolve(true);}else resolve(false);});
+    window.fbGet(FOLLOW_CLOUD_PATH,function(error,value){if(!error){followups=mergeFollowupMaps(followups,objectMap(value));saveLocal();renderAll();resolve(true);}else resolve(false);});
   }).finally(function(){syncPromise=null;});
   return syncPromise;
 }
@@ -376,6 +376,7 @@ window._lfbRender=renderAll;
 window._lfbEditorActivate=function(){if(typeof legacyActivate==='function')legacyActivate();defaultListView();hybridInit();return true;};
 window._lfbFollowupTest={isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,automaticNextDate:automaticNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
 window._lfbReconcileFollowupStatus=reconcileFollowupStatus;
+window._lfbSyncFollowups=syncFollowups;
 window._lfbOpenFollowup=openFollowupModal;
 window._lfbCloseFollowup=closeFollowupModal;
 document.addEventListener('click',function(event){
