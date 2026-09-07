@@ -25,7 +25,7 @@ assert.ok(syncSave.includes("window.rbOrderDeletion.mark(old,curUser())"), 'dele
 assert.ok(syncSave.includes("legacyKey&&!active[legacyKey]?legacyKey:'ord_'"), 'legacy rows must reuse one unambiguous key while new rows receive collision-safe keys');
 assert.ok(syncSave.includes('legacyIdCount[row.id]===1'), 'a duplicated visible GR number must never select an existing database record to overwrite');
 
-assert.ok(html.includes('if(_omIsNew&&idx>=0)'), 'a stale new-order form must not replace an existing visible GR number');
+assert.ok(html.includes("window.rbReserveOrderId()")&&html.includes("orders.some(function(order){return order&&order.id===id;})"), 'new orders must reserve an online GR number and retry instead of replacing a colliding row');
 assert.ok(html.includes('function fbMigrateLocalOrders(rows)'), 'legacy local orders must migrate one record at a time');
 assert.ok(!html.includes("fbSet('/orders',local)"), 'no migration may replace the entire shared orders collection');
 

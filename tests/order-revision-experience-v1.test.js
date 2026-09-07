@@ -6,7 +6,7 @@ const workflow=fs.readFileSync('snippets/order-audit-version-workflow-v1.js','ut
 const css=fs.readFileSync('snippets/order-revision-experience-v1.css','utf8');
 const workflowCss=fs.readFileSync('snippets/order-audit-version-workflow-v1.css','utf8');
 
-assert.ok(index.includes('snippets/order-revision-experience-v1.js?v=fix350'),'the live page must load the revision experience runtime');
+assert.ok(index.includes('snippets/order-revision-experience-v1.js?v=fix382'),'the live page must load the revision experience runtime');
 assert.ok(index.includes('snippets/order-revision-experience-v1.css?v=fix350'),'the live page must load the revision experience styles');
 assert.ok(index.includes("if(cst==='revision'&&versionEvidence&&versionSubmit){versionSubmit.click();return;}"),'the image-tab action must submit per-version correction evidence');
 assert.ok(index.includes("(_omInfoAction||saveOM2)();"),'the image-tab action must retain the normal link-based worker transition');

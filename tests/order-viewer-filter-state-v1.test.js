@@ -5,7 +5,7 @@ const vm=require('vm');
 const source=fs.readFileSync('index.html','utf8');
 const guard=fs.readFileSync('snippets/order-viewer-filter-state-v1.js','utf8');
 
-assert.ok(source.includes('snippets/order-viewer-filter-state-v1.js?v=fix381'),
+assert.ok(source.includes('snippets/order-viewer-filter-state-v1.js?v=fix382'),
   'the viewer state guard must be cache-busted into the dashboard');
 assert.ok(guard.includes('function rows(source,ctx)'),
   'order counters and rows need one shared viewer filter');

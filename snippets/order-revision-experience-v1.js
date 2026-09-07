@@ -11,22 +11,23 @@ function canonicalName(value){
   return aliases[compact]||compact;
 }
 function currentUser(){return window._rbUser||{};}
+function orderRef(order){return order&&(order._fbKey||order.id)||'';}
 function assignedTo(order,user){return canonicalName(order&&order.assignee)===canonicalName(user&&user.name);}
 function statusLabel(type){var labels={new_order:'งานใหม่',status:'สถานะเปลี่ยน',deadline:'Deadline ใกล้',done:'เสร็จแล้ว',revision:'ต้องแก้ไข',review:'รอตรวจ'};return labels[type]||type;}
 function noticeTone(type){return type==='revision'||type==='deadline'?'danger':type==='review'?'info':'task';}
-function noticeId(order,type,version){return'order:'+escText(order.id)+':'+type+':'+(version||0)+':'+(order.updatedAt||0);}
+function noticeId(order,type,version){return'order:'+escText(orderRef(order))+':'+type+':'+(version||0)+':'+(order.updatedAt||0);}
 function orderNotices(){
   var user=currentUser(),role=user.role||'',orders=typeof window.lpORD==='function'?window.lpORD():[],out=[],now=Date.now(),day=86400000,manager=role==='sup'||role==='spec';
   (orders||[]).forEach(function(order){
     if(!order||!order.id)return;var mine=assignedTo(order,user);
-    if(order.status==='pending'&&(mine||manager))out.push({id:noticeId(order,'new_order'),type:'new_order',title:order.id+' · งานใหม่',desc:order.name||order.title||'',oid:order.id,tab:'info',ts:order.updatedAt||order.createdAt||now});
+    if(order.status==='pending'&&(mine||manager))out.push({id:noticeId(order,'new_order'),type:'new_order',title:order.id+' · งานใหม่',desc:order.name||order.title||'',oid:orderRef(order),tab:'info',ts:order.updatedAt||order.createdAt||now});
     if(order.status==='revision'&&(mine||manager)){
       var issues=Array.isArray(order.auditVersions)?order.auditVersions.filter(function(item){return item&&item.result==='issue'&&!item.employeeSubmittedAt;}):[];
-      if(issues.length)issues.forEach(function(item,index){var version=Number(item.version)||index+1;out.push({id:noticeId(order,'revision',version),type:'revision',title:order.id+' · ต้องแก้ไข VER '+version,desc:item.note||item.issueType||order.name||order.title||'',oid:order.id,tab:'imgs',version:version,ts:item.correctionRequestedAt||item.updatedAt||order.updatedAt||now});});
-      else out.push({id:noticeId(order,'revision'),type:'revision',title:order.id+' · งานถูกส่งกลับให้แก้ไข',desc:order.name||order.title||'',oid:order.id,tab:'imgs',ts:order.updatedAt||now});
+      if(issues.length)issues.forEach(function(item,index){var version=Number(item.version)||index+1;out.push({id:noticeId(order,'revision',version),type:'revision',title:order.id+' · ต้องแก้ไข VER '+version,desc:item.note||item.issueType||order.name||order.title||'',oid:orderRef(order),tab:'imgs',version:version,ts:item.correctionRequestedAt||item.updatedAt||order.updatedAt||now});});
+      else out.push({id:noticeId(order,'revision'),type:'revision',title:order.id+' · งานถูกส่งกลับให้แก้ไข',desc:order.name||order.title||'',oid:orderRef(order),tab:'imgs',ts:order.updatedAt||now});
     }
-    if(order.status==='review'&&(role==='audit'||manager))out.push({id:noticeId(order,'review'),type:'review',title:order.id+' · รอตรวจงาน',desc:order.name||order.title||'',oid:order.id,tab:'links',ts:order.updatedAt||now});
-    var deadline=order.deadline||order.dl||'',due=deadline?new Date(deadline).getTime():0;if(due&&order.status!=='done'&&due>=now&&due-now<day&&(mine||manager))out.push({id:noticeId(order,'deadline'),type:'deadline',title:order.id+' · ใกล้ Deadline',desc:order.name||order.title||'',oid:order.id,tab:order.status==='revision'?'imgs':'info',ts:order.updatedAt||now});
+    if(order.status==='review'&&(role==='audit'||manager))out.push({id:noticeId(order,'review'),type:'review',title:order.id+' · รอตรวจงาน',desc:order.name||order.title||'',oid:orderRef(order),tab:'links',ts:order.updatedAt||now});
+    var deadline=order.deadline||order.dl||'',due=deadline?new Date(deadline).getTime():0;if(due&&order.status!=='done'&&due>=now&&due-now<day&&(mine||manager))out.push({id:noticeId(order,'deadline'),type:'deadline',title:order.id+' · ใกล้ Deadline',desc:order.name||order.title||'',oid:orderRef(order),tab:order.status==='revision'?'imgs':'info',ts:order.updatedAt||now});
   });
   return out;
 }
