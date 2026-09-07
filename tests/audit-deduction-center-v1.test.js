@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const index=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8'),css=fs.readFileSync('snippets/audit-deduction-center-v1.css','utf8');
-assert.ok(index.includes('audit-deduction-center-v1.js?v=fix384'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix384'));
+assert.ok(index.includes('audit-deduction-center-v1.js?v=fix385'));assert.ok(index.includes('audit-deduction-center-v1.css?v=fix385'));
 assert.ok(js.includes("PATH='/workflow_audit/deductions_v1'"));assert.ok(js.includes("id:'revision_unfixed'")&&js.includes('amount:50,days:2'));assert.ok(js.includes("id:'personal_test_missing'")&&js.includes('amount:100'));assert.ok(js.includes("id:'ads_table_uncleared'")&&js.includes("id:'listfb_red'")&&js.includes("id:'no_backup_page'")&&js.includes("id:'order_not_submitted'"));assert.ok(js.includes('function adjustedDue(start,days,e)')&&js.includes('while(off(d,e))'));assert.ok(js.includes('function detectOrders(now)')&&js.includes('function detectList(now)'));assert.ok(js.includes('ยกเว้นพร้อมเหตุผล')&&js.includes('ยืนยันยอดหัก'));assert.ok(css.includes('@media(max-width:760px)'));
 assert.ok(js.includes("SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet="),'audit log sheet must use the cross-origin JSONP import source');
 assert.ok(js.includes('sheetImports:{}')&&js.includes('syncMeta:{}')&&js.includes("data-action=\"sheet\""),'sheet imports must persist and expose a manual sync button');
@@ -19,4 +19,8 @@ assert.ok(css.includes('.adc-daily{display:none!important}'),'the selected audit
 assert.ok(js.includes('function refreshLatest()')&&js.includes('refreshOrdersLatest()')&&js.includes('refreshListLatest()')&&js.includes('refreshFollowupsLatest()'),'latest check must refresh every live source before recalculating');
 assert.ok(js.includes("data-source")&&js.includes("งานสั่งในระบบ")&&js.includes("บัญชี Facebook"),'audit work must be grouped and filterable by source');
 assert.ok(js.includes("c.ok===false")&&js.includes("ระบบไม่ยืนยันผลสำเร็จ"),'partial refresh failures must never be reported as success');
+assert.ok(js.includes('function listEditor(x)')&&js.includes('data-action="list-save"'),'selected Facebook audit items must expose the inline editor');
+assert.ok(js.includes("window._lfbSaveAccountRecord(x.listKey,values)")&&js.includes('บันทึกและตรวจใหม่'),'the audit editor must use the shared List Facebook save path and recheck the item');
+assert.ok(js.includes('function canEditList(x)'),'inline editing must enforce role and ownership access');
+assert.ok(css.includes('.adc-inline-editor')&&css.includes('.adc-inline-grid'),'inline editor must follow the approved responsive audit layout');
 console.log('audit deduction center static contract: passed');

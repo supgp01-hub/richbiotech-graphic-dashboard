@@ -28,6 +28,10 @@ assert.equal(api.view(),'audit','Audit must see the team audit queue');
 window._rbUser={name:'BALL',role:'graphic'};
 assert.equal(api.view(),'staff','employees must stay in their own-item view');
 assert.equal(api.manage(),false,'employees must not receive audit controls');
+assert.equal(api.canEditList({employee:'BALL',listKey:'account-1'}),true,'employees may edit their own flagged Facebook account');
+assert.equal(api.canEditList({employee:'DOM',listKey:'account-2'}),false,'employees must not edit another employee account from audit');
+window._rbUser={name:'Specialist',role:'spec'};
+assert.equal(api.canEditList({employee:'DOM',listKey:'account-2'}),true,'Specialist may edit team Facebook audit items');
 window._rbUser={name:'Supervisor',role:'sup'};
 
 const detected=new Date(2026,7,10,9).getTime();
@@ -56,4 +60,7 @@ assert.equal(importedA.id,importedB.id,'the same sheet row must keep a stable id
 
 const csv='"วันที่","หัวข้อ"\n"04/08/2569","ข้อความ, มีจุลภาค"\n';
 assert.equal(api.parseCsv(csv)[1][1],'ข้อความ, มีจุลภาค');
+
+window._listfbData=[{_key:'safe-account',emp:'BALL',name:'Safe account',st:'ใช้งาน',upd:'07/09/2569'}];
+assert.equal(api.detectList(new Date(2026,8,7).getTime()).length,0,'a corrected safe account must leave the deduction queue after recheck');
 console.log('audit deduction logic: passed');
