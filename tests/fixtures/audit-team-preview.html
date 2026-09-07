@@ -1,0 +1,15 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ตัวอย่างมุมมองยอดหักแต่ละทีม</title><link rel="stylesheet" href="../../snippets/audit-deduction-center-v1.css"><style>body{margin:0;background:#eef5f1;font-family:'Noto Sans Thai',Tahoma,sans-serif}.preview-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 24px;background:#e5ede8;color:#386353;font-size:12px}.preview-bar b{margin-right:auto}.preview-bar button{border:1px solid #aec8bc;border-radius:20px;padding:8px 16px;background:white;color:#245443;cursor:pointer}.preview-bar button.active{background:#164f3d;color:white}.gsp-active{max-width:1400px;margin:auto}button{font-family:inherit}</style></head><body>
+<nav class="preview-bar"><b>ภาพตัวอย่าง · ข้อมูลจำลองสำหรับตรวจรูปแบบ</b><button data-role="sup" class="active">Supervisor / Specialist</button><button data-role="audit">Audit</button><button data-role="graphic">พนักงาน · BALL</button></nav><main data-sub="audit" class="gsp-active"></main>
+<script>
+window.fetch=()=>Promise.reject(Error('Preview is isolated'));
+window._rbUser={name:'View',role:'sup'};window.lpORD=()=>[];
+const mock={decisions:{},manual:{},sheetImports:{},syncMeta:{}};
+const pairs=[['MOS','sheet_10g7jza','sheet_6l2icn'],['TER','sheet_1e5nhz0','sheet_k8n3y5'],['JAM','sheet_1ha4v05','sheet_y71aic'],['DOM','sheet_1qsxwht','sheet_ribsm0'],['NUNE','sheet_h7dbwp','sheet_1cjtdhc'],['BALL','sheet_s32d7e','sheet_1q2b78z']];
+const at=+new Date(2026,8,4);
+pairs.forEach(([employee,a,b])=>[a,b].forEach((id,i)=>mock.sheetImports[id]={id,employee,ruleId:'sheet_import',ref:id,title:'ไม่เคลียร์ตารางสรุปแอด',ruleName:'ไม่เคลียร์ตารางสรุปแอด',period:'2026-09',detectedAt:at,dueAt:+new Date(2026,8,i?4:1),amount:50,sourceStatus:'หักเงินแล้ว'}));
+mock.manual.test_pending={id:'test_pending',employee:'BALL',ruleId:'ads_table_uncleared',title:'ตรวจแก้ข้อมูลสรุปแอดรอบล่าสุด',period:'2026-09',detectedAt:at,dueAt:at,amount:50};
+mock.manual.test_fixing={id:'test_fixing',employee:'TER',ruleId:'revision_unfixed',title:'GR101 · แก้ไขภาพสินค้า',orderId:'GR101',period:'2026-09',detectedAt:at,dueAt:+new Date(2026,8,20),amount:50};
+localStorage.setItem('rb_audit_deductions_v1',JSON.stringify(mock));
+window.fbGet=(path,cb)=>cb(null,mock);window.fbSet=()=>Promise.resolve(true);
+document.querySelectorAll('[data-role]').forEach(button=>button.onclick=()=>{document.querySelectorAll('[data-role]').forEach(b=>b.classList.toggle('active',b===button));window._rbUser={name:button.dataset.role==='graphic'?'BALL':button.dataset.role==='audit'?'Audit':'View',role:button.dataset.role};window.dispatchEvent(new Event('rb:auth-ready'));});
+</script><script src="../../snippets/audit-deduction-center-v1.js"></script></body></html>
