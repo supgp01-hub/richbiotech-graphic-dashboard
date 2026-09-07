@@ -65,6 +65,11 @@
     "order_assets": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
     "listfacebook_edits": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
     "fbpages_edits_v2": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'spec')" },
+    "facebook_status_catalog_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
+      ".validate": "newData.hasChildren(['items','updatedAt','updatedBy','version']) && newData.child('updatedAt').isNumber() && newData.child('updatedBy').isString() && newData.child('updatedBy').val().length > 0 && newData.child('updatedBy').val().length <= 80 && newData.child('version').val() === 1"
+    },
     "brand_pages_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
     "channel_data_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
     "order_form_drafts": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
