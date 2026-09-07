@@ -244,6 +244,7 @@ if((!selectedKey||!rowByKey(selectedKey))&&visible[0])selectedKey=visible[0]._ke
 function renderAccountDetail(){
   var host=document.getElementById('lfb-account-detail');if(!host)return;
   var row=rowByKey(selectedKey);if(!row){host.innerHTML='<div class="lfb-follow-empty">เลือกบัญชีเพื่อแก้ไขข้อมูล</div>';return;}
+  host.setAttribute('data-account-key',selectedKey);
   host.innerHTML='<div class="lfb-account-head"><div><h3>แก้ไขข้อมูลบัญชี</h3><p><span>'+esc(row.name||'-')+' · '+esc(row.emp||'ไม่ระบุพนักงาน')+'</span><time class="lfb-account-updated">แก้ไขล่าสุด: '+esc(accountUpdatedWhen(row))+'</time></p></div><div class="lfb-account-head-actions"><span>'+esc(row._source==='manual'?'เพิ่มในระบบ':'ข้อมูลจากชีต')+'</span><button type="button" id="lfb-credentials-open" class="lfb-editor-btn lfb-editor-btn-primary" aria-expanded="'+(credentialsOpen?'true':'false')+'">ดูข้อมูลเพิ่ม</button></div></div><section class="lfb-account-section"><strong>ข้อมูลบัญชี</strong><div class="lfb-account-grid">'+accountField('ประเภทบัญชี','type','select')+accountField('ชื่อบัญชี *','name','input','full')+accountField('พนักงาน','emp','select')+accountField('สินค้า','prod','select')+accountField('สถานะ','st','select','full')+'<div id="lfbi-st-help" class="lfb-account-status-help"></div><div id="lfbi-follow-date-wrap" class="lfb-account-field lfb-account-field-full lfb-account-follow-date" hidden><label for="lfbi-follow-date">ติดตามครั้งถัดไป <small>ระบบแนะนำ +7 วัน ปรับวันที่ได้</small></label><input id="lfbi-follow-date" type="date"></div>'+accountField('Facebook ID','fbid','input','full')+'</div></section><section class="lfb-account-section"><strong>การเงินและหมายเหตุ</strong><div class="lfb-account-grid">'+accountField('ลิมิต/วัน','limit')+accountField('ยอดเงิน','bal')+accountField('หมายเหตุ','note','textarea','full')+'</div></section><div class="lfb-account-actions"><span id="lfb-account-save-state" aria-live="polite"></span><button type="button" id="lfb-account-delete" class="lfb-editor-btn lfb-editor-btn-danger">ลบบัญชี</button><button type="button" id="lfb-account-save" class="lfb-editor-btn lfb-editor-btn-primary">บันทึกข้อมูลบัญชี</button></div><aside id="lfb-credentials-drawer" class="lfb-credentials-drawer '+(credentialsOpen?'is-open':'')+'" aria-hidden="'+(credentialsOpen?'false':'true')+'"><header><div><strong>ข้อมูลเข้าสู่ระบบ</strong><small>แสดงข้อมูลเต็มตามสิทธิ์</small></div><div class="lfb-credentials-head-actions"><button type="button" id="lfb-credentials-edit" class="lfb-editor-btn">✎ แก้ไข</button><button type="button" id="lfb-credentials-close" class="lfb-editor-btn">ซ่อน</button></div></header><div class="lfb-credentials-read" '+(credentialsEditing?'hidden':'')+'>'+credentialReadRow('รหัสผ่าน Facebook','passFb',row)+credentialReadRow('Email','email',row)+credentialReadRow('รหัส Email','emailPass',row)+credentialReadRow('2FA','twofa',row)+'</div><div class="lfb-credentials-edit" '+(credentialsEditing?'':'hidden')+'><div class="lfb-account-grid">'+accountField('รหัสผ่าน Facebook','passFb','input','full')+accountField('Email','email','input','full')+accountField('รหัส Email','emailPass','input','full')+accountField('2FA','twofa','input','full')+'</div><div class="lfb-credentials-edit-actions"><span id="lfb-credentials-save-state" aria-live="polite"></span><button type="button" id="lfb-credentials-cancel" class="lfb-editor-btn">ยกเลิก</button><button type="button" id="lfb-credentials-save" class="lfb-editor-btn lfb-editor-btn-primary">บันทึกการแก้ไข</button></div></div></aside>';
   var typeSelect=document.getElementById('lfbi-type');if(typeSelect)typeSelect.innerHTML=['บัญชีเล็ก','บัญชีใหญ่'].concat(row.type&&['บัญชีเล็ก','บัญชีใหญ่'].indexOf(row.type)===-1?[row.type]:[]).map(function(value){return'<option value="'+esc(value)+'">'+esc(value)+'</option>';}).join('');
   populateAccountDropdown('emp',row.emp,window._listfbData||[],'— ไม่ระบุพนักงาน —');
@@ -255,9 +256,21 @@ function renderAccountDetail(){
   var followDate=document.getElementById('lfbi-follow-date');if(followDate)followDate.value=recommendedNextDate(row.st,(followups[selectedKey]||{}).nextDate,Date.now());
   updateAccountFollowupDate(row.st);
 }
-function openCredentialsDrawer(editing){credentialsOpen=true;credentialsEditing=!!editing;renderAccountDetail();}
-function closeCredentialsDrawer(){credentialsOpen=false;credentialsEditing=false;renderAccountDetail();}
-function cancelCredentialsEdit(){credentialsEditing=false;renderAccountDetail();}
+function updateCredentialsDrawer(){
+  var drawer=document.getElementById('lfb-credentials-drawer');if(!drawer)return;
+  drawer.classList.toggle('is-open',credentialsOpen);drawer.setAttribute('aria-hidden',credentialsOpen?'false':'true');
+  var open=document.getElementById('lfb-credentials-open');if(open)open.setAttribute('aria-expanded',credentialsOpen?'true':'false');
+  var read=drawer.querySelector('.lfb-credentials-read'),edit=drawer.querySelector('.lfb-credentials-edit');
+  if(read)read.hidden=credentialsEditing;if(edit)edit.hidden=!credentialsEditing;
+  ['passFb','email','emailPass','twofa'].forEach(function(key){var input=document.getElementById('lfbi-'+key);if(input)input.disabled=!credentialsEditing;});
+}
+function openCredentialsDrawer(editing){credentialsOpen=true;credentialsEditing=!!editing;updateCredentialsDrawer();}
+function closeCredentialsDrawer(){credentialsOpen=false;updateCredentialsDrawer();}
+function cancelCredentialsEdit(){
+  var detail=document.getElementById('lfb-account-detail'),row=rowByKey(detail&&detail.getAttribute('data-account-key')||selectedKey)||{};
+  ['passFb','email','emailPass','twofa'].forEach(function(key){var input=document.getElementById('lfbi-'+key);if(input)input.value=row[key]||'';});
+  credentialsEditing=false;updateCredentialsDrawer();
+}
 function renderFollowupModal(){
   var host=document.getElementById('lfb-followup-body'),row=rowByKey(selectedKey);if(!host||!row)return;
   var meta=rowMeta(row),saved=meta.saved,stage=meta.stage==='suggested'?'new':meta.stage,timing=followupTiming(saved),detailNextDate=stage==='done'?'':(timing.nextDate||automaticNextDate(Date.now())),history=Array.isArray(saved.history)?saved.history.slice(0,5):[];
@@ -269,18 +282,26 @@ function openFollowupModal(key){
 }
 function closeFollowupModal(){var overlay=document.getElementById('lfb-followup-overlay');if(overlay)overlay.classList.remove('is-open');}
 function persistAccountDetail(reopenCredentials){
+  var editor=document.getElementById('lfb-account-detail'),saveKey=editor&&editor.getAttribute('data-account-key')||selectedKey;
   var state=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state'),button=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');
-  if(!selectedKey||typeof window._lfbSaveAccountRecord!=='function'){if(state)state.textContent='ไม่พบบัญชีที่เลือก กรุณาเลือกบัญชีอีกครั้ง';return;}
+  if(!saveKey||typeof window._lfbSaveAccountRecord!=='function'){if(state)state.textContent='ไม่พบบัญชีที่เลือก กรุณาเลือกบัญชีอีกครั้ง';return;}
   var values={};['type','name','emp','prod','st','fbid','passFb','email','emailPass','twofa','limit','bal','note'].forEach(function(key){var element=document.getElementById('lfbi-'+key);values[key]=element?element.value:'';});
   var followDate=document.getElementById('lfbi-follow-date');values.followupNextDate=recommendedNextDate(values.st,followDate?followDate.value:'',Date.now());
   if(button)button.disabled=true;if(state)state.textContent='กำลังบันทึก...';
-  window._lfbSaveAccountRecord(selectedKey,values).then(function(result){credentialsEditing=false;credentialsOpen=!!reopenCredentials;var detail=document.getElementById('lfb-account-detail');if(detail)detail.removeAttribute('data-editing');renderAll();var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=result.online?'บันทึกและซิงก์เรียบร้อย':'บันทึกในเครื่องแล้ว · ระบบจะซิงก์ให้อัตโนมัติ';}).catch(function(error){var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=error&&error.message?error.message:'บันทึกไม่สำเร็จ';}).finally(function(){var target=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');if(target)target.disabled=false;});
+  window._lfbSaveAccountRecord(saveKey,values).then(function(result){
+    var detail=document.getElementById('lfb-account-detail');
+    if(detail!==editor||detail&&detail.getAttribute('data-account-key')!==saveKey)return;
+    var changed=Object.keys(values).some(function(key){if(key==='followupNextDate')return followDate&&followDate.value!==values.followupNextDate;var input=document.getElementById('lfbi-'+key);return input&&input.value!==values[key];});
+    if(!changed){credentialsEditing=false;credentialsOpen=!!reopenCredentials;if(detail)detail.removeAttribute('data-editing');renderAll();}
+    var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=changed?'บันทึกชุดก่อนแล้ว · มีการแก้ไขใหม่ที่ยังไม่บันทึก':result.online?'บันทึกและซิงก์เรียบร้อย':'บันทึกในเครื่องแล้ว · ระบบจะซิงก์ให้อัตโนมัติ';
+  }).catch(function(error){var target=document.getElementById(reopenCredentials?'lfb-credentials-save-state':'lfb-account-save-state');if(target)target.textContent=error&&error.message?error.message:'บันทึกไม่สำเร็จ';}).finally(function(){var target=document.getElementById(reopenCredentials?'lfb-credentials-save':'lfb-account-save');if(target)target.disabled=false;});
 }
 function deleteAccount(){
-  var row=rowByKey(selectedKey),button=document.getElementById('lfb-account-delete'),state=document.getElementById('lfb-account-save-state');
+  var detail=document.getElementById('lfb-account-detail'),accountKey=detail&&detail.getAttribute('data-account-key')||selectedKey;
+  var row=rowByKey(accountKey),button=document.getElementById('lfb-account-delete'),state=document.getElementById('lfb-account-save-state');
   if(!row||typeof window._lfbDeleteAccountRecord!=='function'){if(state)state.textContent='ไม่พบบัญชีที่เลือก';return;}
   if(!window.confirm('ลบบัญชี “'+String(row.name||'-')+'” ออกจากระบบ?\n\nบัญชีนี้จะถูกลบออกจากทุก Chrome และจะไม่กลับมาเมื่ออัปเดตข้อมูล การดำเนินการนี้ย้อนกลับไม่ได้'))return;
-  var key=selectedKey,name=row.name||'-';if(button)button.disabled=true;if(state)state.textContent='กำลังลบบัญชี...';
+  var key=accountKey,name=row.name||'-';if(button)button.disabled=true;if(state)state.textContent='กำลังลบบัญชี...';
   window._lfbDeleteAccountRecord(key).then(function(result){delete followups[key];saveLocal();var followupWrite=typeof window.fbSet==='function'?window.fbSet(FOLLOW_CLOUD_PATH+'/'+key,null):Promise.resolve(false);return Promise.resolve(followupWrite).catch(function(){return false}).then(function(followupOk){return result.online&&followupOk!==false;});}).then(function(online){selectedKey='';credentialsOpen=false;credentialsEditing=false;renderAll();var status=document.getElementById('lfb2-ts');if(status)status.textContent=online?'ลบบัญชี “'+name+'” เรียบร้อย':'ลบบัญชีในเครื่องแล้ว · ระบบจะซิงก์ให้อัตโนมัติ';}).catch(function(error){if(button)button.disabled=false;if(state)state.textContent=error&&error.message?error.message:'ลบบัญชีไม่สำเร็จ';});
 }
 function renderAll(){

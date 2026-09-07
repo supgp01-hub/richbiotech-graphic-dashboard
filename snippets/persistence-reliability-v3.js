@@ -15,6 +15,7 @@ var activePaths={};
 var retryTimer=null;
 var DURABLE_KEY='generic_write_queue_v3';
 var durableByPath={};
+var inFlightReads=[];
 
 function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return value;}}
 function pathOf(path){var value=String(path||'/').replace(/\/+$/,'');if(!value)value='/';return value.charAt(0)==='/'?value:'/'+value;}
@@ -69,7 +70,7 @@ function queueWrite(path,data){
   path=pathOf(path);
   var queue=readQueue(),next=[],entry={token:'sync_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),path:path,data:clone(data),ts:Date.now()};
   queue.forEach(function(item){if(item&&pathOf(item.path)!==path)next.push(item);});
-  next.push(entry);var receipt=writeQueue(next);entry.durable=receipt.durable;entry.durablePromise=receipt.promise;durableByPath[path]=receipt.promise;dispatchState();return entry;
+  next.push(entry);inFlightReads.forEach(function(read){read.writes.push(clone(entry));});var receipt=writeQueue(next);entry.durable=receipt.durable;entry.durablePromise=receipt.promise;durableByPath[path]=receipt.promise;dispatchState();return entry;
 }
 function removeWrite(token){writeQueue(readQueue().filter(function(item){return item&&item.token!==token;}));dispatchState();}
 function pendingCount(){return readQueue().length;}
@@ -84,9 +85,9 @@ function writeNested(value,parts,nextValue){
   var last=parts[parts.length-1];if(nextValue===null||typeof nextValue==='undefined')delete cursor[last];else cursor[last]=clone(nextValue);
   return value;
 }
-function overlay(path,data){
+function overlay(path,data,entries){
   var request=pathOf(path),requestParts=split(request),value=clone(data);
-  readQueue().sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);}).forEach(function(item){
+  (entries||readQueue()).slice().sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);}).forEach(function(item){
     if(!item)return;
     var opPath=pathOf(item.path),opParts=split(opPath);
     if(opPath===request){value=clone(item.data);return;}
@@ -160,9 +161,14 @@ root.fbSet=function reliableFbSet(path,data){
 };
 root.fbGet=function reliableFbGet(path,callback){
   if(typeof originalGet!=='function'){callback(new Error('ไม่พบระบบอ่านข้อมูล'),overlay(path,null));return;}
+  // Retain writes for the lifetime of this GET, even after the PUT is acknowledged.
+  // Otherwise a slower, older snapshot can erase a successfully saved record.
+  var read={writes:readQueue().map(clone)};inFlightReads.push(read);
   originalGet(path,function(error,data){
-    var pending=relatedPending(path);
-    callback(error&&pending?null:error,overlay(path,data));
+    var index=inFlightReads.indexOf(read);if(index>=0)inFlightReads.splice(index,1);
+    var entries=read.writes.concat(readQueue()),request=pathOf(path);
+    var complete=entries.some(function(item){var parent=pathOf(item.path);return parent===request||request.indexOf(parent==='/'?'/':parent+'/')===0;});
+    callback(error&&complete?null:error,overlay(path,data,entries));
   });
 };
 root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:function(){flush(true);},overlay:overlay,queue:readQueue,related:relatedPending,waitDurable:function(path){return durableByPath[pathOf(path)]||Promise.resolve(false);},migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites,removeDeniedLegacyWrites:removeDeniedLegacyWrites,collectionEntries:collectionEntries};

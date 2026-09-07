@@ -70,7 +70,7 @@ assert.ok(source.includes('แก้ไขล่าสุด: '), 'the account e
 assert.ok(source.includes('accountUpdatedWhen(row)'), 'the visible latest-edit time must use the saved account timestamp');
 assert.ok(source.includes("event.stopImmediatePropagation();\n    openFollowupModal(nameButton.getAttribute('data-key'))"), 'clicking an account name must open only the follow-up popup and suppress the legacy account popup');
 assert.ok(source.includes('id="lfb-followup-title">แก้ไขข้อมูลติดตาม'), 'the tracking popup must have a clear edit-follow-up title');
-assert.ok(source.includes('window._lfbSaveAccountRecord(selectedKey,values)'), 'right-panel edits must use the existing account persistence path');
+assert.ok(source.includes('window._lfbSaveAccountRecord(saveKey,values)'), 'right-panel edits must use the existing account persistence path');
 assert.ok(source.includes('id="lfb-credentials-open"'), 'the permanent account editor must expose a clear more-information control');
 assert.ok(source.includes('id="lfb-account-delete"'), 'the permanent account editor must expose the requested delete-account button');
 assert.ok(source.includes('จะไม่กลับมาเมื่ออัปเดตข้อมูล'), 'account deletion must clearly warn that it is permanent before continuing');

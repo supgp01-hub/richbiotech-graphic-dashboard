@@ -130,7 +130,7 @@ test('PIN login waits for and caches the latest rotated account directory', () =
 });
 
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure23/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure24/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);

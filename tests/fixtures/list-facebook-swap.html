@@ -16,6 +16,8 @@
   <main id="lfb-root"></main>
   <script>
     window._rbUser={name:'View',role:'sup'};
+    // Keep this fixture isolated from the real employee sheet and all live services.
+    window.fetch=function(){return Promise.reject(new Error('Offline test fixture'));};
     window.__writes=[];
     window.__fixtureRows=[
       {sourceRow:2,type:'บัญชีเล็ก',name:'Ford Mustang',emp:'JAM',prod:'',st:'รหัส 2FA ผิด',fbid:'100001',passFb:'facebook-pass',email:'ford@example.com',emailPass:'email-pass',twofa:'AAAA BBBB CCCC',limit:'500',bal:'1200',note:'ทดสอบสถานะ',follow:'ติดตาม',upd:'20/08/2569'},

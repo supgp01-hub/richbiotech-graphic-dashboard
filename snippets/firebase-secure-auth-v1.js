@@ -32,6 +32,13 @@ let pinLoginBusy=false;
 let lastPinError='';
 let loginDirectoryReady=Promise.resolve();
 let loginDirectoryUsable=false;
+let authRetryTimer=null;
+function isExpiredSession(error){return /^(?:auth\/)?(?:INVALID_REFRESH_TOKEN|TOKEN_EXPIRED|USER_DISABLED|USER_NOT_FOUND|invalid-user-token|user-token-expired|user-disabled|user-not-found)$/i.test(String(error&&error.code||error&&error.message||''));}
+function retryAuthState(user,error){
+  clearTimeout(authRetryTimer);
+  if(!authUser||!profile)setGate('รอเชื่อมต่อเพื่อตรวจสอบสิทธิ์','ระบบจะลองใหม่อัตโนมัติ การเข้าสู่ระบบเดิมยังอยู่',{login:false,logout:true,error:error.message||String(error)});
+  authRetryTimer=setTimeout(()=>{if(activeFirebaseUser()===user)handleAuthState(auth.currentUser);},5000);
+}
 let resolveReady;
 const ready=new Promise(resolve=>{resolveReady=resolve;});
 
@@ -116,7 +123,7 @@ async function pinRestLogin(email,pin){
   if(!response.ok||!data.idToken){const error=new Error(data?.error?.message||'INVALID_LOGIN_CREDENTIALS');error.code=data?.error?.message||'INVALID_LOGIN_CREDENTIALS';throw error;}
   pinSession=makePinSession(data);savePinSession(pinSession);return pinSession;
 }
-async function logout(){clearPinSession();try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
+async function logout(){clearPinSession();clearTimeout(authRetryTimer);try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
 function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
@@ -465,11 +472,14 @@ window._rbShowLC=()=>{const dialog=document.getElementById('rb-lc-wrap');if(dial
 try{sessionStorage.removeItem('rb_session');}catch(_e){}
 gate();loginDirectoryReady=loadLoginDirectory();
 setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
-  onAuthStateChanged(auth,async user=>{
+  onAuthStateChanged(auth,handleAuthState);
+});
+async function handleAuthState(user){
+    clearTimeout(authRetryTimer);
     setupAdmin(false);
     if(!user&&pinSession){
       setGate('กำลังตรวจสอบสิทธิ์','กำลังเรียกคืนการเข้าสู่ระบบ',{login:false,logout:true});
-      try{const p=await ensureProfile(pinSession);if(p)applyProfile(pinSession,p);return;}catch(_error){clearPinSession();}
+      try{const p=await ensureProfile(pinSession);if(p)applyProfile(pinSession,p);return;}catch(error){if(isExpiredSession(error)){clearPinSession();}else{retryAuthState(pinSession,error);return;}}
     }
     if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
     const email=(user.email||'').toLowerCase();
@@ -481,6 +491,5 @@ setPersistence(auth,browserLocalPersistence).catch(()=>{}).finally(()=>{
       }
     }else if(!isPinAccount){clearPinSession();}
     setGate('กำลังตรวจสอบสิทธิ์','ตรวจสอบบัญชี '+(user.email||''),{login:false,logout:true});
-    try{const p=await ensureProfile(user);if(p)applyProfile(user,p);}catch(error){setGate('ตรวจสอบสิทธิ์ไม่สำเร็จ','ระบบยังไม่อนุญาตให้เปิดข้อมูล กรุณาลองใหม่',{login:false,logout:true,error:error.message||String(error)});}
-  });
-});
+    try{const p=await ensureProfile(user);if(p)applyProfile(user,p);}catch(error){retryAuthState(user,error);}
+}
