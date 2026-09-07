@@ -1,6 +1,6 @@
 (function(){
 'use strict';if(window._rbAuditDeductionLoaded)return;window._rbAuditDeductionLoaded=true;
-var VERSION='fix387',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
+var VERSION='fix388',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415',SHEET_AUDIT='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:json;responseHandler:__CALLBACK__&sheet=%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%AD%E0%B8%AD%E0%B8%94%E0%B8%B4%E0%B8%95';
 var RULES=[
  {id:'revision_unfixed',name:'ไม่แก้ไขงานที่พบข้อผิดพลาด',amount:50,days:2,source:'งานสั่งงาน',detail:'ให้เวลาแก้ไข 2 วัน เริ่มหักวันที่ 3'},
  {id:'personal_test_missing',name:'เทสส่วนตัวไม่ครบ 15 คอนเทนต์ต่อรอบเดือน',amount:100,days:0,source:'งานสั่งงาน',detail:'ตรวจเมื่อจบรอบเดือน'},
@@ -70,7 +70,8 @@ function saveListFromAudit(button,x){
   })
  }).catch(function(error){button.disabled=false;if(stateEl)stateEl.textContent='บันทึกไม่สำเร็จ · '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง');toast('บันทึกไม่สำเร็จ · ข้อมูลเดิมยังคงอยู่');return false})
 }
-var baseAction=action;action=function(e){if(e&&e.dataset.action==='list-save'){var x=state.items.find(function(v){return v.id===e.dataset.id});return saveListFromAudit(e,x)}return baseAction(e)};
+var baseDetailAccount=detail;detail=function(x){var html=baseDetailAccount(x);if(x&&x.listKey)html=html.replace('data-action="list"','data-action="list-account" data-id="'+esc(x.id)+'"').replace('เปิดหน้า List Facebook แบบเต็ม','เปิดข้อมูลบัญชีนี้');return html};
+var baseAction=action;action=function(e){if(e&&e.dataset.action==='list-save'){var x=state.items.find(function(v){return v.id===e.dataset.id});return saveListFromAudit(e,x)}if(e&&e.dataset.action==='list-account'){var account=state.items.find(function(v){return v.id===e.dataset.id});if(!account||!account.listKey){toast('ไม่พบบัญชีที่เลือก');return false}if(typeof window._lfbOpenAccountWorkspace==='function')return window._lfbOpenAccountWorkspace(account.listKey).then(function(ok){if(!ok)toast('ไม่พบบัญชีนี้ใน List Facebook')});toast('กำลังเปิดหน้า List Facebook');return baseAction({dataset:{action:'list'}})}return baseAction(e)};
 function listFollowupDue(row,follow,now){
  var selected=parseDate((follow||{}).nextDate||row.followDate||row.upd),edited=parseDate(row.updatedAt||row.upd);
  if(edited&&(!selected||ymd(selected)<ymd(edited))){selected=add(edited,7)}

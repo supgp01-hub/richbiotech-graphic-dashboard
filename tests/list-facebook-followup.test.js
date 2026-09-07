@@ -42,6 +42,9 @@ const searchRows = [
   { _key: 'search-miss', name: 'Another Account', emp: 'MOS', st: 'ติด WHATAPP', follow: 'ติดตาม' }
 ];
 assert.deepEqual(api.filteredRows(searchRows).map(row => row._key), ['search-hit'], 'typing an account name must search all accounts without requiring employee or stage filters');
+global._lfbFilter = { q: '', followView: 'all', stage: 'new', fE: 'ALL', fStatus: 'ALL', page: 1, pageSize: 50 };
+const pageRows = Array.from({ length: 80 }, (_, index) => ({ _key: `page-${index + 1}`, name: `Account ${index + 1}`, emp: 'MOS', st: 'ใช้งาน' }));
+assert.equal(api.accountPage('page-63', pageRows, 50), 2, 'direct account navigation must open the page containing the selected account');
 
 const day = 24 * 60 * 60 * 1000;
 const baseNow = new Date(2026, 7, 23, 10, 0, 0).getTime();
@@ -60,6 +63,7 @@ assert.equal(api.mergeFollowupMaps({ a: { updatedAt: 200, stage: 'none' } }, { a
 assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follow-up data must use a separate cloud path');
 assert.ok(source.includes('window._lfbSyncFollowups=syncFollowups'), 'audit refresh must be able to fetch the latest shared follow-up state');
 assert.ok(source.includes('window._lfbRecommendedNextDate=recommendedNextDate'), 'List Facebook and Audit must share one next-date rule');
+assert.ok(source.includes('window._lfbOpenAccountWorkspace=function(key)')&&source.includes('selectAccountWorkspace(key)'), 'Audit must be able to open the selected List Facebook account directly');
 assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
 assert.ok(source.includes('<h3>แก้ไขข้อมูลบัญชี</h3>'), 'the full account editor must be permanently visible in the right panel');
 assert.ok(source.includes('แก้ไขล่าสุด: '), 'the account editor header must show the latest edit date and time');

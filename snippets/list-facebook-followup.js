@@ -228,6 +228,11 @@ function filteredRows(data){
     return true;
   }).sort(function(a,b){var ma=rowMeta(a),mb=rowMeta(b),ta=ma.saved.updatedAt||0,tb=mb.saved.updatedAt||0;if(ta!==tb)return tb-ta;return String(a.upd||'').localeCompare(String(b.upd||''));});
 }
+function accountPage(key,data,size){
+  size=PAGE_SIZES.indexOf(Number(size))>=0?Number(size):listPageSize();
+  var index=filteredRows(data||[]).findIndex(function(row){return row&&row._key===key;});
+  return index<0?1:Math.floor(index/size)+1;
+}
 function renderRows(data){
   var filter=window._lfbFilter,size=listPageSize(),filtered=filteredRows(data),pages=Math.max(1,Math.ceil(filtered.length/size));filter.pageSize=size;filter.page=Math.max(1,Math.min(filter.page||1,pages));var start=(filter.page-1)*size,visible=filtered.slice(start,start+size);
   var body=document.getElementById('lfb-body');if(!body)return;
@@ -379,8 +384,21 @@ function hybridInit(){
 window._lfbInit=hybridInit;
 window._lfbRender=renderAll;
 window._lfbEditorActivate=function(){if(typeof legacyActivate==='function')legacyActivate();defaultListView();hybridInit();return true;};
+function selectAccountWorkspace(key){
+  hybridInit();defaultListView();
+  if(!rowByKey(key))return false;
+  selectedKey=key;window._lfbFilter.page=accountPage(key,window._listfbData||[],listPageSize());renderAll();
+  requestAnimationFrame(function(){var detail=document.getElementById('lfb-account-detail');if(detail){detail.setAttribute('tabindex','-1');detail.focus({preventScroll:true});detail.scrollIntoView({block:'start',behavior:'smooth'});}});
+  return true;
+}
+window._lfbOpenAccountWorkspace=function(key){
+  key=String(key||'');if(!key)return Promise.resolve(false);
+  var nav=Array.from(document.querySelectorAll('.gsnav-btn')).find(function(button){var label=button.textContent||'';return label.indexOf('List Facebook')>=0&&label.indexOf('Pages')<0;});
+  if(nav)nav.click();
+  return new Promise(function(resolve){setTimeout(function(){if(selectAccountWorkspace(key)){resolve(true);return}if(typeof window._listfbRefreshFromCloud!=='function'){resolve(false);return}Promise.resolve(window._listfbRefreshFromCloud()).then(function(){resolve(selectAccountWorkspace(key))}).catch(function(){resolve(false)})},0)});
+};
 window._lfbRecommendedNextDate=recommendedNextDate;
-window._lfbFollowupTest={isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,automaticNextDate:automaticNextDate,recommendedNextDate:recommendedNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
+window._lfbFollowupTest={isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,accountPage:accountPage,automaticNextDate:automaticNextDate,recommendedNextDate:recommendedNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
 window._lfbReconcileFollowupStatus=reconcileFollowupStatus;
 window._lfbSyncFollowups=syncFollowups;
 window._lfbOpenFollowup=openFollowupModal;
