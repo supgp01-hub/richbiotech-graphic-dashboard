@@ -76,7 +76,7 @@ function mergeChangedLocal(remoteRows,readVersion){
   if(!Array.isArray(local))local=Object.values(local||{});
   var byId={};remote.concat(local).forEach(function(row){
     if(!row||!row.id)return;var old=byId[row.id];
-    if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))byId[row.id]=row;
+    if(!old||Number(row.updatedAt||0)>Number(old.updatedAt||0))byId[row.id]=row;
   });
   return Object.values(byId);
 }
@@ -178,13 +178,16 @@ function installCloudTracker(){
   function trackedSet(path,value){
     if(path!==LEGACY_PATH&&path!==SHARED_PATH)return original.apply(this,arguments);
     var rows=value?(Array.isArray(value)?value:Object.values(value)).filter(function(row){return row&&row.id;}):[];
+    var previous=pendingSync;
+    var result=Promise.resolve(previous).catch(function(){}).then(function(){
     var next={},writes=[];
     rows.forEach(function(row){
       var id=String(row.id).replace(/[.#$\[\]\/]/g,'_');next[id]=rowFingerprint(row);
       if(!Object.prototype.hasOwnProperty.call(knownRows,id)||knownRows[id]!==next[id])writes.push({path:SHARED_PATH+'/'+id,value:row});
     });
     Object.keys(knownRows).forEach(function(id){if(!Object.prototype.hasOwnProperty.call(next,id))writes.push({path:SHARED_PATH+'/'+id,value:null});});
-    var result=writes.reduce(function(chain,write){return chain.then(function(ok){return Promise.resolve(original(write.path,write.value)).then(function(saved){return ok!==false&&saved!==false;});});},Promise.resolve(true)).then(function(ok){if(ok!==false)knownRows=next;return ok;});
+    return writes.reduce(function(chain,write){return chain.then(function(ok){return Promise.resolve(original(write.path,write.value)).then(function(saved){return ok!==false&&saved!==false;});});},Promise.resolve(true)).then(function(ok){if(ok!==false)knownRows=next;return ok;});
+    });
     pendingSync=result;root.__rbIdcardSyncPending=true;
     result.then(function(){if(pendingSync===result){pendingSync=null;root.__rbIdcardSyncPending=false;}},function(){if(pendingSync===result){pendingSync=null;root.__rbIdcardSyncPending=false;}});
     root.__rbIdcardLastSync=result;
@@ -208,12 +211,14 @@ function installCloudReader(){
     var readVersion=localWriteVersion;
     originalGet(SHARED_PATH,function(sharedError,sharedData){
       var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
+      if(sharedError){callback(sharedError,localRows());return;}
       var isSupervisor=!!(root._rbUser&&root._rbUser.role==='sup');
       if(!isSupervisor){
         sharedRows=mergeChangedLocal(sharedRows||[],readVersion);knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=rowFingerprint(row);});
         callback(sharedError,sharedRows);return;
       }
       originalGet(LEGACY_PATH,function(legacyError,legacyData){
+        if(legacyError){callback(legacyError,localRows());return;}
         var legacyRows=legacyData&&(Array.isArray(legacyData)?legacyData:Object.values(legacyData)).filter(function(row){return row&&row.id;});
         var mergedById={};(sharedRows||[]).concat(legacyRows||[]).forEach(function(row){var id=String(row.id);var old=mergedById[id];if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))mergedById[id]=row;});
         var mergedRows=mergeChangedLocal(Object.values(mergedById),readVersion);
@@ -243,7 +248,7 @@ function installTeamPermissions(){
 function syncDraftFieldsFromDom(){
   document.querySelectorAll('#ic-add-panel .ic-add-row').forEach(function(row){
     row.querySelectorAll('input[type="text"],select').forEach(function(field){
-      try{field.dispatchEvent(new Event('change',{bubbles:true}));}catch(error){if(typeof field.onchange==='function')field.onchange();}
+      try{field.dispatchEvent(new Event('change',{bubbles:true}));field.dispatchEvent(new Event('input',{bubbles:true}));}catch(error){if(typeof field.onchange==='function')field.onchange();}
     });
   });
 }
@@ -252,6 +257,7 @@ function enhanceSave(){
   if(typeof root._icSaveAllDrafts!=='function'||root._icSaveAllDrafts.__rbReliable)return;
   var original=root._icSaveAllDrafts;
   function reliableSave(){
+    if(root.__rbIcSaving)return Promise.resolve(false);
     installCloudTracker();
     syncDraftFieldsFromDom();
     var count=draftCount();
@@ -262,26 +268,13 @@ function enhanceSave(){
     var button=document.querySelector('#ic-add-panel button[onclick*="_icSaveAllDrafts"]');
     if(button){button.disabled=true;button.textContent='กำลังบันทึก '+count+' รายการ...';}
     try{
-      original.apply(this,arguments);
-      var result=root.__rbIdcardLastSync;
-      if(!result){
-        if(button){button.disabled=false;button.textContent='✓ บันทึกทั้งหมด';}
-        toast('บันทึกในเครื่องแล้ว แต่ยังไม่พบการเชื่อมต่อระบบออนไลน์ กรุณาตรวจอินเทอร์เน็ต','ic-save-warning');
-        return Promise.resolve(false);
-      }
-      return Promise.resolve(result).then(function(online){
-        if(online===false){
-          toast('เก็บรายการไว้ในเครื่องแล้ว แต่ยังซิงก์ออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ต','ic-save-warning');
-          return false;
-        }
-        toast('บันทึก '+count+' รายการขึ้นระบบออนไลน์แล้ว','ic-save-success');
-        if(root.__rbIdcardMemoryOnly)toast('บันทึกออนไลน์แล้ว แต่พื้นที่เครื่องเต็มจึงไม่เก็บรูปซ้ำในเครื่อง','ic-save-warning');
-        else if(root.__rbIdcardCacheCompacted)toast('บันทึกออนไลน์แล้ว พื้นที่เครื่องใกล้เต็มจึงลดเฉพาะรูปตัวอย่างในแคช','ic-save-warning');
+      return Promise.resolve(original.apply(this,arguments)).then(function(saved){
+        if(saved===false){toast('ยังซิงก์ไม่สำเร็จ เก็บฟอร์มไว้ให้ลองบันทึกอีกครั้ง','ic-save-warning');return false;}
+        toast('เก็บ '+count+' รายการแล้ว ระบบจะส่งข้อมูลออนไลน์ตามสถานะซิงก์','ic-save-success');
         return true;
       },function(error){
-        toast('เก็บรายการไว้ในเครื่องแล้ว แต่ซิงก์ออนไลน์ไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'ic-save-warning');
-        return false;
-      });
+        toast('บันทึกไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'ic-save-error');return false;
+      }).finally(function(){if(button){button.disabled=false;button.textContent='✓ บันทึกทั้งหมด';}});
     }catch(error){
       if(button){button.disabled=false;button.textContent='✓ บันทึกทั้งหมด';}
       toast('บันทึกไม่สำเร็จ: '+(error&&error.message?error.message:'กรุณาลองอีกครั้ง'),'ic-save-error');
@@ -310,6 +303,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    it always uses the active user's shared read access instead of stale state. */
 if(typeof root.addEventListener==='function')root.addEventListener('rb:auth-ready',function(){
   installCloudTracker();installCloudReader();installTeamPermissions();
+  var draftPanel=document.getElementById('ic-add-panel');
+  if(root.__rbIcSaving||(draftPanel&&draftPanel.classList.contains('ic-show')))return;
   root._icDone=false;
   var panel=document.querySelector('.gsp[data-sub="idcard"]');
   if(panel&&panel.classList.contains('gsp-active')&&typeof root._icInit==='function')root._icInit();

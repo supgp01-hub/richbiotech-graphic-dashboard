@@ -16,7 +16,7 @@ let requests=0;
 const context={
   Promise,JSON,Math,Date,setTimeout,clearTimeout,console,
   localStorage,navigator:{onLine:true},window:{rbStorageResilience:null,rbDurableOrderQueue:{persist:(q,key,memory)=>{localStorage.setItem(key,JSON.stringify(q));memory([]);return{durable:true,promise:Promise.resolve(true)};}}},
-  FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],
+  _fbRecentOrderWrites:{},FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],
   _fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
   FB_REQ_TIMEOUT:120,FB_DB:'https://example.test',
   FB_ORDER_ASSET_FIELDS:['images','briefImages','errorImages','fixImages'],
@@ -40,7 +40,7 @@ const quotaContext={
   Promise,JSON,Math,Date,setTimeout,clearTimeout,console,
   localStorage:{getItem:key=>quotaValues.has(key)?quotaValues.get(key):null,setItem:()=>{const error=new Error('quota');error.name='QuotaExceededError';throw error;}},
   navigator:{onLine:true},window:{rbStorageResilience:{relieve:()=>{}},rbDurableOrderQueue:{persist:(q,key,memory)=>{memory(q);return{durable:false,promise:Promise.resolve(true)};}}},
-  FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],_fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
+  _fbRecentOrderWrites:{},FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],_fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
   FB_REQ_TIMEOUT:120,FB_DB:'https://example.test',FB_ORDER_ASSET_FIELDS:['images','briefImages','errorImages','fixImages'],
   fbIsLeader:()=>false,fbSetSyncState:()=>{},fbFetch:()=>new Promise(()=>{})
 };

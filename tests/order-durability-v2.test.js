@@ -14,8 +14,8 @@ assert.match(source, /if\(_omUploadPending\).*กรุณารอจนรู�
   'save must be blocked while selected images are still processing');
 assert.match(source, /persistOMAndFinish\(orders/,
   'modal actions must wait for a durable save receipt');
-assert.match(source, /setTimeout\(function\(\)\{closeOM2\(true\);\},state\.online\?60:420\)/,
-  'the modal must finish after either an online confirmation or a durable queued save');
+assert.ok(source.includes('if(state.online&&submittedDraft===omPendingSignature())closeOM2(true)'),
+  'only an online confirmation with unchanged input may close the form');
 assert.match(source, /function fbWaitOrderOp\(op,timeout\)[\s\S]*Date\.now\(\)-started>=limit/,
   'the save receipt must wait for online confirmation instead of resolving immediately');
 assert.match(source, /state\.durable\|\|state\.confirmed/,
