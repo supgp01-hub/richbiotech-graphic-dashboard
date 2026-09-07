@@ -24,7 +24,7 @@ assert.ok(rankingHtml.includes('FIRST')&&rankingHtml.includes('SECOND')&&ranking
 assert.ok(!rankingHtml.includes('FOURTH'),'ranking must exclude employees below third place');
 
 assert.ok(html.includes('commission-center-v1.css?v=fix363'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix363'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix393'),'commission runtime must be loaded');
 assert.ok(!js.includes('สัปดาห์เริ่ม'),'monthly table must not show week separator rows');
 assert.ok(js.includes('data-cc-staff-product'),'monthly detail must provide product tabs');
 assert.ok(js.includes("num(r.ads)>0||num(r.commission)>0"),'monthly detail must hide zero-value dates');
@@ -83,7 +83,7 @@ assert.ok(js.includes("gid:'647383985'"),'July 2569 Google Sheet must be importe
 assert.ok(js.includes("gid:'1514012256'"),'August 2569 Google Sheet must be imported');
 assert.ok(js.includes("employee:'BALL',range:'CZ7:DN37'"),'each team member must use the correct source block');
 assert.ok(js.includes('function parseTeamBlock(csv,employee,label)'),'team commission blocks must be parsed independently');
-assert.ok(js.includes("TEAM_FULL_RANGE='H7:DZ37'"),'each month must be fetched once instead of one request per employee');
+assert.ok(js.includes("TEAM_FULL_RANGE='H7:DZ1000'"),'each month must be fetched once instead of one request per employee');
 assert.ok(js.includes('TEAM_SHEETS.map(function(sheet)'),'July and August imports must use only two sheet requests');
 assert.ok(js.includes("function ensureTeamImport()"),'each browser must import the new July-August source once after deployment');
 assert.ok(js.includes("if(!date||rawAds==='')return"),'blank formula rows must not become zero-value records');
