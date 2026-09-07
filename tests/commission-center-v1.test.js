@@ -24,7 +24,7 @@ assert.ok(rankingHtml.includes('FIRST')&&rankingHtml.includes('SECOND')&&ranking
 assert.ok(!rankingHtml.includes('FOURTH'),'ranking must exclude employees below third place');
 
 assert.ok(html.includes('commission-center-v1.css?v=fix363'),'commission stylesheet must be loaded');
-assert.ok(html.includes('commission-center-v1.js?v=fix393'),'commission runtime must be loaded');
+assert.ok(html.includes('commission-center-v1.js?v=fix396'),'commission runtime must be loaded');
 assert.ok(!js.includes('สัปดาห์เริ่ม'),'monthly table must not show week separator rows');
 assert.ok(js.includes('data-cc-staff-product'),'monthly detail must provide product tabs');
 assert.ok(js.includes("num(r.ads)>0||num(r.commission)>0"),'monthly detail must hide zero-value dates');

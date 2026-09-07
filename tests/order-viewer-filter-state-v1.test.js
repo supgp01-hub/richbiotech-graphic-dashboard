@@ -19,12 +19,12 @@ assert.ok(source.includes("if(!viewerContext.isGraphic&&_OF.assignee&&!rbOrderMa
   'an employee table must not be filtered a second time by a stale team chip');
 assert.ok(source.includes("window.addEventListener('rb:auth-ready'"),
   'a newly authenticated employee must immediately refresh an initialized order panel');
-assert.ok(source.includes("if(_OF.activeCard&&_OF.activeCard!=='all'&&c[_OF.activeCard]===0)"),
-  'a stale zero-count summary card must be cleared before it can hide every assigned job');
+assert.ok(!source.includes("if(_OF.activeCard&&_OF.activeCard!=='all'&&c[_OF.activeCard]===0)"),
+  'an emptied status queue must remain selected');
 assert.ok(source.includes("if(disabled)return;_OF.dl=''"),
   'zero-count summary cards must not create an empty employee table');
-assert.ok(source.includes("if(!f.length&&orders.length&&!_OF.search&&!_OF.type&&!_OF.date"),
-  'the table must defensively recover from a stale summary filter');
+assert.ok(!source.includes("if(!f.length&&orders.length&&!_OF.search&&!_OF.type&&!_OF.date"),
+  'an empty queue must not switch to all orders');
 assert.ok(source.includes("['deadline_latest','Deadline ล่าสุดก่อน']")&&source.includes("if(mode==='deadline_latest')"),
   'the work table must default to a clearly labelled latest Deadline first order');
 assert.ok(source.includes('return bd-ad||ordTs(b.updatedAt)-ordTs(a.updatedAt)'),

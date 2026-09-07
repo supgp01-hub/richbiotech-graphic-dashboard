@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix395">
+<meta name="rb-build" content="fix396">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3574,9 +3574,6 @@ function renderOrderStats(){
   var orders=rbOrdersForViewer(lpORD());
   var c={all:orders.length,pending:0,inprogress:0,review:0,revision:0,done:0,soon:0,over:0};
   orders.forEach(function(o){if(c[o.status]!==undefined)c[o.status]++;if(o.status!=='done'){var d=dlSt(o.deadline);if(d==='soon')c.soon++;if(d==='over')c.over++;}});
-  if(_OF.activeCard&&_OF.activeCard!=='all'&&c[_OF.activeCard]===0){
-    _OF.status='';_OF.dl='';_OF.activeCard='all';
-  }
   [{k:'all',l:'ทั้งหมด',n:c.all,bg:'#1B4332',col:'white'},{k:'pending',l:'มอบหมาย',n:c.pending,bg:'#f3f4f6',col:'#6b7280'},{k:'inprogress',l:'กำลังดำเนินการ',n:c.inprogress,bg:'#dbeafe',col:'#1d4ed8'},{k:'review',l:'รอตรวจ',n:c.review,bg:'#fef3c7',col:'#92400e'},{k:'revision',l:'ต้องแก้ไข',n:c.revision,bg:'#fee2e2',col:'#991b1b'},{k:'done',l:'เสร็จสมบูรณ์',n:c.done,bg:'#d1fae5',col:'#065f46'},{k:'soon',l:'ใกล้ Deadline',n:c.soon,bg:'#fef9c3',col:'#a16207'},{k:'over',l:'เกิน Deadline',n:c.over,bg:'#fde8e8',col:'#9b1c1c'}].forEach(function(card){
     var isAct=_OF.activeCard===card.k;
     var disabled=card.k!=='all'&&card.n===0;
@@ -3603,9 +3600,6 @@ function renderOrders(){
     if(!viewerContext.isGraphic&&_OF.assignee&&!rbOrderMatchesAssignee(o,_OF.assignee))return false;
     return true;
   });
-  if(!f.length&&orders.length&&!_OF.search&&!_OF.type&&!_OF.date&&(!_OF.assignee||viewerContext.isGraphic)&&(_OF.status||_OF.dl)){
-    _OF.status='';_OF.dl='';_OF.activeCard='all';f=orders.slice();
-  }
   function ordTs(v){if(!v)return 0;var n=typeof v==='number'?v:new Date(v).getTime();return isNaN(n)?0:n;}
   function ordDl(v){if(!v)return Number.MAX_SAFE_INTEGER;var n=new Date(v+'T00:00:00').getTime();return isNaN(n)?Number.MAX_SAFE_INTEGER:n;}
   function urgency(o){if(o.status==='done')return 4;var d=dlSt(o.deadline);if(d==='over')return 0;if(d==='soon')return 1;if(!o.deadline)return 3;return 2;}
@@ -3932,7 +3926,7 @@ fbRestoreDurableOrderQueue();
 <script src="snippets/order-planner-v1.js?v=fix383"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix363">
 <link rel="stylesheet" href="snippets/audit-deduction-center-v1.css?v=fix394">
-<script src="snippets/commission-center-v1.js?v=fix393"></script>
+<script src="snippets/commission-center-v1.js?v=fix396"></script>
 <script src="snippets/audit-deduction-center-v1.js?v=fix394"></script><script>
 /* ── Section detector ── */
 window.gAS=function(){
@@ -4453,10 +4447,10 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     var auditRow=document.createElement('div');auditRow.id='om-audit-btns';auditRow.style.cssText='display:none;gap:10px;width:100%;';
     var cBtn=document.createElement('button');cBtn.type='button';cBtn.textContent='✅ เสร็จสมบูรณ์';
     cBtn.style.cssText='flex:1;background:#15803d;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .15s;';
-    cBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('pass'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=modalOrderIndex(orders,ordId);if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='done';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังบันทึกผลออดิต...',successMessage:'บันทึกผลออดิตออนไลน์เรียบร้อยแล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='done';window._OF.dl='';window._OF.activeCard='done';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
+    cBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('pass'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=modalOrderIndex(orders,ordId);if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='done';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังบันทึกผลออดิต...',successMessage:'บันทึกผลออดิตออนไลน์เรียบร้อยแล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → เสร็จสมบูรณ์',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();}});};
     var rBtn=document.createElement('button');rBtn.type='button';rBtn.textContent='⚠️ ต้องแก้ไข';
     rBtn.style.cssText='flex:1;background:#dc2626;color:white;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(220,38,38,.3);transition:opacity .15s;';
-    rBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('issue'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=modalOrderIndex(orders,ordId);if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='revision';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังส่งรายละเอียดงานแก้ไข...',successMessage:'ส่งงานกลับไปแก้ไขและบันทึกออนไลน์แล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(window._OF){window._OF.status='revision';window._OF.dl='';window._OF.activeCard='revision';}if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();}});};
+    rBtn.onclick=function(){var _cr=window._rbUser?window._rbUser.role:'';if(_cr!=='sup'&&_cr!=='audit'||_omActionBusy)return;var _validation=window.rbValidateAuditVersionDecision?window.rbValidateAuditVersionDecision('issue'):{ok:true};if(!_validation.ok){setOMSubmitFeedback(_validation.message,'error');return;}var ordId=ge('om-id').textContent;var orders=typeof lpORD==='function'?lpORD():[];var idx=modalOrderIndex(orders,ordId);if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดใหม่','error');return;}persistOMWorkflow(orders[idx]);orders[idx].status='revision';orders[idx].updatedAt=Date.now();persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังส่งรายละเอียดงานแก้ไข...',successMessage:'ส่งงานกลับไปแก้ไขและบันทึกออนไลน์แล้ว',onSuccess:function(){if(typeof logTL==='function')logTL('\u{1F4CB} สั่งงาน','อัปเดตสถานะ',ordId+' → ต้องแก้ไข',{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();}});};
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
     _omUpdateFooter=function(tabKey){
@@ -4674,8 +4668,8 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
           persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst;orders[idx].updatedAt=Date.now();
           persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังส่งข้อมูลและสถานะงาน...',successMessage:_nst==='review'?'ส่งงานและบันทึกออนไลน์เรียบร้อยแล้ว':'รับงานและบันทึกเรียบร้อยแล้ว',onSuccess:function(){
             if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+((typeof ST!=="undefined"?ST:[]).find(function(s){return s.k===_nst;})||{l:_nst}).l,{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});
-            if(window._OF){window._OF.status=_nst;window._OF.dl='';window._OF.activeCard=_nst;}
-            if(typeof renderOrderStats==='function')renderOrderStats();(window._rbInitOP||function(){})();
+
+            if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();
           }});
         };
         _omSaveBtn.onclick=_omInfoAction;
@@ -4989,7 +4983,7 @@ if(_revisionSubmit){
     var wasNew=idx<0;
     persistOMAndFinish(orders,{message:wasNew?'กำลังสร้างและซิงก์งานใหม่...':'กำลังบันทึกการแก้ไขงาน...',successMessage:wasNew?'เพิ่มงานและบันทึกออนไลน์เรียบร้อยแล้ว':'บันทึกการแก้ไขออนไลน์เรียบร้อยแล้ว',onSuccess:function(state){
       if(typeof logTL==='function')logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',wasNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});
-      if(typeof renderOrderStats==='function')renderOrderStats();if(typeof window.rbResetOrderFiltersForViewer==='function')window.rbResetOrderFiltersForViewer();if(window._OF){window._OF.status=stVal;window._OF.dl='';window._OF.activeCard=stVal;}(window._rbInitOP||function(){})();
+      if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();
       if(_omIsNew&&state&&state.ok){clearOMDraft();_omIsNew=false;_omEditingKey=entry._fbKey;_omReservedId='';}
     }});
     }catch(saveError){console.error('บันทึกงานไม่สำเร็จ',saveError);setOMSubmitFeedback('บันทึกงานไม่สำเร็จ กรุณาลองอีกครั้ง: '+(saveError&&saveError.message?saveError.message:'ข้อผิดพลาดไม่ทราบสาเหตุ'),'error');}
