@@ -5,7 +5,7 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix398">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix399">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix395'),'planner stylesheet must be loaded');
 assert.ok(index.includes('snippets/order-planner-v1.js?v=fix383'),'planner script must be loaded');

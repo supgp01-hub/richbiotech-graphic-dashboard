@@ -323,7 +323,7 @@ function syncFollowups(){
   if(syncPromise)return syncPromise;
   syncPromise=new Promise(function(resolve){
     if(typeof window.fbGet!=='function'){resolve(false);return;}
-    window.fbGet(FOLLOW_CLOUD_PATH,function(error,value){if(!error){followups=mergeFollowupMaps(followups,objectMap(value));saveLocal();renderAll();resolve(true);}else resolve(false);});
+    window.fbGet(FOLLOW_CLOUD_PATH,function(error,value){if(!error){followups=mergeFollowupMaps(mergeFollowupMaps(readLocal(),followups),objectMap(value));saveLocal();renderAll();if(window._rbAuditDeductionRefresh)window._rbAuditDeductionRefresh();resolve(true);}else resolve(false);});
   }).finally(function(){syncPromise=null;});
   return syncPromise;
 }
@@ -340,6 +340,7 @@ function nextFollowupEntry(key,status,previous,requestedDate,options,now){
  return Object.assign({},previous,{key:key,stage:!requires?'none':done?'done':options.stage||'working',owner:options.owner||previous.owner||'',nextDate:nextDate,note:note,status:status,reason:'สถานะ “'+status+'” '+(requires?'ต้องติดตาม':'ไม่ต้องติดตาม'),cycleId:cycleId,cycleStartedAt:cycleId===previous.cycleId?previous.cycleStartedAt:now,updatedAt:now,updatedBy:currentUser(),history:history});
 }
 function reconcileFollowupStatus(key,status,previousStatus,requestedDate,options){
+ followups=mergeFollowupMaps(readLocal(),followups);
  var entry=nextFollowupEntry(key,status,Object.assign({status:previousStatus},followups[key]||{}),requestedDate,options,Date.now());
  if(typeof window.fbSet!=='function')return Promise.resolve(false);
  return Promise.resolve(window.fbSet(FOLLOW_CLOUD_PATH+'/'+key,entry)).then(function(ok){if(ok===false)return false;followups[key]=entry;saveLocal();renderAll();if(window._rbAuditDeductionRefresh)window._rbAuditDeductionRefresh();return true;});
@@ -414,6 +415,7 @@ window._lfbOpenAccountWorkspace=function(key){
 window._lfbRecommendedNextDate=recommendedNextDate;
 window._lfbFollowupTest={nextFollowupEntry:nextFollowupEntry,isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,accountPage:accountPage,automaticNextDate:automaticNextDate,recommendedNextDate:recommendedNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
 window._lfbReconcileFollowupStatus=reconcileFollowupStatus;
+window._lfbGetFollowups=function(){followups=mergeFollowupMaps(readLocal(),followups);return JSON.parse(JSON.stringify(followups));};
 window._lfbSyncFollowups=syncFollowups;
 window._lfbOpenFollowup=openFollowupModal;
 window._lfbCloseFollowup=closeFollowupModal;
