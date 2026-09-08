@@ -54,5 +54,15 @@ api.runWorker([exactDraft.id],[exactDraft]).then(results=>{
   assert.strictEqual(savedOrders[0]._fbKey,'planner_'+exactDraft.id,'the local order must use the same idempotent key as the cloud order');
   assert.strictEqual(savedOrders[0].briefImages.length,1,'sample images must travel through the durable order asset pipeline');
   assert.ok(cloudWrites.some(write=>write.path==='/order_planner/drafts/'+exactDraft.id&&write.data.status==='dispatched'),'the exact source draft must be marked dispatched');
+  const sent=results[0].draft;
+  const pending=Object.assign({},exactDraft,{status:'scheduled',updatedAt:sent.updatedAt+10000});
+  api.markDraftPending(pending.id);
+  const merged=api.mergeDraftCollections([sent],[pending],Date.now());
+  assert.strictEqual(merged[0].status,'dispatched','stale pending edits must not reopen an already dispatched draft');
+  assert.strictEqual(api.mergeDraftCollections([pending],[sent],Date.now())[0].status,'dispatched','a stale cloud read must not roll back a completed dispatch');
+  api.protectDraftEdit(pending);
+  assert.strictEqual(api.overlayDraftEdits([sent])[0].status,'dispatched','the form edit buffer must not restore the scheduled status');
+  assert.strictEqual(api.filterByStatus(merged,'scheduled').length,0,'dispatched work must leave the automatic queue');
+  assert.strictEqual(api.filterByStatus(merged,'dispatched').length,1,'dispatched work must remain available in history');
   console.log('order-planner transaction: exact snapshot dispatch passed');
 }).catch(error=>{console.error(error);process.exitCode=1});
