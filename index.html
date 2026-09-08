@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix401">
+<meta name="rb-build" content="fix403">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2964,8 +2964,17 @@ function fbFetch(url,opts,timeout){
   var request=isFirebase?fbWaitForAuth(limit).then(function(auth){return auth.fetch(url,options);}):fetch(url,options);
   return request.then(function(r){if(timer)clearTimeout(timer);if(!r.ok)throw new Error('HTTP '+r.status);return r;}).catch(function(e){if(timer)clearTimeout(timer);throw e;});
 }
+var _fbReadsInFlight=Object.create(null);
 window.fbGet=function fbGet(path,cb){
-  fbFetch(FB_DB+path+'.json',{},FB_REQ_TIMEOUT).then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e,null);});
+  // Share only concurrent reads; completed responses are never cached so saves
+  // and explicit refreshes still fetch the latest server state.
+  var pending=_fbReadsInFlight[path];
+  if(!pending){
+    pending=fbFetch(FB_DB+path+'.json',{},FB_REQ_TIMEOUT).then(function(r){return r.json();});
+    _fbReadsInFlight[path]=pending;
+    pending.then(function(){if(_fbReadsInFlight[path]===pending)delete _fbReadsInFlight[path];},function(){if(_fbReadsInFlight[path]===pending)delete _fbReadsInFlight[path];});
+  }
+  pending.then(function(d){cb(null,d==null?d:JSON.parse(JSON.stringify(d)));},function(e){cb(e,null);});
 }
 window.fbSet=function fbSet(path,data){
   fbSetSyncState('saving','กำลังบันทึก...');
@@ -5773,7 +5782,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 <link rel="stylesheet" href="snippets/login-reliability-v1.css?v=207">
 <script src="snippets/login-reliability-v1.js?v=207"></script>
 <link rel="stylesheet" href="snippets/workflow-ops-v1.css?v=241">
-<script src="snippets/workflow-ops-v1.js?v=fix382"></script>
+<script src="snippets/workflow-ops-v1.js?v=fix403"></script>
 <script src="snippets/workflow-sync-retry-bridge-v1.js?v=fix338"></script>
 <style id="rb-global-dropdown-v5-css">
 select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:30px!important;border-radius:8px;cursor:pointer;transition:box-shadow .16s,border-color .16s,transform .16s}
