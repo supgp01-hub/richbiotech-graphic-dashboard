@@ -64,7 +64,7 @@ assert.ok(source.includes("FOLLOW_CLOUD_PATH='/listfacebook_followups'"), 'follo
 assert.ok(source.includes('window._lfbSyncFollowups=syncFollowups'), 'audit refresh must be able to fetch the latest shared follow-up state');
 assert.ok(source.includes('window._lfbRecommendedNextDate=recommendedNextDate'), 'List Facebook and Audit must share one next-date rule');
 assert.ok(source.includes('window._lfbOpenAccountWorkspace=function(key)')&&source.includes('selectAccountWorkspace(key)'), 'Audit must be able to open the selected List Facebook account directly');
-assert.ok(source.includes('history=history.slice(0,20)'), 'follow-up history must be bounded for stability');
+assert.ok(!source.includes('history=history.slice(0,20)'), 'saved cycle history must not be silently discarded');
 assert.ok(source.includes('<h3>แก้ไขข้อมูลบัญชี</h3>'), 'the full account editor must be permanently visible in the right panel');
 assert.ok(source.includes('แก้ไขล่าสุด: '), 'the account editor header must show the latest edit date and time');
 assert.ok(source.includes('accountUpdatedWhen(row)'), 'the visible latest-edit time must use the saved account timestamp');
@@ -82,7 +82,7 @@ assert.ok(source.includes('id="lfb-credentials-cancel"') && source.includes('id=
 assert.ok(source.indexOf('<section class="lfb-account-section"><strong>ข้อมูลเข้าสู่ระบบ</strong>')===-1, 'login details must not consume permanent right-panel space');
 assert.ok(source.includes('class="lfb-table-center lfb-status-cell"'), 'status, workflow and update columns must use the centered table layout');
 assert.equal(source.includes('setInterval('), false, 'the workflow must not add background polling that can destabilize multiple tabs');
-assert.ok(source.includes("nextDate=stage==='done'?'':automaticNextDate(Date.now())"), 'saving must not require the team to pick the seven-day follow-up date manually');
+assert.ok(source.includes("nextDate=requires&&!done?recommendedNextDate(status,requestedDate||previous.nextDate,now):''"), 'saving must not require the team to pick the seven-day follow-up date manually');
 assert.ok(source.includes("followView:'all'"), 'List Facebook must open on all accounts by default');
 assert.ok(source.includes("defaultListView();hybridInit()"), 'returning to List Facebook must reset the workflow view to all accounts');
 assert.ok(source.includes('aria-pressed="'), 'summary and workflow buttons must expose their selected state');
@@ -93,7 +93,7 @@ assert.ok(source.includes('window._lfbReconcileFollowupStatus=reconcileFollowupS
 assert.ok(source.includes('id="lfbi-follow-date" type="date"'), 'account status editing must show the next follow-up date in the same panel');
 assert.ok(source.includes("updateAccountFollowupDate(event.target.value)"), 'the date field must react immediately to the existing status rules');
 assert.ok(source.includes('values.followupNextDate=recommendedNextDate'), 'account saves must normalize the selected follow-up date with the shared status rule');
-assert.ok(source.includes("stage:nextStage,nextDate:nextDate"), 'a tracked status save must create a dated follow-up record for the table');
+assert.ok(source.includes("nextDate:nextDate,note:note,status:status"), 'a tracked status save must create a dated follow-up record for the table');
 assert.ok(source.includes("detail.getAttribute('data-editing')!=='1'"), 'background refreshes must not replace the account form while a user is typing');
 assert.ok(source.includes("detail.setAttribute('data-editing','1')"), 'typing in the account form must enter a protected editing state');
 assert.ok(source.includes("root.querySelector('#lfb-editor-overlay')"), 'the List Facebook workspace must rebuild if its add/edit dialog is missing');

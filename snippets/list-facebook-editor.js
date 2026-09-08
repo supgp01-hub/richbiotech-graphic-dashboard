@@ -113,8 +113,11 @@ window._lfbSaveAccountRecord=function(key,values){
   refreshData();
   var accountPath=isManual?'/listfacebook_manual/'+key:'/listfacebook_edits/'+key;
   var accountResult=cloudSet(accountPath,entry);
-  var followupResult=typeof window._lfbReconcileFollowupStatus==='function'?window._lfbReconcileFollowupStatus(key,entry.st,previousStatus,values.followupNextDate):Promise.resolve(true);
-  return Promise.all([Promise.resolve(accountResult).catch(function(){return false;}),Promise.resolve(followupResult).catch(function(){return false;})]).then(function(results){return{online:results[0]!==false&&results[1]!==false,entry:entry};});
+  return Promise.resolve(accountResult).catch(function(){return false;}).then(function(ok){
+    if(ok===false)return {online:false,entry:entry};
+    var followupResult=typeof window._lfbReconcileFollowupStatus==='function'?window._lfbReconcileFollowupStatus(key,entry.st,previousStatus,values.followupNextDate,{note:entry.note}):Promise.resolve(false);
+    return Promise.resolve(followupResult).catch(function(){return false;}).then(function(saved){return {online:saved!==false,entry:entry};});
+  });
 };
 window._lfbDeleteAccountRecord=function(key){
   var row=(window._listfbData||[]).find(function(item){return item&&item._key===key;});
