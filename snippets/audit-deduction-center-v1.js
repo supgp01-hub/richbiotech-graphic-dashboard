@@ -84,11 +84,22 @@ function saveListFromAudit(button,x){
 }
 var baseDetailAccount=detail;detail=function(x){var html=baseDetailAccount(x);if(x&&x.listKey)html=html.replace('data-action="list"','data-action="list-account" data-id="'+esc(x.id)+'"').replace('เปิดหน้า List Facebook แบบเต็ม','เปิดข้อมูลบัญชีนี้');return html};
 var baseAction=action;action=function(e){if(e&&e.dataset.action==='list-save'){var x=state.items.find(function(v){return v.id===e.dataset.id});return saveListFromAudit(e,x)}if(e&&e.dataset.action==='list-account'){var account=state.items.find(function(v){return v.id===e.dataset.id});if(!account||!account.listKey){toast('ไม่พบบัญชีที่เลือก');return false}if(typeof window._lfbOpenAccountWorkspace==='function')return window._lfbOpenAccountWorkspace(account.listKey).then(function(ok){if(!ok)toast('ไม่พบบัญชีนี้ใน List Facebook')});toast('กำลังเปิดหน้า List Facebook');return baseAction({dataset:{action:'list'}})}return baseAction(e)};
-function listFollowupDue(row,follow,now){
- var selected=parseDate((follow||{}).nextDate||row.followDate||row.upd),edited=parseDate(row.updatedAt||row.upd);
- if(edited&&(!selected||ymd(selected)<ymd(edited))){selected=add(edited,7)}
- return selected?adjustedDue(selected,0,row.emp):new Date(now)
+function listFollowupDate(follow){
+ follow=follow||{};
+ // Match the appointment shown in List Facebook. Account edits are not appointments.
+ var selected=parseDate(follow.nextDate);
+ if(!selected&&follow.updatedAt)selected=add(new Date(Number(follow.updatedAt)),7);
+ if(!selected||isNaN(selected.getTime()))return null;
+ selected.setHours(0,0,0,0);return selected
 }
-detectList=function(now){var out=[],follow={};try{follow=JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1')||'{}')||{}}catch(e){};(window._listfbData||[]).forEach(function(row,i){var f=follow[row._key]||{},st=f.stage==='waiting'?'working':f.stage,statusText=String(row.st||'').trim(),bad=window.rbFacebookStatusNeedsFollowup?window.rbFacebookStatusNeedsFollowup(statusText):['ใช้งาน','ว่าง','ปิดใช้งาน','เปลี่ยนเฟสใหม่แล้ว'].indexOf(statusText)<0&&/แดง|จำกัด|ปิด|ระงับ|ติดตาม|ไม่ผ่าน|ยืนยัน|สแกน|เอกสาร|captcha|what/i.test(statusText+' '+String(row.follow||''));if(!bad||st==='done'||st==='none')return;var due=listFollowupDue(row,f,now);if(due<=now)out.push(item('listfb_red',row._key||row.fbid||i,row.emp,'List Facebook · '+(row.name||row.fbid||'บัญชีต้องติดตาม'),parseDate(row.updatedAt||row.upd)||due,due,{listKey:row._key,note:'สถานะ '+(row.st||'ต้องติดตาม')}))});return out};
+function listFollowupDue(row,follow,now){var date=listFollowupDate(follow);return date?adjustedDue(date,0,row.emp):null
+}
+detectList=function(now){var out=[],follow={};try{follow=JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1')||'{}')||{}}catch(e){};(window._listfbData||[]).forEach(function(row,i){
+ var f=follow[row._key]||{},st=f.stage==='waiting'?'working':f.stage,statusText=String(row.st||'').trim(),bad=auditNeedsFollowup(statusText);
+ if(!statusText||!bad||st==='done'||st==='none')return;
+ var due=listFollowupDue(row,f,now);if(!due)return;
+ var starts=listFollowupDate(f);
+ if(starts.getTime()<=now)out.push(item('listfb_red',row._key||row.fbid||i,row.emp,'List Facebook · '+(row.name||row.fbid||'บัญชีต้องติดตาม'),starts,due,{listKey:row._key,note:'สถานะ '+(row.st||'ต้องติดตาม')+' · ถึงวันนัดติดตาม '+fmt(starts)}))
+ });return out};
 if(window._rbAuditDeductionTest){window._rbAuditDeductionTest.canEditList=canEditList;window._rbAuditDeductionTest.listEditor=listEditor;window._rbAuditDeductionTest.saveListFromAudit=saveListFromAudit;window._rbAuditDeductionTest.auditRecommendedNextDate=auditRecommendedNextDate;window._rbAuditDeductionTest.detectList=detectList;window._rbAuditDeductionTest.listFollowupDue=listFollowupDue}
 })();

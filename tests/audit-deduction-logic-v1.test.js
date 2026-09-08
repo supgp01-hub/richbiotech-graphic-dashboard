@@ -69,7 +69,7 @@ assert.equal(api.auditRecommendedNextDate('รหัส 2FA ผิด','2026-09-
 assert.equal(api.auditRecommendedNextDate('ใช้งาน','2026-09-20',followNow),'','audit must clear the date after the account becomes safe');
 localStorage.setItem('rb_listfacebook_followups_v1',JSON.stringify({'edited-account':{stage:'working',nextDate:'2026-08-31',updatedAt:new Date(2026,7,31).getTime()}}));
 window._listfbData=[{_key:'edited-account',emp:'BALL',name:'Edited account',st:'Facebook โดนยืนยันสแกนหน้า',upd:'07/09/2569 14:25:06',updatedAt:followNow}];
-assert.equal(api.listFollowupDue(window._listfbData[0],JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1'))['edited-account'],followNow).toLocaleDateString('en-CA'),'2026-09-14','an account edit must supersede an obsolete follow-up deadline');
-assert.equal(api.detectList(new Date(2026,8,7,15).getTime()).length,0,'a saved account must leave the current audit queue immediately');
+assert.equal(api.listFollowupDue(window._listfbData[0],JSON.parse(localStorage.getItem('rb_listfacebook_followups_v1'))['edited-account'],followNow).toLocaleDateString('en-CA'),'2026-08-31','an unrelated account edit must not postpone the saved appointment');
+assert.equal(api.detectList(new Date(2026,8,7,15).getTime()).length,1,'an unresolved saved appointment must remain in the audit queue');
 assert.equal(api.detectList(new Date(2026,8,15,9).getTime()).length,1,'an unresolved problem status may return only after its new follow-up date');
 console.log('audit deduction logic: passed');
