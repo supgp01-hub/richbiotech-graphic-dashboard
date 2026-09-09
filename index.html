@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix407">
+<meta name="rb-build" content="fix408">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3297,6 +3297,7 @@ function refreshOrderViews(){
     _rbOrderRenderQueued=false;
     var p=document.querySelector('.gsp[data-sub="order"]'),team=document.getElementById('tab-team');
     if(p&&p.getAttribute('data-order-init')&&p.classList.contains('gsp-active')&&team&&team.classList.contains('active')){renderOrderStats();renderOrders();}
+    var contentPanel=document.querySelector('.gsp[data-sub="links"]');if(contentPanel&&contentPanel.classList.contains('gsp-active')&&team&&team.classList.contains('active')&&window.ctRender&&window.ctHookHistory&&window.ctHookHistory.allowed())window.ctRender();
     var overview=document.getElementById('tab-overview');if(overview&&overview.classList.contains('active')&&window._rbRenderHomeStats)window._rbRenderHomeStats();
     var myWork=document.getElementById('rb-mywork-list');if(myWork&&myWork.offsetParent!==null&&window._rbRenderMyWork)window._rbRenderMyWork();
   });
@@ -5184,7 +5185,8 @@ window.ctRender=function(){
   if(!root)return;
   _ctData=ctLoad();
   if(window.ctSubmissions)window.ctSubmissions.mount();
-  var renderSignature=JSON.stringify([_ctData,_ctQ,_ctFilter,_ctBrand,window._ctMainPage||1,window._ctMainPageSize||100,PROD_EMP,window.ctSubmissions?window.ctSubmissions.version():'']);
+  if(window.ctHookHistory)window.ctHookHistory.mount();
+  var renderSignature=JSON.stringify([_ctData,_ctQ,_ctFilter,_ctBrand,window._ctMainPage||1,window._ctMainPageSize||100,PROD_EMP,window.ctSubmissions?window.ctSubmissions.version():'',window.ctHookHistory?window.ctHookHistory.signature():'']);
   if(root._ctRenderSignature===renderSignature&&root.firstElementChild)return;
   root._ctRenderSignature=renderSignature;
   var rows=ctFiltered();
@@ -5251,6 +5253,7 @@ window.ctRender=function(){
       +'<td class="ct-td-link">'+linkCell+'</td>'
       +'<td class="ct-td-ep" title="'+ctEsc(r.episode)+'">'+ctEsc(r.episode||'-')+'</td>'
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
+      +(window.ctHookHistory?window.ctHookHistory.cell(r):'')
       +'<td>'+(window.ctSubmissions?window.ctSubmissions.cell(r.id):'')+'</td>'
       +'<td>'+(window.ctSubmissions?window.ctSubmissions.dates(r.id):'—')+'</td>'
       +'<td><div class="ct-actions-cell">'
@@ -6294,4 +6297,6 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure25"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
 <script src="snippets/content-submissions-v1.js?v=fix407"></script>
+<link rel="stylesheet" href="snippets/content-hook-history-v1.css?v=fix408">
+<script src="snippets/content-hook-history-v1.js?v=fix408"></script>
 </html>
