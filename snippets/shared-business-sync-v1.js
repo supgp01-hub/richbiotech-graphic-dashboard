@@ -21,7 +21,7 @@ function user(){return root._rbUser&&root._rbUser.name||'';}
 function same(a,b){try{return JSON.stringify(a)===JSON.stringify(b);}catch(error){return false;}}
 function localValue(key,kind){return parse(localStorage.getItem(key),kind==='timeline'||kind==='whole'?[]:{});}
 function descriptorFor(key){if(descriptors[key])return descriptors[key];var prefix='rb_order_draft_v1_';if(String(key||'').indexOf(prefix)===0)return{path:'/order_form_drafts/'+safe(String(key).slice(prefix.length)||'guest'),kind:'whole',dynamic:true};return null;}
-function setLocal(key,value){muted=true;try{nativeSet.call(localStorage,key,JSON.stringify(value));}finally{muted=false;}}
+function setLocal(key,value){muted=true;try{if(key==='rb_timeline_v1'&&root.rbStorageResilience){var result=root.rbStorageResilience.storeTimeline(value,key);if(!result.ok&&result.error&&!root.rbStorageResilience.isQuotaError(result.error))throw result.error;}else{nativeSet.call(localStorage,key,JSON.stringify(value));}}finally{muted=false;}}
 function cloud(path,value){if(typeof root.fbSet!=='function')return Promise.resolve(false);try{return Promise.resolve(root.fbSet(path,value));}catch(error){return Promise.resolve(false);}}
 
 function identity(row,index,group){return row&&row._syncId||'legacy_'+hash(group+'|'+String(row&&row.id||row&&row.name||row&&row.email||row&&row.employee||'row')+'|'+index);}

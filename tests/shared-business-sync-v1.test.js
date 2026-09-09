@@ -56,6 +56,12 @@ assert.deepEqual(
   'first migration must preserve unsynced records from another user device'
 );
 assert.equal(document.documentElement['data-shared-business-sync'],'1.2.0');
-assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix354'),'the online business sync layer must be loaded by the live page');
+assert.ok(index.includes('snippets/shared-business-sync-v1.js?v=fix409'),'the online business sync layer must be loaded by the live page');
 assert.ok(source.includes('requestIdleCallback'),'non-critical shared hydration must wait until the browser is idle');
 console.log('shared-business-sync-v1: all tests passed');
+
+let timelineCached=false;
+window.rbStorageResilience={storeTimeline(rows,key){timelineCached=key==='rb_timeline_v1'&&rows.some(r=>r.ts===999);return {ok:false,error:{name:'QuotaExceededError'}};},isQuotaError(e){return e.name==='QuotaExceededError';}};
+window.fbGet=(path,callback)=>callback(null,path==='/timeline_v1'?{'999':{ts:999,act:'Remote'}}:null);
+assert.doesNotThrow(()=>window.rbSharedBusinessSync.pull(true));
+assert.equal(timelineCached,true,'remote timeline hydration must use quota-safe cache storage');
