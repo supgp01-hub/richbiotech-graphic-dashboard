@@ -25,12 +25,15 @@
   }
   function entries(id){session();var k=key(id),u=user();return Object.keys(cache).filter(function(uid){return all(u)||uid===u.uid;}).map(function(uid){return cache[uid][k];}).filter(Boolean);}
   function date(n){return new Date(n).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
-  function cell(id){var rows=entries(id);return '<button type="button" class="cts-open" data-content-id="'+esc(id)+'">✎ '+(rows.length?'ดูข้อความ ('+rows.length+')':'เขียน List Content')+'</button>';}
+  function cell(id){var rows=entries(id);return '<div class="cts-cell">'+rows.map(function(r){return '<button type="button" class="cts-text-card" data-content-id="'+esc(id)+'" title="'+esc(r.text)+'"><span class="cts-text-author">▤ '+esc(r.ownerName)+'</span><span class="cts-text-preview">'+esc(r.text)+'</span><span class="cts-text-edit">'+(r.ownerUid===user().uid?'แก้ไข':'ดูรายละเอียด')+' ↗</span></button>';}).join('')+(rows.some(function(r){return r.ownerUid===user().uid;})?'':'<button type="button" class="cts-open" data-content-id="'+esc(id)+'">＋ เพิ่มข้อความ</button>')+'</div>';}
   function dates(id,name){var rows=entries(id).filter(function(r){return !name||r.ownerName.toUpperCase()===name.toUpperCase();});return rows.length?rows.map(function(r){return '<span class="cts-date">'+(!name?esc(r.ownerName)+'<br>':'')+esc(date(r.updatedAt))+'</span>';}).join(''):'<span class="cts-muted">—</span>';}
   function overlay(title){var bg=document.createElement('div');bg.className='cts-overlay';bg.innerHTML='<section class="cts-dialog" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><header><h2>'+esc(title)+'</h2><button type="button" class="cts-close" aria-label="ปิด">×</button></header><div class="cts-body"></div></section>';document.body.appendChild(bg);bg.querySelector('.cts-close').onclick=function(){if(bg.dataset.busy)return;if(bg.dataset.dirty&&!confirm('ปิดโดยไม่บันทึกข้อความที่แก้ไขหรือไม่?'))return;bg.remove();};return bg;}
   async function open(id){
     session();var u=user(),sig=identity;if(!u.uid)return;
-    var bg=overlay('List Content'),body=bg.querySelector('.cts-body');body.textContent='กำลังโหลดข้อความล่าสุด…';
+    var existing=document.querySelector('.cts-inline');if(existing){if(existing.dataset.busy)return;if(existing.dataset.dirty&&!confirm('เปลี่ยนรายการโดยไม่บันทึกข้อความที่แก้ไขหรือไม่?'))return;existing.remove();}
+    var bg=overlay('List Content'),body=bg.querySelector('.cts-body');bg.classList.add('cts-inline');bg.querySelector('section').setAttribute('role','region');bg.querySelector('section').removeAttribute('aria-modal');
+    var host=document.querySelector('.ct-wrap');if(host){host.appendChild(bg);var hint=host.querySelector('.cts-editor-hint');if(hint)hint.hidden=true;}
+    if(bg.scrollIntoView)bg.scrollIntoView({block:'nearest',behavior:'smooth'});body.textContent='กำลังโหลดข้อความล่าสุด…';
     try{
       await load(true);if(session()!==sig||!bg.isConnected)return;
       var own=await request('content_submissions_v1/'+u.uid+'/'+key(id),{headers:{'X-Firebase-ETag':'true'}});
@@ -46,7 +49,7 @@
         try{var saved=await request('content_submissions_v1/'+u.uid+'/'+key(id),{method:'PUT',headers:{'Content-Type':'application/json','if-match':own.etag},body:JSON.stringify(record)});
           if(session()!==sig)return;(cache[u.uid]||(cache[u.uid]={}))[key(id)]=saved.value;
           // A subsequent save needs a fresh ETag; close only after the server confirms.
-          bg.dataset.dirty='';render();bg.remove();
+          bg.dataset.dirty='';render();bg.remove();var hint=document.querySelector('.cts-editor-hint');if(hint){hint.hidden=false;hint.textContent='✓ บันทึกข้อความแล้ว • ชื่อผู้ส่งและเวลาปรับอัตโนมัติ เลือกรายการถัดไปได้เลย';}
         }catch(e){status.textContent=e.name==='AbortError'?'ยังยืนยันการบันทึกไม่ได้ ข้อความยังอยู่ กรุณาเปิดตรวจสอบรายการอีกครั้งก่อนส่งซ้ำ':e.message;}
         finally{button.disabled=false;delete bg.dataset.busy;}
       };textarea.focus();
@@ -78,6 +81,8 @@
     }catch(e){body.textContent='โหลดสินค้าไม่สำเร็จ: '+e.message;}
   }
   function mount(){session();var actions=document.querySelector('.ct-actions');if(!actions||!user().uid)return;
+    var host=document.querySelector('.ct-wrap');if(host&&!host.querySelector('.cts-scope-banner')){var scope=document.createElement('div');scope.className='cts-scope-banner';scope.setAttribute('role','note');var table=host.querySelector('.ct-table-container');if(table)table.insertAdjacentElement('beforebegin',scope);var hint=document.createElement('div');hint.className='cts-editor-hint';hint.textContent='▤ เลือก “เพิ่มข้อความ” หรือข้อความในแถว เพื่อกรอก List Content ด้านล่างตาราง';host.appendChild(hint);}
+    var scope=host&&host.querySelector('.cts-scope-banner'),scopeText=all(user())?'◉ มุมมอง Supervisor / Audit • เห็น List Content ของทุกคน':'◉ มุมมอง '+user().name+' • เห็นเฉพาะ List Content ของคุณ';if(scope&&scope.textContent!==scopeText)scope.textContent=scopeText;
     var btn=document.getElementById('cts-manage');if(!btn){btn=document.createElement('button');btn.id='cts-manage';btn.className='ct-btn ct-btn-secondary';btn.textContent='⚙ จัดการสินค้าและผู้ดูแล';btn.onclick=manage;actions.appendChild(btn);}btn.hidden=user().role!=='sup';
     var refresh=document.getElementById('cts-refresh');if(!refresh){refresh=document.createElement('button');refresh.id='cts-refresh';refresh.className='ct-btn ct-btn-secondary';refresh.textContent='↻ อัปเดตข้อความ';actions.appendChild(refresh);refresh.onclick=function(){refresh.disabled=true;Promise.all([load(true),loadCatalog()]).catch(function(e){alert(e.message);}).finally(function(){refresh.disabled=false;});};}
     load().catch(function(){refresh.textContent='↻ โหลดข้อความไม่สำเร็จ · ลองใหม่';});loadCatalog().catch(function(){catalogLoaded=false;});

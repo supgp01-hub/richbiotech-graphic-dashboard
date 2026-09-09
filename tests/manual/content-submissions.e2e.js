@@ -24,10 +24,10 @@ async function fixture(role='graphic'){
 }
 test('text saves with server time, reload persists, failed save keeps draft and no shared row changes',async()=>{
  const f=await fixture(),{w}=f,d=w.document;d.querySelector('[data-content-id]').click();await tick();
- let area=d.querySelector('#cts-text');assert.ok(area);area.value='รายการหนึ่ง\nรายการสอง';area.dispatchEvent(new w.Event('input'));
+ let area=d.querySelector('#cts-text');assert.ok(area);assert.ok(d.querySelector('.ct-wrap > .cts-inline'));assert.equal(d.querySelector('.cts-inline [role="dialog"]'),null);area.value='รายการหนึ่ง\nรายการสอง';area.dispatchEvent(new w.Event('input'));
  f.setFail(true);d.querySelector('.cts-save').click();await tick();assert.equal(d.querySelector('#cts-text').value,area.value);assert.match(d.querySelector('.cts-status').textContent,/offline/);
  f.setFail(false);d.querySelector('.cts-save').click();await tick();assert.equal(d.querySelector('.cts-overlay'),null);
- assert.match(d.querySelector('#ct-tbody').textContent,/2569/);assert.equal(w.ctContentRows()[0].release,'pending');assert.equal(w.ctContentRows()[0].text,undefined);
+ assert.match(d.querySelector('#ct-tbody').textContent,/2569/);assert.match(d.querySelector('.cts-text-preview').textContent,/รายการหนึ่ง/);assert.equal(w.ctContentRows()[0].release,'pending');assert.equal(w.ctContentRows()[0].text,undefined);
  assert.ok(f.calls.filter(c=>c.method==='PUT').every(c=>c.path.startsWith('content_submissions_v1/nune/')));
  d.querySelector('[data-content-id]').click();await tick();assert.equal(d.querySelector('#cts-text').value,'รายการหนึ่ง\nรายการสอง');
  // Opening another window changed the version: stale write must not overwrite it.
