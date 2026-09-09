@@ -28,7 +28,7 @@
   function cell(id){var rows=entries(id);return '<div class="cts-cell">'+rows.map(function(r){return '<button type="button" class="cts-text-card" data-content-id="'+esc(id)+'" title="'+esc(r.text)+'"><span class="cts-text-author">▤ '+esc(r.ownerName)+'</span><span class="cts-text-preview">'+esc(r.text)+'</span><span class="cts-text-edit">'+(r.ownerUid===user().uid?'แก้ไข':'ดูรายละเอียด')+' ↗</span></button>';}).join('')+(rows.some(function(r){return r.ownerUid===user().uid;})?'':'<button type="button" class="cts-open" data-content-id="'+esc(id)+'">＋ เพิ่มข้อความ</button>')+'</div>';}
   function dates(id,name){var rows=entries(id).filter(function(r){return !name||r.ownerName.toUpperCase()===name.toUpperCase();});return rows.length?rows.map(function(r){return '<span class="cts-date">'+(!name?esc(r.ownerName)+'<br>':'')+esc(date(r.updatedAt))+'</span>';}).join(''):'<span class="cts-muted">—</span>';}
   function overlay(title){var bg=document.createElement('div');bg.className='cts-overlay';bg.innerHTML='<section class="cts-dialog" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><header><h2>'+esc(title)+'</h2><button type="button" class="cts-close" aria-label="ปิด">×</button></header><div class="cts-body"></div></section>';document.body.appendChild(bg);bg.querySelector('.cts-close').onclick=function(){if(bg.dataset.busy)return;if(bg.dataset.dirty&&!confirm('ปิดโดยไม่บันทึกข้อความที่แก้ไขหรือไม่?'))return;bg.remove();};return bg;}
-  async function open(id){
+  async function open(id,ownerUid){
     session();var u=user(),sig=identity;if(!u.uid)return;
     var existing=document.querySelector('.cts-inline');if(existing){if(existing.dataset.busy)return;if(existing.dataset.dirty&&!confirm('เปลี่ยนรายการโดยไม่บันทึกข้อความที่แก้ไขหรือไม่?'))return;existing.remove();}
     var bg=overlay('List Content'),body=bg.querySelector('.cts-body');bg.classList.add('cts-inline');bg.querySelector('section').setAttribute('role','region');bg.querySelector('section').removeAttribute('aria-modal');
@@ -36,6 +36,12 @@
     if(bg.scrollIntoView)bg.scrollIntoView({block:'nearest',behavior:'smooth'});body.textContent='กำลังโหลดข้อความล่าสุด…';
     try{
       await load(true);if(session()!==sig||!bg.isConnected)return;
+      if(ownerUid&&ownerUid!==u.uid){
+        var selected=entries(id).find(function(r){return r.ownerUid===ownerUid;});
+        body.innerHTML='';var title=document.createElement('p');title.className='cts-context';var context=w.ctContentRows&&w.ctContentRows().find(function(r){return String(r.id)===String(id);});title.textContent=context?(context.brand+' · '+context.episode+' · HOOK: '+(context.ready||'')):String(id);body.appendChild(title);
+        if(selected){var heading=document.createElement('strong');heading.textContent=selected.ownerName+' · อัปเดต '+date(selected.updatedAt);var text=document.createElement('pre');text.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.7';text.textContent=selected.text;body.append(heading,text);}else body.appendChild(document.createTextNode('ไม่พบข้อความที่คุณมีสิทธิ์ดู'));
+        return;
+      }
       var own=await request('content_submissions_v1/'+u.uid+'/'+key(id),{headers:{'X-Firebase-ETag':'true'}});
       if(session()!==sig||!bg.isConnected)return;
       var row=w.ctContentRows&&w.ctContentRows().find(function(r){return String(r.id)===String(id);});
@@ -87,7 +93,7 @@
     var refresh=document.getElementById('cts-refresh');if(!refresh){refresh=document.createElement('button');refresh.id='cts-refresh';refresh.className='ct-btn ct-btn-secondary';refresh.textContent='↻ อัปเดตข้อความ';actions.appendChild(refresh);refresh.onclick=function(){refresh.disabled=true;Promise.all([load(true),loadCatalog()]).catch(function(e){alert(e.message);}).finally(function(){refresh.disabled=false;});};}
     load().catch(function(){refresh.textContent='↻ โหลดข้อความไม่สำเร็จ · ลองใหม่';});loadCatalog().catch(function(){catalogLoaded=false;});
   }
-  document.addEventListener('click',function(e){var b=e.target.closest('[data-content-id]');if(b)open(b.dataset.contentId);});
+  document.addEventListener('click',function(e){var b=e.target.closest('[data-content-id]');if(b)open(b.dataset.contentId,b.dataset.contentOwner);});
   w.addEventListener('rb:auth-ready',function(){session();catalogLoaded=false;mount();render();});
   w.addEventListener('rb:auth-cleared',function(){session();render();});
   w.ctSubmissions={cell:cell,dates:dates,mount:mount,entries:entries,key:key,version:function(){session();return identity+':'+revision;}};
