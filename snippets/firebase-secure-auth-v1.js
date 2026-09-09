@@ -123,7 +123,7 @@ async function pinRestLogin(email,pin){
   if(!response.ok||!data.idToken){const error=new Error(data?.error?.message||'INVALID_LOGIN_CREDENTIALS');error.code=data?.error?.message||'INVALID_LOGIN_CREDENTIALS';throw error;}
   pinSession=makePinSession(data);savePinSession(pinSession);return pinSession;
 }
-async function logout(){clearPinSession();clearTimeout(authRetryTimer);try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
+async function logout(){clearPinSession();clearTimeout(authRetryTimer);try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;window.dispatchEvent(new CustomEvent('rb:auth-cleared'));setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
 function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;

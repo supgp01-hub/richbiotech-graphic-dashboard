@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix404">
+<meta name="rb-build" content="fix405">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5183,6 +5183,7 @@ window.ctRender=function(){
   var statReleased=document.getElementById('ct-stat-released');
   if(!root)return;
   _ctData=ctLoad();
+  if(window.ctSubmissions)window.ctSubmissions.mount();
   var rows=ctFiltered();
   var totalFiltered=rows.length;
   var pageSig=[_ctQ,_ctFilter,_ctBrand].join('|');
@@ -5242,13 +5243,13 @@ window.ctRender=function(){
       +'<td class="ct-td-chk"><input type="checkbox" class="ct-row-chk ct-row-sel" data-id="'+id+'" onchange="ctChkChange()"></td>'
       +'<td class="ct-td-num">'+num+'</td>'
       +'<td>'+ctBadgeBrand(r.brand)+'</td>'
-      +(_ctBrand!=='ALL'&&PROD_EMP[r.brand]?PROD_EMP[r.brand].split(' ').map(function(n,i){var v=(r.empVals&&r.empVals[i])||'';return '<td style="padding:4px 6px;text-align:center;min-width:70px;"><input class="ct-emp-input" data-id="'+r.id+'" data-idx="'+i+'" value="'+v+'" placeholder="-" style="width:62px;border:1px solid #d1fae5;border-radius:6px;padding:2px 4px;font-size:12px;text-align:center;background:var(--auto-lc31);color:#065f46;font-weight:600;outline:none;" onchange="window.ctSaveEmp(this)"></td>';}).join(''):'<td></td>')      +'<td class="ct-td-script">'+scriptCell+'</td>'
+      +(_ctBrand!=='ALL'&&PROD_EMP[r.brand]?PROD_EMP[r.brand].split(' ').filter(Boolean).map(function(n){return '<td>'+ (window.ctSubmissions?window.ctSubmissions.dates(r.id,n):'—')+'</td>';}).join(''):'<td>'+(window.ctSubmissions?window.ctSubmissions.dates(r.id):'—')+'</td>')      +'<td class="ct-td-script">'+scriptCell+'</td>'
 
       +'<td class="ct-td-link">'+linkCell+'</td>'
       +'<td class="ct-td-ep" title="'+ctEsc(r.episode)+'">'+ctEsc(r.episode||'-')+'</td>'
       +'<td class="ct-td-hook">'+ctEsc(r.ready||'-')+'</td>'
-      +'<td>'+mkSelRelease(id,r.release)+'</td>'
-      +'<td style="text-align:center;"><input type="date" class="ct-upd-input" data-id="'+id+'" value="'+ctEsc(r.updDate||'')+'" onchange="window.ctSaveUpdDate(this)" style="border:1px solid #d1d5db;border-radius:4px;padding:2px 4px;font-size:11px;width:100%;"></td>'
+      +'<td>'+(window.ctSubmissions?window.ctSubmissions.cell(r.id):'')+'</td>'
+      +'<td>'+(window.ctSubmissions?window.ctSubmissions.dates(r.id):'—')+'</td>'
       +'<td><div class="ct-actions-cell">'
         +'<button class="ct-btn-icon" title="Edit" onclick="ctEdit(&#39;'+id+'&#39;)">&#9998;</button>'
         +'<button class="ct-btn-icon ct-del" title="Del" onclick="ctDel(&#39;'+id+'&#39;)">&#128465;</button>'
@@ -5277,13 +5278,13 @@ window.ctRender=function(){
 
 function ctModalHtml(r,isEdit){
   var sel=function(id,cur,opts){
-    return '<select id="'+id+'">'+opts.map(function(o){return '<option value="'+o.v+'"'+(cur===o.v?' selected':'')+'>'+o.l+'</option>';}).join('')+'</select>';
+    return '<select id="'+id+'">'+opts.map(function(o){return '<option value="'+ctEsc(o.v)+'"'+(cur===o.v?' selected':'')+'>'+o.l+'</option>';}).join('')+'</select>';
   };
   return '<div class="ct-modal">'
     +'<div class="ct-modal-title">'+(isEdit?'&#9998; แก้ไขรายการ':'&#10133; เพิ่มรายการใหม่')+'</div>'
     +'<div class="ct-modal-grid">'
       +'<div class="ct-field ct-field-full"><label>&#127991; สินค้า / แบรนด์</label>'
-        +sel('ctm-brand',r.brand||'',[{v:'',l:'- เลือกสินค้า -'}].concat(CT_BRANDS.map(function(b){return {v:b,l:b};})))+'</div>'
+        +sel('ctm-brand',r.brand||'',[{v:'',l:'- เลือกสินค้า -'}].concat(CT_BRANDS.map(function(b){return {v:b,l:ctEsc(b)};})))+'</div>'
       +'<div class="ct-field ct-field-full"><label>สคริป / หัวเรื่อง *</label>'
         +'<input type="text" id="ctm-script" value="'+ctEsc(r.script||'')+'" placeholder="ชื่อสคริปหรือหัวข้อ"></div>'
 
@@ -5477,6 +5478,19 @@ window.ctExport=function(){
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='olympplus_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 };
 
+window.ctContentRows=function(){return ctLoad();};
+window.ctProductList=function(){return CT_BRANDS.slice();};
+window.ctProductOwners=function(){return Object.assign({},PROD_EMP);};
+window.ctApplyCatalog=function(products){
+  products.forEach(function(p){if(!p||!p.name)return;if(CT_BRANDS.indexOf(p.name)<0)CT_BRANDS.push(p.name);PROD_EMP[p.name]=p.owners||'';});
+  var bar=document.getElementById('ct-brand-bar');
+  if(bar)CT_BRANDS.forEach(function(b){
+    if(Array.from(bar.querySelectorAll('[data-b]')).some(function(el){return el.dataset.b===b;}))return;
+    var button=document.createElement('button');button.className='ct-bchip';button.dataset.b=b;button.textContent=b;button.onclick=function(){window.ctSetBrand(b,button);};bar.appendChild(button);
+  });
+  var select=document.getElementById('ct-bulk-brand-sel');if(select)CT_BRANDS.forEach(function(b){if(Array.from(select.options).some(function(o){return o.value===b;}))return;var o=document.createElement('option');o.value=b;o.textContent=b;select.appendChild(o);});
+  window.ctSetBrand(_ctBrand,bar&&Array.from(bar.querySelectorAll('[data-b]')).find(function(el){return el.dataset.b===_ctBrand;}));
+};
 window.initLinksPanel=function(container){
   _ctData=ctLoad();
   if(window.ctCloudInit)window.ctCloudInit();
@@ -5508,7 +5522,7 @@ window.initLinksPanel=function(container){
           CT_BRANDS.forEach(function(b){
             var col=CT_BCOLOR[b]||'#6b7280';
             var safe=b.replace(/[^a-zA-Z0-9]/g,'_');
-            chips+='<button class="ct-bchip" data-b="'+ctEsc(b)+'" onclick="ctSetBrand(\''+ctEsc(b)+'\',this)" style="--bc:'+col+';">'+ctEsc(b)+' <small id="ct-bc-'+safe+'"></small></button>';
+            chips+='<button class="ct-bchip" data-b="'+ctEsc(b)+'" onclick="ctSetBrand(this.dataset.b,this)" style="--bc:'+col+';">'+ctEsc(b)+' <small id="ct-bc-'+safe+'"></small></button>';
           });
           chips+='<button class="ct-bchip rb-product-chip" data-b="UNASSIGNED" onclick="ctSetBrand(\'UNASSIGNED\',this)" style="--bc:#9ca3af;">รอเลือกสินค้า <small id="ct-bc-UNASSIGNED"></small></button>';
           return chips;
@@ -5518,7 +5532,7 @@ window.initLinksPanel=function(container){
       +'<div id="ct-bulk-bar" class="ct-bulk-bar">'
         +'<span class="ct-bulk-lbl" id="ct-sel-count">0 รายการที่เลือก</span>'
         +'<select id="ct-bulk-brand-sel" class="ct-bulk-brand-sel"><option value="">-- เลือกสินค้า --</option>'
-        +CT_BRANDS.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join('')
+        +CT_BRANDS.map(function(b){return '<option value="'+ctEsc(b)+'">'+ctEsc(b)+'</option>';}).join('')
         +'</select>'
         +'<button class="ct-btn ct-btn-assign" onclick="ctBulkSetBrand()">&#10003; กำหนดสินค้า</button>'
         +'<span class="ct-bulk-sep"></span>'
@@ -5537,7 +5551,7 @@ window.initLinksPanel=function(container){
           +'<th>ลิงก์คลิป</th>'
           +'<th>ชื่อตอน/ที่</th>'
           +'<th>Hook</th>'
-          +'<th>VDO</th>'
+          +'<th>List Content</th>'
           +'<th style="min-width:90px;text-align:center;">วันที่อัพ</th>'
           +'<th class="ct-th-act">จัดการ</th>'
         +'</tr></thead>'
@@ -6274,5 +6288,7 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <script src="snippets/system-health-v1.js?v=fix341"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
-<script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure24"></script>
+<script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure25"></script>
+<link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix405">
+<script src="snippets/content-submissions-v1.js?v=fix405"></script>
 </html>

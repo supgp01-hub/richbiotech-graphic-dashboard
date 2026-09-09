@@ -15,11 +15,21 @@
       "$key": {
         ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
         ".validate": "!newData.exists() || newData.hasChildren(['name','loginEmail','active','updatedAt'])",
-        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 64" },
-        "loginEmail": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 160" },
-        "active": { ".validate": "newData.isBoolean()" },
-        "updatedAt": { ".validate": "newData.isNumber()" },
-        "$other": { ".validate": false }
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 64"
+        },
+        "loginEmail": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 160"
+        },
+        "active": {
+          ".validate": "newData.isBoolean()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     },
     "access_requests": {
@@ -41,38 +51,175 @@
       ".read": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
       ".write": false
     },
-    "test": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "timeline_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "facebook_notifications": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "workflow_locks": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "workflow_audit": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "facebook_legacy_cells": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "fbpages_base_snapshot": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "commission_source_snapshot_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "commission_center_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'audit')" },
-    "workflow_snapshots": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "content_tracker_v2": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "leave_history": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "order_planner": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "listfacebook_followups": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "orders": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".indexOn": ["id", "deadline", "assignee", "status"] },
-    "listfacebook_base_snapshot": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "specialwork": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "specialwork_v2": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "idcards": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'" },
-    "listfacebook_manual": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "lv_data": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "order_assets": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "listfacebook_edits": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "fbpages_edits_v2": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'spec')" },
+    "test": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "timeline_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "facebook_notifications": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "workflow_locks": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "workflow_audit": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "facebook_legacy_cells": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "fbpages_base_snapshot": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "commission_source_snapshot_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "commission_center_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'audit')"
+    },
+    "workflow_snapshots": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "content_tracker_v2": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "leave_history": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "order_planner": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "listfacebook_followups": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "orders": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".indexOn": [
+        "id",
+        "deadline",
+        "assignee",
+        "status"
+      ]
+    },
+    "listfacebook_base_snapshot": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "specialwork": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "specialwork_v2": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "idcards": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'"
+    },
+    "listfacebook_manual": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "lv_data": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "order_assets": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "listfacebook_edits": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "fbpages_edits_v2": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'spec')"
+    },
     "facebook_status_catalog_v1": {
       ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
       ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup'",
       ".validate": "newData.hasChildren(['items','updatedAt','updatedBy','version']) && newData.child('updatedAt').isNumber() && newData.child('updatedBy').isString() && newData.child('updatedBy').val().length > 0 && newData.child('updatedBy').val().length <= 80 && newData.child('version').val() === 1"
     },
-    "brand_pages_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "channel_data_v1": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "order_form_drafts": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" },
-    "fbpages_manual": { ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true", ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true" }
+    "brand_pages_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "channel_data_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "order_form_drafts": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "fbpages_manual": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+    },
+    "content_submissions_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'audit')",
+      "$uid": {
+        ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && auth.uid === $uid",
+        "$row": {
+          ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && auth.uid === $uid && newData.exists()",
+          ".validate": "newData.hasChildren(['rowId','ownerUid','ownerName','text','updatedAt'])",
+          "rowId": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 180 && (!data.exists() || newData.val() === data.val())"
+          },
+          "ownerUid": {
+            ".validate": "newData.val() === auth.uid"
+          },
+          "ownerName": {
+            ".validate": "newData.val() === root.child('auth_users').child(auth.uid).child('name').val()"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 10000"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber() && newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "content_product_catalog_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      "$product": {
+        ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && root.child('auth_users').child(auth.uid).child('role').val() === 'sup' && newData.exists()",
+        ".validate": "newData.hasChildren(['name','owners','updatedAt'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80 && (!data.exists() || newData.val() === data.val())"
+        },
+        "owners": {
+          ".validate": "newData.isString() && newData.val().length <= 400"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
   }
 }
