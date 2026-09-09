@@ -22,7 +22,7 @@ const window={
   _rbUser:{name:'Supervisor',role:'sup'},
   addEventListener(){},
   fbGet(path,callback){
-    if(path==='/order_planner/drafts')callback(null,{stale:staleDraft});
+    if(path==='/order_planner/drafts')callback(null,{stale:staleDraft,old:{id:'old-dispatched',name:'Old',status:'dispatched',orderId:'GR800',deadline:'2026-09-01'}});
     else if(path==='/order_planner/rules')callback(null,{enabled:true,recurring:false,absencePolicy:'hold',overduePolicy:'dispatch'});
     else if(path==='/orders')callback(null,{});
     else callback(null,null);
@@ -64,5 +64,12 @@ api.runWorker([exactDraft.id],[exactDraft]).then(results=>{
   assert.strictEqual(api.overlayDraftEdits([sent])[0].status,'dispatched','the form edit buffer must not restore the scheduled status');
   assert.strictEqual(api.filterByStatus(merged,'scheduled').length,0,'dispatched work must leave the automatic queue');
   assert.strictEqual(api.filterByStatus(merged,'dispatched').length,1,'dispatched work must remain available in history');
-  console.log('order-planner transaction: exact snapshot dispatch passed');
+  window.fbGet=function(path,callback){callback(new Error('offline'))};
+  return api.runWorker([exactDraft.id],[exactDraft]).then(failed=>{
+    assert.strictEqual(failed.length,1,'read failures must be reported instead of an empty success');
+    assert.strictEqual(failed[0].ok,false);
+    assert.ok(failed[0].reason);
+    assert.strictEqual(savedOrders.length,1,'failed order reads must not create duplicate orders');
+    console.log('order-planner transaction: dispatch skips unrelated repair and reports read failures');
+  });
 }).catch(error=>{console.error(error);process.exitCode=1});
