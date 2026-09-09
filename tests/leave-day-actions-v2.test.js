@@ -6,7 +6,7 @@ const source=fs.readFileSync('snippets/leave-day-actions-v2.js','utf8');
 const css=fs.readFileSync('snippets/leave-day-actions-v2.css','utf8');
 
 assert.ok(html.includes('leave-day-actions-v2.css?v=fix329'));
-assert.ok(html.includes('leave-day-actions-v2.js?v=fix329'));
+assert.ok(html.includes('leave-day-actions-v2.js?v=fix406'));
 assert.ok(source.includes("var VERSION='2.3.0'"));
 assert.ok(source.includes('button.disabled=!options.nonBlocking'));
 assert.ok(source.includes('removeLegacyJobBadges'));

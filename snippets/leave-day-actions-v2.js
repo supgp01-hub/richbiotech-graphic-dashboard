@@ -4,7 +4,7 @@ if(root._rbLeaveDayActionsV2Loaded)return;
 root._rbLeaveDayActionsV2Loaded=true;
 
 var VERSION='2.3.0';
-var observer=null;
+var observer=null,refreshQueued=false;
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
 function manager(){var role=root._rbUser&&root._rbUser.role;return role==='sup'||role==='spec';}
@@ -83,9 +83,19 @@ function ensureScopeNotice(){
 }
 function removeLegacyJobBadges(){document.querySelectorAll('#tab-schedule .lv-job-badges,#tab-schedule .lv-job-badge,#tab-schedule [data-lvw-job-count]').forEach(function(el){el.remove();});}
 function refresh(){removeLegacyJobBadges();ensureTodayAction();ensureScopeNotice();}
+function scheduleRefresh(mutations){
+  if(refreshQueued)return;
+  var relevant=(mutations||[]).some(function(m){
+    var target=m.target&&m.target.nodeType===1?m.target:m.target&&m.target.parentElement;
+    if(target&&target.closest('#tab-schedule,#lv-modal'))return true;
+    return Array.from(m.addedNodes||[]).some(function(n){return n.nodeType===1&&(n.matches('#tab-schedule,#lv-modal')||n.querySelector('#tab-schedule,#lv-modal'));});
+  });
+  if(!relevant)return;
+  refreshQueued=true;setTimeout(function(){refreshQueued=false;refresh();},0);
+}
 function install(){
   refresh();
-  if(!observer&&document.body){observer=new MutationObserver(function(){setTimeout(refresh,0);});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});}
+  if(!observer&&document.body){observer=new MutationObserver(scheduleRefresh);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});}
   document.documentElement.setAttribute('data-leave-day-actions',VERSION);
 }
 

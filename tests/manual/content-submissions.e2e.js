@@ -48,3 +48,12 @@ test('Supervisor adds products and multiple caretakers; new products work in fil
  d.querySelector('[data-b="New Brand"]').click();assert.match(d.querySelector('thead').textContent,/FUTURE/);w.ctModal(null);assert.ok([...d.querySelector('#ctm-brand').options].some(o=>o.value==='New Brand'));
  f.dom.window.close();
 });
+test('repeated unchanged refreshes preserve table nodes; edits and user changes still update',async()=>{
+ const f=await fixture(),{w}=f,d=w.document,body=d.querySelector('#ct-tbody');
+ const first=body.firstElementChild;let mutations=0;const observer=new w.MutationObserver(ms=>{mutations+=ms.length});observer.observe(body,{childList:true});
+ const start=Date.now();for(let i=0;i<100;i++)w.ctRender();await tick();assert.equal(body.firstElementChild,first);assert.equal(mutations,0);
+ console.log('100 unchanged Content renders:',Date.now()-start,'ms; table replacements:',mutations);
+ w._ctCloudRows=[{...w.ctContentRows()[0],episode:'เปลี่ยนชื่องาน'}];w.ctRender();assert.notEqual(body.firstElementChild,first);assert.match(body.textContent,/เปลี่ยนชื่องาน/);
+ const changed=body.firstElementChild;w._rbUser={uid:'jam',name:'JAM',role:'graphic'};w.ctRender();assert.notEqual(body.firstElementChild,changed);
+ observer.disconnect();f.dom.window.close();
+});

@@ -1,13 +1,13 @@
 (function (w) {
   'use strict';
   var DB='https://richbiotech-c4e41-default-rtdb.firebaseio.com/', cache={}, identity='', pending=null, loaded=false;
-  var catalog={}, catalogLoaded=false, catalogPending=null;
+  var catalog={}, catalogLoaded=false, catalogPending=null, revision=0, retryAt=0, catalogRetryAt=0;
   function user(){return w._rbUser||{};}
   function all(u){return u.role==='sup'||u.role==='audit';}
   function key(value){return 'k_'+btoa(unescape(encodeURIComponent(String(value)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function session(){var u=user(), sig=(u.uid||'')+':'+(u.role||'');if(sig!==identity){identity=sig;cache={};loaded=false;pending=null;document.querySelectorAll('.cts-overlay').forEach(function(x){x.remove();});}return sig;}
-  function render(){if(w.ctRender)w.ctRender();}
+  function render(){revision++;if(w.ctRender)w.ctRender();}
   async function request(path,options){
     if(!user().uid||!w.rbFirebaseAuth)throw new Error('กรุณาเข้าสู่ระบบใหม่');
     var controller=new AbortController(), timer=setTimeout(function(){controller.abort();},20000);
@@ -18,10 +18,10 @@
   }
   async function load(force){
     var sig=session(),u=user();if(!u.uid)return;
-    if(pending)return pending;if(loaded&&!force)return;
+    if(pending)return pending;if((loaded||Date.now()<retryAt)&&!force)return;
     pending=request('content_submissions_v1'+(all(u)?'':'/'+u.uid)).then(function(r){
       if(session()!==sig)return;cache=all(u)?(r.value||{}):Object.fromEntries([[u.uid,r.value||{}]]);loaded=true;render();
-    }).finally(function(){if(identity===sig)pending=null;});return pending;
+    }).catch(function(e){if(identity===sig)retryAt=Date.now()+15000;throw e;}).finally(function(){if(identity===sig)pending=null;});return pending;
   }
   function entries(id){session();var k=key(id),u=user();return Object.keys(cache).filter(function(uid){return all(u)||uid===u.uid;}).map(function(uid){return cache[uid][k];}).filter(Boolean);}
   function date(n){return new Date(n).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
@@ -53,8 +53,8 @@
     }catch(e){body.textContent='โหลดไม่สำเร็จ: '+e.message;}
   }
   async function loadCatalog(){
-    if(catalogLoaded||!user().uid)return;if(catalogPending)return catalogPending;
-    catalogPending=request('content_product_catalog_v1').then(function(r){catalog=r.value||{};catalogLoaded=true;if(w.ctApplyCatalog)w.ctApplyCatalog(Object.values(catalog));}).finally(function(){catalogPending=null;});return catalogPending;
+    if(catalogLoaded||!user().uid||Date.now()<catalogRetryAt)return;if(catalogPending)return catalogPending;
+    catalogPending=request('content_product_catalog_v1').then(function(r){catalog=r.value||{};catalogLoaded=true;if(w.ctApplyCatalog)w.ctApplyCatalog(Object.values(catalog));}).catch(function(e){catalogRetryAt=Date.now()+15000;throw e;}).finally(function(){catalogPending=null;});return catalogPending;
   }
   async function manage(){
     if(user().role!=='sup')return;var sig=session(),bg=overlay('จัดการสินค้าและผู้ดูแล'),body=bg.querySelector('.cts-body');body.textContent='กำลังโหลด…';
@@ -85,5 +85,5 @@
   document.addEventListener('click',function(e){var b=e.target.closest('[data-content-id]');if(b)open(b.dataset.contentId);});
   w.addEventListener('rb:auth-ready',function(){session();catalogLoaded=false;mount();render();});
   w.addEventListener('rb:auth-cleared',function(){session();render();});
-  w.ctSubmissions={cell:cell,dates:dates,mount:mount,entries:entries,key:key};
+  w.ctSubmissions={cell:cell,dates:dates,mount:mount,entries:entries,key:key,version:function(){session();return identity+':'+revision;}};
 })(window);

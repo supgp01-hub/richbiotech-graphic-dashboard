@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix405">
+<meta name="rb-build" content="fix406">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5184,6 +5184,9 @@ window.ctRender=function(){
   if(!root)return;
   _ctData=ctLoad();
   if(window.ctSubmissions)window.ctSubmissions.mount();
+  var renderSignature=JSON.stringify([_ctData,_ctQ,_ctFilter,_ctBrand,window._ctMainPage||1,window._ctMainPageSize||100,PROD_EMP,window.ctSubmissions?window.ctSubmissions.version():'']);
+  if(root._ctRenderSignature===renderSignature&&root.firstElementChild)return;
+  root._ctRenderSignature=renderSignature;
   var rows=ctFiltered();
   var totalFiltered=rows.length;
   var pageSig=[_ctQ,_ctFilter,_ctBrand].join('|');
@@ -5560,7 +5563,7 @@ window.initLinksPanel=function(container){
     +'</div>'
   +'</div>';
   var el;
-  el=container.querySelector('#ct-search');if(el)el.oninput=function(){_ctQ=this.value;window.ctRender();};
+  el=container.querySelector('#ct-search');if(el)el.oninput=function(){_ctQ=this.value;clearTimeout(window._ctSearchTimer);window._ctSearchTimer=setTimeout(function(){window.ctRender();},160);};
   el=container.querySelector('#ct-filter');if(el)el.onchange=function(){_ctFilter=this.value;window.ctRender();};
   _ctBrand='ALL';
   window.ctRender();
@@ -6168,9 +6171,9 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/bulk-import-v2.css?v=187">
 <link rel="stylesheet" href="snippets/bulk-import-v3.css?v=203">
 <link rel="stylesheet" href="snippets/performance-v4.css?v=205">
-<script src="snippets/bulk-import-v2.js?v=216"></script>
+<script src="snippets/bulk-import-v2.js?v=fix406"></script>
 <script src="snippets/bulk-import-v3.js?v=267"></script>
-<script src="snippets/performance-v4.js?v=fix340"></script>
+<script src="snippets/performance-v4.js?v=fix406"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=fix389">
@@ -6185,7 +6188,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/specialwork-persistence-v2.js?v=fix329"></script>
 <script src="snippets/leave-workforce-v1.js?v=fix331"></script>
 <script src="snippets/leave-persistence-v2.js?v=fix354"></script>
-<script src="snippets/leave-day-actions-v2.js?v=fix329"></script>
+<script src="snippets/leave-day-actions-v2.js?v=fix406"></script>
 <script src="snippets/list-facebook-editor.js?v=fix398"></script>
 <script src="snippets/list-facebook-followup.js?v=fix399"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>
@@ -6290,5 +6293,5 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure25"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix405">
-<script src="snippets/content-submissions-v1.js?v=fix405"></script>
+<script src="snippets/content-submissions-v1.js?v=fix406"></script>
 </html>
