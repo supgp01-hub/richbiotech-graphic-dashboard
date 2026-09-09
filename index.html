@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix410">
+<meta name="rb-build" content="fix411">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3656,16 +3656,12 @@ function renderOrders(){
     ].forEach(function(c,ci){var td=document.createElement('td');td.setAttribute('data-label',['เลขงาน','ชื่องาน','ประเภท','DEADLINE'][ci]);td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
     var stTd=document.createElement('td');stTd.style.cssText='padding:8px 14px;vertical-align:middle;';
     stTd.setAttribute('data-label','สถานะ');
-    var stSel=document.createElement('select');stSel.style.cssText='background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;border:none;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;';
-    ST.forEach(function(s){var opt=document.createElement('option');opt.value=s.k;opt.textContent=s.l;opt.style.background=s.bg;opt.style.color=s.col;opt.style.fontWeight='600';if(s.k===o.status)opt.selected=true;stSel.appendChild(opt);});
-    stSel.onchange=(function(orderRef,ordId,sel){return function(){var newStObj=ST.find(function(s){return s.k===sel.value;})||ST[0];sel.style.background=newStObj.bg;sel.style.color=newStObj.col;var orders=lpORD();var idx=rbFindOrderIndex(orders,orderRef);if(idx>=0){logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+newStObj.l);orders[idx].status=sel.value;orders[idx].updatedAt=Date.now();spORD(orders);renderOrderStats();renderOrders();window._rbRenderHomeStats&&window._rbRenderHomeStats();}};})(rbOrderRef(o),o.id,stSel);
-    stTd.appendChild(stSel);tr.appendChild(stTd);
+    var statusLabel=document.createElement('span');statusLabel.className='rb-order-status-readonly';statusLabel.textContent=st.l;statusLabel.style.cssText='display:inline-block;background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;';
+    stTd.appendChild(statusLabel);tr.appendChild(stTd);
     var asTd=document.createElement('td');asTd.style.cssText='padding:10px 14px;vertical-align:middle;';
     asTd.setAttribute('data-label','ผู้รับผิดชอบ');
-    var asSel=document.createElement('select');asSel.style.cssText='border:1px solid #e5e7eb;border-radius:6px;padding:4px 8px;font-size:12px;background:var(--surface-card);cursor:pointer;';
-    [['','— ระบุ —']].concat(MB_GR.map(function(m){return[m,m];})).forEach(function(op){var opt=document.createElement('option');opt.value=op[0];opt.textContent=op[1];if(op[0]===o.assignee)opt.selected=true;asSel.appendChild(opt);});
-    asSel.onchange=(function(orderRef,ordId,sel){return function(){var orders=lpORD();var idx=rbFindOrderIndex(orders,orderRef);if(idx>=0){orders[idx].assignee=sel.value;orders[idx].updatedAt=Date.now();spORD(orders);logTL('📋 สั่งงาน','เปลี่ยนผู้รับผิดชอบ',ordId+' → '+(sel.value||'ไม่ระบุ'));renderOrderStats();renderOrders();window._rbRenderHomeStats&&window._rbRenderHomeStats();}};})(rbOrderRef(o),o.id,asSel);
-    asTd.appendChild(asSel);tr.appendChild(asTd);
+    var assigneeLabel=document.createElement('span');assigneeLabel.className='rb-order-assignee-readonly';assigneeLabel.textContent=o.assignee||'— ไม่ระบุ —';assigneeLabel.style.cssText='display:inline-block;font-size:12px;font-weight:600;color:var(--text-heading);';
+    asTd.appendChild(assigneeLabel);tr.appendChild(asTd);
     var atd=document.createElement('td');atd.style.cssText='padding:10px 14px;text-align:center;white-space:nowrap;';
     atd.setAttribute('data-label','ACTION');
     var eb=document.createElement('button');eb.className='rb-order-edit-btn';eb.title='แก้ไข';eb.setAttribute('aria-label','แก้ไขงาน');eb.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>';eb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:32px;height:30px;background:var(--auto-lc31);color:#287B5B;border:1px solid #bbf7d0;border-radius:6px;cursor:pointer;padding:0;margin-right:4px;';
@@ -6289,7 +6285,7 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix308">
 <script src="snippets/facebook-pages-inline-editor-v2.js?v=fix318"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
-<script src="snippets/shared-business-sync-v1.js?v=fix410"></script>
+<script src="snippets/shared-business-sync-v1.js?v=fix411"></script>
 <link rel="stylesheet" href="snippets/system-health-v1.css?v=fix341">
 <script src="snippets/system-health-v1.js?v=fix341"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
@@ -6297,6 +6293,6 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure25"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
 <script src="snippets/content-submissions-v1.js?v=fix407"></script>
-<link rel="stylesheet" href="snippets/content-hook-history-v1.css?v=fix410">
-<script src="snippets/content-hook-history-v1.js?v=fix410"></script>
+<link rel="stylesheet" href="snippets/content-hook-history-v1.css?v=fix411">
+<script src="snippets/content-hook-history-v1.js?v=fix411"></script>
 </html>
