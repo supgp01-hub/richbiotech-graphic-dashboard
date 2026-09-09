@@ -23,3 +23,7 @@
 .ct-table.ctg-table .ctg-employees th,.ct-table.ctg-table .ctg-employees td{padding:6px;border-color:#f0f6f3;font-size:11px;width:33.333%!important}
 .ctg-employees .ctg-sent,.ctg-employees .ctg-wait{display:inline-flex;align-items:center;justify-content:center;gap:5px;border-radius:20px;padding:3px 12px;background:#dcf5df;color:#287342}
 .ctg-employees .ctg-wait{background:#fff2d6;color:#9a721c}.ctg-submission button{font-size:11px;padding:4px 12px;border-color:#cbe6da;border-radius:5px}.ctg-submission small{font-size:10px}.ctg-note{font-size:10px}
+/* Employee deadline colors; unassigned dates remain neutral. */
+.ctg-person-label{display:inline-flex;align-items:center;justify-content:center;gap:5px}.ctg-person-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ctg-person);flex:none}
+.ctg-table .ctg-date-badge{display:inline-block;padding:5px 7px;border-radius:12px;background:var(--ctg-person-bg);color:var(--ctg-person-text);font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap}
+.ctg-table .ctg-date-empty{padding:0;background:transparent;color:#8a9992;font-size:11px}
