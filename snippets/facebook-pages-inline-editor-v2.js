@@ -62,7 +62,8 @@ function refreshLiveData(){
   if(!canRefresh())return Promise.resolve(false);
   if(liveRequest)return liveRequest;
   setRefreshState(true,'กำลังตรวจสถานะจริงจากชีต...');
-  liveRequest=fetch(SHEET_URL,{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.text();}).then(function(csv){
+  cloudLoaded=false;
+  liveRequest=new Promise(function(resolve){syncCloud(resolve);}).then(function(){return fetch(SHEET_URL,{cache:'no-store'});}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.text();}).then(function(csv){
     var rows=parseSheet(csv);
     if(!rows.length)throw new Error('ไม่พบข้อมูล Facebook Pages');
     window._lfbData=rows;
@@ -224,7 +225,7 @@ function installRenderer(){
   window._renderFbList=wrapped;
 }
 
-function activate(){installRenderer();decorateHeader();syncCloud(function(){var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);refreshLiveData().catch(function(){});});}
+function activate(){installRenderer();decorateHeader();var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 
