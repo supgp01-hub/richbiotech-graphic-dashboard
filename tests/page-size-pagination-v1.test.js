@@ -9,7 +9,7 @@ const styles=fs.readFileSync(path.join(root,'snippets','page-size-pagination-v1.
 const links=fs.readFileSync(path.join(root,'snippets','performance-v4.js'),'utf8');
 const listFacebook=fs.readFileSync(path.join(root,'snippets','list-facebook-followup.js'),'utf8');
 
-assert.ok(index.includes('page-size-pagination-v1.js?v=277b'),'shared pagination runtime must load');
+assert.ok(index.includes('page-size-pagination-v1.js?v=fix404'),'shared pagination runtime must load');
 assert.ok(index.includes('page-size-pagination-v1.css?v=277b'),'shared pagination styles must load');
 assert.ok(shared.includes("order:{panel:'[data-sub=\"order\"]'"),'orders must use shared pagination');
 assert.ok(shared.includes("commission:{panel:'[data-sub=\"commission\"]'"),'commission must use shared pagination');

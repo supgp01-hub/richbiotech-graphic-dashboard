@@ -1,0 +1,52 @@
+
+.stats-grid,.stats-grid-3col{gap:18px!important}
+.stat-card.rb-stat-v5{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;align-items:center!important;column-gap:13px!important;min-height:104px;padding:15px 18px!important;border-radius:14px!important;border-width:1px!important;box-shadow:0 4px 15px rgba(27,67,50,.075)!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
+.stat-card.rb-stat-v5:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(27,67,50,.13)!important}
+.rb-stat-icon-slot{display:flex;align-items:center;justify-content:center;align-self:center}
+.rb-stat-icon-slot>.rb-ui-icon-badge{width:42px!important;height:42px!important;padding:9px!important;border-radius:50%!important;margin:0!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 22%,transparent),0 2px 5px rgba(27,67,50,.05)!important}
+.rb-stat-content{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.rb-stat-content .label{margin:0 0 3px!important;font-size:12.5px!important;font-weight:600!important;line-height:1.35!important;color:var(--text-heading)}
+.rb-stat-content .value{margin:0!important;font-size:30px!important;font-weight:700!important;line-height:1.05!important;letter-spacing:-.035em!important}
+.rb-stat-content .sub{margin:5px 0 0!important;font-size:11.5px!important;font-weight:400!important;line-height:1.35!important}
+.rb-stat-content .click-hint{display:none!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-icon-slot>.rb-ui-icon-badge{background:rgba(255,255,255,.93)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 18%,transparent),0 2px 5px rgba(0,0,0,.08)!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-content .label{color:var(--mint)!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-content .value{color:#fff!important}
+.stat-card.accent.rb-stat-v5 .rb-stat-content .sub{color:#95D5B2!important}
+.mywork-card{--mywork-accent:#00a889;position:relative!important;overflow:visible!important;border-radius:15px!important;border-width:1px!important;padding:18px 20px!important;box-shadow:0 5px 18px rgba(27,67,50,.07)!important}
+.mywork-card::before{content:"";position:absolute;top:12px;bottom:12px;left:-9px;width:7px;border-radius:7px 0 0 7px;background:var(--mywork-accent);box-shadow:0 2px 6px color-mix(in srgb,var(--mywork-accent) 25%,transparent)}
+.mywork-card.mywork-emp-wiw{--mywork-accent:#174f3b}
+.mywork-card.mywork-emp-mos{--mywork-accent:#66875d}
+.mywork-card.mywork-emp-ter{--mywork-accent:#00a889}
+.mywork-card.mywork-emp-nun{--mywork-accent:#2f7d59}
+.mywork-card.mywork-emp-jam{--mywork-accent:#7b8d42}
+.mywork-card.mywork-emp-dom{--mywork-accent:#24584a}
+.mywork-card.mywork-emp-bol{--mywork-accent:#3c8c6b}
+.mywork-card.mywork-emp-nui{--mywork-accent:#4c7662}
+.mywork-card.mywork-emp-mnd{--mywork-accent:#2b6f61}
+.mywork-head{margin:-18px -20px 14px!important;padding:12px 20px!important;min-height:45px!important;border-radius:14px 14px 0 0!important;background:linear-gradient(90deg,#174f3b,#2f7d59)!important;color:#fff!important}
+.mywork-head .mywork-pos{background:rgba(255,255,255,.16)!important;color:#f4fff8!important}
+.mywork-stats{gap:14px!important}
+.mywork-stat{min-height:62px!important;border-left:none!important;border-radius:10px!important;padding:10px 14px 10px 54px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+.mywork-stat .mywork-stat-ic{left:14px!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;width:34px!important;height:34px!important;padding:7px!important;background:rgba(255,255,255,.58)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rb-ic-color) 20%,transparent)!important}
+.mywork-stat-v{font-size:22px!important;font-weight:700!important;line-height:1.05!important}
+.mywork-stat-l{font-size:11px!important;font-weight:400!important;margin-top:4px!important}
+.mywork-sub{font-size:13px!important;font-weight:600!important}
+.mywork-table{width:100%!important;table-layout:fixed!important}
+.mywork-table thead{background:var(--surface-tint)!important}
+.mywork-table th{padding:8px 5px!important;text-align:center!important;font-size:13px!important;font-weight:600!important;color:var(--text-heading)!important}
+.mywork-table td{padding:6px 5px!important;text-align:center!important;font-size:11.5px!important;font-weight:400!important;line-height:1.45!important;color:var(--text-muted2)!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.mywork-table tbody tr:nth-child(even){background:color-mix(in srgb,var(--surface-tint) 48%,transparent)!important}
+.mywork-table td .status-pill{font-size:11px!important}
+#sidebar{box-shadow:5px 0 22px rgba(13,45,31,.07)}
+#sidebar button{min-height:43px;border-radius:9px;margin:2px 8px;width:calc(100% - 16px);font-size:13px!important;padding:10px 13px!important;gap:11px!important}
+#sidebar button.active{box-shadow:0 5px 14px rgba(36,123,85,.22)}
+#sidebar .sb-icon.rb-ui-icon{width:19px!important;height:19px!important}
+.sb-logo-icon.rb-ui-icon{width:38px!important;height:38px!important;padding:9px!important;border-radius:11px!important}
+.section-title{display:flex;align-items:center;min-height:32px;margin-bottom:14px!important}
+.graphic-subnav{gap:3px!important}
+.gsnav-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px;font-size:12.5px!important}
+.platform-row,.link-card,.ic-table,.ct-card,.op-card{border-radius:13px!important}
+.platform-name,.link-title,.ic-title{font-weight:600!important}
+@media(max-width:900px){.stat-card.rb-stat-v5{grid-template-columns:40px minmax(0,1fr)!important;column-gap:11px!important;min-height:100px;padding:14px!important}.rb-stat-icon-slot>.rb-ui-icon-badge{width:40px!important;height:40px!important;padding:9px!important}.rb-stat-content .value{font-size:26px!important}}
+@media(max-width:640px){.stats-grid,.stats-grid-3col{gap:9px!important}.stat-card.rb-stat-v5{grid-template-columns:34px minmax(0,1fr)!important;column-gap:8px!important;min-height:86px;padding:11px 10px!important;border-radius:12px!important}.rb-stat-icon-slot>.rb-ui-icon-badge{width:34px!important;height:34px!important;padding:8px!important}.rb-stat-content .label{font-size:10.5px!important}.rb-stat-content .value{font-size:22px!important}.rb-stat-content .sub{font-size:9.5px!important}.mywork-stat{padding-left:38px!important}.mywork-stat .mywork-stat-ic{left:7px!important;width:25px!important;height:25px!important;padding:6px!important}}

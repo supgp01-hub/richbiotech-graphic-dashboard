@@ -26,8 +26,8 @@ function apply(key){
   var body=panel.querySelector(cfg.body),size=getSize(key),state=states[key]||(states[key]={page:1});
   if(!body){var stale=panel.querySelector('.rbps-pager[data-rbps-key="'+key+'"]');if(stale)stale.remove();return;}
   var rows=eligibleRows(body),pages=Math.max(1,Math.ceil(rows.length/size));state.page=Math.max(1,Math.min(state.page||1,pages));var from=(state.page-1)*size,to=from+size;
-  rows.forEach(function(row,index){row.hidden=index<from||index>=to;});
-  var anchor=body.closest('table')||body.parentElement,pager=ensurePager(panel,key,anchor);pager.innerHTML=markup(key,rows.length,state.page,size);
+  rows.forEach(function(row,index){var hidden=index<from||index>=to;if(row.hidden!==hidden)row.hidden=hidden;});
+  var anchor=body.closest('table')||body.parentElement,pager=ensurePager(panel,key,anchor);var pagerKey=[rows.length,state.page,size].join(':');if(pager._rbPageKey!==pagerKey){pager._rbPageKey=pagerKey;pager.innerHTML=markup(key,rows.length,state.page,size);}
 }
 function schedule(key,reset){if(reset&&(states[key]||(states[key]={page:1})).page!==1)states[key].page=1;clearTimeout(timers[key]);timers[key]=setTimeout(function(){apply(key);},40);}
 function bind(key){
@@ -36,7 +36,12 @@ function bind(key){
   panel.addEventListener('click',function(event){var btn=event.target.closest('[data-rbps-page]');if(btn&&panel.contains(btn)){states[key].page=Math.max(1,parseInt(btn.getAttribute('data-rbps-page'),10)||1);apply(key);var table=panel.querySelector(cfg.body);if(table)(table.closest('table')||table).scrollIntoView({block:'start',behavior:'smooth'});return;}if(event.target.closest('button,[role="button"]'))schedule(key,true);});
   panel.addEventListener('change',function(event){if(event.target.matches('[data-rbps-size]')){setSize(key,event.target.value);states[key].page=1;apply(key);return;}if(!event.target.closest('.rbps-pager'))schedule(key,true);},true);
   panel.addEventListener('input',function(event){if(!event.target.closest('.rbps-pager'))schedule(key,true);},true);
-  new MutationObserver(function(mutations){if(mutations.some(function(m){return m.target.closest&&m.target.closest('.rbps-pager');}))return;schedule(key,false);}).observe(panel,{childList:true,subtree:true});
+  new MutationObserver(function(mutations){var changed=mutations.some(function(m){
+    if(m.target.closest&&m.target.closest('.rbps-pager'))return false;
+    var body=panel.querySelector(cfg.body);
+    if(body&&(m.target===body||body.contains(m.target)))return true;
+    return Array.prototype.some.call(m.addedNodes,function(n){return n.nodeType===1&&(n.matches&&n.matches(cfg.body)||n.querySelector&&n.querySelector(cfg.body));})||Array.prototype.some.call(m.removedNodes,function(n){return n.nodeType===1&&(n.matches&&n.matches(cfg.body)||n.querySelector&&n.querySelector(cfg.body));});
+  });if(changed)schedule(key,false);}).observe(panel,{childList:true,subtree:true});
   apply(key);
 }
 function init(){Object.keys(configs).forEach(bind);}

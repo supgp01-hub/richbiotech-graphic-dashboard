@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix403">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix404">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix395'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix402'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix404'),'planner script must be loaded');
 assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
 assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
@@ -27,7 +27,7 @@ assert.ok(js.includes('function persistPlannerOrder(order,orderKey)')&&js.includ
 assert.ok(js.includes("if(!/^GR\\d+$/.test(id))return"),'draft timestamps must never be mistaken for visible GR order numbers');
 assert.ok(js.includes("typeof window.lvGetDay!=='function'")&&js.includes('function chooseAssignee('),'automatic assignment must check the existing leave calendar');
 assert.ok(js.includes("d.repeat==='weekly'")&&js.includes("d.repeat==='none'"),'weekly and monthly recurring plans must be supported');
-assert.ok(js.includes('setInterval(function(){if(window._rbUser)runWorker()},60000)'),'the dashboard must continuously check scheduled work');
+assert.ok(js.includes('setInterval(runBackgroundWorker,60000)'),'the dashboard must continuously check scheduled work');
 assert.ok(js.includes("window.addEventListener('online'"),'overdue work must be checked again when the dashboard reconnects');
 assert.ok(js.includes('บันทึกฉบับร่างทั้งหมด')&&js.includes('ตั้งเวลางานที่เลือก')&&js.includes('สั่งงานที่เลือกตอนนี้'),'bulk draft actions must be present');
 assert.ok(js.includes('ตารางแพลนงาน')&&js.includes('กฎสั่งงานอัตโนมัติ'),'planner and automation views must be present');
