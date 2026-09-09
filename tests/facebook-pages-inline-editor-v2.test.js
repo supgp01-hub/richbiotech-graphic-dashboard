@@ -51,9 +51,9 @@ assert.ok(css.includes('table-layout:fixed!important'),'the table must keep prop
 assert.ok(css.includes('.rb-fbp-filter-field>.rb-fbp-filter-label'),'filter labels must use a dedicated selector so the search icon wrapper is not styled as a label');
 assert.ok(css.includes('.rb-fbp-search-field>.rb-icon-input-wrap.rb-search-wide'),'the wrapped search field must align with every dropdown');
 assert.ok(css.includes('display:table-cell!important'),'the action column must retain table-cell layout so row divider lines align');
-assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix415'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix417'));
 assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix308'));
-assert.ok(index.includes('<meta name="rb-build" content="fix415">'));
+assert.ok(index.includes('<meta name="rb-build" content="fix417">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');
 

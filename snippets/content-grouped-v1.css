@@ -4,3 +4,5 @@
 
 /* The access explanation is omitted from the compact table layout. */
 .cts-scope-banner{display:none!important}
+
+.ctg-table>thead th:nth-child(4),.ctg-table>thead th:nth-child(6){width:auto}.ctg-table .ctg-title{min-width:180px;text-align:left!important}.ctg-table .ctg-hook{min-width:130px;text-align:left!important}.ctg-table .ctg-ordered{white-space:nowrap;font-variant-numeric:tabular-nums;text-align:center!important}.ctg-table .ctg-script,.ctg-table .ctg-clip{min-width:100px;text-align:left!important}.ctg-table>thead th{white-space:nowrap}.ctg-table{min-width:1050px}

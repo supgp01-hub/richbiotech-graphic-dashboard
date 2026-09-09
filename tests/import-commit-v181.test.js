@@ -51,7 +51,7 @@ Promise.resolve().then(() => {
   assert.equal(ui['cti-bar'].style.width, '100%');
   assert.match(ui['cti-progress-text'].textContent, /บันทึกสำเร็จ 68 รายการ/);
   assert.ok(timers.some(timer => timer.ms === 250), 'ต้องตั้งเวลาปิดหน้าต่างโดยไม่รอ Firebase');
-  assert.ok(fs.readFileSync('index.html', 'utf8').includes('snippets/bulk-import-v3.js?v=fix415'), 'หน้าเว็บต้องโหลดตัวแก้นำเข้าเวอร์ชันล่าสุด');
+  assert.ok(fs.readFileSync('index.html', 'utf8').includes('snippets/bulk-import-v3.js?v=fix417'), 'หน้าเว็บต้องโหลดตัวแก้นำเข้าเวอร์ชันล่าสุด');
   const originalId=saved[0].id;
   const submission={rowId:originalId,text:'employee text'};
   document.querySelector=()=>({value:'replace'});
