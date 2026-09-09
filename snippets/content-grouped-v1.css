@@ -8,3 +8,18 @@
 .ctg-table>thead th:nth-child(4),.ctg-table>thead th:nth-child(6){width:auto}.ctg-table .ctg-title{min-width:180px;text-align:left!important}.ctg-table .ctg-hook{min-width:130px;text-align:left!important}.ctg-table .ctg-ordered{white-space:nowrap;font-variant-numeric:tabular-nums;text-align:center!important}.ctg-table .ctg-script,.ctg-table .ctg-clip{min-width:100px;text-align:left!important}.ctg-table>thead th{white-space:nowrap}.ctg-table{min-width:1050px}
 
 .ct-table.ctg-table{border-spacing:0;border-collapse:separate;border:1px solid #cee3d9;border-radius:10px;overflow:hidden}.ct-table.ctg-table>thead th,.ct-table.ctg-table>tbody>tr.ctg-main>td,.ct-table.ctg-table .ctg-employees th,.ct-table.ctg-table .ctg-employees td{text-align:center!important;vertical-align:middle!important;border-right:1px solid #e0ece6;border-bottom:1px solid #e0ece6}.ct-table.ctg-table .ctg-title,.ct-table.ctg-table .ctg-hook{text-align:center!important;overflow-wrap:anywhere}.ctg-table .ctg-links,.ctg-table .ctg-actions,.ctg-table .ctg-submission{justify-content:center}.ctg-table .ctg-toggle{margin:auto}.ctg-table .ctg-submission button{margin-left:0}.ctg-employee-heading small{display:block;font-weight:400;font-size:10px;margin-top:4px}.ctg-employee-date{white-space:nowrap;min-width:100px;font-variant-numeric:tabular-nums}.ctg-deadline-chips{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}.ctg-deadline-chips span{padding:5px 8px;background:#e7f5ee;border-radius:14px;font-size:11px}.ctg-table .ctg-detail h3{justify-content:center}
+/* Compact reference layout: fit employee columns and keep separators subtle. */
+.ct-table.ctg-table{min-width:880px;width:100%;table-layout:auto;border-color:#edf4f0;border-radius:8px}
+.ct-table.ctg-table>thead th,.ct-table.ctg-table>tbody>tr.ctg-main>td{padding:8px 6px;border-right:1px solid #f4f8f6;border-bottom:1px solid #eef5f1;font-size:11px;letter-spacing:0}
+.ct-table.ctg-table>thead th{background:#eff8f4;text-transform:none;font-size:11px}
+.ct-table.ctg-table .ctg-title{min-width:110px;max-width:180px}
+.ct-table.ctg-table .ctg-hook{min-width:90px;max-width:150px}
+.ct-table.ctg-table .ctg-script,.ct-table.ctg-table .ctg-clip{min-width:66px}
+.ct-table.ctg-table .ctg-employee-date{min-width:74px;font-size:11px}
+.ctg-main strong{font-size:11px;line-height:1.45}.ctg-brand{font-size:10px;padding:3px 7px}
+.ctg-table .ctg-links{gap:4px}.ctg-table .ctg-links a{gap:3px;font-size:10px}.ctg-table svg{width:14px;height:14px}
+.ctg-table .ctg-toggle{font-size:10px;gap:4px;padding:5px 7px}.ctg-table .ctg-actions{gap:3px}.ctg-table .ctg-actions button{padding:3px;border-color:#edf4f0}
+.ctg-table .ctg-detail section{padding:8px;background:#f1faf6;border-color:#e7f3ec;border-radius:7px}.ctg-table .ctg-detail h3{font-size:11px;margin-bottom:7px}
+.ct-table.ctg-table .ctg-employees th,.ct-table.ctg-table .ctg-employees td{padding:6px;border-color:#f0f6f3;font-size:11px;width:33.333%!important}
+.ctg-employees .ctg-sent,.ctg-employees .ctg-wait{display:inline-flex;align-items:center;justify-content:center;gap:5px;border-radius:20px;padding:3px 12px;background:#dcf5df;color:#287342}
+.ctg-employees .ctg-wait{background:#fff2d6;color:#9a721c}.ctg-submission button{font-size:11px;padding:4px 12px;border-color:#cbe6da;border-radius:5px}.ctg-submission small{font-size:10px}.ctg-note{font-size:10px}
