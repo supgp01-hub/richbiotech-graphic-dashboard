@@ -27,3 +27,4 @@
 .ctg-person-label{display:inline-flex;align-items:center;justify-content:center;gap:5px}.ctg-person-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ctg-person);flex:none}
 .ctg-table .ctg-date-badge{display:inline-block;padding:5px 7px;border-radius:12px;background:var(--ctg-person-bg);color:var(--ctg-person-text);font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap}
 .ctg-table .ctg-date-empty{padding:0;background:transparent;color:#8a9992;font-size:11px}
+.ctg-date-edit{border:0;background:transparent;color:#6c9685;padding:3px;cursor:pointer;vertical-align:middle}.ctg-date-dialog{border:1px solid #deeee5;border-radius:12px;padding:24px;color:#234f40;max-width:420px}.ctg-date-dialog::backdrop{background:#142e2866}.ctg-date-dialog p{font-size:12px;line-height:1.7}.ctg-date-dialog input,.ctg-date-dialog button{padding:8px;border:1px solid #c9e1d5;border-radius:6px;background:#f5fbf7}
