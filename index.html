@@ -5376,7 +5376,7 @@ window.ctBulkDelete=function(){
 window.ctSetManualDeadline=function(id,employee,value){
  if(!window.ctHookHistory||!window.ctHookHistory.allowed())return Promise.reject(new Error('เฉพาะผู้ดูแลระบบ'));
  var row=(_ctData||[]).find(function(r){return String(r.id)===String(id)});if(!row)return Promise.reject(new Error('ไม่พบรายการ'));
- row.manualDeadlines=row.manualDeadlines||{};row.manualDeadlines[employee]={date:value,updatedAt:Date.now(),by:(window._rbUser||{}).name||''};row.updatedAt=new Date().toISOString();return Promise.resolve(ctSave()).then(function(result){if(result===false||result&&result.ok===false)throw new Error('ยังซิงก์ไม่สำเร็จ');window.ctRender();return result});
+ row.manualDeadlines=row.manualDeadlines||{};row.manualDeadlines[employee]={date:value,updatedAt:Date.now(),by:(window._rbUser||{}).name||''};row.updatedAt=new Date().toISOString();return Promise.resolve(ctSave()).then(function(result){if(result===false||result&&(result.ok===false||result.cloud===false||result.queued===true))throw new Error('ยังซิงก์ไม่สำเร็จ');window.ctRender();return result});
 };
 window.ctSaveEmp=function(inp){var id=inp.dataset.id,idx=parseInt(inp.dataset.idx),val=inp.value.trim();var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){if(!row.empVals)row.empVals=[];row.empVals[idx]=val;row.updatedAt=new Date().toISOString();try{ctSave();}catch(e){}}}
 window.ctSaveUpdDate=function(inp){var id=inp.dataset.id,val=inp.value;var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){row.updDate=val;try{ctSave();}catch(e){}}};
