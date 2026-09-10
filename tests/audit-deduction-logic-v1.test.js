@@ -73,3 +73,21 @@ assert.equal(api.listFollowupDue(window._listfbData[0],JSON.parse(localStorage.g
 assert.equal(api.detectList(new Date(2026,8,7,15).getTime()).length,1,'an unresolved saved appointment must remain in the audit queue');
 assert.equal(api.detectList(new Date(2026,8,15,9).getTime()).length,1,'an unresolved problem status may return only after its new follow-up date');
 console.log('audit deduction logic: passed');
+
+window._orders=[{id:'deadline-new',assignee:'TER',deadline:'2026-09-11',status:'pending'}];
+assert.equal(api.detectOrders(new Date(2026,8,11,23,59,59).getTime()).filter(x=>x.autoDeadlineCharge).length,0);
+let charges=api.detectOrders(new Date(2026,8,12,0,0,1).getTime()).filter(x=>x.autoDeadlineCharge);
+assert.equal(charges.length,1);assert.equal(charges[0].amount,10);assert.equal(api.status(charges[0],Date.now()),'confirmed');
+window._orders[0].deadline='2026-09-12';
+assert.equal(api.detectOrders(new Date(2026,8,14,23,59,59).getTime()).filter(x=>x.autoDeadlineCharge).length,0);
+assert.equal(api.detectOrders(new Date(2026,8,15,0,0,1).getTime()).filter(x=>x.autoDeadlineCharge).length,1);
+window._orders[0].status='review';
+assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,0);
+window._orders[0].status='pending';window._orders[0].deadline='2026-09-10';
+assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,0);
+console.log('deadline rule: midnight, weekend grace, submitted work and effective date passed');
+
+window._orders=[{id:'late-offline',assignee:'TER',deadline:'2026-09-11',status:'done',firstSubmittedAt:new Date(2026,8,12,9).getTime()}];
+assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,1,'late submission must be detected even after completion');
+window._orders[0].firstSubmittedAt=new Date(2026,8,11,17).getTime();
+assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,0,'on-time submission must not be charged');

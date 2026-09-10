@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix422">
+<meta name="rb-build" content="fix423">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3312,6 +3312,9 @@ function spORD(d){
     if(!row||!row.id)return;
     /* Keep a collision-safe internal key separate from the visible GR number. */
     if(!row._fbKey){var legacyKey=legacyKeyById[row.id];row._fbKey=legacyKey&&!active[legacyKey]?legacyKey:'ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);}
+    var previous=byKey[row._fbKey];
+    if(previous&&previous.firstSubmittedAt)row.firstSubmittedAt=previous.firstSubmittedAt;
+    if(!row.firstSubmittedAt&&previous&&['review','done'].indexOf(previous.status)<0&&['review','done'].indexOf(row.status)>=0){row.firstSubmittedAt=Date.now();row.firstSubmittedBy=curUser();}
     active[row._fbKey]=1;
   });
   var localResult={ok:true};
@@ -3937,13 +3940,13 @@ fbRestoreDurableOrderQueue();
 })();
 </script><script src="snippets/order-viewer-filter-state-v1.js?v=fix382"></script><script src="snippets/persistence-reliability-v3.js?v=fix390"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix395">
-<script src="snippets/order-planner-v1.js?v=fix422"></script>
+<script src="snippets/order-planner-v1.js?v=fix423"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix363">
 <link rel="stylesheet" href="snippets/audit-deduction-center-v1.css?v=fix400">
 <script src="snippets/commission-center-v1.js?v=fix396"></script>
 <link rel="stylesheet" href="snippets/audit-rules-guide-v1.css?v=fix401">
-<script src="snippets/audit-rules-guide-v1.js?v=fix422"></script>
-<script src="snippets/audit-deduction-center-v1.js?v=fix422"></script><script>
+<script src="snippets/audit-rules-guide-v1.js?v=fix423"></script>
+<script src="snippets/audit-deduction-center-v1.js?v=fix423"></script><script>
 /* ── Section detector ── */
 window.gAS=function(){
   var p=document.querySelector('.tab-panel.active');if(!p)return null;
@@ -6147,8 +6150,8 @@ button>.rb-leading-icon{width:17px;height:17px}
     if(drafts===_icDraftRows&&fingerprint===JSON.stringify(_icDraftRows))window._icCancelAdd();
     icRender();return true;
   }).finally(function(){window.__rbIcSaving=false;});
-};})();</script><script>window._fpKey='rb_fbpages_manual_v1';window._fpSyncKey='rb_fbpages_manual_synced_v1';window._fpManual=(function(){try{return JSON.parse(localStorage.getItem(window._fpKey)||'[]');}catch(e){return [];}})();window._fpSaveLocal=function(a){window._fpManual=a;localStorage.setItem(window._fpKey,JSON.stringify(a));};window._fpSave=function(a){window._fpSaveLocal(a);window.fbSet&&window.fbSet('/fbpages_manual',a);};window._fpMerge=function(sheetArr){var m=(window._fpManual||[]).map(function(r){var c={};for(var k in r)c[k]=r[k];c.manual=true;return c;});return (sheetArr||[]).concat(m);};window._fpSyncFromCloud=function(){if(typeof window.fbGet!=='function')return;window.fbGet('/fbpages_manual',function(err,data){if(err)return;var everSynced=localStorage.getItem(window._fpSyncKey)==='1';if(data){var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);arr=arr.filter(function(x){return x&&x.id;});window._fpSaveLocal(arr);}else if(!everSynced){if((window._fpManual||[]).length>0){window.fbSet&&window.fbSet('/fbpages_manual',window._fpManual);}}else{window._fpSaveLocal([]);}localStorage.setItem(window._fpSyncKey,'1');});};window._fpToggleForm=function(){var box=document.getElementById('fp-form-box');if(!box)return;if(box.style.display==='none'){box.style.display='block';window._fpRenderForm();}else{box.style.display='none';box.innerHTML='';}};window._fpRenderForm=function(){var box=document.getElementById('fp-form-box');if(!box)return;var prodOpts=(window._fpProdsCache||[]).map(function(p){return '<option value="'+p+'">';}).join('');var ownOpts=(window._fpOwnersCache||[]).map(function(o){return '<option value="'+o+'">';}).join('');box.innerHTML='<div style="background:#F0F7F2;border:1px dashed #40916C;border-radius:8px;padding:12px;">'+'<div style="font-size:13px;font-weight:700;color:#1B4332;margin-bottom:8px;">➕ เพิ่มข้อมูลเพจใหม่</div>'+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">ชื่อเพจ</div><input id="fp-in-name" placeholder="เช่น เพจ 201" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">สินค้า</div><input id="fp-in-prod" list="fp-dl-prod" placeholder="เช่น ขุนแผน" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><datalist id="fp-dl-prod">'+prodOpts+'</datalist></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">เจ้าของ</div><input id="fp-in-own" list="fp-dl-own" placeholder="เช่น BALL" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><datalist id="fp-dl-own">'+ownOpts+'</datalist></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">สถานะ</div><select id="fp-in-st" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><option value="ใช้งาน">ใช้งาน</option><option value="ว่าง">ว่าง</option><option value="โดนระงับถาวร">โดนระงับถาวร</option><option value="เพจโดนปิดใช้งาน">เพจโดนปิดใช้งาน</option></select></div>'+'</div>'+'<div id="fp-err" style="font-size:11px;color:#dc2626;min-height:14px;margin-bottom:4px;"></div>'+'<div style="display:flex;justify-content:flex-end;gap:8px;">'+'<button onclick="window._fpToggleForm()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid #d1d5db;background:#fff;color:#555;cursor:pointer;">ยกเลิก</button>'+'<button onclick="window._fpSaveEntry()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:none;background:#1B4332;color:#fff;cursor:pointer;font-weight:600;">✓ บันทึก</button>'+'</div></div>';};window._fpSaveEntry=function(){var nameEl=document.getElementById('fp-in-name');var prodEl=document.getElementById('fp-in-prod');var ownEl=document.getElementById('fp-in-own');var stEl=document.getElementById('fp-in-st');var errEl=document.getElementById('fp-err');var name=(nameEl?nameEl.value:'').trim();if(!name){if(errEl)errEl.textContent='กรุณากรอกชื่อเพจ';return;}var entry={id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:name,prod:(prodEl?prodEl.value:'').trim(),own:(ownEl?ownEl.value:'').trim(),st:stEl?stEl.value:'ใช้งาน',manual:true,createdAt:Date.now()};var arr=(window._fpManual||[]).slice();arr.push(entry);window._fpSave(arr);window._fpToggleForm();window._fblDone=false;window._initFbList&&window._initFbList();};window._fpDeleteEntry=function(id){if(!confirm('ลบรายการนี้?'))return;var arr=(window._fpManual||[]).filter(function(x){return x.id!==id;});window._fpSave(arr);window._fblDone=false;window._initFbList&&window._initFbList();};window._fpSyncFromCloud();</script><link rel="stylesheet" href="snippets/content-grouped-v1.css?v=fix422">
-<script src="snippets/content-grouped-v1.js?v=fix422"></script>
+};})();</script><script>window._fpKey='rb_fbpages_manual_v1';window._fpSyncKey='rb_fbpages_manual_synced_v1';window._fpManual=(function(){try{return JSON.parse(localStorage.getItem(window._fpKey)||'[]');}catch(e){return [];}})();window._fpSaveLocal=function(a){window._fpManual=a;localStorage.setItem(window._fpKey,JSON.stringify(a));};window._fpSave=function(a){window._fpSaveLocal(a);window.fbSet&&window.fbSet('/fbpages_manual',a);};window._fpMerge=function(sheetArr){var m=(window._fpManual||[]).map(function(r){var c={};for(var k in r)c[k]=r[k];c.manual=true;return c;});return (sheetArr||[]).concat(m);};window._fpSyncFromCloud=function(){if(typeof window.fbGet!=='function')return;window.fbGet('/fbpages_manual',function(err,data){if(err)return;var everSynced=localStorage.getItem(window._fpSyncKey)==='1';if(data){var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);arr=arr.filter(function(x){return x&&x.id;});window._fpSaveLocal(arr);}else if(!everSynced){if((window._fpManual||[]).length>0){window.fbSet&&window.fbSet('/fbpages_manual',window._fpManual);}}else{window._fpSaveLocal([]);}localStorage.setItem(window._fpSyncKey,'1');});};window._fpToggleForm=function(){var box=document.getElementById('fp-form-box');if(!box)return;if(box.style.display==='none'){box.style.display='block';window._fpRenderForm();}else{box.style.display='none';box.innerHTML='';}};window._fpRenderForm=function(){var box=document.getElementById('fp-form-box');if(!box)return;var prodOpts=(window._fpProdsCache||[]).map(function(p){return '<option value="'+p+'">';}).join('');var ownOpts=(window._fpOwnersCache||[]).map(function(o){return '<option value="'+o+'">';}).join('');box.innerHTML='<div style="background:#F0F7F2;border:1px dashed #40916C;border-radius:8px;padding:12px;">'+'<div style="font-size:13px;font-weight:700;color:#1B4332;margin-bottom:8px;">➕ เพิ่มข้อมูลเพจใหม่</div>'+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">ชื่อเพจ</div><input id="fp-in-name" placeholder="เช่น เพจ 201" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">สินค้า</div><input id="fp-in-prod" list="fp-dl-prod" placeholder="เช่น ขุนแผน" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><datalist id="fp-dl-prod">'+prodOpts+'</datalist></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">เจ้าของ</div><input id="fp-in-own" list="fp-dl-own" placeholder="เช่น BALL" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><datalist id="fp-dl-own">'+ownOpts+'</datalist></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">สถานะ</div><select id="fp-in-st" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><option value="ใช้งาน">ใช้งาน</option><option value="ว่าง">ว่าง</option><option value="โดนระงับถาวร">โดนระงับถาวร</option><option value="เพจโดนปิดใช้งาน">เพจโดนปิดใช้งาน</option></select></div>'+'</div>'+'<div id="fp-err" style="font-size:11px;color:#dc2626;min-height:14px;margin-bottom:4px;"></div>'+'<div style="display:flex;justify-content:flex-end;gap:8px;">'+'<button onclick="window._fpToggleForm()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid #d1d5db;background:#fff;color:#555;cursor:pointer;">ยกเลิก</button>'+'<button onclick="window._fpSaveEntry()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:none;background:#1B4332;color:#fff;cursor:pointer;font-weight:600;">✓ บันทึก</button>'+'</div></div>';};window._fpSaveEntry=function(){var nameEl=document.getElementById('fp-in-name');var prodEl=document.getElementById('fp-in-prod');var ownEl=document.getElementById('fp-in-own');var stEl=document.getElementById('fp-in-st');var errEl=document.getElementById('fp-err');var name=(nameEl?nameEl.value:'').trim();if(!name){if(errEl)errEl.textContent='กรุณากรอกชื่อเพจ';return;}var entry={id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:name,prod:(prodEl?prodEl.value:'').trim(),own:(ownEl?ownEl.value:'').trim(),st:stEl?stEl.value:'ใช้งาน',manual:true,createdAt:Date.now()};var arr=(window._fpManual||[]).slice();arr.push(entry);window._fpSave(arr);window._fpToggleForm();window._fblDone=false;window._initFbList&&window._initFbList();};window._fpDeleteEntry=function(id){if(!confirm('ลบรายการนี้?'))return;var arr=(window._fpManual||[]).filter(function(x){return x.id!==id;});window._fpSave(arr);window._fblDone=false;window._initFbList&&window._initFbList();};window._fpSyncFromCloud();</script><link rel="stylesheet" href="snippets/content-grouped-v1.css?v=fix423">
+<script src="snippets/content-grouped-v1.js?v=fix423"></script>
 </body>
 <style id="rb-unified-page-icons-css">
 .rb-action-svg{width:18px;height:18px;display:inline-block;flex:0 0 18px;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.rb-unified-btn{display:inline-flex;align-items:center!important;justify-content:center!important;gap:8px!important}#lfb-upd,#lfb2-upd{min-height:34px!important;padding:7px 14px!important;border-radius:8px!important;background:#174F3B!important;color:#fff!important;font-size:12px!important;font-weight:700!important;line-height:1!important;box-shadow:0 2px 5px rgba(23,79,59,.18)!important}#lfb-upd .rb-action-svg,#lfb2-upd .rb-action-svg{color:#fff;width:17px;height:17px;flex-basis:17px}#lfb-upd:disabled .rb-action-svg,#lfb2-upd:disabled .rb-action-svg{animation:rb-icon-spin .9s linear infinite}@keyframes rb-icon-spin{to{transform:rotate(360deg)}}
@@ -6176,7 +6179,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/bulk-import-v3.css?v=203">
 <link rel="stylesheet" href="snippets/performance-v4.css?v=205">
 <script src="snippets/bulk-import-v2.js?v=fix406"></script>
-<script src="snippets/bulk-import-v3.js?v=fix422"></script>
+<script src="snippets/bulk-import-v3.js?v=fix423"></script>
 <script src="snippets/performance-v4.js?v=fix406"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
@@ -6288,16 +6291,16 @@ html[data-theme="dark"] #rb-bottom-nav button{color:#b4c6c4!important}
 html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;background:#174438!important}
 </style>
 <link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix308">
-<script src="snippets/facebook-pages-inline-editor-v2.js?v=fix422"></script>
+<script src="snippets/facebook-pages-inline-editor-v2.js?v=fix423"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
-<script src="snippets/shared-business-sync-v1.js?v=fix422"></script>
+<script src="snippets/shared-business-sync-v1.js?v=fix423"></script>
 <link rel="stylesheet" href="snippets/system-health-v1.css?v=fix341">
 <script src="snippets/system-health-v1.js?v=fix341"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=secure25"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
-<script src="snippets/content-submissions-v1.js?v=fix422"></script>
-<link rel="stylesheet" href="snippets/content-hook-history-v1.css?v=fix422">
-<script src="snippets/content-hook-history-v1.js?v=fix422"></script>
+<script src="snippets/content-submissions-v1.js?v=fix423"></script>
+<link rel="stylesheet" href="snippets/content-hook-history-v1.css?v=fix423">
+<script src="snippets/content-hook-history-v1.js?v=fix423"></script>
 </html>
