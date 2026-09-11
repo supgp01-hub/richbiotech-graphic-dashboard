@@ -49,7 +49,9 @@ vm.runInContext(html.slice(start,end),quotaContext);
 (async()=>{
   const started=Date.now();
   const op=quotaContext.fbQueueOrderOp('PATCH','order_GR112',{status:'review'});
-  const receipt=await quotaContext.fbWaitOrderOp(op,1200);
+  // A short deadline models a delayed UI timer: confirmed IndexedDB storage
+  // must win even when the old 320ms acknowledgement timer has not fired.
+  const receipt=await quotaContext.fbWaitOrderOp(op,100);
   assert.equal(receipt.durable,true,'IndexedDB must provide a durable receipt when localStorage is full');
   assert.ok(Date.now()-started<900,'durable saves must not wait for the full network timeout');
   console.log('order-action-queue-v1: quota fallback is durable and prompt');

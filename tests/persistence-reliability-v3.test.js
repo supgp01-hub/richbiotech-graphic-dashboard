@@ -91,6 +91,7 @@ vm.runInContext(source,context);
   assert.strictEqual(collectionSave,true,'legacy collection callers must still complete successfully');
   assert.deepStrictEqual(writes.map(x=>x.path).sort(),['/orders/order_GR003','/orders/planner_draft_d'],'a collection save must fan out and never overwrite /orders');
 
+  await new Promise(resolve=>setImmediate(resolve));
   blockNext=true;
   const rapidFirst=window.fbSet('/rapid',{value:1});
   await Promise.resolve();
@@ -106,6 +107,6 @@ vm.runInContext(source,context);
   await new Promise(resolve=>setImmediate(resolve));
   assert.strictEqual(writes[writes.length-1].data.value,2,'the newest same-path value must be the final server write');
   assert.strictEqual(window.rbPersistence.pendingCount(),0,'the serialized same-path queue must fully drain');
-  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix390')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
+  assert.ok(index.indexOf('snippets/persistence-reliability-v3.js?v=fix430')<index.indexOf('snippets/leave-persistence-v2.js'),'the reliability wrapper must load before feature persistence modules');
   console.log('persistence-reliability-v3: all tests passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

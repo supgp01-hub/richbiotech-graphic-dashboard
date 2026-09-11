@@ -122,6 +122,8 @@ function schedule(){
 function hasReady(excludeToken){var now=Date.now();return readQueue().some(function(item){return item&&item.token!==excludeToken&&!active[item.token]&&!activePaths[pathOf(item.path)]&&Number(item.nextAttemptAt||0)<=now;});}
 function attempt(entry,initial){
   if(!entry||active[entry.token]||activePaths[pathOf(entry.path)])return Promise.resolve(false);
+  // Keep background writes bounded so user actions retain network capacity.
+  if(Object.keys(active).length>=2){schedule();return Promise.resolve(false);}
   if(typeof navigator!=='undefined'&&navigator.onLine===false){dispatchState();schedule();return Promise.resolve(false);}
   if(typeof originalSet!=='function'){dispatchState();schedule();return Promise.resolve(false);}
   active[entry.token]=true;activePaths[pathOf(entry.path)]=entry.token;
