@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ทดสอบข้อมูลพนักงาน — ข้อมูลจำลอง</title>
+<style>body{margin:0;background:#edf7f3;color:#173e47;font-family:Tahoma,sans-serif}main{max-width:1050px;margin:24px auto;background:white;padding:20px;border-radius:14px}header{background:#1c353e;color:white;padding:20px;font-size:18px}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+<header>รายละเอียดงาน · ทดสอบในเครื่อง</header><main></main><pre id="result"></pre>
+<script src="../../snippets/employee-job-details-v1.js"></script>
+<script>
+window._rbUser={name:'DOM',role:'graphic'};
+var demo={id:'DEMO',name:'รอพนักงานระบุชื่องาน',assignee:'DOM',product:'So Pink',brief:''};
+rbEmployeeJobDetails.mount(document.querySelector('main'),demo,{rows:function(){return [{brand:'So Pink',name:'รีวิวสินค้า ตอน 1',hook:'เลือกถูกเอง'},{brand:'So Pink',name:'รีวิวสินค้า ตอน 1',hook:'ผิวดูสดใส'},{brand:'So Pink',name:'รีวิวสินค้า ตอน 2',hook:'ดูแลผิวทุกวัน'}]},presets:['ตัดต่อคลิปรีวิวสินค้า พร้อมคำบรรยาย','ภาพกราฟิกแนะนำสินค้า'],save:async function(fields){document.getElementById('result').textContent='ผลการทดสอบ (ไม่ได้บันทึกลงระบบจริง)\n'+JSON.stringify(fields,null,2)}});
+</script>

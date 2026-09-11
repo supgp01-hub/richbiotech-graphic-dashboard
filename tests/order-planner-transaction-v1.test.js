@@ -42,6 +42,11 @@ const sandbox={
 
 vm.runInNewContext(source,sandbox);
 const api=window._rbOrderPlannerTest;
+const productOnly=Object.assign({},exactDraft,{name:'',hook:'',hook2:''});
+assert.equal(api.validateDraft(productOnly).ok,true,'a product assignment must not require an employee title');
+assert.equal(api.buildOrder(productOnly,'DOM').name,'รอพนักงานระบุชื่องาน');
+assert.equal(api.buildOrder(productOnly,'DOM').deadline,exactDraft.deadline);
+assert.equal(api.validateDraft(Object.assign({},productOnly,{deadline:''})).ok,false,'deadline stays mandatory');
 
 api.runWorker([exactDraft.id],[exactDraft]).then(results=>{
   assert.strictEqual(rawFetches,0,'dispatch must use authenticated fbGet instead of an unauthenticated raw fetch');
