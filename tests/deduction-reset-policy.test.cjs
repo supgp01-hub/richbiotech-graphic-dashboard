@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const p=require('../snippets/deduction-reset-policy-v1.js');
+assert.equal(p.eligible({detectedAt:p.start-1}),false);
+assert.equal(p.eligible({detectedAt:p.start}),true);
+assert.equal(p.eligible({}),false);
+const old={detectedAt:p.start-1,amount:380},today={detectedAt:p.start,amount:10};
+const original={manual:{old,today},sheetImports:{old,today},decisions:{old:{at:p.start-1},today:{at:p.start}},syncMeta:{at:1}};
+const result=p.clean(original);
+assert.deepEqual(Object.keys(result.manual),['today']);assert.deepEqual(Object.keys(result.sheetImports),['today']);assert.deepEqual(Object.keys(result.decisions),['today']);assert.equal(original.manual.old,old);assert.deepEqual(p.clean(result),result);
+console.log('PASS: Bangkok midnight boundary, preserve today, exclude old imports, idempotent reset');
