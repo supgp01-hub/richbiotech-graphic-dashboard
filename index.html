@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix436">
+<meta name="rb-build" content="fix437">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3040,10 +3040,12 @@ function fbQueueOrderOp(method,key,data,baseUpdatedAt){
 function fbWaitOrderOp(op,timeout){
   return new Promise(function(resolve){
     if(!op||!op.token){resolve({confirmed:false,durable:false});return;}
-    var started=Date.now(),limit=Number(timeout)||FB_REQ_TIMEOUT+1500,settled=false;
-    function finish(confirmed,durable){if(settled)return;settled=true;resolve({confirmed:!!confirmed,durable:!!durable});}
+    var started=Date.now(),limit=Number(timeout)||FB_REQ_TIMEOUT+2000,settled=false;
+    function finish(confirmed,durable,error){if(settled)return;settled=true;resolve({confirmed:!!confirmed,durable:!!durable,error:error||''});}
     function check(){
       if(settled)return;
+      var conflict=fbOrderQueueLoad().find(function(item){return item&&item.token===op.token&&item.conflict;});if(conflict){finish(false,!!op.durable,conflict.conflictMessage||'ข้อมูลออนไลน์เปลี่ยนแล้ว กรุณาตรวจรายการ');return;}
+      if(navigator.onLine===false&&op.durable){finish(false,true);return;}
       var pending=fbOrderQueueLoad().some(function(item){return item&&(item.token===op.token||(!item.conflict&&item.path===op.path));});
       if(!pending){finish(true,!!op.durable);return;}
       if(Date.now()-started>=limit){finish(false,!!op.durable);return;}
@@ -3053,8 +3055,7 @@ function fbWaitOrderOp(op,timeout){
       fbFlushOrderQueue(true);setTimeout(check,160);
     }
     fbFlushOrderQueue(true);
-    if(op.durable)setTimeout(function(){finish(false,true);},320);
-    else if(op.durablePromise)Promise.resolve(op.durablePromise).then(function(ok){if(ok){op.durable=true;finish(false,true);}},function(){});
+    if(op.durablePromise)Promise.resolve(op.durablePromise).then(function(ok){if(ok)op.durable=true;},function(){});
     check();
   });
 }
@@ -3359,9 +3360,9 @@ function spORD(d){
        browser cache must not turn a successful online accept/submit into a
        false failure.  Asset retry state is reported separately so status
        changes do not become stuck behind an unchanged image payload. */
-    var workflowSafe=metadataSafe&&assetsOk;
+    var conflictState=metadata.find(function(state){return state&&state.error;}),workflowSafe=metadataSafe&&assetsOk&&!conflictState;
     if(assetsOk){var current=lpORD();current.forEach(function(row){var saved=after.find(function(item){return item&&row&&item._fbKey===row._fbKey;});if(saved&&JSON.stringify(fbOrderAssetPayload(saved))===JSON.stringify(fbOrderAssetPayload(row)))delete row._assetsChanged;});if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(current,LS_ORD);}
-    return{ok:workflowSafe,localOk:localResult.ok!==false,metadataSafe:metadataSafe,assetsOk:assetsOk,online:online,pending:!online};
+    return{ok:workflowSafe,error:conflictState&&conflictState.error||'',localOk:localResult.ok!==false,metadataSafe:metadataSafe,assetsOk:assetsOk,online:online,pending:!online};
   });
 }
 function lpTL(){try{return JSON.parse(localStorage.getItem(LS_TL)||'[]');}catch(e){return[];}}
@@ -4827,7 +4828,7 @@ if(_revisionSubmit){
     var submittedDraft=omPendingSignature();
     setOMActionBusy(true);setOMSubmitFeedback(options.message||'กำลังบันทึกและซิงก์ข้อมูล...','success');
     return Promise.resolve(typeof spORD==='function'?spORD(orders):{ok:false}).then(function(state){
-      if(!state||state.ok===false)throw new Error(state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
+      if(!state||state.ok===false)throw new Error(state&&state.error?state.error:state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
       if(typeof options.onSuccess==='function')options.onSuccess(state);
       if(typeof window.rbRefreshOrderNotifications==='function')window.rbRefreshOrderNotifications();
       setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'เก็บข้อมูลในเครื่องแล้ว · ยังไม่ส่งถึงผู้ตรวจจนกว่าจะซิงก์สำเร็จ','success');
