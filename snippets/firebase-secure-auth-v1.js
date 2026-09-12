@@ -193,6 +193,10 @@ async function tokenUrl(url,user=activeFirebaseUser()){
 async function secureFetch(url,options={}){
   const parsed=new URL(url,location.href);
   if(parsed.origin===new URL(DB).origin){
+    if(/^\/orders\/[^/]+\.json$/.test(parsed.pathname)&&['PUT','PATCH','DELETE'].includes(String(options.method||'GET').toUpperCase())){
+      if(!window.rbSafeOrderWrite)throw new Error('กรุณารีเฟรชเว็บเพื่อโหลดระบบบันทึกที่ปลอดภัย');
+      return window.rbSafeOrderWrite.write(parsed.toString(),options,async(target,opts)=>{let result=await nativeFetch(await tokenUrl(target),opts);if((result.status===401||result.status===403)&&activeFirebaseUser()){await activeFirebaseUser().getIdToken(true);result=await nativeFetch(await tokenUrl(target),opts);}return result;});
+    }
     let signed=await tokenUrl(parsed.toString());
     let response=await nativeFetch(signed,options);
     if((response.status===401||response.status===403)&&activeFirebaseUser()){

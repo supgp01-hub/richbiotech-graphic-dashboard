@@ -109,13 +109,16 @@
     },
     "orders": {
       ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
-      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
       ".indexOn": [
         "id",
         "deadline",
         "assignee",
         "status"
-      ]
+      ],
+      "$key": {
+        ".write": "(auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true) && newData.exists()",
+        ".validate": "newData.child('_syncRevision').isNumber() && ((!data.exists() && newData.child('_syncRevision').val() === 1) || (data.exists() && newData.child('_syncRevision').val() === (data.child('_syncRevision').exists() ? data.child('_syncRevision').val() + 1 : 1)))"
+      }
     },
     "listfacebook_base_snapshot": {
       ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
