@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix434">
+<meta name="rb-build" content="fix435">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3303,9 +3303,22 @@ function refreshOrderViews(){
     var myWork=document.getElementById('rb-mywork-list');if(myWork&&myWork.offsetParent!==null&&window._rbRenderMyWork)window._rbRenderMyWork();
   });
 }
+function rbFilterEmployeeOrderSave(before,next,user){
+  if(!user||['graphic','ads'].indexOf(user.role)<0)return next;
+  var byKey={},seen={},result=[];
+  before.forEach(function(row){if(row&&row._fbKey)byKey[row._fbKey]=row;});
+  next.forEach(function(row){if(!row)return;var old=byKey[row._fbKey];
+    if(old){seen[row._fbKey]=true;result.push(rbOrderMatchesAssignee(old,user.name)?Object.assign({},row,{assignee:old.assignee}):old);}
+    else if(rbOrderMatchesAssignee(row,user.name))result.push(row);
+  });
+  before.forEach(function(row){if(row&&row._fbKey&&!seen[row._fbKey])result.push(row);});
+  return result;
+}
+window.rbFilterEmployeeOrderSave=rbFilterEmployeeOrderSave;
 function spORD(d){
   /* Compare with the last committed snapshot so edits always reach sync. */
   var before=window.rbStorageResilience&&window.rbStorageResilience.loadOrderSnapshot?window.rbStorageResilience.loadOrderSnapshot(LS_ORD):lpORD(),after=Array.isArray(d)?d:[],byKey={},legacyKeyById={},legacyIdCount={},active={},queueOps=[],assetWrites=[];
+  after=rbFilterEmployeeOrderSave(before,after,window._rbUser);
   if(before.length)fbRememberOrders(before);
   before.forEach(function(row){if(row&&row.id)legacyIdCount[row.id]=(legacyIdCount[row.id]||0)+1;});
   before.forEach(function(row,idx){if(!row||!row.id)return;if(!row._fbKey)row._fbKey=(legacyIdCount[row.id]===1?'order_':'legacy_')+String(row.id).replace(/[^a-zA-Z0-9_-]/g,'_')+(legacyIdCount[row.id]===1?'':'_'+idx);byKey[row._fbKey]=row;if(legacyIdCount[row.id]===1)legacyKeyById[row.id]=row._fbKey;});
@@ -5844,7 +5857,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 <link rel="stylesheet" href="snippets/login-reliability-v1.css?v=207">
 <script src="snippets/login-reliability-v1.js?v=207"></script>
 <link rel="stylesheet" href="snippets/workflow-ops-v1.css?v=241">
-<script src="snippets/workflow-ops-v1.js?v=fix432"></script>
+<script src="snippets/workflow-ops-v1.js?v=fix435"></script>
 <script src="snippets/workflow-sync-retry-bridge-v1.js?v=fix338"></script>
 <style id="rb-global-dropdown-v5-css">
 select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:30px!important;border-radius:8px;cursor:pointer;transition:box-shadow .16s,border-color .16s,transform .16s}

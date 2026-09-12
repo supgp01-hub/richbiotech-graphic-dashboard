@@ -1,0 +1,5 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');const html=fs.readFileSync('index.html','utf8');const context={window:{},rbOrderMatchesAssignee:(row,name)=>row.assignee===name};vm.createContext(context);vm.runInContext(html.slice(html.indexOf('function rbFilterEmployeeOrderSave('),html.indexOf('function spORD(d)')),context);
+const members=['BALL','DOM','JAM','MOS','NUNE','TER'];const before=members.map(name=>({_fbKey:name,id:name,assignee:name,status:'pending'}));
+for(const name of members){const stale=before.map(row=>({...row,status:row.assignee===name?'review':'done'}));const result=context.rbFilterEmployeeOrderSave(before,stale,{name,role:'graphic'});for(const row of result)assert.equal(row.status,row.assignee===name?'review':'pending');const missing=context.rbFilterEmployeeOrderSave(before,[],{name,role:'graphic'});assert.equal(missing.length,6);}
+const sup=context.rbFilterEmployeeOrderSave(before,before.map(row=>({...row,status:'done'})),{name:'VIEW',role:'sup'});assert(sup.every(row=>row.status==='done'));
+console.log('PASS: all six employees cannot overwrite or delete colleagues; supervisor updates preserved');
