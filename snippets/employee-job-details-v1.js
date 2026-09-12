@@ -3,6 +3,11 @@
 function code(v){return typeof window.rbOrderAssigneeCode==='function'?window.rbOrderAssigneeCode(v):String(v||'').trim().toUpperCase();}
 function allowed(order,user){return !!(order&&user&&['graphic','ads','spec'].indexOf(user.role)>=0&&code(order.assignee)&&code(order.assignee)===code(user.name));}
 function choices(rows,product,name){return rows.filter(function(r){return r.brand===product&&(!name||r.name===name);});}
+function references(rows,order,name,hook){
+  var matches=choices(rows,order.product,name).filter(function(r){return r.name===name;});
+  if(hook){var exact=matches.filter(function(r){return r.hook===hook;});if(exact.length)matches=exact;}
+  var result={};[['rawLink','link'],['sheetLink','script']].forEach(function(pair){var values=Array.from(new Set(matches.map(function(r){return String(r[pair[1]]||'').trim();}).filter(Boolean)));result[pair[0]]=values.length===1?values[0]:values.length===0&&name===(order.name||order.title)?order[pair[0]]||'':'';});return result;
+}
 function mount(host,order,options){
   var old=document.getElementById('rb-employee-job-details');if(old)old.remove();
   if(!allowed(order,window._rbUser))return;
@@ -15,15 +20,18 @@ function mount(host,order,options){
   var rows=options.rows(),name=field('ชื่องาน','select'),hook=field('HOOK 1','select'),hook2=field('HOOK 2 (ถ้ามี)','select');
   fill(name,choices(rows,order.product).map(function(r){return r.name;}),order.name==='รอพนักงานระบุชื่องาน'?'':order.name||order.title,'เลือกชื่องาน');
   function hooks(keep){var values=choices(rows,order.product,name.value).filter(function(r){return r.name===name.value;}).map(function(r){return r.hook;}).filter(Boolean);fill(hook,values,keep?order.hook:'','เลือก HOOK');fill(hook2,values,keep?order.hook2:'','ไม่ระบุ');}
-  hooks(true);name.onchange=function(){hooks(false);};
-  if(options.ready)Promise.resolve(options.ready).then(function(){if(!box.isConnected)return;rows=options.rows();fill(name,choices(rows,order.product).map(function(r){return r.name;}),name.value,'เลือกชื่องาน');var values=choices(rows,order.product,name.value).filter(function(r){return r.name===name.value;}).map(function(r){return r.hook;}).filter(Boolean);fill(hook,values,hook.value,'เลือก HOOK');fill(hook2,values,hook2.value,'ไม่ระบุ');}).catch(function(){});
+  hooks(true);name.onchange=function(){hooks(false);showReferences();};hook.onchange=function(){showReferences();};
+  if(options.ready)Promise.resolve(options.ready).then(function(){if(!box.isConnected)return;rows=options.rows();fill(name,choices(rows,order.product).map(function(r){return r.name;}),name.value,'เลือกชื่องาน');var values=choices(rows,order.product,name.value).filter(function(r){return r.name===name.value;}).map(function(r){return r.hook;}).filter(Boolean);fill(hook,values,hook.value,'เลือก HOOK');fill(hook2,values,hook2.value,'ไม่ระบุ');showReferences();}).catch(function(){});
   var preset=field('เลือกบรีฟสำเร็จรูป','select');fill(preset,options.presets||[],'','เลือกข้อความสำเร็จรูป');preset.parentElement.style.gridColumn='1 / -1';
   var brief=field('บรีฟงาน / สไตล์ที่ต้องการ','textarea');brief.rows=4;brief.value=order.brief||'';brief.parentElement.style.gridColumn='1 / -1';preset.onchange=function(){if(preset.value){brief.value=preset.value;brief.focus();}};
-  box.readFields=function(){return {name:name.value||'รอพนักงานระบุชื่องาน',title:name.value||'รอพนักงานระบุชื่องาน',hook:hook.value,hook2:hook2.value,brief:brief.value};};
+  box.readFields=function(){return Object.assign(references(rows,order,name.value,hook.value),{name:name.value||'รอพนักงานระบุชื่องาน',title:name.value||'รอพนักงานระบุชื่องาน',hook:hook.value,hook2:hook2.value,brief:brief.value});};
+  var refs=document.createElement('div');refs.style.cssText='display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:14px';box.appendChild(refs);
+  function showReferences(){refs.replaceChildren();var links=references(rows,order,name.value,hook.value);[['rawLink','CREATIVE'],['sheetLink','สคริปต์']].forEach(function(pair){var url=links[pair[0]],el=document.createElement(/^https?:\/\//i.test(url)?'a':'span');el.textContent=pair[1]+(url?' · เปิดลิงก์':' · ยังไม่มีลิงก์ตรงกับรายการที่เลือก');if(el.tagName==='A'){el.href=url;el.target='_blank';el.rel='noopener noreferrer';}refs.appendChild(el);});}
+  showReferences();
   var feedback=document.createElement('p');feedback.setAttribute('role','status');feedback.style.fontSize='14px';box.appendChild(feedback);
   var save=document.createElement('button');save.type='button';save.textContent='บันทึกชื่องาน / HOOK / บรีฟ';save.style.cssText='border:0;border-radius:8px;padding:11px 16px;color:white;background:#008781;font:inherit;cursor:pointer';box.appendChild(save);
-  save.onclick=async function(){if(save.disabled)return;if(!allowed(order,window._rbUser)){feedback.textContent='แก้ไขได้เฉพาะงานที่คุณรับผิดชอบ';return;}if(!name.value){feedback.textContent='กรุณาเลือกชื่องาน';name.focus();return;}save.disabled=true;feedback.textContent='กำลังบันทึก...';try{await options.save({name:name.value,title:name.value,hook:hook.value,hook2:hook2.value,brief:brief.value});feedback.textContent='บันทึกแล้ว';}catch(e){feedback.textContent=e.message||'บันทึกไม่สำเร็จ กรุณาลองใหม่';}finally{save.disabled=false;}};
+  save.onclick=async function(){if(save.disabled)return;if(!allowed(order,window._rbUser)){feedback.textContent='แก้ไขได้เฉพาะงานที่คุณรับผิดชอบ';return;}if(!name.value){feedback.textContent='กรุณาเลือกชื่องาน';name.focus();return;}save.disabled=true;feedback.textContent='กำลังบันทึก...';try{await options.save(box.readFields());feedback.textContent='บันทึกแล้ว';}catch(e){feedback.textContent=e.message||'บันทึกไม่สำเร็จ กรุณาลองใหม่';}finally{save.disabled=false;}};
   host.insertBefore(box,host.firstChild);
 }
-window.rbEmployeeJobDetails={allowed:allowed,choices:choices,mount:mount,read:function(order){var box=document.getElementById('rb-employee-job-details');return box&&allowed(order,window._rbUser)?box.readFields():null;}};
+window.rbEmployeeJobDetails={allowed:allowed,choices:choices,references:references,mount:mount,read:function(order){var box=document.getElementById('rb-employee-job-details');return box&&allowed(order,window._rbUser)?box.readFields():null;}};
 })();
