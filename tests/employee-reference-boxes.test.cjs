@@ -1,0 +1,17 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');const assert=require('node:assert/strict');
+const w=new JSDOM('<main><input id="om-raw"><input id="om-sheet"><div id="refs"></div></main>',{runScripts:'outside-only'}).window;
+const html=fs.readFileSync('index.html','utf8');
+const start=html.indexOf('  function revisionUniformLinkRows('),end=html.indexOf('  function revisionImageGroup(',start);
+w.eval(`var _OM2=document.querySelector('main');function ge(id){return document.getElementById(id)};function revisionUniqueLinks(v){return v.filter(Boolean)};function revisionCopyIcon(){return 'COPY'};function revisionOpenIcon(){return 'OPEN'};function revisionCopyUrl(url){window.copied=url};function revisionText(v){return v||'—'};`+html.slice(start,end));
+w.document.querySelector('#refs').append(w.revisionUniformLinkRows('CREATIVE',[],false),w.revisionUniformLinkRows('ลิงก์สคริป',[],false));
+w.eval(fs.readFileSync('snippets/employee-job-details-v1.js','utf8'));w._rbUser={name:'BALL',role:'graphic'};
+w.rbEmployeeJobDetails.mount(w.document.querySelector('main'),{assignee:'BALL',product:'DB',name:''},{rows:()=>[{brand:'DB',name:'Job',hook:'A',link:'https://example.com/a',script:'https://example.com/script'},{brand:'DB',name:'Job',hook:'B',link:'https://example.com/b',script:'https://example.com/script'},{brand:'DB',name:'Empty',hook:'C'}],presets:[],onChange:w.syncEmployeeDetailFields,save:async()=>{}});
+const selects=w.document.querySelectorAll('select');selects[0].value='Job';selects[0].dispatchEvent(new w.Event('change'));
+assert.equal(w.document.querySelector('#om-raw').value,'');
+selects[1].value='A';selects[1].dispatchEvent(new w.Event('change'));
+let row=w.document.querySelector('[data-reference-label="CREATIVE"]');assert.equal(row.querySelector('a').href,'https://example.com/a');row.querySelector('button').click();assert.equal(w.copied,'https://example.com/a');
+selects[1].value='B';selects[1].dispatchEvent(new w.Event('change'));assert.equal(w.document.querySelector('#om-raw').value,'https://example.com/b');assert.equal(w.document.querySelector('[data-reference-label="CREATIVE"] a').href,'https://example.com/b');
+assert.equal(w.document.querySelectorAll('#rb-employee-job-details a').length,0);
+selects[0].value='Empty';selects[0].dispatchEvent(new w.Event('change'));assert.equal(w.document.querySelector('#om-raw').value,'');assert.equal(w.document.querySelector('[data-reference-label="CREATIVE"] a').hasAttribute('href'),false);
+assert.equal(w.document.querySelectorAll('[data-reference-label]').length,2);
+console.log('PASS: actual boxed renderer sync, HOOK changes, copy/open actions, clears stale URLs, no duplicate links');
