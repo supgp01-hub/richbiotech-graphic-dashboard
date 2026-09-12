@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix433">
+<meta name="rb-build" content="fix434">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2935,6 +2935,7 @@ function fbEnsureSyncChip(){
   document.body.appendChild(el);return el;
 }
 function fbSetSyncState(state,text,title){
+  var queued=fbOrderQueueLoad().length;if(queued&&(state==='online'||state==='saved')){state='waiting';text='รอซิงก์ '+queued+' รายการ';title='ข้อมูลยังอยู่ในเครื่อง ผู้ตรวจจะเห็นหลังซิงก์สำเร็จ';}
   var el=fbEnsureSyncChip();if(!el)return;
   var map={online:['#D1FAE5','#065F46','#22C55E'],saving:['#DBEAFE','#1D4ED8','#3B82F6'],saved:['#D1FAE5','#065F46','#22C55E'],waiting:['#FEF3C7','#92400E','#F59E0B'],error:['#FEE2E2','#991B1B','#EF4444'],connecting:['#F3F4F6','#4B5563','#9CA3AF']};
   var c=map[state]||map.connecting;el.style.background=c[0];el.style.color=c[1];el.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:'+c[2]+';display:inline-block"></span><span>'+text+'</span>';el.title=title||text;el.setAttribute('data-state',state);
@@ -3088,13 +3089,12 @@ function fbFlushOrderQueue(force){
   if(typeof navigator!=='undefined'&&navigator.onLine===false){fbSetSyncState('waiting','รออินเทอร์เน็ต','มี '+q.length+' รายการรอซิงค์');return;}
   var now=Date.now(),op=null;
   for(var i=0;i<q.length;i++){if(Number(q[i]&&q[i].nextAttemptAt||0)<=now){op=q[i];break;}}
-  if(!op&&force)op=q[0];
-  if(!op){var nextAt=q.reduce(function(value,item){var due=Number(item&&item.nextAttemptAt||0);return due>now&&(!value||due<value)?due:value;},0);fbSetSyncState('waiting','รอซิงค์ใหม่','มี '+q.length+' รายการรอซิงค์');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(false);},nextAt?Math.max(250,nextAt-now):5000);return;}
+  if(!op){var nextAt=q.reduce(function(value,item){var due=Number(item&&item.nextAttemptAt||0);return due>now&&(!value||due<value)?due:value;},0);fbSetSyncState('waiting','รอซิงค์ใหม่','มี '+q.length+' รายการรอซิงค์');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(true);},nextAt?Math.max(250,nextAt-now):5000);return;}
   /* Freeze the dispatched token: a later edit may replace the queued operation. */
   op=JSON.parse(JSON.stringify(op));
   var opts={method:op.method,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
   _fbOrderFlushActive=true;fbSetSyncState('saving','กำลังบันทึก...','เหลือ '+q.length+' รายการ');
-  fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(){var next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});fbOrderQueueSave(next);_fbOrderFlushActive=false;clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue(false);}).catch(function(e){var current=fbOrderQueueLoad(),failed=null;current.forEach(function(item){if(item&&item.token===op.token){item.attempts=Number(item.attempts||0)+1;item.nextAttemptAt=Date.now()+Math.min(30000,3000*Math.pow(2,Math.min(3,item.attempts-1)));failed=item;}});if(failed)fbOrderQueueSave(current);_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(false);},100);});
+  fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(){var next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});fbOrderQueueSave(next);_fbOrderFlushActive=false;refreshOrderViews();clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue(true);}).catch(function(e){var current=fbOrderQueueLoad(),failed=null;current.forEach(function(item){if(item&&item.token===op.token){item.attempts=Number(item.attempts||0)+1;item.nextAttemptAt=Date.now()+Math.min(30000,3000*Math.pow(2,Math.min(3,item.attempts-1)));failed=item;}});if(failed)fbOrderQueueSave(current);_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(true);},failed?Math.max(250,Number(failed.nextAttemptAt||0)-Date.now()):3000);});
 }
 function fbScheduleStreamRefresh(){
   clearTimeout(_fbStreamRefreshTimer);
@@ -3202,7 +3202,7 @@ function fbRefreshOrders(cb){
     if(_fbRefreshAgain){_fbRefreshAgain=false;setTimeout(function(){fbRefreshOrders();},80);}
   });
 }
-window.addEventListener('online',function(){if(!fbIsLeader()){fbRefreshOrders();return;}fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbFlushOrderQueue();fbRefreshOrders();fbSyncStart();});
+window.addEventListener('online',function(){if(!fbIsLeader()){fbFlushOrderQueue(true);fbRefreshOrders();return;}fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbFlushOrderQueue(true);fbRefreshOrders();fbSyncStart();});
 window.addEventListener('offline',function(){fbSetSyncState('waiting','รออินเทอร์เน็ต','การแก้ไขจะเก็บไว้และซิงค์เมื่อออนไลน์');});
 window.addEventListener('storage',function(e){if(e.key===LS_ORD){if(window.rbStorageResilience)window.rbStorageResilience.clearOrderMemory();refreshOrderViews();}if(e.key===FB_ORDER_QUEUE&&fbIsLeader())fbFlushOrderQueue();});
 window.addEventListener('rb:leader-change',function(e){var lead=!!(e.detail&&e.detail.leader);if(!lead){fbStopNetwork();fbSetSyncState('online','พร้อมใช้งาน','ซิงก์ผ่านแท็บหลัก');refreshOrderViews();return;}if(!document.hidden&&navigator.onLine!==false){fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbRefreshOrders();fbFlushOrderQueue();fbSyncStart();}});
@@ -3212,6 +3212,7 @@ document.addEventListener('visibilitychange',function(){
   if(!fbIsLeader()){fbRefreshOrders();return;}
   if(typeof navigator==='undefined'||navigator.onLine!==false){fbSetSyncState('connecting','กำลังเชื่อมต่อ...');fbRefreshOrders();fbFlushOrderQueue();fbSyncStart();}
 });
+setInterval(function(){if(!document.hidden&&navigator.onLine!==false&&fbOrderQueueLoad().length)fbFlushOrderQueue(true);},30000);
 window.addEventListener('pagehide',fbStopNetwork);
 // ===== END FIREBASE SYNC =====
 var MB_GR=["MOS","DOM","TER","JAM","NUNE","BALL"];window.MB_GR=MB_GR;
@@ -3330,6 +3331,7 @@ function spORD(d){
     if(Object.keys(changes).length)queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes));
     if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null));}
   });
+  refreshOrderViews();
   var queuedByToken={};queueOps.forEach(function(op){if(op&&op.token)queuedByToken[op.token]=1;});
   /* Only this save's receipts determine success; other queued jobs retry independently. */
   var metaWait=queueOps.map(function(op){return fbWaitOrderOp(op);});
@@ -3659,7 +3661,7 @@ function renderOrders(){
     ].forEach(function(c,ci){var td=document.createElement('td');td.setAttribute('data-label',['เลขงาน','ชื่องาน','ประเภท','DEADLINE'][ci]);td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
     var stTd=document.createElement('td');stTd.style.cssText='padding:8px 14px;vertical-align:middle;';
     stTd.setAttribute('data-label','สถานะ');
-    var statusLabel=document.createElement('span');statusLabel.className='rb-order-status-readonly';statusLabel.textContent=st.l;statusLabel.style.cssText='display:inline-block;background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;';
+    var statusLabel=document.createElement('span');statusLabel.className='rb-order-status-readonly';var waitingForSync=fbOrderQueueLoad().some(function(op){return op&&op.path==='/orders/'+o._fbKey;});statusLabel.textContent=waitingForSync?st.l+' · รอซิงก์':st.l;statusLabel.style.cssText='display:inline-block;background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;';
     stTd.appendChild(statusLabel);tr.appendChild(stTd);
     var asTd=document.createElement('td');asTd.style.cssText='padding:10px 14px;vertical-align:middle;';
     asTd.setAttribute('data-label','ผู้รับผิดชอบ');

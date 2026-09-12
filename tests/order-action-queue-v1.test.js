@@ -20,7 +20,7 @@ const context={
   _fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
   FB_REQ_TIMEOUT:120,FB_DB:'https://example.test',
   FB_ORDER_ASSET_FIELDS:['images','briefImages','errorImages','fixImages'],
-  fbIsLeader:()=>false,fbSetSyncState:()=>{},
+  fbIsLeader:()=>false,fbSetSyncState:()=>{},refreshOrderViews:()=>{},
   fbFetch:()=>{requests++;return Promise.resolve({ok:true});}
 };
 vm.createContext(context);
@@ -42,7 +42,7 @@ const quotaContext={
   navigator:{onLine:true},window:{rbStorageResilience:{relieve:()=>{}},rbDurableOrderQueue:{persist:(q,key,memory)=>{memory(q);return{durable:false,promise:Promise.resolve(true)};}}},
   _fbRecentOrderWrites:{},FB_ORDER_QUEUE:'rb_order_write_queue_v1',_fbOrderMemoryQueue:[],_fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,
   FB_REQ_TIMEOUT:120,FB_DB:'https://example.test',FB_ORDER_ASSET_FIELDS:['images','briefImages','errorImages','fixImages'],
-  fbIsLeader:()=>false,fbSetSyncState:()=>{},fbFetch:()=>new Promise(()=>{})
+  fbIsLeader:()=>false,fbSetSyncState:()=>{},refreshOrderViews:()=>{},fbFetch:()=>new Promise(()=>{})
 };
 vm.createContext(quotaContext);
 vm.runInContext(html.slice(start,end),quotaContext);
