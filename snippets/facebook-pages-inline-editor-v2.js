@@ -17,14 +17,14 @@ function saveObject(key,value){try{localStorage.setItem(key,JSON.stringify(value
 function copy(row){var result={};Object.keys(row||{}).forEach(function(key){result[key]=row[key];});return result;}
 function esc(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function hash(value){var text=String(value||''),h=2166136261;for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h+=(h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24);}return(h>>>0).toString(36);}
-function rowKey(row){if(row&&row._fbpKey)return row._fbpKey;if(row&&row.manual&&row.id)return'manual_'+hash(row.id);var identity=row&&(row.fbid||row._fbpSourceName||row.name)||'';return'sheet_'+hash(identity);}
+function rowKey(row){if(row&&row._fbpKey)return row._fbpKey;if(row&&row.manual&&row.id)return'manual_'+hash(row.id);var identity=row&&(row._pageSourceKey||row.pageId||row.fbid||row._fbpSourceName||row.name)||'';return'sheet_'+hash(identity);}
 function unique(values){var result=[];(values||[]).forEach(function(value){value=String(value||'').trim();if(value&&result.indexOf(value)===-1)result.push(value);});return result.sort(function(a,b){return a.localeCompare(b,'th');});}
 function mergeMaps(local,cloud){var result={};[cloud||{},local||{}].forEach(function(source){Object.keys(source).forEach(function(key){var incoming=source[key]||{},current=result[key]||{};if(!result[key]||Number(incoming.updatedAt||0)>=Number(current.updatedAt||0))result[key]=incoming;});});return result;}
 
 function parseCsvLine(line){var cols=[],current='',quoted=false;for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'){if(quoted&&line[i+1]==='"'){current+='"';i++;}else quoted=!quoted;}else if(ch===','&&!quoted){cols.push(current.trim());current='';}else current+=ch;}cols.push(current.trim());return cols;}
-function parseSheet(csv){var lines=String(csv||'').replace(/\r/g,'').split('\n').filter(function(line){return line.trim();});return lines.slice(1).map(function(line){var cols=parseCsvLine(line);return{type:'',emp:cols[3]||'',own:cols[3]||'',prod:cols[1]||'',st:cols[2]||'',name:cols[0]||'',fbid:cols[4]||'',limit:'',flag:false,upd:'',bal:''};}).filter(function(row){return row.name&&(row.prod||row.emp||row.st);});}
+function parseSheet(csv){return window.rbFacebookPagesSource.parse(csv);}
 
-function applyEdits(rows){return(rows||[]).map(function(row){var result=copy(row),key=rowKey(row),entry=edits[key];result._fbpKey=key;result._fbpSourceName=row._fbpSourceName||row.name||'';if(entry){['name','prod','st','own'].forEach(function(field){if(Object.prototype.hasOwnProperty.call(entry,field))result[field]=entry[field];});result._fbpEditedAt=entry.updatedAt||0;}return result;});}
+function applyEdits(rows){return(rows||[]).map(function(row){var result=copy(row),key=rowKey(row),entry=edits[key];if(!entry){var legacy=edits['sheet_'+hash(row.shareFacebook||row.fbid||row.name)];if(legacy&&legacy.sourceName===row.name)entry=legacy;}result._fbpKey=key;result._fbpSourceName=row._fbpSourceName||row.name||'';if(entry){['name','prod','st','own','creatorFacebook'].forEach(function(field){if(Object.prototype.hasOwnProperty.call(entry,field)&&(field!=='name'||String(entry[field]||'').trim()))result[field]=entry[field];});result._fbpEditedAt=entry.updatedAt||0;}return result;});}
 function canEdit(){var role=window._rbUser&&window._rbUser.role||'';return['sup','spec','graphic','ads','audit'].indexOf(role)!==-1;}
 function canRefresh(){var role=window._rbUser&&window._rbUser.role||'';return role==='sup'||role==='spec'||role==='audit';}
 function cloudKey(value){return String(value||'').replace(/[.#$\[\]\/]/g,'_');}
@@ -63,15 +63,14 @@ function refreshLiveData(){
   if(liveRequest)return liveRequest;
   setRefreshState(true,'กำลังตรวจสถานะจริงจากชีต...');
   cloudLoaded=false;
-  liveRequest=new Promise(function(resolve){syncCloud(resolve);}).then(function(){return fetch(SHEET_URL,{cache:'no-store'});}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.text();}).then(function(csv){
+  liveRequest=new Promise(function(resolve){syncCloud(resolve);}).then(function(){return new Promise(function(resolve){if(window._fpSyncFromCloud)window._fpSyncFromCloud(resolve);else resolve();});}).then(function(){return fetch(SHEET_URL,{cache:'no-store'});}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.text();}).then(function(csv){
     var rows=parseSheet(csv);
     if(!rows.length)throw new Error('ไม่พบข้อมูล Facebook Pages');
     window._lfbData=rows;
     try{localStorage.setItem('rb_fbpages_cache_v1',JSON.stringify(rows));localStorage.setItem('rb_fbpages_refreshed_v1',String(Date.now()));}catch(e){}
     var root=document.getElementById('fbl-root'),merged=window._fpMerge?window._fpMerge(rows):rows;
     if(root&&typeof window._renderFbList==='function')window._renderFbList(root,merged);
-    setRefreshState(false,formatActualTime(new Date()));
-    return rows;
+    return Promise.resolve(window.fbSet?window.fbSet('/fbpages_base_snapshot',{items:rows,updatedAt:Date.now(),updatedBy:window._rbUser&&window._rbUser.name||'',schemaVersion:438}):false).then(function(ok){if(ok!==true)throw new Error('บันทึกข้อมูลเพจส่วนกลางไม่สำเร็จ');setRefreshState(false,formatActualTime(new Date()));return rows;});
   }).catch(function(error){
     var cached=[];try{cached=JSON.parse(localStorage.getItem('rb_fbpages_cache_v1')||'[]')||[];}catch(e){}
     var root=document.getElementById('fbl-root');if(root&&cached.length&&typeof window._renderFbList==='function')window._renderFbList(root,window._fpMerge?window._fpMerge(cached):cached);
@@ -85,7 +84,7 @@ function buildSelect(values,current,label){var list=unique([current].concat(valu
 function notificationValue(name){var data=loadObject('rb_fb_notif');return data[name]||'';}
 function notificationMarkup(name){var value=notificationValue(name),label=value==='1'?'แจ้งรอบแรก (แชร์เพจ)':value==='2'?'แจ้งรอบ 2 (ยิงแอด)':'ยังไม่ได้แจ้ง',tone=value==='1'?' is-first':value==='2'?' is-second':' is-none';return'<span class="rb-fbp-notification'+tone+'" title="ข้อมูลจากระบบ ดูได้อย่างเดียว"><span aria-hidden="true">🔒</span>'+esc(label)+'</span>';}
 
-function recordForRow(row){var name=row.getAttribute('data-name')||'',rows=window._fblSummaryData||[];for(var i=0;i<rows.length;i++){if(rows[i].name===name)return rows[i];}return null;}
+function recordForRow(row){var key=row.getAttribute('data-page-key'),name=row.getAttribute('data-name')||'',rows=window._fblSummaryData||[];for(var i=0;i<rows.length;i++){if(key?rowKey(rows[i])===key:rows[i].name===name)return rows[i];}return null;}
 function clearEditable(cell){if(!cell)return;cell.contentEditable='false';cell.removeAttribute('contenteditable');cell.removeAttribute('title');cell.style.cursor='';}
 function makeButton(className,label){var button=document.createElement('button');button.type='button';button.className=className;button.textContent=label;return button;}
 
@@ -117,7 +116,7 @@ function professionalizeRoot(root){
   var filter=document.createElement('section');filter.className='rb-fbp-filter-panel';filter.setAttribute('aria-label','ค้นหาและตัวกรอง Facebook Pages');
   var searchField=document.createElement('label');searchField.className='rb-fbp-filter-field rb-fbp-search-field';
   var searchLabel=document.createElement('span');searchLabel.className='rb-fbp-filter-label';searchLabel.textContent='ค้นหาเพจ';searchField.appendChild(searchLabel);
-  if(search){search.placeholder='ชื่อเพจ หรือ Facebook ID';searchField.appendChild(search);}
+  if(search){search.placeholder='ชื่อเพจ ชื่อเฟส หรือพนักงาน';searchField.appendChild(search);}
   filter.appendChild(searchField);
   filter.appendChild(makeFilterField('สถานะเพจ','.fblsb','s'));
   filter.appendChild(makeFilterField('พนักงาน','.fblob','o'));
@@ -145,7 +144,7 @@ function decorateRow(row,record){
   row.setAttribute('data-fbp-key',rowKey(record));
   row.classList.remove('rb-fbp-row-editing');
   [0,1,2,3].forEach(function(index){clearEditable(cells[index]);});
-  cells[0].innerHTML='<span class="rb-fbp-cell-main">'+esc(record.name)+'</span>'+(record.manual?'<span class="rb-fbp-manual">เพิ่มเอง</span>':'')+(record.fbid?'<span class="rb-fbp-cell-meta">Facebook ID '+esc(record.fbid)+'</span>':'');
+  cells[0].innerHTML='<span class="rb-fbp-cell-main">'+esc(record.name)+'</span>'+(record.manual?'<span class="rb-fbp-manual">เพิ่มเอง</span>':'')+'<span class="rb-fbp-cell-meta">เฟสที่สร้าง: '+esc(record.creatorFacebook||'ยังไม่ระบุ')+'</span>'+(record.shareFacebook?'<span class="rb-fbp-cell-meta">เฟสที่แชร์ได้: '+esc(record.shareFacebook)+'</span>':'');
   cells[1].textContent=record.prod||'—';
   var statusClass=record.st==='ใช้งาน'?' is-active':record.st==='ว่าง'?' is-idle':' is-closed';
   cells[2].innerHTML='<span class="rb-fbp-page-status'+statusClass+'">'+esc(record.st||'—')+'</span>';
@@ -161,7 +160,7 @@ function beginEdit(row,record){
   if(!canEdit()||row.classList.contains('rb-fbp-row-editing'))return;
   var cells=row.querySelectorAll('td');if(cells.length<6)return;
   row.classList.add('rb-fbp-row-editing');
-  cells[0].innerHTML='<input class="rb-fbp-edit-field" aria-label="ชื่อเพจ" value="'+esc(record.name)+'">';
+  cells[0].innerHTML='<input class="rb-fbp-edit-field" aria-label="ชื่อเพจ" value="'+esc(record.name)+'"><label class="rb-fbp-cell-meta">ชื่อเฟสที่สร้างเพจ<input class="rb-fbp-edit-field" data-creator aria-label="ชื่อเฟสที่สร้างเพจ" value="'+esc(record.creatorFacebook||'')+'"></label>';
   cells[1].innerHTML=buildSelect(window._fpProdsCache||[],record.prod,'สินค้า');
   cells[2].innerHTML=buildSelect(window._fpStatusCache||[],record.st,'สถานะ');
   cells[3].innerHTML=buildSelect(window._fpOwnersCache||[],record.own,'เจ้าของ');
@@ -174,9 +173,9 @@ function beginEdit(row,record){
     if(!name){cells[0].querySelector('input').focus();row.classList.add('rb-fbp-row-error');return;}
     row.classList.remove('rb-fbp-row-error');
     var key=row.getAttribute('data-fbp-key')||rowKey(record);
-    edits[key]={name:name,prod:selects[0]?selects[0].value:record.prod,st:selects[1]?selects[1].value:record.st,own:selects[2]?selects[2].value:record.own,sourceName:record._fbpSourceName||record.name,fbid:record.fbid||'',updatedAt:Date.now(),updatedBy:window._rbUser&&window._rbUser.name||''};
-    saveEdits(key);
-    var root=document.getElementById('fbl-root');if(root&&typeof window._renderFbList==='function')window._renderFbList(root,lastRawData);
+    var previous=edits[key];edits[key]={name:name,creatorFacebook:cells[0].querySelector('[data-creator]').value.trim(),prod:selects[0]?selects[0].value:record.prod,st:selects[1]?selects[1].value:record.st,own:selects[2]?selects[2].value:record.own,sourceName:record._fbpSourceName||record.name,fbid:record.fbid||'',updatedAt:Date.now(),updatedBy:window._rbUser&&window._rbUser.name||''};
+    save.disabled=true;cancel.disabled=true;save.textContent='กำลังบันทึก...';
+    Promise.resolve(saveEdits(key)).then(function(ok){if(ok!==true)throw new Error('บันทึกออนไลน์ไม่สำเร็จ');var root=document.getElementById('fbl-root');if(root&&typeof window._renderFbList==='function')window._renderFbList(root,lastRawData);}).catch(function(){if(previous)edits[key]=previous;else delete edits[key];saveObject(EDIT_KEY,edits);save.disabled=false;cancel.disabled=false;save.textContent='ลองบันทึกอีกครั้ง';row.classList.add('rb-fbp-row-error');});
   });
   cells[5].appendChild(cancel);cells[5].appendChild(save);
 }
@@ -212,7 +211,7 @@ function installRenderer(){
   if(originalRender||typeof window._renderFbList!=='function')return;
   originalRender=window._renderFbList;
   var wrapped=function(root,data){
-    lastRawData=(data||[]).map(copy);
+    lastRawData=window.rbFacebookPagesSource.normalize((data||[]).map(copy));
     var effective=applyEdits(lastRawData);
     window._fpProdsCache=unique(effective.map(function(row){return row.prod;}));
     window._fpOwnersCache=unique(effective.map(function(row){return row.own;}));
@@ -225,7 +224,7 @@ function installRenderer(){
   window._renderFbList=wrapped;
 }
 
-function activate(){installRenderer();decorateHeader();var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
+function activate(){installRenderer();decorateHeader();function redraw(){var root=document.getElementById('fbl-root'),base=window._lfbData||lastRawData.filter(function(r){return !r.manual;});if(root&&base.length)window._renderFbList(root,window._fpMerge?window._fpMerge(base):base);}cloudLoaded=false;syncCloud(redraw);if(window._fpSyncFromCloud)window._fpSyncFromCloud(redraw);var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 

@@ -15,6 +15,7 @@ const context={
   fetch(){return Promise.reject(new Error('not used'));}
 };
 context.window=context;
+vm.runInNewContext(fs.readFileSync('snippets/facebook-pages-source-v1.js','utf8'),context);
 vm.runInNewContext(source,context);
 const api=context._fbpInlineEditorTest;
 
@@ -51,10 +52,10 @@ assert.ok(css.includes('table-layout:fixed!important'),'the table must keep prop
 assert.ok(css.includes('.rb-fbp-filter-field>.rb-fbp-filter-label'),'filter labels must use a dedicated selector so the search icon wrapper is not styled as a label');
 assert.ok(css.includes('.rb-fbp-search-field>.rb-icon-input-wrap.rb-search-wide'),'the wrapped search field must align with every dropdown');
 assert.ok(css.includes('display:table-cell!important'),'the action column must retain table-cell layout so row divider lines align');
-assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix418'));
-assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix308'));
-assert.ok(index.includes('<meta name="rb-build" content="fix418">'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.js?v=fix438'));
+assert.ok(index.includes('facebook-pages-inline-editor-v2.css?v=fix438'));
+assert.ok(index.includes('<meta name="rb-build" content="fix438">'));
 
 console.log('facebook-pages-inline-editor-v2: all tests passed');
 
-assert.doesNotMatch(source.slice(source.indexOf('function activate(){'),source.indexOf('function bindActivation')),/refreshLiveData|syncCloud|fetch\(/,'tab activation must not fetch remote data');
+assert.doesNotMatch(source.slice(source.indexOf('function activate(){'),source.indexOf('function bindActivation')),/refreshLiveData|fetch\(/,'tab activation must not refresh Google Sheets automatically');

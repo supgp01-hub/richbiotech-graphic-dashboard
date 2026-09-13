@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const ctx={window:{}};vm.createContext(ctx);vm.runInContext(fs.readFileSync('snippets/facebook-pages-source-v1.js','utf8'),ctx);
+const api=ctx.window.rbFacebookPagesSource,seed=require('./facebook-pages-fixture.cjs')(api,process.argv[2]),rows=api.normalize(seed);
+assert.equal(rows.length,200);assert.equal(new Set(rows.map(r=>r._pageSourceKey)).size,200,'all named sheet rows retain independent identity, including duplicate page names');
+assert.deepEqual(JSON.parse(JSON.stringify(rows.reduce((a,r)=>(a[r.own]=(a[r.own]||0)+1,a),{}))),{MOS:17,NUNE:39,TER:21,BALL:21,DOM:25,LINK:6,JAM:32,'':39});
+const collapsed=rows.filter((r,i)=>rows.findIndex(x=>x.shareFacebook===r.shareFacebook)===i);
+assert.equal(api.merge(collapsed,rows).length,200,'recovery restores pages lost to shared-account deduplication');
+assert.equal(api.merge(rows,rows).length,200,'reopening never duplicates recovered pages');
+const csv='ชื่อเพจ,สินค้า,สถานะเพจ,เจ้าของเพจ,Facebook ที่สามารถแชร์ได้\r\n"Page, one\nsecond line",A,ใช้งาน,NUNE,Same Account\r\nPage two,A,ว่าง,NUNE,Same Account\r\n';
+const parsed=api.parse(csv);assert.equal(parsed.length,2);assert.equal(parsed[0].name,'Page, one\nsecond line');assert.notEqual(parsed[0]._pageSourceKey,parsed[1]._pageSourceKey);assert.equal(parsed[0].shareFacebook,'Same Account');assert.equal(parsed[0].fbid,'');assert.equal(parsed[0].creatorFacebook,undefined,'sharing account is not assumed to be creator');
+assert.throws(()=>api.parse('<html>Sign in</html>'),'login/error content cannot overwrite cached pages');
+console.log('PASS: all seven employees, 200 source rows, shared accounts, duplicate names, multiline CSV, idempotent recovery');
