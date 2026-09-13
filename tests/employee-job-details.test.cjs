@@ -16,7 +16,7 @@ select[0].value='ใหม่';select[0].dispatchEvent(new w.Event('change'));
 assert.equal(select[1].value,'');assert(select[1].textContent.includes('HOOK A'));assert(!select[1].textContent.includes('เก่า'));
 select[1].value='HOOK A';select[2].value='HOOK B';select[3].value='บรีฟสำเร็จรูป';select[3].dispatchEvent(new w.Event('change'));
 assert.equal(w.document.querySelector('textarea').value,'บรีฟสำเร็จรูป');
-(async()=>{await button.onclick();assert.equal(saved.name,'ใหม่');assert.equal(saved.rawLink,'https://example.com/clip');assert.equal(saved.sheetLink,'https://example.com/script');assert.equal(saved.brief,'บรีฟสำเร็จรูป');assert.equal(saved.hook2,'HOOK B');assert.deepEqual(Object.keys(saved).sort(),['brief','hook','hook2','name','rawLink','sheetLink','title']);assert.equal(order.deadline,'2026-09-12');assert.equal(order.rawLink,'preserve');
+(async()=>{await button.onclick();assert.equal(saved.name,'ใหม่');assert.equal(saved.rawLink,'https://example.com/clip');assert.equal(saved.sheetLink,'https://example.com/script');assert.equal(saved.brief,'บรีฟสำเร็จรูป');assert.equal(saved.hook2,'HOOK B');assert.deepEqual(Object.keys(saved).sort(),['brief','contentBindings','hook','hook2','name','rawLink','sheetLink','title']);assert.equal(order.deadline,'2026-09-12');assert.equal(order.rawLink,'preserve');
 w._rbUser={name:'MOS',role:'spec'};assert.equal(api.read(order),null);saved=null;await button.onclick();assert.equal(saved,null);
 api.mount(w.document.querySelector('main'),order,{rows:()=>[],presets:[]});assert.equal(w.document.querySelector('#rb-employee-job-details'),null);
 console.log('PASS: dependent dropdowns, legacy values, brief preset, own-job guard, field isolation');})();
