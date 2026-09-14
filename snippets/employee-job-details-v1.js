@@ -2,7 +2,8 @@
 'use strict';
 function code(v){return typeof window.rbOrderAssigneeCode==='function'?window.rbOrderAssigneeCode(v):String(v||'').trim().toUpperCase();}
 function allowed(order,user){return !!(order&&user&&['graphic','ads','spec'].indexOf(user.role)>=0&&code(order.assignee)&&code(order.assignee)===code(user.name));}
-function choices(rows,product,name){return rows.filter(function(r){return r.brand===product&&(!name||r.name===name);});}
+function norm(v){return String(v||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();}
+function choices(rows,product,name){return rows.filter(function(r){return norm(r.brand)===norm(product)&&(!name||norm(r.name)===norm(name));});}
 function references(rows,order,name,hook){
   var matches=choices(rows,order.product,name).filter(function(r){return r.name===name;});
   if(hook){var exact=matches.filter(function(r){return r.hook===hook;});if(exact.length)matches=exact;}
@@ -22,7 +23,10 @@ function mount(host,order,options){
   function hookOptions(first,second){var matches=choices(rows,order.product,name.value).filter(function(r){return r.name===name.value;}),stored=order.contentBindings||[];[hook,hook2].forEach(function(select,i){var current=i?second:first,option=select.options[select.selectedIndex],preferred=option&&option.dataset.contentRowId;var saved=stored.find(function(b){return b.hook===current;});if(window.rbContentSelection)window.rbContentSelection.populate(select,matches,current,preferred||(saved&&saved.id));else fill(select,matches.map(function(r){return r.hook;}),current,'เลือก HOOK');});}
   function hooks(keep){hookOptions(keep?order.hook:'',keep?order.hook2:'');}
   hooks(true);name.onchange=function(){hooks(false);showReferences();};hook.onchange=function(){showReferences();};hook2.onchange=function(){showReferences();};
-  if(options.ready)Promise.resolve(options.ready).then(function(){if(!box.isConnected)return;rows=options.rows();fill(name,choices(rows,order.product).map(function(r){return r.name;}),name.value,'เลือกชื่องาน');hookOptions(hook.value,hook2.value);showReferences();}).catch(function(){});
+  function refreshChoices(){if(!box.isConnected)return;rows=options.rows();fill(name,choices(rows,order.product).map(function(r){return r.name;}),name.value,'เลือกชื่องาน');hookOptions(hook.value,hook2.value);hint.textContent='สินค้า '+order.product+' · '+new Set(choices(rows,order.product).map(function(r){return r.name;})).size+' ชื่องาน · เลือก HOOK แล้วกรอกบรีฟงานของคุณ';showReferences();}
+  if(options.ready)Promise.resolve(options.ready).then(refreshChoices).catch(function(){hint.textContent='ยังโหลดชื่องานออนไลน์ไม่สำเร็จ กรุณาลองเปิดงานใหม่';});
+  if(window._rbEmployeeContentListener)window.removeEventListener('rb:content-updated',window._rbEmployeeContentListener);
+  window._rbEmployeeContentListener=refreshChoices;window.addEventListener('rb:content-updated',refreshChoices);
   var preset=field('เลือกบรีฟสำเร็จรูป','select');fill(preset,options.presets||[],'','เลือกข้อความสำเร็จรูป');preset.parentElement.style.gridColumn='1 / -1';
   var brief=field('บรีฟงาน / สไตล์ที่ต้องการ','textarea');brief.rows=4;brief.value=order.brief||'';brief.parentElement.style.gridColumn='1 / -1';preset.onchange=function(){if(preset.value){brief.value=preset.value;brief.focus();showReferences();}};brief.oninput=function(){showReferences();};
   box.readFields=function(){var fields={product:order.product,name:name.value,hook:hook.value,hook2:hook2.value},selected=window.rbContentSelection?window.rbContentSelection.bindings(rows,fields,[hook,hook2].map(function(select){var opt=select.options[select.selectedIndex];return opt&&opt.dataset.contentRowId;})):[],referenceRows=selected.length?rows.filter(function(r){return r.id===selected[0].id;}):rows;return Object.assign(references(referenceRows,order,name.value,hook.value),{contentBindings:selected,name:name.value||'รอพนักงานระบุชื่องาน',title:name.value||'รอพนักงานระบุชื่องาน',hook:hook.value,hook2:hook2.value,brief:brief.value});};

@@ -5,10 +5,10 @@ const index=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('snippets/order-planner-v1.js','utf8');
 const css=fs.readFileSync('snippets/order-planner-v1.css','utf8');
 
-assert.ok(index.includes('<meta name="rb-build" content="fix418">'),'build marker must expose the current release');
+assert.ok(index.includes('<meta name="rb-build" content="fix440">'),'build marker must expose the current release');
 assert.ok(index.includes('#rb-dd-popover{position:fixed;z-index:100200;'),'planner DropDown popover must render above the planner modal');
 assert.ok(index.includes('snippets/order-planner-v1.css?v=fix395'),'planner stylesheet must be loaded');
-assert.ok(index.includes('snippets/order-planner-v1.js?v=fix404'),'planner script must be loaded');
+assert.ok(index.includes('snippets/order-planner-v1.js?v=fix440'),'planner script must be loaded');
 assert.ok(index.includes("return /^(?:rlees|reels|reel)$/i.test(value.trim())?'Reel':value"),'the work type display must correct the legacy Rlees label without rewriting stored data');
 assert.ok(index.includes('return[t,rbOrderTypeLabel(t)]')&&index.includes('return[x,rbOrderTypeLabel(x)]'),'all Add New and filter dropdowns must show Reel');
 assert.ok(js.includes("user()&&user().role==='sup'"),'planner access must be limited to Supervisor');
@@ -115,7 +115,7 @@ assert.ok(js.includes("PENDING_KEY='rb_order_planner_pending_v1'")&&js.includes(
 assert.ok(js.includes("if(pendingDraftMarks()[id])return true"),'a completed write must remain guarded from a delayed stale read until server confirmation');
 assert.ok(js.includes('sameDraftPayload(remoteRow,localRow)'),'a pending planner row must be confirmed by its complete saved payload, not timestamp alone');
 assert.ok(js.includes('localTime>remoteTime||protectedChange'),'a pending local status change must win even when a stale online row has the same timestamp');
-assert.ok(js.includes('list.forEach(touchDraft)'),'scheduling and immediate dispatch must assign a new monotonic record version before saving');
+assert.ok(js.includes('list.forEach(function(d){touchDraft(d);protectDraftEdit(d)})'),'scheduling and immediate dispatch must assign a new monotonic record version before saving');
 assert.ok(js.includes('includePendingDraftOps(rows,draftWriteOps(rows,draftBaseline))'),'pending link and date fields must be written even if the local baseline already contains their values');
 assert.ok(js.includes("if(e.type==='change')saveDraftsImmediately()"),'completed date, link and dropdown edits must flush immediately without waiting for another action');
 assert.ok(js.includes('protectDraftEdit(d)')&&js.includes('overlayDraftEdits('),'every edited planner field must stay protected from a delayed online snapshot');
