@@ -186,6 +186,7 @@
   }
   function buildSection(panel,id,states,mode,surface,rerender){
     var section=document.createElement('section');section.id=id;section.className='rb-audit-version-workflow mode-'+mode+' surface-'+surface;section.setAttribute('data-job-id',jobId(currentOrder()));section._rbState=states;
+    section._rbRenderRole=role();section._rbRenderStatus=(currentOrder()||{}).status;
     var issueCount=states.filter(function(state){return state.result==='issue';}).length;
     section.innerHTML='<div class="rb-av-section-head"><div><h3>'+(surface==='team'?'ติดตามและส่งงานแก้ไขตามเวอร์ชัน':'ตรวจและระบุข้อแก้ไขตามเวอร์ชัน')+'</h3><p>'+(surface==='team'?'งานที่ส่ง ผลตรวจ และหลักฐานแก้ไขใช้เลข VER ชุดเดียวกัน':'ผลตรวจจะซิงก์ไปให้พนักงานเห็นในแท็บส่งงานภาพทันที')+'</p></div><span>'+(issueCount?issueCount+' VER ต้องแก้':states.length+' เวอร์ชัน')+'</span></div><div class="rb-av-cards"></div><div class="rb-av-save-message" hidden></div>';
     var cards=section.querySelector('.rb-av-cards');states.forEach(function(state,index){cards.appendChild(surface==='team'?teamVersionCard(state,index,mode,rerender):auditVersionCard(state,index,mode,rerender));});
@@ -197,8 +198,12 @@
   window.rbRenderAuditVersionWorkflow=function(order,force){
     var auditPanel=document.getElementById('om2-p2-panel'),teamPanel=document.getElementById('om2-p4-panel'),id=document.getElementById('om-id');if(!auditPanel||!teamPanel||!id)return;
     order=order||currentOrder()||{};var currentJobId=jobId(order),oldAudit=document.getElementById('rb-audit-version-workflow'),oldTeam=document.getElementById('rb-team-version-workflow');
-    var carried=null;[oldAudit,oldTeam].some(function(section){if(section&&section.getAttribute('data-job-id')===currentJobId&&Array.isArray(section._rbState)){carried=collect(section);return true;}return false;});if(oldAudit)oldAudit.remove();if(oldTeam)oldTeam.remove();
+    var carried=null;[oldAudit,oldTeam].some(function(section){if(section&&section.getAttribute('data-job-id')===currentJobId&&Array.isArray(section._rbState)){carried=collect(section);return true;}return false;});
     var states=initialVersions(order,carried),auditMode=canAudit()?'audit':'readonly',teamMode=canSubmitCorrection(order)?'employee':'readonly',rendering=false;
+    // Delayed source refreshes must not replace a select while its menu is open.
+    // Rebuild only for changed values, permissions or workflow status.
+    if(oldAudit&&oldTeam&&oldAudit.classList.contains('mode-'+auditMode)&&oldTeam.classList.contains('mode-'+teamMode)&&[oldAudit,oldTeam].every(function(section){return section.getAttribute('data-job-id')===currentJobId&&section._rbRenderRole===role()&&section._rbRenderStatus===order.status&&JSON.stringify(collect(section))===JSON.stringify(states);}))return;
+    if(oldAudit)oldAudit.remove();if(oldTeam)oldTeam.remove();
     function rerender(){if(rendering)return;rendering=true;var audit=document.getElementById('rb-audit-version-workflow'),team=document.getElementById('rb-team-version-workflow');if(audit)audit.remove();if(team)team.remove();buildSection(auditPanel,'rb-audit-version-workflow',states,auditMode,'audit',rerender);buildSection(teamPanel,'rb-team-version-workflow',states,teamMode,'team',rerender);rendering=false;}
     rerender();syncSourceStatus();
     if(window.rbCaptureAuditVersionBaseline)window.rbCaptureAuditVersionBaseline(order,collect(document.getElementById('rb-audit-version-workflow')));
