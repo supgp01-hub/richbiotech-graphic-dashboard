@@ -9,7 +9,7 @@ for(const user of [{name:'MOS',role:'spec'},{name:'DOM',role:'audit'},null])asse
 w._rbUser={name:'DOM',role:'graphic'};
 let saved;
 api.mount(w.document.querySelector('main'),order,{rows:()=>[{brand:'So Pink',name:'ใหม่',hook:'HOOK A',link:'https://example.com/clip',script:'https://example.com/script'},{brand:'So Pink',name:'ใหม่',hook:'HOOK B'},{brand:'JUDO',name:'สินค้าอื่น',hook:'ห้ามปน'}],presets:['บรีฟสำเร็จรูป'],save:async fields=>{saved=fields;}});
-const select=w.document.querySelectorAll('select'),button=w.document.querySelector('button');
+const select=w.document.querySelectorAll('select'),button=Array.from(w.document.querySelectorAll('button')).find(b=>b.textContent==='บันทึกข้อมูลและ List Content');
 assert(!select[0].textContent.includes('สินค้าอื่น'));
 assert.equal(select[0].value,'เดิม');assert.equal(select[1].value,'เก่า');
 select[0].value='ใหม่';select[0].dispatchEvent(new w.Event('change'));

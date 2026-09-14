@@ -36,7 +36,10 @@ function mount(host,order,options){
   var feedback=document.createElement('p');feedback.setAttribute('role','status');feedback.style.fontSize='14px';box.appendChild(feedback);
   var save=document.createElement('button');save.type='button';save.textContent='บันทึกข้อมูลและ List Content';save.style.cssText='border:0;border-radius:8px;padding:11px 16px;color:white;background:#008781;font:inherit;cursor:pointer';box.appendChild(save);
   save.onclick=async function(){if(save.disabled)return;if(!allowed(order,window._rbUser)){feedback.textContent='แก้ไขได้เฉพาะงานที่คุณรับผิดชอบ';return;}if(!name.value){feedback.textContent='กรุณาเลือกชื่องาน';name.focus();return;}save.disabled=true;feedback.textContent='กำลังบันทึก...';try{await options.save(box.readFields());feedback.textContent='บันทึกแล้ว';}catch(e){feedback.textContent=e.message||'บันทึกไม่สำเร็จ กรุณาลองใหม่';}finally{save.disabled=false;}};
+  var reload=document.createElement('button');reload.type='button';reload.textContent='อัปเดตชื่องานจากออนไลน์';reload.style.cssText='padding:7px 12px;margin-bottom:12px;border:1px solid #bfd4d9;border-radius:8px;background:white;color:#008781;font:inherit';hint.insertAdjacentElement('afterend',reload);
+  reload.onclick=async function(){if(reload.disabled)return;reload.disabled=true;hint.textContent='กำลังโหลดชื่องานล่าสุด…';try{if(typeof window.refreshOrderContentFromCloud!=='function')throw new Error('unavailable');await window.refreshOrderContentFromCloud(order.product,true);refreshChoices();}catch(e){hint.textContent='โหลดออนไลน์ไม่สำเร็จ · ยังแสดงรายการเดิม กดอัปเดตเพื่อลองใหม่';}finally{reload.disabled=false;}};
   host.insertBefore(box,host.firstChild);
+  hint.textContent='สินค้า '+order.product+' · '+new Set(choices(rows,order.product).map(function(r){return r.name;})).size+' ชื่องาน · พิมพ์ค้นหาในรายการได้';
 }
 window.rbEmployeeJobDetails={allowed:allowed,choices:choices,references:references,mount:mount,read:function(order){var box=document.getElementById('rb-employee-job-details');return box&&allowed(order,window._rbUser)?box.readFields():null;}};
 })();
