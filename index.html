@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix448">
+<meta name="rb-build" content="fix449">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3732,7 +3732,7 @@ window.gsOrdModal=function(oId){
   var ex=document.getElementById('gs-ord-modal');if(ex)ex.remove();
   var ords=JSON.parse(localStorage.getItem('rb_orders_v1')||'[]');
   var ord=oId?ords.filter(function(o){return o.id===oId;})[0]:null;
-  var brands=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
+  var brands=['Liv CARE','So Pink','SYNBIOME','Blink Blink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
   var mbs=['MOS','DOM','TER','NUNE','JAM','BALL','VIW'];
   var now=new Date();
   var td=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+now.getDate()).slice(-2);
@@ -3959,7 +3959,7 @@ fbRestoreDurableOrderQueue();
 })();
 </script><script src="snippets/order-viewer-filter-state-v1.js?v=fix382"></script><script src="snippets/persistence-reliability-v3.js?v=fix442"></script>
 <link rel="stylesheet" href="snippets/order-planner-v1.css?v=fix395">
-<link rel="stylesheet" href="snippets/planner-calendar-v1.css?v=fix432"><script src="snippets/planner-calendar-v1.js?v=fix432"></script><script src="snippets/order-planner-v1.js?v=fix440"></script>
+<link rel="stylesheet" href="snippets/planner-calendar-v1.css?v=fix432"><script src="snippets/planner-calendar-v1.js?v=fix432"></script><script src="snippets/order-planner-v1.js?v=fix449"></script>
 <link rel="stylesheet" href="snippets/commission-center-v1.css?v=fix363">
 <link rel="stylesheet" href="snippets/audit-deduction-center-v1.css?v=fix400">
 <script src="snippets/commission-center-v1.js?v=fix396"></script>
@@ -4337,7 +4337,7 @@ window.gAS=function(){
     function decoratePanel(panel,icon,title,description){var section=document.createElement('div');section.className='rb-om-section';while(panel.firstChild)section.appendChild(panel.firstChild);panel.appendChild(panelHeading(icon,title,description));panel.appendChild(section);}
     var p1=document.createElement('div');p1.className='rb-om-panel rb-om-panel-info';p1.style.cssText='padding:18px 20px;';p1.id='om2-p1-panel';
     var _ni=mkI('om-name','พนักงานเลือกชื่องานภายหลังได้');_ni.setAttribute('list','om-name-list');p1.appendChild(mkF('ชื่องาน (พนักงานกรอกภายหลังได้)',_ni));_ni.oninput=function(){if(window.rbContentSelection)window.rbContentSelection.refresh(false)};if(!document.getElementById('om-name-list')){var _dl=document.createElement('datalist');_dl.id='om-name-list';document.body.appendChild(_dl);}refreshOrderContentList('');
-    var PRODS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
+    var PRODS=['Liv CARE','So Pink','SYNBIOME','Blink Blink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
     var prodSel=mkS('om-prod',[['','-- เลือกสินค้า --']].concat(PRODS.map(function(p){return[p,p];})));
     prodSel.onchange=function(){var brand=this.value;refreshOrderContentList(brand);syncProductAssetLinks(brand,'force');};
     p1.appendChild(mkF('สินค้า',prodSel));
@@ -5167,9 +5167,9 @@ var CT_EMBED = [];
 (function(){
 'use strict';
 var CT_KEY='rb_olympplus_v1';
-var CT_BRANDS=['Liv CARE','So Pink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
-var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','I Sure Plus':'#7c3aed','Olymplus':'#d97706','Olymplus MAX':'#b45309','JUDO':'#dc2626','Dragon Blood':'#991b1b','ขุนแผน':'#6d28d9','Heaven PLUS+':'#0891b2','THE LORD':'#1d4ed8','WOLF+':'#374151','เจ้าขุน':'#92400e'};
-var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','I Sure Plus':'','Olymplus':'MOS DOM','Olymplus MAX':'MOS DOM','JUDO':'NUNE JAM','Dragon Blood':'MOS DOM BALL','ขุนแผน':'MOS DOM BALL','Heaven PLUS+':'MOS DOM','THE LORD':'TER JAM','WOLF+':'TER NUNE BALL','เจ้าขุน':'BALL'};
+var CT_BRANDS=['Liv CARE','So Pink','SYNBIOME','Blink Blink','I Sure Plus','Olymplus','Olymplus MAX','JUDO','Dragon Blood','ขุนแผน','Heaven PLUS+','THE LORD','WOLF+','เจ้าขุน'];
+var CT_BCOLOR={'Liv CARE':'#059669','So Pink':'#db2777','SYNBIOME':'#0d9488','Blink Blink':'#8b5cf6','I Sure Plus':'#7c3aed','Olymplus':'#d97706','Olymplus MAX':'#b45309','JUDO':'#dc2626','Dragon Blood':'#991b1b','ขุนแผน':'#6d28d9','Heaven PLUS+':'#0891b2','THE LORD':'#1d4ed8','WOLF+':'#374151','เจ้าขุน':'#92400e'};
+var PROD_EMP={'Liv CARE':'NUNE JAM','So Pink':'TER NUNE','SYNBIOME':'TER NUNE','Blink Blink':'TER NUNE','I Sure Plus':'','Olymplus':'MOS DOM','Olymplus MAX':'MOS DOM','JUDO':'NUNE JAM','Dragon Blood':'MOS DOM BALL','ขุนแผน':'MOS DOM BALL','Heaven PLUS+':'MOS DOM','THE LORD':'TER JAM','WOLF+':'TER NUNE BALL','เจ้าขุน':'BALL'};
 var _ctData=null,_ctQ='',_ctFilter='all',_ctBrand='ALL';
 
 function ctLoad(){
@@ -6240,7 +6240,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/performance-v4.css?v=205">
 <script src="snippets/bulk-import-v2.js?v=fix406"></script>
 <script src="snippets/bulk-import-v3.js?v=fix432"></script>
-<script src="snippets/performance-v4.js?v=fix448"></script>
+<script src="snippets/performance-v4.js?v=fix449"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=fix389">
