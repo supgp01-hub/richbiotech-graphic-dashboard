@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix440">
+<meta name="rb-build" content="fix441">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3021,15 +3021,15 @@ function fbOrderQueueLoad(){if(_fbOrderMemoryQueue.length)return _fbOrderMemoryQ
 function fbOrderQueueSave(q){
   return window.rbDurableOrderQueue.persist(q,FB_ORDER_QUEUE,function(memory){_fbOrderMemoryQueue=memory;});
 }
-function fbQueueOrderOp(method,key,data,baseUpdatedAt){
+function fbQueueOrderOp(method,key,data,baseUpdatedAt,baseValues){
   if(!key)return;
   if(data&&data._deleted)data.updatedAt=Math.max(Date.now(),Number(baseUpdatedAt||0)+1);
   if(data&&!data._deleted)_fbRecentOrderWrites[key]={ts:Date.now(),data:Object.assign({},(_fbRecentOrderWrites[key]||{}).data||{},data)};else delete _fbRecentOrderWrites[key];
   var q=fbOrderQueueLoad(),path='/orders/'+key,found=-1;
   for(var i=0;i<q.length;i++)if(q[i].path===path){found=i;break;}
   if(found>=0&&q[found].conflict)found=-1;
-  var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,baseUpdatedAt:baseUpdatedAt,ts:Date.now(),attempts:0,nextAttemptAt:0};
-  if(found>=0){var old=q[found];if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else q[found]=op;}else q.push(op);
+  var op={token:'op_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),method:method,path:path,data:data||null,baseUpdatedAt:baseUpdatedAt,baseValues:baseValues,ts:Date.now(),attempts:0,nextAttemptAt:0};
+  if(found>=0){var old=q[found];if(old.baseValues&&baseValues)old.baseValues=Object.assign({},baseValues,old.baseValues);else if(!old.baseValues)delete op.baseValues;if(old.method==='PUT'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else if(old.method==='PATCH'&&method==='PATCH'){old.data=Object.assign({},old.data||{},data||{});old.token=op.token;old.ts=op.ts;old.attempts=0;old.nextAttemptAt=0;}else q[found]=op;}else q.push(op);
   var stored=found>=0?q[found]:q[q.length-1],saved=fbOrderQueueSave(q);fbFlushOrderQueue(true);
   return{token:stored&&stored.token,path:path,durable:saved.durable,durablePromise:saved.promise};
 }
@@ -3092,7 +3092,7 @@ function fbFlushOrderQueue(force){
   if(!op){var nextAt=q.reduce(function(value,item){var due=Number(item&&item.nextAttemptAt||0);return due>now&&(!value||due<value)?due:value;},0);fbSetSyncState('waiting','รอซิงค์ใหม่','มี '+q.length+' รายการรอซิงค์');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(true);},nextAt?Math.max(250,nextAt-now):5000);return;}
   /* Freeze the dispatched token: a later edit may replace the queued operation. */
   op=JSON.parse(JSON.stringify(op));
-  var opts={method:op.method,rbBaseUpdatedAt:op.baseUpdatedAt,rbWriteToken:op.token,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
+  var opts={method:op.method,rbBaseUpdatedAt:op.baseUpdatedAt,rbBaseValues:op.baseValues,rbWriteToken:op.token,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
   _fbOrderFlushActive=true;fbSetSyncState('saving','กำลังบันทึก...','เหลือ '+q.length+' รายการ');
   fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(response){var committedAt=response.headers&&response.headers.get('X-RB-Updated-At'),next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});next.forEach(function(x){if(x.path===op.path&&x.baseUpdatedAt===op.baseUpdatedAt)x.baseUpdatedAt=committedAt!==null&&committedAt!==undefined?Number(committedAt):Number(op.data&&op.data.updatedAt||0);});fbOrderQueueSave(next);_fbOrderFlushActive=false;refreshOrderViews();clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue(true);}).catch(function(e){var current=fbOrderQueueLoad(),failed=null;current.forEach(function(item){if(item&&item.token===op.token){if(e&&e.code==='RB_ORDER_CONFLICT'){item.conflict=true;item.conflictMessage=e.message;delete _fbRecentOrderWrites[op.path.split('/').pop()];}item.attempts=Number(item.attempts||0)+1;item.nextAttemptAt=Date.now()+Math.min(30000,3000*Math.pow(2,Math.min(3,item.attempts-1)));failed=item;}});if(failed)fbOrderQueueSave(current);_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(true);},failed?Math.max(250,Number(failed.nextAttemptAt||0)-Date.now()):3000);});
 }
@@ -3342,7 +3342,7 @@ function spORD(d){
     if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderAssetPayload(row)));return;}
     var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
     Object.keys(allKeys).forEach(function(k){if(FB_ORDER_ASSET_FIELDS.indexOf(k)>=0||k==='_assetsLoaded')return;var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
-    if(Object.keys(changes).length){changes.updatedAt=Math.max(Date.now(),Number(old.updatedAt||0)+1);row.updatedAt=changes.updatedAt;queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes,Number(old.updatedAt||0)));}
+    if(Object.keys(changes).length){changes.updatedAt=Math.max(Date.now(),Number(old.updatedAt||0)+1);row.updatedAt=changes.updatedAt;queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes,Number(old.updatedAt||0),Object.fromEntries(Object.keys(changes).map(function(k){return [k,old[k]==null?null:old[k]];}))));}
     if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null));}
   });
   if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(after,LS_ORD);else localStorage.setItem(LS_ORD,JSON.stringify(after));
@@ -6352,10 +6352,10 @@ html[data-theme="dark"] #rb-bottom-nav button.active{color:#72d2b6!important;bac
 <script src="snippets/facebook-pages-create-v1.js?v=fix438"></script>
 <script src="snippets/shared-business-sync-v1.js?v=fix432"></script>
 <link rel="stylesheet" href="snippets/system-health-v1.css?v=fix341">
-<script src="snippets/system-health-v1.js?v=fix440"></script>
+<script src="snippets/system-health-v1.js?v=fix441"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
-<script src="snippets/safe-order-write-v1.js?v=fix440"></script>
+<script src="snippets/safe-order-write-v1.js?v=fix441"></script><script src="snippets/order-conflict-review-v1.js?v=fix441"></script>
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=fix436"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
 <script src="snippets/content-submissions-v1.js?v=fix432"></script>
