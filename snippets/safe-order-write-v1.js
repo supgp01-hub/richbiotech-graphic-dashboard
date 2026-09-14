@@ -4,7 +4,8 @@ function conflict(message){var error=new Error(message);error.code='RB_ORDER_CON
 function same(a,b){return JSON.stringify(a==null?null:a)===JSON.stringify(b==null?null:b);}
 // Compare only the fields this operation intended to change. Never acknowledge
 // a stale submission if even one submitted field differs from the server.
-function equal(a,b){if(a==null||b==null)return a==null&&b==null;if(typeof a!=='object'||typeof b!=='object')return a===b;if(Array.isArray(a)!==Array.isArray(b))return false;var keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(function(k){return equal(a[k],b[k]);});}
+function firebaseValue(v){if(v==null)return null;if(typeof v!=='object')return v;var out=Object.create(null);Object.keys(v).sort().forEach(function(k){var value=firebaseValue(v[k]);if(value!==null)out[k]=value;});return Object.keys(out).length?out:null;}
+function equal(a,b){return JSON.stringify(firebaseValue(a))===JSON.stringify(firebaseValue(b));}
 function matches(remote,change,method){
   if(!remote||!change||remote._deleted||change._deleted)return false;
   var metadata=['updatedAt','_version','_updatedBy','_syncRevision','_lastWriteToken'];
@@ -38,5 +39,5 @@ async function write(url,options,request){
   if(committed.ok)return new Response('{}',{status:200,headers:{'X-RB-Updated-At':String(next.updatedAt||0)}});
   return committed;
 }
-root.rbSafeOrderWrite={write:write,matches:matches};
+root.rbSafeOrderWrite={write:write,matches:matches,equal:equal};
 })(window);

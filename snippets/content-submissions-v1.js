@@ -61,6 +61,9 @@
       };textarea.focus();
     }catch(e){body.textContent='โหลดไม่สำเร็จ: '+e.message;}
   }
+
+  async function readOwn(id){var u=user(),sig=session();if(!u.uid||!id)throw Error('กรุณาเลือก HOOK และเข้าสู่ระบบ');var result=await request('content_submissions_v1/'+u.uid+'/'+key(id),{headers:{'X-Firebase-ETag':'true'}});if(session()!==sig)throw Error('บัญชีเปลี่ยน กรุณาเปิดงานใหม่');return result;}
+  async function saveOwn(id,text,baseline){var u=user(),sig=session();text=String(text||'').trim();if(!text||text.length>10000)throw Error('กรอก List Content ไม่เกิน 10,000 ตัวอักษร');if(!baseline||!baseline.etag)throw Error('ยังโหลด List Content เดิมไม่สำเร็จ');var current=await readOwn(id);if(session()!==sig)throw Error('บัญชีเปลี่ยน กรุณาเปิดงานใหม่');if(current.value&&current.value.text===text){(cache[u.uid]||(cache[u.uid]={}))[key(id)]=current.value;render();return current;}if(current.etag!==baseline.etag)throw Error('List Content ถูกแก้จากอีกหน้า ข้อความของคุณยังเก็บไว้ กรุณาตรวจข้อความล่าสุดก่อนบันทึก');var record={rowId:String(id),ownerUid:u.uid,ownerName:u.name,text:text,updatedAt:{'.sv':'timestamp'}};await request('content_submissions_v1/'+u.uid+'/'+key(id),{method:'PUT',headers:{'Content-Type':'application/json','if-match':current.etag},body:JSON.stringify(record)});var saved=await readOwn(id);if(!saved.value||saved.value.text!==text)throw Error('ยังยืนยันข้อความล่าสุดไม่ได้ กรุณาลองอีกครั้ง');if(session()!==sig)throw Error('บัญชีเปลี่ยน กรุณาเปิดงานใหม่');(cache[u.uid]||(cache[u.uid]={}))[key(id)]=saved.value;render();return saved;}
   async function loadCatalog(){
     if(catalogLoaded||!user().uid||Date.now()<catalogRetryAt)return;if(catalogPending)return catalogPending;
     catalogPending=request('content_product_catalog_v1').then(function(r){catalog=r.value||{};catalogLoaded=true;if(w.ctApplyCatalog)w.ctApplyCatalog(Object.values(catalog));}).catch(function(e){catalogRetryAt=Date.now()+15000;throw e;}).finally(function(){catalogPending=null;});return catalogPending;
@@ -96,5 +99,6 @@
   document.addEventListener('click',function(e){var b=e.target.closest('[data-content-id]');if(b)open(b.dataset.contentId,b.dataset.contentOwner);});
   w.addEventListener('rb:auth-ready',function(){session();catalogLoaded=false;mount();render();});
   w.addEventListener('rb:auth-cleared',function(){session();render();});
-  w.ctSubmissions={cell:cell,dates:dates,mount:mount,entries:entries,key:key,version:function(){session();return identity+':'+revision;}};
+  w.ctSubmissions={readOwn:readOwn,saveOwn:saveOwn,refresh:function(){return load(true);},cell:cell,dates:dates,mount:mount,entries:entries,key:key,version:function(){session();return identity+':'+revision;}};
+  if(w.setInterval)w.setInterval(function(){var host=document.querySelector('.ct-wrap');if(!document.hidden&&user().uid&&host&&host.getClientRects().length)load(true).catch(function(){});},30000);
 })(window);
