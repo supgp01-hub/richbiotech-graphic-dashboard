@@ -1,7 +1,7 @@
 const fs = require('fs');
 const assert = require('assert');
 
-const source = fs.readFileSync('index.html', 'utf8');
+const source = fs.readFileSync('index.html', 'utf8')+fs.readFileSync('snippets/dark-theme-overrides-v442.css','utf8');
 
 assert(source.includes('id="rb-dark-theme-deep-teal-v1"'), 'approved Deep Teal dark theme is missing');
 assert(source.includes('--surface-page:#020708'), 'approved darkest page surface is missing');

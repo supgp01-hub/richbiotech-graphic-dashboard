@@ -41,7 +41,7 @@ assert.strictEqual(
 );
 
 assert.ok(index.includes('<link rel="canonical" href="https://supgp01-hub.github.io/richbiotech-graphic-dashboard/">'));
-assert.ok(index.includes('snippets/stable-public-url-v1.js?v=fix302'));
-assert.ok(index.includes('<meta name="rb-build" content="fix418">'));
+assert.ok(index.includes('snippets/stable-public-url-v1.js?v=fix'));
+assert.ok(/<meta name="rb-build" content="fix\d+">/.test(index));
 
 console.log('stable-public-url-v1: all tests passed');

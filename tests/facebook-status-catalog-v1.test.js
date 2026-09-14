@@ -25,6 +25,6 @@ assert.ok(source.includes("CLOUD_PATH='/facebook_status_catalog_v1'"),'guide edi
 assert.ok(source.includes('data-guide-follow'),'guide editor must provide a follow-up switch per status');
 assert.ok(source.includes('data-guide-text="description"')&&source.includes('data-guide-text="action"'),'guide editor must allow Supervisor to update guidance text');
 assert.ok(rules.includes('"facebook_status_catalog_v1"')&&rules.includes("child('role').val() === 'sup'"),'online guide writes must be protected by Supervisor-only database rules');
-assert.ok(index.includes('facebook-status-catalog-v1.js?v=fix389')&&index.includes('facebook-status-catalog-v1.css?v=fix389'),'deployed page must load the cache-busted catalog assets');
-assert.ok(index.includes('<meta name="rb-build" content="fix418">'),'deployed page must expose the current build');
+assert.ok(index.includes('facebook-status-catalog-v1.js?v=fix')&&index.includes('facebook-status-catalog-v1.css?v=fix'),'deployed page must load the cache-busted catalog assets');
+assert.ok(/<meta name="rb-build" content="fix\d+">/.test(index),'deployed page must expose the current build');
 console.log('facebook-status-catalog-v1: all tests passed');

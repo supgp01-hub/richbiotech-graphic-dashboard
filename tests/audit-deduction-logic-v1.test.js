@@ -16,7 +16,7 @@ const storage={};
 const localStorage={getItem(k){return storage[k]||null;},setItem(k,v){storage[k]=String(v);}};
 class MutationObserver{observe(){}}
 const context={window,document,localStorage,MutationObserver,Date,Math,JSON,Object,Array,String,Number,Promise,Error,RegExp,isNaN,setTimeout(){},fetch(){throw Error('not used');},prompt(){return'';}};
-vm.runInNewContext(fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8'),context);
+vm.runInNewContext((fs.readFileSync('snippets/deduction-reset-policy-v1.js','utf8')+'\n'+fs.readFileSync('snippets/audit-deduction-center-v1.js','utf8')),context);
 const api=window._rbAuditDeductionTest;
 
 assert.equal(api.view(),'supervisor','Supervisor must start in a team-wide view');
@@ -77,7 +77,7 @@ console.log('audit deduction logic: passed');
 window._orders=[{id:'deadline-new',assignee:'TER',deadline:'2026-09-11',status:'pending'}];
 assert.equal(api.detectOrders(new Date(2026,8,11,23,59,59).getTime()).filter(x=>x.autoDeadlineCharge).length,0);
 let charges=api.detectOrders(new Date(2026,8,12,0,0,1).getTime()).filter(x=>x.autoDeadlineCharge);
-assert.equal(charges.length,1);assert.equal(charges[0].amount,10);assert.equal(api.status(charges[0],Date.now()),'confirmed');
+assert.equal(charges.length,0,'deadlines before reset must not generate deductions');
 window._orders[0].deadline='2026-09-12';
 assert.equal(api.detectOrders(new Date(2026,8,14,23,59,59).getTime()).filter(x=>x.autoDeadlineCharge).length,0);
 assert.equal(api.detectOrders(new Date(2026,8,15,0,0,1).getTime()).filter(x=>x.autoDeadlineCharge).length,1);
@@ -88,6 +88,6 @@ assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDea
 console.log('deadline rule: midnight, weekend grace, submitted work and effective date passed');
 
 window._orders=[{id:'late-offline',assignee:'TER',deadline:'2026-09-11',status:'done',firstSubmittedAt:new Date(2026,8,12,9).getTime()}];
-assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,1,'late submission must be detected even after completion');
+assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,0,'pre-reset deadlines stay excluded even after late completion');
 window._orders[0].firstSubmittedAt=new Date(2026,8,11,17).getTime();
 assert.equal(api.detectOrders(new Date(2026,8,15).getTime()).filter(x=>x.autoDeadlineCharge).length,0,'on-time submission must not be charged');

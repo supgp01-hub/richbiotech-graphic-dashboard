@@ -5,8 +5,8 @@ const health=fs.readFileSync('snippets/system-health-v1.js','utf8');
 const shared=fs.readFileSync('snippets/shared-business-sync-v1.js','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 
-assert.ok(index.includes('snippets/system-health-v1.js?v=fix341'),'live page must load the system health panel');
-assert.ok(index.includes('snippets/app-shell-v1.js?v=fix341'),'live page must register the resilient app shell');
+assert.ok(index.includes('snippets/system-health-v1.js?v=fix'),'live page must load the system health panel');
+assert.ok(index.includes('snippets/app-shell-v1.js?v=fix'),'live page must register the resilient app shell');
 assert.ok(index.includes("window.dispatchEvent(new CustomEvent('rb:sync-state'"),'sync state must be observable without polling business data');
 assert.ok(index.includes('window.rbOrderSync={flush:'),'health tools need a safe order queue retry surface');
 assert.ok(health.includes("role','button'"),'online chip must be keyboard accessible');

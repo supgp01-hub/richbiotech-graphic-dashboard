@@ -24,8 +24,8 @@ assert.match(durableQueue, /root\.indexedDB\.open\(DB_NAME,1\)/,
   'order actions must have an IndexedDB durability fallback when localStorage is full');
 assert.match(durableQueue, /function done\(ok\)\{if\(ok\)\{resolve\(true\)/,
   'a fast network failure must not outrun a successful durable asset receipt');
-assert.match(source, /setTimeout\(function\(\)\{finish\(false,true\);\},320\)/,
-  'a durable save must finish promptly instead of waiting for the full network timeout');
+assert.match(source, /navigator\.onLine===false&&op\.durable/,
+  'offline durable saves must return without claiming online confirmation');
 assert.match(source, /assetsChanged=!old\|\|row\._assetsChanged===true/,
   'status-only actions must not re-upload unchanged image evidence');
 assert.match(source, /order\._assetsChanged=omAssetSignature\(\)!==_omAssetBaseline/,

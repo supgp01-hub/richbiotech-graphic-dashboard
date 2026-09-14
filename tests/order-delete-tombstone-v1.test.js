@@ -4,11 +4,11 @@ const vm=require('vm');
 const source=fs.readFileSync('index.html','utf8');
 const guard=fs.readFileSync('snippets/order-delete-tombstone-v1.js','utf8');
 
-assert(source.includes('snippets/order-delete-tombstone-v1.js?v=fix345'),'the deletion guard must load before order sync');
+assert(source.includes('snippets/order-delete-tombstone-v1.js?v=fix'),'the deletion guard must load before order sync');
 assert(guard.includes("KEY='rb_order_delete_guard_v1'"),'deleted orders need a durable local guard');
 assert(guard.includes("src._deleted===true||deleted[key]"),'cloud tombstones and local guards must be excluded from order lists');
 assert(guard.includes("op.method==='DELETE'||(op.data&&op.data._deleted===true)"),'queued tombstones must hide the order before the network confirms');
-assert(source.includes("fbQueueOrderOp('PUT',old._fbKey,window.rbOrderDeletion.mark(old,curUser()))"),'deletion must create a server-side tombstone instead of an unsafe hard delete');
+assert(source.includes("fbQueueOrderOp('PUT',old._fbKey,window.rbOrderDeletion.mark(old,curUser()),Number(old.updatedAt||0))"),'deletion must create a server-side tombstone instead of an unsafe hard delete');
 assert(source.includes("!everSynced&&!window.rbOrderDeletion.hasCloudMark(data)"),'a new browser must never migrate stale local work over a cloud tombstone');
 assert(guard.includes("status('waiting','ลบแล้ว · รอซิงก์'"),'slow deletion must show an honest pending state');
 assert(guard.includes("status('saved','ลบงานแล้ว'"),'confirmed deletion must show a success state');

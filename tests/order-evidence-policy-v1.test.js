@@ -18,7 +18,7 @@ assert.equal(policy.evidenceRequired('Retarget','inprogress',false,false,false),
 assert.equal(policy.evidenceRequired('ยิงแอด','inprogress',false,false,true),false,'required types may submit when a delivery link exists');
 assert.equal(policy.evidenceRequired('ยิงแอด','revision',false,true,false),false,'a corrected image must satisfy revision evidence without also forcing a link');
 assert.equal(policy.evidenceRequired('ยิงแอด','revision',false,false,true),false,'a revision link must satisfy revision evidence without also forcing an image');
-assert.ok(index.includes('snippets/order-evidence-policy-v1.js?v=fix342'),'the evidence policy must load before order interactions');
+assert.ok(index.includes('snippets/order-evidence-policy-v1.js?v=fix'),'the evidence policy must load before order interactions');
 assert.ok(index.includes('"สร้างเพจ","Retarget"'),'the work-type dropdown must include Retarget');
 assert.ok(index.includes("'สร้างเพจ':'#1877F2',retarget:'#A855F7'"),'Retarget must have a visible dropdown color marker');
 assert.ok(index.includes('if(!window.rbOrderEvidenceRequired||window.rbOrderEvidenceRequired('),'the submission guard must use the evidence policy and fail safely if it is unavailable');

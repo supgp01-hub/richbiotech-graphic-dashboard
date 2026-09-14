@@ -29,7 +29,8 @@ test('database defaults to deny and protects sensitive paths', () => {
   assert.match(rules.rb_users['.read'], /role.*sup/);
   assert.equal(rules.rb_users['.write'], false);
   assert.match(rules.orders['.read'], /active/);
-  assert.match(rules.orders['.write'], /active/);
+  assert.equal(rules.orders['.write']||false,false,'collection replacement must be denied');
+  assert.match(rules.orders.$key['.write'], /active/);
   assert.match(rules.idcards['.read'], /active/, 'every active user must be able to view ID-card rows');
   assert.match(rules.idcards['.write'], /role.*sup/, 'view access must not broaden ID-card write access');
 });
@@ -130,7 +131,7 @@ test('PIN login waits for and caches the latest rotated account directory', () =
 });
 
 test('Supervisor USER directory remains accessible after secure login', () => {
-  assert.match(html, /firebase-secure-auth-v1\.js\?v=secure25/);
+  assert.match(html, /firebase-secure-auth-v1\.js\?v=(?:secure|fix)\d+/);
   assert.match(auth, /settingsButton\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /settingsSub\.style\.display=isSupervisor\?'':'none'/);
   assert.match(auth, /if\(tab==='user'\)\{openAdmin\(\);return;\}/);

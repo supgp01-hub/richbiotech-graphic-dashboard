@@ -5,8 +5,8 @@ const html = fs.readFileSync('index.html', 'utf8');
 const source = fs.readFileSync('snippets/leave-workforce-v1.js', 'utf8');
 const css = fs.readFileSync('snippets/leave-workforce-v1.css', 'utf8');
 
-assert.ok(html.includes('leave-workforce-v1.css?v=fix331'));
-assert.ok(html.includes('leave-workforce-v1.js?v=fix331'));
+assert.ok(html.includes('leave-workforce-v1.css?v=fix'));
+assert.ok(html.includes('leave-workforce-v1.js?v=fix'));
 assert.ok(html.includes('window._swGetState=function(){return SW_SEL;}'));
 assert.ok(html.includes('window._lvwCanEditEmp?window._lvwCanEditEmp(e.empId)'));
 

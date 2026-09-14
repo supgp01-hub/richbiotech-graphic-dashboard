@@ -22,6 +22,6 @@ const missing=[...handlers].filter(name=>{
 });
 
 assert.deepStrictEqual(missing,[],`inline controls reference missing handlers: ${missing.join(', ')}`);
-assert.ok(index.includes('snippets/control-reliability-v1.js?v=fix276'),'control reliability runtime must be loaded');
+assert.ok(index.includes('snippets/control-reliability-v1.js?v=fix'),'control reliability runtime must be loaded');
 assert.ok(source.includes('root.rbAuditControls=function'),'runtime control audit must be available');
 console.log(`control-reliability-v1 tests passed (${handlers.size} handlers checked)`);

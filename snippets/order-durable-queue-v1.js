@@ -6,6 +6,14 @@ var DB_NAME='richbiotech_durable_v1';
 var STORE_NAME='state';
 var QUEUE_KEY='order_write_queue_v1';
 var writeChain=Promise.resolve();
+var RECEIPTS='rb_queue_receipts_v1';
+function receipts(){try{return JSON.parse(root.localStorage.getItem(RECEIPTS)||'{}');}catch(e){return {};}}
+function rememberRemoved(key,before,after){
+  var kept={};(after||[]).forEach(function(op){if(op&&op.token)kept[op.token]=true;});
+  var done=receipts(),changed=false;(before||[]).forEach(function(op){if(op&&op.token&&!kept[op.token]){done[key+'|'+op.token]=Date.now();changed=true;}});
+  if(changed)try{root.localStorage.setItem(RECEIPTS,JSON.stringify(done));}catch(e){}
+}
+function withoutReceipts(key,queue){var done=receipts();return (queue||[]).filter(function(op){return op&&!done[key+'|'+op.token];});}
 
 function clone(value){try{return JSON.parse(JSON.stringify(value));}catch(error){return value;}}
 function openDb(){
@@ -52,18 +60,20 @@ function load(){return loadKey(QUEUE_KEY);}
 function save(queue){return saveKey(QUEUE_KEY,queue);}
 function persist(queue,storageKey,memoryFallback){
   queue=Array.isArray(queue)?queue:[];var local=false;
+  try{rememberRemoved(QUEUE_KEY,JSON.parse(root.localStorage.getItem(storageKey)||'[]'),queue);}catch(e){}
+  queue=withoutReceipts(QUEUE_KEY,queue);
   try{root.localStorage.setItem(storageKey,JSON.stringify(queue));local=true;}
   catch(error){if(root.rbStorageResilience)root.rbStorageResilience.relieve();try{root.localStorage.setItem(storageKey,JSON.stringify(queue));local=true;}catch(retryError){}}
   if(typeof memoryFallback==='function')memoryFallback(local?[]:queue.slice());
   return{durable:local,promise:save(queue).then(function(ok){return local||ok;},function(){return local;})};
 }
 function restore(current){
-  return load().then(function(saved){var byPath={};(Array.isArray(saved)?saved:[]).concat(Array.isArray(current)?current:[]).forEach(function(item){if(!item||!item.path)return;var old=byPath[item.path];if(!old||Number(item.ts||0)>=Number(old.ts||0))byPath[item.path]=item;});return Object.keys(byPath).map(function(path){return byPath[path];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);});});
+  return load().then(function(saved){var byToken={};withoutReceipts(QUEUE_KEY,(Array.isArray(saved)?saved:[]).concat(Array.isArray(current)?current:[])).forEach(function(item){if(!item||!item.path)return;byToken[item.token||item.path+'|'+item.ts]=item;});return Object.keys(byToken).map(function(token){return byToken[token];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);});});
 }
 function accept(path,online){
   var durable=root.rbPersistence&&typeof root.rbPersistence.waitDurable==='function'?root.rbPersistence.waitDurable(path):null;if(!durable)return Promise.resolve(online);
   return new Promise(function(resolve){var left=2;function done(ok){if(ok){resolve(true);return;}if(!--left)resolve(false);}Promise.resolve(online).then(done,function(){done(false);});Promise.resolve(durable).then(done,function(){done(false);});});
 }
 
-root.rbDurableOrderQueue={version:'1.0.0',load:load,save:save,loadKey:loadKey,saveKey:saveKey,persist:persist,restore:restore,accept:accept,ready:ready};
+root.rbDurableOrderQueue={version:'1.1.0',load:load,save:save,loadKey:loadKey,saveKey:saveKey,persist:persist,restore:restore,accept:accept,ready:ready,rememberRemoved:rememberRemoved,withoutReceipts:withoutReceipts};
 })(window);

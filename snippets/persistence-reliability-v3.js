@@ -25,6 +25,7 @@ function readQueue(){
 }
 function writeQueue(queue){
   queue=Array.isArray(queue)?queue:[];
+  if(root.rbDurableOrderQueue&&root.rbDurableOrderQueue.rememberRemoved){root.rbDurableOrderQueue.rememberRemoved(DURABLE_KEY,readQueue(),queue);queue=root.rbDurableOrderQueue.withoutReceipts(DURABLE_KEY,queue);}
   var localDurable=false;
   try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));memoryQueue=[];localDurable=true;}
   catch(error){
@@ -173,13 +174,13 @@ root.fbGet=function reliableFbGet(path,callback){
     callback(error&&complete?null:error,overlay(path,data,entries));
   });
 };
-root.rbPersistence={version:VERSION,pendingCount:pendingCount,flush:function(){flush(true);},overlay:overlay,queue:readQueue,related:relatedPending,waitDurable:function(path){return durableByPath[pathOf(path)]||Promise.resolve(false);},migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites,removeDeniedLegacyWrites:removeDeniedLegacyWrites,collectionEntries:collectionEntries};
+root.rbPersistence={version:VERSION,readOnline:function(path,callback){return originalGet(path,callback);},pendingCount:pendingCount,flush:function(){flush(true);},overlay:overlay,queue:readQueue,related:relatedPending,waitDurable:function(path){return durableByPath[pathOf(path)]||Promise.resolve(false);},migrateUnsafeCollectionWrites:migrateUnsafeCollectionWrites,removeDeniedLegacyWrites:removeDeniedLegacyWrites,collectionEntries:collectionEntries};
 root.addEventListener&&root.addEventListener('online',function(){flush(true);});
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===QUEUE_KEY){dispatchState();flush(false);}});
 migrateUnsafeCollectionWrites();
 removeDeniedLegacyWrites();
 if(root.rbDurableOrderQueue&&typeof root.rbDurableOrderQueue.loadKey==='function')root.rbDurableOrderQueue.loadKey(DURABLE_KEY).then(function(saved){
-  saved=Array.isArray(saved)?saved:[];if(!saved.length)return;var byPath={};saved.concat(readQueue()).forEach(function(item){if(!item||!item.path)return;var old=byPath[pathOf(item.path)];if(!old||Number(item.ts||0)>=Number(old.ts||0))byPath[pathOf(item.path)]=item;});writeQueue(Object.keys(byPath).map(function(path){return byPath[path];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);}));dispatchState();flush(true);
+  saved=Array.isArray(saved)?saved:[];if(root.rbDurableOrderQueue.withoutReceipts)saved=root.rbDurableOrderQueue.withoutReceipts(DURABLE_KEY,saved);if(!saved.length)return;var byPath={};saved.concat(readQueue()).forEach(function(item){if(!item||!item.path)return;var old=byPath[pathOf(item.path)];if(!old||Number(item.ts||0)>=Number(old.ts||0))byPath[pathOf(item.path)]=item;});writeQueue(Object.keys(byPath).map(function(path){return byPath[path];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);}));dispatchState();flush(true);
 });
 setTimeout(function(){flush(false);},600);
 document.documentElement.setAttribute('data-persistence-reliability',VERSION);

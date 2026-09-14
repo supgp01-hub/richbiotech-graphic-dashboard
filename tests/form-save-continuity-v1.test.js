@@ -37,8 +37,8 @@ test('order form remains open for queued save and changed input, closes only unc
  p=c.persistOMAndFinish([]);finish({ok:true,online:true});await p;assert.equal(closed,1);
 });
 test('in-flight queue token is immutable when a second edit is coalesced in memory',async()=>{
- let finish;const c={_fbRecentOrderWrites:{},_fbOrderMemoryQueue:[],localStorage:{getItem:()=>null},window:{rbDurableOrderQueue:{persist(q,k,cb){cb(q);return{durable:true};}}},FB_ORDER_QUEUE:'test',_fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,FB_REQ_TIMEOUT:100,FB_DB:'test',navigator:{onLine:true},fbIsLeader:()=>true,fbSetSyncState:()=>{},fbFetch:()=>new Promise(r=>finish=r),Promise,Date,Math,JSON,setTimeout,clearTimeout};
+ let finish;const c={refreshOrderViews(){},_fbRecentOrderWrites:{},_fbOrderMemoryQueue:[],localStorage:{getItem:()=>null},window:{rbDurableOrderQueue:{persist(q,k,cb){cb(q);return{durable:true};}}},FB_ORDER_QUEUE:'test',_fbOrderFlushActive:false,_fbOrderRetryTimer:null,_fbSse:null,FB_REQ_TIMEOUT:100,FB_DB:'test',navigator:{onLine:true},fbIsLeader:()=>true,fbSetSyncState:()=>{},fbFetch:()=>new Promise(r=>finish=r),Promise,Date,Math,JSON,setTimeout,clearTimeout};
  vm.createContext(c);vm.runInContext(block('function fbOrderQueueLoad(){','function fbScheduleStreamRefresh(){'),c);
- const first=c.fbQueueOrderOp('PATCH','test',{name:'one'});const second=c.fbQueueOrderOp('PATCH','test',{name:'two'});finish();await tick();
- assert.notEqual(first.token,second.token);assert.equal(c._fbOrderMemoryQueue.length,1);assert.equal(c._fbOrderMemoryQueue[0].data.name,'two');finish();await tick();assert.equal(c._fbOrderMemoryQueue.length,0);
+ const first=c.fbQueueOrderOp('PATCH','test',{name:'one'});const second=c.fbQueueOrderOp('PATCH','test',{name:'two'});finish({ok:true,headers:{get:()=>null}});await tick();
+ assert.notEqual(first.token,second.token);assert.equal(c._fbOrderMemoryQueue.length,1);assert.equal(c._fbOrderMemoryQueue[0].data.name,'two');finish({ok:true,headers:{get:()=>null}});await tick();assert.equal(c._fbOrderMemoryQueue.length,0);
 });
