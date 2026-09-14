@@ -19,7 +19,8 @@ global.localStorage = {
 };
 global.setTimeout = (fn, ms) => { timers.push({ fn, ms }); return timers.length; };
 global.clearTimeout = () => {};
-global.fetch = () => { fetchCalls++; return Promise.resolve({ ok: true }); };
+let remotePayload={items:[]},etag=0;
+global.fetch = (_url,opts={}) => { fetchCalls++; if(opts.method==='PUT'){assert.equal(opts.headers['if-match'],String(etag));cloudCalls++;remotePayload=JSON.parse(opts.body);etag++;storage.set('cloud:/content_tracker_v2',JSON.stringify(remotePayload));} return Promise.resolve({ok:true,headers:{get:()=>String(etag)},json:async()=>remotePayload}); };
 global.fbSet = (path, payload) => { cloudCalls++; storage.set('cloud:' + path, JSON.stringify(payload)); return Promise.resolve(true); };
 global.navigator = { onLine: true };
 global._ctData = Array.from({ length: 2135 }, (_, i) => ({ id: `row-${i}`, script: `script-${i}` }));
@@ -50,6 +51,7 @@ assert.ok(fs.readFileSync('index.html','utf8').includes('id="ct-main-pager-top"'
   forceQuota = false;
   cloudCalls = 0;
   const remoteRows = Array.from({ length: 2169 }, (_, i) => ({ id: `safe-${i}`, script: `remote-${i}` }));
+  remotePayload={items:remoteRows};
   global.fbGet = (_path, callback) => callback(null, { items: remoteRows });
   const staleRows = remoteRows.slice(0, 34);
   await window.ctPersistContent(staleRows);

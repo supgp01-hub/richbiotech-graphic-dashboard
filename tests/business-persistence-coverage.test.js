@@ -7,7 +7,7 @@ const cases=[
   ['งานและรายละเอียดงาน',index,"fbQueueOrderOp('PUT'"],
   ['วันหยุด',read('snippets/leave-persistence-v2.js'),"CLOUD_PATH='/lv_data'"],
   ['วันทำงานพิเศษ',read('snippets/specialwork-persistence-v2.js'),"ITEM_PATH='/specialwork_v2/items'"],
-  ['Content Tracker',read('snippets/performance-v4.js'),"window.fbSet('/content_tracker_v2',payload)"],
+  ['Content Tracker',read('snippets/performance-v4.js'),"return base+'/content_tracker_v2.json'"],
   ['แผนงานอัตโนมัติ',read('snippets/order-planner-v1.js'),"CLOUD='/order_planner/drafts'"],
   ['บัตรประชาชน',read('snippets/idcard-save-reliability-v1.js'),"SHARED_PATH='/workflow_snapshots/idcards_shared_v1'"],
   ['ค่าคอมมิชชั่น',read('snippets/commission-center-v1.js'),"CLOUD_STORE='/commission_center_v1'"],

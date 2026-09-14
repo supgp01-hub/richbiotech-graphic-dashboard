@@ -42,8 +42,8 @@ global.clearTimeout = () => {};
 global.alert = () => {};
 global.confirm = () => true;
 global.fetch = (url, options) => {
-  cloudPayload = JSON.parse(options.body);
-  return Promise.resolve({ ok: true });
+  if(options.method==='PUT'){assert.equal(options.headers['if-match'],'v1');cloudPayload=JSON.parse(options.body);}
+  return Promise.resolve({ok:true,headers:{get:()=>'v1'},json:async()=>({items:[]})});
 };
 global._ctData = Array.from({ length: 2339 }, (_, i) => ({ id: `old-${i}`, brand: 'WOLF+', script: `old-${i}` }));
 storage.set('rb_olympplus_v1', JSON.stringify(global._ctData));
@@ -65,7 +65,7 @@ assert.equal(analysis.selected, 4);
 quota = true;
 window.ctImportCommit();
 
-Promise.resolve().then(() => Promise.resolve()).then(() => {
+new Promise(resolve=>setImmediate(resolve)).then(() => {
   assert.ok(cloudPayload, 'เมื่อพื้นที่เครื่องเต็มต้องส่งข้อมูลไปฐานข้อมูลออนไลน์');
   assert.equal(cloudPayload.items.length, 2343, 'ข้อมูลเดิมและข้อมูลใหม่ต้องขึ้นออนไลน์ครบ');
   assert.equal(global._ctData.length, 2343, 'ข้อมูลในหน้าปัจจุบันต้องไม่หาย');

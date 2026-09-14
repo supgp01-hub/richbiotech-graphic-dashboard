@@ -1,5 +1,6 @@
 const { chromium }=require('playwright');
 const assert=require('assert');
+const fs=require('fs'),path=require('path');
 const {installSecureAuthMock}=require('./secure-auth-mock');
 
 (async()=>{
@@ -7,6 +8,15 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   const screenshotPath=process.argv[3]||'';
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const context=await browser.newContext();
+  const origin=new URL(targetUrl);assert.ok(['127.0.0.1','localhost'].includes(origin.hostname),'Run mocked smoke tests against localhost only');
+  const root=path.resolve(__dirname,'../..');
+  await context.route('**/*',async route=>{
+    const url=new URL(route.request().url());
+    if(url.origin!==origin.origin)return route.abort();
+    const file=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
+    if(!file.startsWith(root+path.sep)||!fs.existsSync(file))return route.fulfill({status:404,body:'Not found'});
+    return route.fulfill({path:file});
+  });
   await installSecureAuthMock(context,{role:'sup',name:'View'});
   await context.addInitScript(()=>{
     localStorage.setItem('rb_theme','dark');
@@ -58,7 +68,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
       await page.waitForSelector('.gsp[data-sub="commission"] .rb-commission-app .cc-shell',{timeout:10000});
       assert.strictEqual(await page.locator('.gsp[data-sub="commission"] .gsp-empty').count(),0,'Commission placeholder must be replaced by the real app');
       assert.ok(await page.locator('.gsp[data-sub="commission"] .cc-stat').count()>=4,'Supervisor commission summary cards must be rendered');
-      await page.locator('[data-cc-view]').selectOption('staff:BALL');
+      await page.locator('[data-cc-view]').selectOption('staff:team');
       await page.waitForSelector('[data-cc-team-card="BALL"]',{timeout:5000});
       assert.ok(await page.locator('[data-cc-team-card]').count()>=7,'Staff view must render every employee card');
       await page.locator('[data-cc-view]').selectOption('supervisor');
