@@ -68,7 +68,7 @@ function persist(queue,storageKey,memoryFallback){
   return{durable:local,promise:save(queue).then(function(ok){return local||ok;},function(){return local;})};
 }
 function restore(current){
-  return load().then(function(saved){var byToken={};withoutReceipts(QUEUE_KEY,(Array.isArray(saved)?saved:[]).concat(Array.isArray(current)?current:[])).forEach(function(item){if(!item||!item.path)return;byToken[item.token||item.path+'|'+item.ts]=item;});return Object.keys(byToken).map(function(token){return byToken[token];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);});});
+  return load().then(function(saved){if(typeof current==='function')current=current();var byToken={};withoutReceipts(QUEUE_KEY,(Array.isArray(saved)?saved:[]).concat(Array.isArray(current)?current:[])).forEach(function(item){if(!item||!item.path)return;byToken[item.token||item.path+'|'+item.ts]=item;});return Object.keys(byToken).map(function(token){return byToken[token];}).sort(function(a,b){return Number(a.ts||0)-Number(b.ts||0);});});
 }
 function accept(path,online){
   var durable=root.rbPersistence&&typeof root.rbPersistence.waitDurable==='function'?root.rbPersistence.waitDurable(path):null;if(!durable)return Promise.resolve(online);

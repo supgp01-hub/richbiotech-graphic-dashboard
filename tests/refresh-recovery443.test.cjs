@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const html=fs.readFileSync('index.html','utf8');
+let queue=[{token:'old',path:'/orders/a',method:'PATCH',data:{status:'review'},conflict:true}],reads=0,rendered=0;
+const remote={a:{id:'TEST',assignee:'TER',status:'review',updatedAt:20}};
+const c={lpORD:()=>[],window:{rbPersistence:{readOnline(path,cb){reads++;cb(null,remote);}}},Response,fbOrderQueueLoad:()=>queue,fbOrderQueueSave:q=>queue=q,_fbRecentOrderWrites:{},fbMergeRemoteSnapshot:data=>Object.values(data),localStorage:{getItem:()=>null,setItem(){}},LS_ORD:'test',refreshOrderViews:()=>rendered++,fbIsLeader:()=>false,fbSetSyncState(){},_fbRefreshCallbacks:[],_fbRefreshActive:false,_fbRefreshAgain:false,_fbFallbackTimer:null,fbGet(){throw Error('must not acknowledge local overlay as server receipt')},setTimeout,console};
+vm.createContext(c);vm.runInContext(fs.readFileSync('snippets/safe-order-write-v1.js','utf8'),c);
+let a=html.indexOf('function fbApplyRemoteOrders(data){');vm.runInContext(html.slice(a,html.indexOf('var _fbRecentOrderWrites=',a)),c);
+a=html.indexOf('function fbRefreshOrders(cb){');vm.runInContext(html.slice(a,html.indexOf("window.addEventListener('online'",a)),c);
+let callback=false;c.fbRefreshOrders(()=>callback=true);assert.equal(reads,1);assert.equal(queue.length,0);assert(callback);assert(rendered>0);
+queue=[{token:'unique',path:'/orders/a',method:'PATCH',data:{brief:'unsent work'},conflict:true}];c.fbRefreshOrders();assert.equal(queue.length,1,'unique unsent work must stay queued');
+const storage={getItem:()=>null,setItem(){}};const d={window:{localStorage:storage},Promise};vm.createContext(d);vm.runInContext(fs.readFileSync('snippets/order-durable-queue-v1.js','utf8'),d);
+let current=[];const pending=d.window.rbDurableOrderQueue.restore(()=>current);current=[{token:'typed-during-restore',path:'/orders/new',ts:1}];
+pending.then(rows=>{assert.equal(rows.length,1);assert.equal(rows[0].token,current[0].token);console.log('PASS: fallback/nonleader refresh reconciles real server receipts; new data and edits during restore survive');}).catch(e=>{console.error(e);process.exitCode=1});
