@@ -12,13 +12,22 @@ function repairConfirmedAssignment(op,remote){
  try{var archive=JSON.parse(localStorage.getItem('rb_order_conflict_archive_v1')||'[]');if(!archive.some(function(x){return x.operation&&x.operation.token===op.token;})){archive.push({operation:op,remote:remote,resolvedAt:Date.now(),resolution:'supervisor-confirmed-assignment'});localStorage.setItem('rb_order_conflict_archive_v1',JSON.stringify(archive));}return true;}catch(e){return false;}
 }
 
+
+function recoverMissingAudit(op,remote){
+ if(!op||!op.conflict||op.method!=='PATCH'||!remote||remote._deleted||!op.data||op.data._deleted||!w.rbSafeOrderWrite)return null;
+ var metadata=['updatedAt','_version','_updatedBy','_syncRevision','_lastWriteToken'],fields=Object.keys(op.data).filter(function(k){return metadata.indexOf(k)<0&&!w.rbSafeOrderWrite.equal(op.data[k],remote[k]);});
+ if(!fields.length||!fields.every(function(k){return ['auditError','auditFixed'].includes(k)&&remote[k]==null&&typeof op.data[k]==='string';}))return null;
+ var data={updatedAt:Math.max(Date.now(),Number(remote.updatedAt||0)+1)},base={};fields.forEach(function(k){data[k]=op.data[k];base[k]=null;});
+ var next=Object.assign({},op,{token:op.token+'_audit445',data:data,baseValues:base,baseUpdatedAt:Number(remote.updatedAt||0),conflict:false,attempts:0,nextAttemptAt:0});delete next.conflictMessage;
+ try{var archive=JSON.parse(localStorage.getItem('rb_order_conflict_archive_v1')||'[]');archive.push({operation:op,resolvedAt:Date.now(),resolution:'merge-missing-audit-fields'});localStorage.setItem('rb_order_conflict_archive_v1',JSON.stringify(archive));}catch(e){return null;}return next;
+}
 var reportSignature='',reportBusy=false;
 function report(queue,data){
  var u=w._rbUser||{};if(!u.uid||!w.rbFirebaseAuth||reportBusy)return;
  var conflicts=(queue||[]).filter(function(op){return op.conflict;}).map(function(op){var remote=data[String(op.path||'').split('/').pop()]||{},fields=Object.keys(op.data||{}).filter(function(k){return !['updatedAt','_version','_updatedBy','_syncRevision','_lastWriteToken'].includes(k)&&!w.rbSafeOrderWrite.equal(op.data[k],remote[k]);});return {job:remote.id||op.data&&op.data.id||op.path,fields:fields,localAssignee:op.data&&op.data.assignee||'',onlineAssignee:remote.assignee||'',localStatus:op.data&&op.data.status||'',onlineStatus:remote.status||'',queuedAt:Number(op.ts||0),baseUpdatedAt:Number(op.baseUpdatedAt||0),onlineUpdatedAt:Number(remote.updatedAt||0)};});
  var signature=u.uid+JSON.stringify(conflicts);if(signature===reportSignature)return;
  var device;try{device=localStorage.getItem('rb_sync_device_v1');if(!device){device='device_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);localStorage.setItem('rb_sync_device_v1',device);}}catch(e){return;}
- reportBusy=true;w.rbFirebaseAuth.fetch('https://richbiotech-c4e41-default-rtdb.firebaseio.com/workflow_snapshots/order_sync_diagnostics_v1/'+encodeURIComponent(u.uid)+'/'+encodeURIComponent(device)+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({build:'fix444',employee:u.name||'',count:conflicts.length,conflicts:conflicts,checkedAt:{'.sv':'timestamp'}})}).then(function(r){if(r.ok)reportSignature=signature;}).catch(function(){}).finally(function(){reportBusy=false;});
+ reportBusy=true;w.rbFirebaseAuth.fetch('https://richbiotech-c4e41-default-rtdb.firebaseio.com/workflow_snapshots/order_sync_diagnostics_v1/'+encodeURIComponent(u.uid)+'/'+encodeURIComponent(device)+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({build:'fix445',employee:u.name||'',count:conflicts.length,conflicts:conflicts,checkedAt:{'.sv':'timestamp'}})}).then(function(r){if(r.ok)reportSignature=signature;}).catch(function(){}).finally(function(){reportBusy=false;});
 }
 function esc(v){return String(v==null?'—':typeof v==='object'?JSON.stringify(v):v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function get(path){return new Promise(function(resolve,reject){(w.rbPersistence&&w.rbPersistence.readOnline||w.fbGet)(path,function(e,d){if(e)reject(e);else resolve(d);});});}
@@ -37,5 +46,5 @@ async function open(){
  box.appendChild(article);});box.querySelector('[data-close]').onclick=function(){box.remove();};
  }catch(e){box.innerHTML='<p>'+esc(e.message)+'</p><button type="button">ปิด</button>';box.querySelector('button').onclick=function(){box.remove();};}finally{busy=false;}
 }
-document.addEventListener('click',function(e){if(e.target.closest('[data-review-conflicts]'))open();});w.rbOrderConflictReview={open:open,report:report,repairConfirmedAssignment:repairConfirmedAssignment};
+document.addEventListener('click',function(e){if(e.target.closest('[data-review-conflicts]'))open();});w.rbOrderConflictReview={open:open,recoverMissingAudit:recoverMissingAudit,report:report,repairConfirmedAssignment:repairConfirmedAssignment};
 })(window);
