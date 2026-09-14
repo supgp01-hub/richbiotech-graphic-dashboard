@@ -175,6 +175,7 @@
   }
   function saveEmployee(section,rerender){
     if(!section||section._rbSaving)return;var current=currentOrder();if(!current)return;var orders=clone(typeof window.lpORD==='function'?window.lpORD():[]),orderIndex=orders.findIndex(function(item){return item.id===current.id;}),order=orderIndex>=0?orders[orderIndex]:null;if(!order)return;var states=section._rbState||[],issues=states.filter(function(state){return state.result==='issue';});
+    if(window.rbGuardEmployeeAuditEvidence&&!window.rbGuardEmployeeAuditEvidence(order)){setMessage(section,'ผลออดิตเปลี่ยนแล้ว กรุณาเปิดงานใหม่เพื่อตรวจรายละเอียดล่าสุด ข้อมูลที่กรอกยังอยู่ในหน้านี้','error');return;}
     var incomplete=issues.filter(function(state){return !hasRequiredFixImage(state);});if(incomplete.length){setMessage(section,'ยังส่งไม่ได้ กรุณาแนบรูปงานแก้ไขของ '+incomplete.map(function(state){return'VER '+state.version;}).join(', '),'error');showMissingEvidence(section,incomplete);return;}
     var stale=issues.filter(function(state){return state.correctionRequestedAt&&state.employeeSubmittedAt<state.correctionRequestedAt&&state.correctionDraftUpdatedAt<=state.correctionRequestedAt;});if(stale.length){setMessage(section,'กรุณาอัปเดตลิงก์ รูป หรือหมายเหตุงานแก้ไขล่าสุดของ '+stale.map(function(state){return'VER '+state.version;}).join(', '),'error');return;}
     var now=Date.now(),imageLinks=rowValues('#om-image-submitlinks-rows .om-image-submitlink-row input');issues.forEach(function(state,index){while(imageLinks.length<state.version)imageLinks.push('');if(state.fixLink)imageLinks[state.version-1]=String(state.fixLink).trim();state.employeeSubmittedAt=now+index;state.employeeSubmittedBy=actor();});
@@ -199,6 +200,7 @@
     var states=initialVersions(order,carried),auditMode=canAudit()?'audit':'readonly',teamMode=canSubmitCorrection(order)?'employee':'readonly',rendering=false;
     function rerender(){if(rendering)return;rendering=true;var audit=document.getElementById('rb-audit-version-workflow'),team=document.getElementById('rb-team-version-workflow');if(audit)audit.remove();if(team)team.remove();buildSection(auditPanel,'rb-audit-version-workflow',states,auditMode,'audit',rerender);buildSection(teamPanel,'rb-team-version-workflow',states,teamMode,'team',rerender);rendering=false;}
     rerender();syncSourceStatus();
+    if(window.rbCaptureAuditVersionBaseline)window.rbCaptureAuditVersionBaseline(order,collect(document.getElementById('rb-audit-version-workflow')));
   };
   window.rbValidateAuditVersionDecision=function(kind){
     var section=document.getElementById('rb-audit-version-workflow'),states=section&&section._rbState||[];

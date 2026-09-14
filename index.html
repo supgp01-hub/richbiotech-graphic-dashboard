@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix451">
+<meta name="rb-build" content="fix452">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2902,7 +2902,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix380"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix350"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix290"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix380"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix443"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix380"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix350"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix452"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix452"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix443"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -3344,13 +3344,12 @@ function spORD(d){
     if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderAssetPayload(row)));return;}
     var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
     Object.keys(allKeys).forEach(function(k){if(FB_ORDER_ASSET_FIELDS.indexOf(k)>=0||k==='_assetsLoaded')return;var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
-    if(Object.keys(changes).length){changes.updatedAt=Math.max(Date.now(),Number(old.updatedAt||0)+1);row.updatedAt=changes.updatedAt;queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes,Number(old.updatedAt||0),Object.fromEntries(Object.keys(changes).map(function(k){return [k,old[k]==null?null:old[k]];}))));}
+    if(Object.keys(changes).length){changes.updatedAt=Math.max(Date.now(),Number(old.updatedAt||0)+1);row.updatedAt=changes.updatedAt;queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes,Number(old.updatedAt||0),Object.fromEntries(Object.keys(changes).map(function(k){return [k,window.rbAuditSaveBase?window.rbAuditSaveBase(row,k,old[k]??null):old[k]??null];}))));}
     if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null));}
   });
   if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(after,LS_ORD);else localStorage.setItem(LS_ORD,JSON.stringify(after));
   refreshOrderViews();
   var queuedByToken={};queueOps.forEach(function(op){if(op&&op.token)queuedByToken[op.token]=1;});
-  /* Only this save's receipts determine success; other queued jobs retry independently. */
   var metaWait=queueOps.map(function(op){return fbWaitOrderOp(op);});
   return Promise.all([Promise.all(metaWait),Promise.all(assetWrites)]).then(function(result){
     var metadata=result[0]||[],assets=result[1]||[],metadataSafe=metadata.every(function(state){return state&&(state.durable||state.confirmed);}),metadataOnline=metadata.every(function(state){return state&&state.confirmed;}),assetsOk=assets.every(function(ok){return ok!==false;}),online=metadataOnline&&assetsOk;
@@ -4650,8 +4649,6 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     var _revHistory=o&&Array.isArray(o.revisionSubmissions)?o.revisionSubmissions:[];var _latestRevision=_revHistory.length?_revHistory[_revHistory.length-1]:null;var _writingRevision=!!(o&&o.status==='revision'&&_orderRole==='graphic'&&_isView);var _structuredDetailView=!!o;var _slvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.links)?_latestRevision.links.slice():(o&&Array.isArray(o.submitLinks)?o.submitLinks.slice():(o&&o.submitLink?[o.submitLink]:[]));var _islvs=_writingRevision?['']:_latestRevision&&Array.isArray(_latestRevision.imageLinks)?_latestRevision.imageLinks.slice():(o&&Array.isArray(o.imageSubmitLinks)?o.imageSubmitLinks.slice():[]);if(window._renderSubmitLinkRows)window._renderSubmitLinkRows(_slvs);if(window._renderImageSubmitLinkRows)window._renderImageSubmitLinkRows(_islvs);var _revisionNoteEl=ge('om-revision-note');if(_revisionNoteEl)_revisionNoteEl.value=_writingRevision?'':(_latestRevision&&_latestRevision.note||o&&o.revisionNote||'');if(window._omRenderRevisionDetailView)window._omRenderRevisionDetailView(o,_structuredDetailView);
     ge('om-brief').value=o?(o.brief||''):'';var _briefMenu=ge('om-brief-menu'),_briefToggle=ge('om-brief-toggle');if(_briefMenu)_briefMenu.style.display='none';if(_briefToggle)_briefToggle.setAttribute('aria-expanded','false');
     refreshGallery();refreshBriefGallery();refreshErrorGallery();refreshFixGallery();
-    /* Migrated image evidence is loaded only for the opened order. This keeps
-       the order list fast while preserving every historical image. */
     if(o&&o._fbKey&&_hasRemoteAssets&&!fbOrderHasAssetFields(o)){
       setOMSubmitFeedback('กำลังโหลดรูปและหลักฐานของงานนี้...','success');
       fbLoadOrderAssets(o).then(function(assets){
@@ -4671,6 +4668,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
       });
     }
     if(_omIsNew)restoreOMDraft();else{var _draftBanner=ge('om-draft-banner');if(_draftBanner&&_draftBanner.parentNode)_draftBanner.parentNode.removeChild(_draftBanner);updateOMDraftStatus('');}
+    if(window.rbCaptureAuditBaseline)window.rbCaptureAuditBaseline(o);
     _omViewMode=_isView;
     if(_switchTab)_switchTab('info');
     if(_omInfoPanel){_omInfoPanel.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=_isView;el.style.opacity=_isView?'0.7':'';el.style.cursor=_isView?'default':'';el.style.background=_isView&&el.tagName!=='TEXTAREA'?'#f9fafb':'';});_omInfoPanel.querySelectorAll('button').forEach(function(b){if(b.getAttribute('data-link-btn')||b.classList.contains('rb-revision-edit-toggle')){b.disabled=false;b.style.opacity='';b.style.cursor='pointer';}else{b.disabled=_isView;b.style.opacity=_isView?'0.4':'';b.style.cursor=_isView?'not-allowed':'';}});}
@@ -4687,6 +4685,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
         _omSaveBtn.style.background='#d97706';
         _omInfoAction=function(){
             if(_omActionBusy)return;
+            var fresh=lpORD(),latest=fresh[modalOrderIndex(fresh,_cid)];if(window.rbGuardEmployeeOrderAction&&!window.rbGuardEmployeeOrderAction(latest,_cst)){setOMSubmitFeedback('สถานะงานเปลี่ยนแล้ว กรุณาเปิดงานใหม่เพื่อตรวจผลออดิตล่าสุด ข้อมูลที่กรอกยังอยู่ในหน้านี้','error');return;}
             if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอจนรูปพร้อมก่อนส่งงาน','error');return;}
             if(_nst==='review'){
               var _clipCont=document.getElementById('om-clip-extra');
@@ -4698,10 +4697,6 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
                   if(_clipInp&&_clipInp.value&&_clipInp.value.trim()){_hasClip=true;break;}
                 }
               }
-              /* Both the normal artwork uploader and the per-version correction
-                 uploader are valid evidence. Previously the normal image list
-                 was ignored, so a worker could attach artwork and still be
-                 blocked by the send guard. */
               var _hasFix=(typeof _omFixImages!=='undefined'&&_omFixImages&&_omFixImages.length>0)||(typeof _omImages!=='undefined'&&_omImages&&_omImages.length>0);
               var _hasSubmit=(typeof submitLinkValues==='function'&&submitLinkValues().some(function(v){return !!v;}))||(typeof imageSubmitLinkValues==='function'&&imageSubmitLinkValues().some(function(v){return !!v;}));
               if(!window.rbOrderEvidenceRequired||window.rbOrderEvidenceRequired((_cjob||{}).type,_cst,_hasClip,_hasFix,_hasSubmit)){
@@ -4831,6 +4826,7 @@ if(_revisionSubmit){
     return Promise.resolve(typeof spORD==='function'?spORD(orders):{ok:false}).then(async function(state){
       if(!state||state.ok===false)throw new Error(state&&state.error?state.error:state&&state.assetsOk===false?'ยังส่งรูปขึ้นออนไลน์ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกดบันทึกอีกครั้ง':'ยังเก็บข้อมูลอย่างปลอดภัยไม่สำเร็จ กรุณาลองอีกครั้ง');
       if(state.online&&listSave)await listSave();
+      if(state.online&&window.rbAuditSaveAcknowledged)window.rbAuditSaveAcknowledged();
       if(typeof options.onSuccess==='function')options.onSuccess(state);
       if(typeof window.rbRefreshOrderNotifications==='function')window.rbRefreshOrderNotifications();
       setOMSubmitFeedback(state.online?(options.successMessage||'บันทึกออนไลน์เรียบร้อยแล้ว'):'เก็บข้อมูลในเครื่องแล้ว · ยังไม่ส่งถึงผู้ตรวจจนกว่าจะซิงก์สำเร็จ','success');
@@ -6273,7 +6269,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/system-health-v1.js?v=fix441"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
-<script src="snippets/safe-order-write-v1.js?v=fix444"></script><script src="snippets/order-conflict-review-v1.js?v=fix446"></script>
+<script src="snippets/safe-order-write-v1.js?v=fix452"></script><script src="snippets/order-conflict-review-v1.js?v=fix446"></script>
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=fix436"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
 <script src="snippets/content-submissions-v1.js?v=fix444"></script>

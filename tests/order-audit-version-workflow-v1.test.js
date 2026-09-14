@@ -49,7 +49,7 @@ assert.ok(workflow.includes('fixImages:Array.isArray(old.fixImages)'),'employee 
 assert.ok(workflow.includes("item.versionKey=versionKey(id,index+1)"),'each saved version must be owned by job id and VER');
 assert.ok(workflow.includes('if(!itemJob&&!itemKey)owned=sameSource(item,values[version-1])'),'legacy state must not leak into unrelated jobs');
 assert.ok(persistence.includes('workflowJob===orderJob'),'saving must never copy a visible Audit panel into another job');
-assert.ok(persistence.includes('order.auditVersions=window.rbCollectAuditVersionWorkflow(workflow)'),'the shared version state must save with the order');
+assert.ok(persistence.includes("apply('auditVersions',window.rbCollectAuditVersionWorkflow(workflow))"),'the shared version state must save with the order');
 assert.ok(workflow.includes("submitted.className='rb-av-stage rb-av-stage-source'"),'submitted work must live in the VER header area');
 assert.ok(workflow.includes('head.appendChild(submitted)'),'submitted work must be placed directly under the VER name');
 assert.ok(workflow.includes('flow.append(audit,teamCorrection'),'the lower team workflow must contain only Audit findings and correction submission');

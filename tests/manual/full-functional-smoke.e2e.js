@@ -6,7 +6,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
 (async()=>{
   const targetUrl=process.argv[2]||'http://127.0.0.1:8014/index.html?v=fix243-functional';
   const screenshotPath=process.argv[3]||'';
-  const browser=await chromium.launch({headless:true,channel:'chrome'});
+  const browser=await chromium.launch({headless:true,channel:process.env.RB_TEST_BROWSER_CHANNEL||'chrome'});
   const context=await browser.newContext();
   const origin=new URL(targetUrl);assert.ok(['127.0.0.1','localhost'].includes(origin.hostname),'Run mocked smoke tests against localhost only');
   const root=path.resolve(__dirname,'../..');

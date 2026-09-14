@@ -51,7 +51,7 @@ const fakeFields = {
   'om-camp3': {value: 'Campaign 3'},
   'om-link3': {value: 'https://example.com/ver-3'}
 };
-const sandbox = {window: {}, document: {querySelectorAll: () => [{}]}};
+const sandbox = {window: {_rbUser:{role:'audit'}}, document: {querySelectorAll: () => [{}]}};
 vm.runInNewContext(auditPersistence, sandbox);
 const savedAudit = {};
 sandbox.window.rbPersistAuditFields(savedAudit, (id) => fakeFields[id] || null, sandbox.document);

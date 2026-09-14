@@ -28,6 +28,7 @@ async function write(url,options,request){
   // equals the value the editor originally read (or the desired value).
   var base=options.rbBaseValues,fields=Object.keys(change||{}).filter(function(k){return ['updatedAt','_version','_updatedBy','_syncRevision','_lastWriteToken'].indexOf(k)<0;});
   var independent=method==='PATCH'&&remote&&!remote._deleted&&change&&!change._deleted&&base&&fields.length&&fields.every(function(k){return Object.prototype.hasOwnProperty.call(base,k)&&(equal(remote[k],base[k])||equal(remote[k],change[k]));});
+  if(method==='PATCH'&&remote&&base&&fields.some(function(k){return Object.prototype.hasOwnProperty.call(base,k)&&!equal(remote[k],base[k])&&!equal(remote[k],change[k]);}))throw conflict('ช่องที่แก้มีข้อมูลออนไลน์ใหม่แล้ว เก็บข้อมูลที่กรอกไว้โดยไม่ทับข้อมูลใหม่');
   if(independent){options=Object.assign({},options,{rbBaseUpdatedAt:Number(remote.updatedAt||0)});next.updatedAt=Math.max(Date.now(),Number(remote.updatedAt||0)+1);}
   if(remote){
     if(options.rbBaseUpdatedAt==null&&!same(next,remote))throw conflict('รายการจากเวอร์ชันเก่า เก็บไว้รอตรวจและไม่เขียนทับออนไลน์');
