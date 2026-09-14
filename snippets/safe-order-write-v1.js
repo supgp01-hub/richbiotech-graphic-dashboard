@@ -20,8 +20,8 @@ async function write(url,options,request){
   if(!response.ok)return response;
   var remote=await response.json(),etag=response.headers.get('ETag');
   if(!etag)throw new Error('ยังตรวจเวอร์ชันออนไลน์ไม่ได้ กรุณาลองซิงก์ใหม่');
-  if(remote&&remote._lastWriteToken&&remote._lastWriteToken===options.rbWriteToken)return new Response('{}',{status:200});
-  if(matches(remote,change,method))return new Response('{}',{status:200});
+  if(remote&&remote._lastWriteToken&&remote._lastWriteToken===options.rbWriteToken)return new Response('{}',{status:200,headers:{'X-RB-Updated-At':String(remote.updatedAt||0)}});
+  if(matches(remote,change,method))return new Response('{}',{status:200,headers:{'X-RB-Updated-At':String(remote.updatedAt||0)}});
   var next=method==='PATCH'?Object.assign({},remote||{},change||{}):change;
   if(remote){
     if(options.rbBaseUpdatedAt==null&&!same(next,remote))throw conflict('รายการจากเวอร์ชันเก่า เก็บไว้รอตรวจและไม่เขียนทับออนไลน์');
