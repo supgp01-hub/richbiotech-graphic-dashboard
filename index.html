@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix449">
+<meta name="rb-build" content="fix450">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5983,7 +5983,7 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
       button.style.setProperty('--rb-dd-bg',look.bg);button.style.setProperty('--rb-dd-border',look.border);button.style.setProperty('--rb-dd-color',look.color);button.style.setProperty('--rb-dd-icon-bg',look.iconBg);
       button.innerHTML='<span class="rb-dd-icon" style="color:#fff">'+look.icon+'</span><span class="rb-dd-label"></span><span class="rb-dd-check">'+(index===active.selectedIndex?'✓':'')+'</span>';
       button.querySelector('.rb-dd-label').textContent=option.textContent;
-      button.addEventListener('click',function(){if(active&&option.parentElement===active)choose(option.index);});
+      button.addEventListener('click',function(){if(active&&active.contains(option))choose(option.index);});
       list.appendChild(button);visibleButtons.push(button);
       if(index===active.selectedIndex)focusIndex=visibleButtons.length-1;
     });
