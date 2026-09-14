@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix452">
+<meta name="rb-build" content="fix453">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2902,7 +2902,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix380"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix350"><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix452"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix452"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix443"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix380"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix350"><link rel="stylesheet" href="snippets/order-review-rounds-v1.css?v=fix453"><script src="snippets/order-review-rounds-v1.js?v=fix453"></script><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix452"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix453"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix443"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -3299,6 +3299,7 @@ function refreshOrderViews(){
   _rbOrderRenderQueued=true;
   (window.requestAnimationFrame||function(fn){setTimeout(fn,16);})(function(){
     _rbOrderRenderQueued=false;
+    if(window.rbReviewRounds)window.rbReviewRounds.refresh();
     var p=document.querySelector('.gsp[data-sub="order"]'),team=document.getElementById('tab-team');
     if(p&&p.getAttribute('data-order-init')&&p.classList.contains('gsp-active')&&team&&team.classList.contains('active')){renderOrderStats();renderOrders();}
     var contentPanel=document.querySelector('.gsp[data-sub="links"]');if(contentPanel&&contentPanel.classList.contains('gsp-active')&&team&&team.classList.contains('active')&&window.ctRender&&window.ctHookHistory&&window.ctHookHistory.allowed())window.ctRender();
@@ -3332,6 +3333,7 @@ function spORD(d){
     var previous=byKey[row._fbKey];
     if(previous&&previous.firstSubmittedAt)row.firstSubmittedAt=previous.firstSubmittedAt;
     if(!row.firstSubmittedAt&&previous&&['review','done'].indexOf(previous.status)<0&&['review','done'].indexOf(row.status)>=0){row.firstSubmittedAt=Date.now();row.firstSubmittedBy=curUser();}
+    if(window.rbReviewRounds)window.rbReviewRounds.prepare(previous,row,window._rbUser);
     active[row._fbKey]=1;
   });
   var localResult={ok:true};
@@ -3648,7 +3650,8 @@ function renderOrders(){
   });
   // Preserve live controls when synchronization has not changed displayed data.
   // Include permissions, filters and day boundaries; omit image payloads.
-  var renderKey=JSON.stringify([new Date().toDateString(),_OF,window._ordViewMode,window._rbUser&&[window._rbUser.name,window._rbUser.role],viewerContext.isGraphic,orders.length,f.map(function(o){return[o._fbKey,o.id,o.name,o.title,o.product,o.note,o.type,o.deadline,o.status,o.assignee]})]);
+  var pendingPaths={};fbOrderQueueLoad().forEach(function(op){if(op)pendingPaths[op.path]=true;});
+  var renderKey=JSON.stringify([new Date().toDateString(),_OF,window._ordViewMode,window._rbUser&&[window._rbUser.name,window._rbUser.role],viewerContext.isGraphic,orders.length,f.map(function(o){return[o._fbKey,o.id,o.name,o.title,o.product,o.note,o.type,o.deadline,o.status,o.assignee,window.rbReviewRounds?window.rbReviewRounds.signature(o):null,!!pendingPaths['/orders/'+o._fbKey]]})]);
   if(wrap._rbRenderKey===renderKey&&wrap.firstElementChild)return;
   wrap._rbRenderKey=renderKey;
   var sum=document.getElementById('ord-result-summary');
@@ -3657,8 +3660,8 @@ function renderOrders(){
   if(f.length===0){var em=document.createElement('div');em.textContent='ไม่พบรายการงาน';em.style.cssText='padding:40px;text-align:center;color:var(--text-muted2);font-size:14px;font-style:italic;';wrap.appendChild(em);return;}
   var tbl=document.createElement('table');tbl.className='ord-table';tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;';
   var thead=document.createElement('thead');var htr=document.createElement('tr');htr.style.background='#f8fafc';
-  ['เลขงาน','ชื่องาน','ประเภท','DEADLINE','สถานะ','ผู้รับผิดชอบ','ACTION'].forEach(function(h,i){
-    var th=document.createElement('th');th.textContent=h;th.style.cssText='padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted2);border-bottom:2px solid #e5e7eb;white-space:nowrap;'+(i===6?'text-align:center;':'');
+  ['เลขงาน','ชื่องาน','ประเภท','DEADLINE','สถานะ','ผู้รับผิดชอบ','ส่งแก้แล้ว','ACTION'].forEach(function(h,i){
+    var th=document.createElement('th');th.textContent=h;th.style.cssText='padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted2);border-bottom:2px solid #e5e7eb;white-space:nowrap;'+(i===7?'text-align:center;':'');
     htr.appendChild(th);
   });
   thead.appendChild(htr);tbl.appendChild(thead);
@@ -3677,12 +3680,13 @@ function renderOrders(){
     ].forEach(function(c,ci){var td=document.createElement('td');td.setAttribute('data-label',['เลขงาน','ชื่องาน','ประเภท','DEADLINE'][ci]);td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
     var stTd=document.createElement('td');stTd.style.cssText='padding:8px 14px;vertical-align:middle;';
     stTd.setAttribute('data-label','สถานะ');
-    var statusLabel=document.createElement('span');statusLabel.className='rb-order-status-readonly';var waitingForSync=fbOrderQueueLoad().some(function(op){return op&&op.path==='/orders/'+o._fbKey;});statusLabel.textContent=waitingForSync?st.l+' · รอซิงก์':st.l;statusLabel.style.cssText='display:inline-block;background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;';
+    var statusLabel=document.createElement('span');statusLabel.className='rb-order-status-readonly';var waitingForSync=!!pendingPaths['/orders/'+o._fbKey];statusLabel.textContent=waitingForSync?st.l+' · รอซิงก์':window.rbReviewRounds?window.rbReviewRounds.label(o):st.l;statusLabel.style.cssText='display:inline-block;background:'+st.bg+';color:'+st.col+';padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;';
     stTd.appendChild(statusLabel);tr.appendChild(stTd);
     var asTd=document.createElement('td');asTd.style.cssText='padding:10px 14px;vertical-align:middle;';
     asTd.setAttribute('data-label','ผู้รับผิดชอบ');
     var assigneeLabel=document.createElement('span');assigneeLabel.className='rb-order-assignee-readonly';assigneeLabel.textContent=o.assignee||'— ไม่ระบุ —';assigneeLabel.style.cssText='display:inline-block;font-size:12px;font-weight:600;color:var(--text-heading);';
     asTd.appendChild(assigneeLabel);tr.appendChild(asTd);
+    if(window.rbReviewRounds)window.rbReviewRounds.appendCountCell(tr,o,waitingForSync);
     var atd=document.createElement('td');atd.style.cssText='padding:10px 14px;text-align:center;white-space:nowrap;';
     atd.setAttribute('data-label','ACTION');
     var eb=document.createElement('button');eb.className='rb-order-edit-btn';eb.title='แก้ไข';eb.setAttribute('aria-label','แก้ไขงาน');eb.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>';eb.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:32px;height:30px;background:var(--auto-lc31);color:#287B5B;border:1px solid #bbf7d0;border-radius:6px;cursor:pointer;padding:0;margin-right:4px;';
@@ -4709,7 +4713,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
           var orders=typeof lpORD==='function'?lpORD():[];
           var idx=modalOrderIndex(orders,ordId);
           if(idx<0){setOMSubmitFeedback('ไม่พบรายการงาน กรุณาปิดแล้วเปิดรายการใหม่','error');return;}
-          persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst;orders[idx].updatedAt=Date.now();
+          persistOMWorkflow(orders[idx],{revisionSubmit:_cst==='revision'});orders[idx].status=_nst;if(_nst==='review')orders[idx]._rbReviewSubmit=true;orders[idx].updatedAt=Date.now();
           persistOMAndFinish(orders,{allowUnloadedAssets:true,message:'กำลังส่งข้อมูลและสถานะงาน...',successMessage:_nst==='review'?'ส่งงานและบันทึกออนไลน์เรียบร้อยแล้ว':'รับงานและบันทึกเรียบร้อยแล้ว',onSuccess:function(){
             if(typeof logTL==='function')logTL('📋 สั่งงาน','อัปเดตสถานะ',ordId+' → '+((typeof ST!=="undefined"?ST:[]).find(function(s){return s.k===_nst;})||{l:_nst}).l,{jn:orders[idx].name||orders[idx].title,jt:orders[idx].type,as:orders[idx].assignee});
 
@@ -5657,7 +5661,7 @@ setTimeout(function(){if(typeof window.lpORD!=="function")return;var orders=wind
 updBadge();
 })();
 </script>
-<script src="snippets/order-revision-experience-v1.js?v=fix382"></script>
+<script src="snippets/order-revision-experience-v1.js?v=fix453"></script>
 <script>
 window._rbRenderMyWork = function(){
   var wrap = document.getElementById('rb-mywork');
@@ -5704,9 +5708,9 @@ window._rbRenderMyWork = function(){
     var p = iso.split('-'); if(p.length!==3) return iso;
     return p[2]+'/'+p[1]+'/'+p[0];
   }
-  function pill(status){
+  function pill(status,o){
     var m = STAT_MAP[status] || {l:status||'-',col:'#6b7280',bg:'#f3f4f6'};
-    return '<span class="mywork-pill" style="color:'+m.col+';background:'+m.bg+';cursor:pointer;" onclick="window._rbGoOrderStatus&&window._rbGoOrderStatus(\''+status+'\')" title="ดูในสั่งงาน">'+m.l+'</span>';
+    return '<span class="mywork-pill" style="color:'+m.col+';background:'+m.bg+';cursor:pointer;" onclick="window._rbGoOrderStatus&&window._rbGoOrderStatus(\''+status+'\')" title="ดูในสั่งงาน">'+(o&&window.rbReviewRounds?window.rbReviewRounds.label(o):m.l)+'</span>';
   }
   window._rbGoOrderStatus = function(status){
     if(window._OF){window._OF.status=status;window._OF.activeCard=status;window._OF.dl='';window._OF.date='';}
@@ -5724,7 +5728,7 @@ window._rbRenderMyWork = function(){
     if(!list.length) return '<div class="mywork-empty">ไม่มีรายการ</div>';
     var h = '<table class="mywork-table"><thead><tr><th>เลขงาน</th><th>ชื่องาน</th><th>ประเภท</th><th>Deadline</th><th>สถานะ</th></tr></thead><tbody>';
     list.forEach(function(o){
-      h += '<tr><td>'+(o.id||'-')+'</td><td>'+(o.name||'-')+'</td><td>'+(rbOrderTypeLabel(o.type)||'-')+'</td><td>'+fmtDate(o.deadline)+'</td><td>'+pill(o.status)+'</td></tr>';
+      h += '<tr><td>'+(o.id||'-')+'</td><td>'+(o.name||'-')+'</td><td>'+(rbOrderTypeLabel(o.type)||'-')+'</td><td>'+fmtDate(o.deadline)+'</td><td>'+pill(o.status,o)+'</td></tr>';
     });
     h += '</tbody></table>';
     return h;
@@ -5862,7 +5866,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(typeof lvLoad
 <link rel="stylesheet" href="snippets/login-reliability-v1.css?v=207">
 <script src="snippets/login-reliability-v1.js?v=207"></script>
 <link rel="stylesheet" href="snippets/workflow-ops-v1.css?v=241">
-<script src="snippets/workflow-ops-v1.js?v=fix435"></script>
+<script src="snippets/workflow-ops-v1.js?v=fix453"></script>
 <script src="snippets/workflow-sync-retry-bridge-v1.js?v=fix338"></script>
 <style id="rb-global-dropdown-v5-css">
 select.rb-dd-native:not([multiple]){appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:30px!important;border-radius:8px;cursor:pointer;transition:box-shadow .16s,border-color .16s,transform .16s}

@@ -4,11 +4,13 @@ function body(name){const start=html.indexOf('function '+name+'('),end=html.inde
 function element(){return {children:[],style:{},setAttribute(){},appendChild(x){this.children.push(x);this.firstElementChild=this.children[0]},get innerHTML(){return ''},set innerHTML(v){this.children=[];this.firstElementChild=null;this.clears=(this.clears||0)+1}}}
 test('unchanged sync preserves order controls; real changes and filters refresh them',()=>{
  const wrap=element(),sum=element(),stats=element();let rows=[{id:'GR1',_fbKey:'one',name:'Task',type:'Graphic',deadline:'2026-09-09',status:'pending',assignee:'MOS'}];
- const c={fbOrderQueueLoad:()=>[],window:{_rbUser:{name:'View',role:'sup'}},document:{getElementById:id=>({'ord-tw':wrap,'ord-result-summary':sum,'ord-stats':stats}[id]),createElement:element},_OF:{sort:'name'},rbOrderViewerContext:()=>({isGraphic:false}),rbOrdersForViewer:r=>r,lpORD:()=>rows,dlSt:()=> 'ok',rbOrderRef:o=>o._fbKey,ST:[{k:'pending',l:'Pending',bg:'white',col:'black'}],MB_GR:['MOS'],rbOrderTypeLabel:x=>x,fmtD:x=>x,esc:x=>String(x||''),Date,JSON};
+ let queue=[];
+ const c={fbOrderQueueLoad:()=>queue,window:{_rbUser:{name:'View',role:'sup'}},document:{getElementById:id=>({'ord-tw':wrap,'ord-result-summary':sum,'ord-stats':stats}[id]),createElement:element},_OF:{sort:'name'},rbOrderViewerContext:()=>({isGraphic:false}),rbOrdersForViewer:r=>r,lpORD:()=>rows,dlSt:()=> 'ok',rbOrderRef:o=>o._fbKey,ST:[{k:'pending',l:'Pending',bg:'white',col:'black'}],MB_GR:['MOS'],rbOrderTypeLabel:x=>x,fmtD:x=>x,esc:x=>String(x||''),Date,JSON};
  vm.createContext(c);vm.runInContext(body('renderOrders')+body('renderOrderStats'),c);
  c.renderOrders();c.renderOrderStats();const table=wrap.firstElementChild,card=stats.firstElementChild;
  for(let i=0;i<50;i++){c.renderOrders();c.renderOrderStats()}
  assert.equal(wrap.firstElementChild,table);assert.equal(stats.firstElementChild,card);assert.equal(wrap.clears,1);
+ queue=[{path:'/orders/one'}];c.renderOrders();const pendingTable=wrap.firstElementChild;assert.notEqual(pendingTable,table,'queued save must show waiting state');queue=[];c.renderOrders();assert.notEqual(wrap.firstElementChild,pendingTable,'online acknowledgement must clear waiting state even when order fields are unchanged');
  rows[0].note='changed';c.renderOrders();assert.notEqual(wrap.firstElementChild,table);
  c._OF.status='done';c.renderOrders();assert.equal(wrap.firstElementChild.children.length,0);
  c._OF.status='';c.window._rbUser.role='graphic';c.renderOrders();assert.equal(wrap.children.length,1);

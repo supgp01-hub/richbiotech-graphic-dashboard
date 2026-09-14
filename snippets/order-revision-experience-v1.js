@@ -26,7 +26,7 @@ function orderNotices(){
       if(issues.length)issues.forEach(function(item,index){var version=Number(item.version)||index+1;out.push({id:noticeId(order,'revision',version),type:'revision',title:order.id+' · ต้องแก้ไข VER '+version,desc:item.note||item.issueType||order.name||order.title||'',oid:orderRef(order),tab:'imgs',version:version,ts:item.correctionRequestedAt||item.updatedAt||order.updatedAt||now});});
       else out.push({id:noticeId(order,'revision'),type:'revision',title:order.id+' · งานถูกส่งกลับให้แก้ไข',desc:order.name||order.title||'',oid:orderRef(order),tab:'imgs',ts:order.updatedAt||now});
     }
-    if(order.status==='review'&&(role==='audit'||manager))out.push({id:noticeId(order,'review'),type:'review',title:order.id+' · รอตรวจงาน',desc:order.name||order.title||'',oid:orderRef(order),tab:'links',ts:order.updatedAt||now});
+    if(order.status==='review'&&(role==='audit'||manager))out.push({id:noticeId(order,'review'),type:'review',title:order.id+' · '+(window.rbReviewRounds?window.rbReviewRounds.label(order):'รอตรวจงาน'),desc:order.name||order.title||'',oid:orderRef(order),tab:'links',ts:order.updatedAt||now});
     var deadline=order.deadline||order.dl||'',due=deadline?new Date(deadline).getTime():0;if(due&&order.status!=='done'&&due>=now&&due-now<day&&(mine||manager))out.push({id:noticeId(order,'deadline'),type:'deadline',title:order.id+' · ใกล้ Deadline',desc:order.name||order.title||'',oid:orderRef(order),tab:order.status==='revision'?'imgs':'info',ts:order.updatedAt||now});
   });
   return out;
