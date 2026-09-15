@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  // Verified Gregorian dates, never inferred from lunar dates or company leave.
+  // Verified year overrides take precedence over calculated recurring holidays.
   // Sources and the scope of special holidays: docs/thai-holidays-2569.md.
   var year = 2026, key = 'rb_show_thai_holidays_v1', enabled = true;
   var rows = [
@@ -39,7 +39,12 @@
   };
   try { enabled = localStorage.getItem(key) !== '0'; } catch (_) {}
   function holiday(y, m, d) {
-    if (Number(y) !== year) return null;
+    if (Number(y) !== year) {
+      if(!window.rbThaiHolidayCalendar)return null;
+      var target=String(y)+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var matches=window.rbThaiHolidayCalendar.forYear(y).filter(function(r){return r.date===target});
+      return matches.length?Object.assign({},matches[0],{name:matches.map(function(r){return r.name}).join('\n/ ')}):null;
+    }
     var date = String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     var row = rows.find(function (r) { return r[0] === date; });
     return row ? { name: row[1], icon: row[2], scope: row[3] || 'national' } : null;
@@ -48,11 +53,17 @@
     if (document.getElementById('lv-holiday-controls')) return;
     var controls = document.createElement('div');
     controls.id = 'lv-holiday-controls';
-    controls.innerHTML = '<label><input type="checkbox" id="lv-holiday-toggle"> แสดงวันหยุดราชการ</label><span id="lv-holiday-note"></span>';
+    controls.innerHTML = '<label><input type="checkbox" id="lv-holiday-toggle"> แสดงวันหยุดราชการ</label><label class="lv-holiday-year-label">ปี พ.ศ. <input type="number" id="lv-holiday-year" min="2143" max="10541" step="1" aria-label="ปีปฏิทิน พ.ศ."></label><span id="lv-holiday-note"></span>';
     var cal = body.closest('.lv-cal') || body;
     cal.parentNode.insertBefore(controls, cal);
     var toggle = controls.querySelector('input');
     toggle.checked = enabled;
+    controls.querySelector('#lv-holiday-year').addEventListener('change',function(e){
+      var value=Number(e.target.value),ce=value-543;
+      if(!Number.isInteger(ce)||ce<1600||ce>9998){e.target.value=window.LV_CUR.y+543;return}
+      window.LV_CUR.y=ce;
+      if(typeof window.lvRender==='function')window.lvRender();else render();
+    });
     toggle.addEventListener('change', function () {
       enabled = toggle.checked;
       try { localStorage.setItem(key, enabled ? '1' : '0'); } catch (_) {}
@@ -64,7 +75,8 @@
     if (!body || !cur) return;
     shell(body);
     var note = document.getElementById('lv-holiday-note');
-    note.textContent = Number(cur.y) === year ? 'อ้างอิงปฏิทินไทย 2569 · วันหยุดทีมตามตารางเดิม' : 'ยังไม่มีข้อมูลวันหยุดราชการที่ยืนยันสำหรับปี ' + (Number(cur.y) + 543);
+    document.getElementById('lv-holiday-year').value=Number(cur.y)+543;
+    note.textContent = Number(cur.y) === year ? 'อ้างอิงปฏิทินไทย 2569 · วันหยุดทีมตามตารางเดิม' : 'ปฏิทินไทย '+(Number(cur.y)+543)+' · คำนวณวันหยุดประจำปีและชดเชย · วันพืชมงคล / วันหยุดพิเศษรอข้อมูลประกาศ';
     body.querySelectorAll('.lv-holiday-mark').forEach(function (el) { el.remove(); });
     body.querySelectorAll('.lv-has-holiday').forEach(function (el) { el.classList.remove('lv-has-holiday'); });
     if (!enabled) return;
@@ -75,7 +87,7 @@
       var mark = document.createElement('div');
       mark.className = 'lv-holiday-mark';
       mark.dataset.holidayDate = cur.y + '-' + String(cur.m).padStart(2, '0') + '-' + String(i + 1).padStart(2, '0');
-      mark.title = item.name.replace(/\n/g, ' ') + (item.scope === 'bangkok' ? ' · เฉพาะหน่วยงานราชการในกรุงเทพมหานคร' : ' · วันหยุดตามปฏิทินราชการ');
+      mark.title = item.name.replace(/\n/g, ' ') + (item.calculated?' · วันที่คำนวณตามปฏิทิน กรุณาอิงประกาศของปีนั้น':item.scope === 'bangkok' ? ' · เฉพาะหน่วยงานราชการในกรุงเทพมหานคร' : ' · วันหยุดตามปฏิทินราชการ');
       mark.innerHTML = '<svg aria-hidden="true" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + icons[item.icon] + '</svg><span></span>';
       mark.querySelector('span').textContent = item.name;
       cell.appendChild(mark);

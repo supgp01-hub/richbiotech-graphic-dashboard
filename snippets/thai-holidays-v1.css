@@ -4,6 +4,7 @@
 #lv-holiday-toggle{appearance:none;position:relative;order:1;width:31px;height:18px;margin:0;border-radius:20px;background:#b3c4bc;cursor:pointer;transition:background .15s}
 #lv-holiday-toggle:checked{background:#38af79}#lv-holiday-toggle::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:white;transition:transform .15s}#lv-holiday-toggle:checked::after{transform:translateX(13px)}#lv-holiday-toggle:focus-visible{outline:2px solid #245e47;outline-offset:3px}
 #lv-holiday-note{font-size:10px}
+#lv-holiday-controls .lv-holiday-year-label{margin-right:auto;padding:4px 9px;background:transparent;border-color:transparent;font-size:11px}#lv-holiday-year{box-sizing:border-box;width:77px;padding:4px 5px;border:1px solid #bdd8cb;border-radius:7px;background:var(--surface-card,#fff);color:inherit;font:inherit}
 #tab-schedule .lv-holiday-mark{position:relative;flex-shrink:0;align-self:flex-end;box-sizing:border-box;width:100%;min-height:62px;margin-top:auto;padding:39px 3px 2px;text-align:right;pointer-events:none;color:#766c5d}
 #tab-schedule .lv-holiday-mark svg{position:absolute;right:5px;bottom:19px;width:49px;height:49px;opacity:.12;color:#927a51;pointer-events:none}
 #tab-schedule .lv-holiday-mark span{position:relative;display:block;white-space:pre-line;overflow-wrap:anywhere;font-size:10.5px;font-weight:500;line-height:1.45}

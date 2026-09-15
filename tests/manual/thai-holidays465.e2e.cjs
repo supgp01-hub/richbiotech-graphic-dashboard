@@ -18,6 +18,8 @@ await page.setViewportSize({width:390,height:844});assert.deepEqual(await layout
 await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));assert.deepEqual(await layout(),[]);
 await page.evaluate(()=>{LV_CUR={y:2026,m:10};lvRender()});assert.match(await page.locator('[data-holiday-date="2026-10-16"]').innerText(),/เฉพาะกรุงเทพ/);
 await page.evaluate(()=>{lvGoMonth(1)});assert.equal(await page.locator('.lv-holiday-mark').count(),0);
-await page.evaluate(()=>{LV_CUR={y:2027,m:4};lvRender()});assert.match(await page.locator('#lv-holiday-note').innerText(),/ยังไม่มี.*2570/);
+await page.evaluate(()=>{LV_CUR={y:2027,m:4};lvRender()});assert.match(await page.locator('#lv-holiday-note').innerText(),/2570.*คำนวณ/);assert.equal(await page.locator('.lv-holiday-mark').count(),4);
+await page.locator('#lv-holiday-year').fill('2571');await page.locator('#lv-holiday-year').press('Tab');assert.match(await page.locator('.lv-nav').innerText(),/2571/);assert.equal(await page.locator('.lv-holiday-mark').count(),5);
+await page.locator('#lv-holiday-year').fill('2570');await page.locator('#lv-holiday-year').press('Tab');await page.evaluate(()=>{LV_CUR.m=2;lvRender()});assert.equal(await page.locator('[data-holiday-date="2027-02-21"]').innerText(),'วันมาฆบูชา');assert.equal(await page.locator('[data-holiday-date="2027-02-22"]').innerText(),'ชดเชยวันมาฆบูชา');
 assert.deepEqual(errors,[]);console.log('PASS real calendar: verified holiday mapping, 3 staff + WFH, toggle, day dialog, mobile/dark layout, month/year navigation');
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});
