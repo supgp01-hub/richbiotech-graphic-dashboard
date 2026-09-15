@@ -38,6 +38,11 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   await page.locator('#rb-sync-chip').click();
   await page.waitForSelector('#rb-health-overlay.is-open',{timeout:5000});
   assert.match(await page.locator('#rb-health-overlay').innerText(),/สถานะระบบออนไลน์/,'online status chip must open the health panel');
+  await context.route(/firebaseio\.com\/auth_users\.json/,route=>route.fulfill({json:{jam:{name:'JAM',active:true},dom:{name:'DOM',active:true}}}));
+  await page.getByRole('button',{name:'สถานะซิงก์ทั้งทีม',exact:true}).click();
+  await page.getByText('DOM',{exact:true}).waitFor();
+  assert.match(await page.locator('dialog[open]').last().innerText(),/ยังไม่มีรายงานจากเครื่อง/,'missing devices must not be marked synced');
+  await page.getByRole('button',{name:'ปิดสถานะทีม',exact:true}).click();
   await page.locator('#rb-health-overlay [data-rb-health-close]').click();
 
   const sidebarCases=[

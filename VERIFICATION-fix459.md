@@ -1,0 +1,11 @@
+# fix459 — Whole-team sync visibility and automatic recovery checks
+
+Device reports previously covered conflicts only and depended on successful order reads. A zero conflict count did not prove that generic/content queues were empty or that the device had recently received server data. Devices with no reports were absent entirely.
+
+Add a bounded heartbeat while the signed-in web app is visible. Reports contain queue counts, version, last-read age and a server timestamp, without work text or submission links. The watchdog independently retries existing order, generic and content queues, and requests a fresh order read when stale. It never clears a queue, overrides a conflict, changes a work status or interrupts an open form. Offline reporting waits for connectivity; hung reports time out and permit another attempt. Requests are throttled.
+
+The supervisor's “สถานะซิงก์ทั้งทีม” view compares active online users with current and legacy device reports. It lists missing devices and marks reports older than three minutes as unconfirmed. Legacy fix446 values are not treated as reliable version information. Current health uses the durable in-memory order queue as well as generic/content counts. The online chip cannot claim ready while those queues are pending or a recent authenticated order read is missing.
+
+Validation: 116/116 regression scripts. Six isolated browser suites cover navigation (including the new team status view), Audit persistence, review rounds, cross-device sync, bounded auth recovery and central submission recovery. Added behavioral tests cover fresh/stale/missing reports, duplicate account grouping, independent queue failures, timeout recovery, reporting privacy, roles and throttling. HTML: 636,491 bytes. Production assets and authenticated UI must be verified after deployment.
+
+Scope: This is an application watchdog active while the app is open, not a claim that closed/offline or legacy devices have been upgraded. The latest confirmed JAM source device was fix458 with zero conflicts; remaining legacy/absent devices need to load a current web build on their original browser so queued evidence can reach the server. No actual employee work is changed for testing.

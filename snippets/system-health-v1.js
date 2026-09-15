@@ -5,12 +5,12 @@ var VERSION='1.0.0',lastState={state:'connecting',text:'กำลังเชื
 function n(value){value=Number(value);return isFinite(value)&&value>0?value:0;}
 function local(key){try{return localStorage.getItem(key);}catch(error){return null;}}
 function json(key,fallback){try{var value=JSON.parse(local(key)||'null');return value==null?fallback:value;}catch(error){return fallback;}}
-function countOrderQueue(){var q=json('rb_order_write_queue_v1',[]);return Array.isArray(q)?q.length:0;}
+function countOrderQueue(){if(root.rbOrderSync&&root.rbOrderSync.pendingCount)return root.rbOrderSync.pendingCount();var q=json('rb_order_write_queue_v1',[]);return Array.isArray(q)?q.length:0;}
 function countGenericQueue(){if(root.rbPersistence&&typeof root.rbPersistence.pendingCount==='function')return root.rbPersistence.pendingCount();var q=json('rb_generic_write_queue_v3',[]);return Array.isArray(q)?q.length:0;}
 function contentPending(){return !!local('rb_ct_sync_pending_v1');}
 function latestSuccess(){return n(local('rb_system_last_sync_ok_v1'));}
 function pendingRows(){
-  var rows=[],order=json('rb_order_write_queue_v1',[]),generic=json('rb_generic_write_queue_v3',[]);
+  var rows=[],order=root.rbOrderSync&&root.rbOrderSync.queue?root.rbOrderSync.queue():json('rb_order_write_queue_v1',[]),generic=json('rb_generic_write_queue_v3',[]);
   (Array.isArray(order)?order:[]).forEach(function(item){var key=String(item&&item.path||'').split('/').pop()||'งาน',data=item.data||{},localOrders=json('rb_orders_v1',[]),job=Array.isArray(localOrders)?localOrders.find(function(row){return row._fbKey===key;}):null;rows.push({name:(data.id||(job&&job.id)||key)+' · '+(data.assignee||(job&&job.assignee)||''),action:item.conflict?'ข้อมูลขัดกัน: '+(item.conflictMessage||'ต้องเทียบกับออนไลน์'):(item&&item.method==='DELETE'?'ลบ':'บันทึกงาน'),conflict:!!item.conflict,attempts:n(item&&item.attempts),at:n(item&&item.ts)});});
   (Array.isArray(generic)?generic:[]).slice(0,4).forEach(function(item){rows.push({name:String(item&&item.path||'ข้อมูลทั่วไป').replace(/^\//,''),action:'บันทึกข้อมูล',attempts:n(item&&item.attempts),at:n(item&&item.ts)});});
   if(contentPending())rows.push({name:'รวมลิงก์ Content',action:'ซิงก์รายการ',attempts:0,at:n(local('rb_ct_sync_pending_v1'))});
@@ -19,7 +19,7 @@ function pendingRows(){
 function fmt(value){if(!value)return 'ยังไม่มีข้อมูล';try{return new Date(value).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'medium'});}catch(error){return new Date(value).toLocaleString('th-TH');}}
 function snapshot(){
   var order=countOrderQueue(),generic=countGenericQueue(),content=contentPending()?1:0,total=order+generic+content;
-  var online=typeof navigator==='undefined'||navigator.onLine!==false,auth=!!(root.rbFirebaseAuth&&root.rbFirebaseAuth.fetch),leader=!root.rbMultiTab||root.rbMultiTab.isLeader();
+  var online=typeof navigator==='undefined'||navigator.onLine!==false,auth=!!(root._rbUser&&root._rbUser.uid&&root.rbFirebaseAuth&&root.rbFirebaseAuth.fetch),leader=!root.rbMultiTab||root.rbMultiTab.isLeader();
   return{online:online,auth:auth,leader:leader,order:order,generic:generic,content:content,total:total,last:latestSuccess(),state:lastState.state,text:lastState.text,title:lastState.title,pending:pendingRows()};
 }
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -34,8 +34,9 @@ function ensure(){
 function render(){
   var host=document.getElementById('rb-health-content');if(!host)return;var s=snapshot(),kind=!s.online||s.state==='error'?'error':s.total||s.state==='waiting'?'waiting':'ok';
   var conflicts=s.pending.filter(function(row){return row.conflict;}).length;
-  var summary=!s.online?'อินเทอร์เน็ตขาดการเชื่อมต่อ — งานใหม่จะเก็บไว้ในเครื่องก่อน':conflicts?'ข้อมูลขัดกัน '+conflicts+' งาน · กดตรวจและซิงก์อีกครั้งเพื่อเทียบออนไลน์ ข้อมูลที่ต่างกันจะเก็บไว้ไม่เขียนทับ':s.total?'มี '+s.total+' รายการกำลังรอซิงก์ ระบบจะลองใหม่อัตโนมัติ':'ระบบออนไลน์และข้อมูลพร้อมใช้งาน';
-  host.innerHTML='<p>เว็บเวอร์ชัน '+esc((document.querySelector('meta[name="rb-build"]')||{}).content||'ไม่ทราบ')+'</p>'+(root._rbUser&&root._rbUser.role==='sup'?'<button type="button" class="rb-health-btn" data-sync-devices>เวอร์ชันและคิวซิงก์ของอุปกรณ์</button>':'')+(conflicts?'<button type="button" class="rb-health-btn primary" data-review-conflicts>ตรวจและจัดการข้อมูลขัดกัน '+conflicts+' งาน</button>':'')+'<div class="rb-health-summary '+(kind==='ok'?'':kind)+'"><span class="rb-health-dot"></span><span>'+esc(summary)+'</span></div><div class="rb-health-grid">'+
+  var readAt=root.rbOnlineConsistency&&root.rbOnlineConsistency.lastRead?root.rbOnlineConsistency.lastRead():0,readStale=!readAt||Date.now()-readAt>90000;if(kind==='ok'&&(!s.auth||readStale))kind='waiting';
+  var summary=!s.online?'อินเทอร์เน็ตขาดการเชื่อมต่อ — งานใหม่จะเก็บไว้ในเครื่องก่อน':conflicts?'ข้อมูลขัดกัน '+conflicts+' งาน · กดตรวจและซิงก์อีกครั้งเพื่อเทียบออนไลน์ ข้อมูลที่ต่างกันจะเก็บไว้ไม่เขียนทับ':s.total?'มี '+s.total+' รายการกำลังรอซิงก์ ระบบจะลองใหม่อัตโนมัติ':!s.auth?'กำลังยืนยันบัญชีออนไลน์':readStale?'ยังยืนยันข้อมูลออนไลน์ล่าสุดไม่ได้ ระบบกำลังเชื่อมต่อใหม่':'ระบบออนไลน์และข้อมูลพร้อมใช้งาน';
+  host.innerHTML='<p>เว็บเวอร์ชัน '+esc((document.querySelector('meta[name="rb-build"]')||{}).content||'ไม่ทราบ')+'</p>'+(root._rbUser&&root._rbUser.role==='sup'?'<button type="button" class="rb-health-btn" data-sync-team>สถานะซิงก์ทั้งทีม</button><button type="button" class="rb-health-btn" data-sync-devices>เวอร์ชันและคิวซิงก์ของอุปกรณ์</button>':'')+(conflicts?'<button type="button" class="rb-health-btn primary" data-review-conflicts>ตรวจและจัดการข้อมูลขัดกัน '+conflicts+' งาน</button>':'')+'<div class="rb-health-summary '+(kind==='ok'?'':kind)+'"><span class="rb-health-dot"></span><span>'+esc(summary)+'</span></div><div class="rb-health-grid">'+
     '<div class="rb-health-item"><div class="rb-health-label">การเชื่อมต่อ</div><div class="rb-health-value">'+(s.online?'ออนไลน์':'ออฟไลน์')+'</div><div class="rb-health-meta">'+esc(s.title||s.text||'พร้อมใช้งาน')+'</div></div>'+
     '<div class="rb-health-item"><div class="rb-health-label">บัญชีและฐานข้อมูล</div><div class="rb-health-value">'+(s.auth?'พร้อมใช้งาน':'กำลังเชื่อมต่อ')+'</div><div class="rb-health-meta">'+(s.leader?'แท็บนี้ดูแลการซิงก์':'ซิงก์ผ่านแท็บหลัก เพื่อลดความช้า')+'</div></div>'+
     '<div class="rb-health-item"><div class="rb-health-label">รายการรอบันทึก</div><div class="rb-health-value">'+s.total+' รายการ</div><div class="rb-health-meta">งาน '+s.order+' · ข้อมูลทั่วไป '+s.generic+' · รวมลิงก์ '+s.content+'</div></div>'+
