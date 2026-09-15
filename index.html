@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix456">
+<meta name="rb-build" content="fix457">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3006,14 +3006,14 @@ function fbApplyRemoteOrders(data){
   if(data&&window.rbSafeOrderWrite){
     var pending=fbOrderQueueLoad(),remaining=pending.filter(function(op){
       var row=data[String(op.path||'').split('/').pop()];
-      var confirmed=row&&(row._lastWriteToken===op.token||window.rbSafeOrderWrite.matches(row,op.data,op.method)||(window.rbOrderConflictReview&&window.rbOrderConflictReview.repairConfirmedAssignment(op,row)));
+      var confirmed=row&&((window.rbOnlineConsistency&&window.rbOnlineConsistency.retireNoop(op,row))||row._lastWriteToken===op.token||window.rbSafeOrderWrite.matches(row,op.data,op.method)||(window.rbOrderConflictReview&&window.rbOrderConflictReview.repairConfirmedAssignment(op,row)));
       if(confirmed)delete _fbRecentOrderWrites[String(op.path||'').split('/').pop()];
       return !confirmed;
     });
     var recovered=false;if(window.rbOnlineConsistency)remaining=remaining.map(function(op){var row=data[String(op.path||'').split('/').pop()];if(!window.rbOnlineConsistency.canRetry(op,row))return op;recovered=true;var retry=Object.assign({},op,{conflict:false,attempts:0,nextAttemptAt:0});delete retry.conflictMessage;return retry;});if(window.rbOrderConflictReview&&window.rbOrderConflictReview.recoverMissingAudit)remaining=remaining.map(function(op){var next=window.rbOrderConflictReview.recoverMissingAudit(op,data[String(op.path||'').split('/').pop()]);if(next){recovered=true;return next;}return op;});
     if(recovered||remaining.length!==pending.length)fbOrderQueueSave(remaining);
     if(recovered)fbFlushOrderQueue(true);
-    if(window.rbOrderConflictReview&&window.rbOrderConflictReview.report)window.rbOrderConflictReview.report(remaining,data);
+    if(window.rbOrderConflictReview&&window.rbOrderConflictReview.report)window.rbOrderConflictReview.report(remaining,data);if(window.rbOnlineConsistency)window.rbOnlineConsistency.backupConflicts(remaining,data);
   }
   var before=lpORD(),remote=fbMergeRemoteSnapshot(data);
   if(before.length)fbRememberOrders(before);
@@ -3147,7 +3147,7 @@ function fbSyncStart(){
   _fbSse.onerror=fbStartFallback;
 }
 function fbLoadOrders(cb){
-  fbGet('/orders',function(err,data){
+  (window.rbPersistence&&window.rbPersistence.readOnline||fbGet)('/orders',function(err,data){
     if(!err&&data){fbApplyRemoteOrders(data);try{localStorage.setItem('rb_orders_synced_v1','1');}catch(e){}fbSetSyncState('online','ออนไลน์','ได้รับข้อมูลงานจากเซิร์ฟเวอร์แล้ว');}
     else fbSetSyncState('waiting',err?'ยังอ่านข้อมูลออนไลน์ไม่ได้':'ยังไม่มีข้อมูลออนไลน์',err?String(err.message||err):'เก็บข้อมูลในเครื่องไว้ โดยไม่นำรายการเก่าขึ้นทับเซิร์ฟเวอร์');
     if(cb)cb();
@@ -3921,7 +3921,7 @@ function hookLeaveBtns(){
 setTimeout(hookLeaveBtns,800);
 // Expose order functions globally for cross-IIFE access
 window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
-window.fbOrderQueueLoad=fbOrderQueueLoad;window.fbOrderQueueSave=fbOrderQueueSave;window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window.fbSetSyncState=fbSetSyncState;window.rbOrderSync={flush:function(){fbFlushOrderQueue(true);},pendingCount:function(){return fbOrderQueueLoad().length;},queue:function(){return fbOrderQueueLoad().slice();}};window._rbRefreshOrderViews=refreshOrderViews;
+window.fbOrderQueueLoad=fbOrderQueueLoad;window.fbOrderQueueSave=fbOrderQueueSave;window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window.fbSetSyncState=fbSetSyncState;window.rbOrderSync={flush:function(){fbFlushOrderQueue(true);},pendingCount:function(){return fbOrderQueueLoad().length;},queue:function(){return fbOrderQueueLoad().slice();},checkpoint:function(){if(_fbOrderFlushActive)return Promise.resolve(false);var q=fbOrderQueueLoad(),signature=JSON.stringify(q),saved=fbOrderQueueSave(q);return Promise.resolve(saved.promise||saved.durable).then(function(ok){return !!ok&&!_fbOrderFlushActive&&JSON.stringify(fbOrderQueueLoad())===signature;});}};window._rbRefreshOrderViews=refreshOrderViews;
 window.rbOrderAssetFields=FB_ORDER_ASSET_FIELDS;window.rbOrderHasAssetFields=fbOrderHasAssetFields;window.rbLoadOrderAssets=fbLoadOrderAssets;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
@@ -6249,7 +6249,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/system-health-v1.js?v=fix455"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
-<script src="snippets/safe-order-write-v1.js?v=fix455"></script><script src="snippets/online-consistency-v1.js?v=fix455"></script><script src="snippets/release-update-v1.js?v=fix455"></script><script src="snippets/order-conflict-review-v1.js?v=fix455"></script>
+<script src="snippets/safe-order-write-v1.js?v=fix455"></script><script src="snippets/online-consistency-v1.js?v=fix457"></script><script src="snippets/release-update-v1.js?v=fix457"></script><script src="snippets/order-conflict-review-v1.js?v=fix455"></script>
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=fix456"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
 <script src="snippets/content-submissions-v1.js?v=fix444"></script>

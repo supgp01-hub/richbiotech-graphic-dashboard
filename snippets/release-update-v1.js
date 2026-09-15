@@ -1,10 +1,10 @@
 (function(w){
 'use strict';
-var meta=document.querySelector('meta[name="rb-build"]'),current=meta&&meta.content||'',latest='',busy=false,reloading=false,dirty=new Set(),banner;
+var meta=document.querySelector('meta[name="rb-build"]'),current=meta&&meta.content||'',latest='',busy=false,reloading=false,dirty=new Set(),banner,safeQueue='';
 function newer(a,b){return /^fix\d+$/.test(a)&&/^fix\d+$/.test(b)&&Number(a.slice(3))>Number(b.slice(3));}
 function visible(el){return el&&!el.hidden&&el.getClientRects().length>0;}
 function blocked(){
- if(w.rbOrderSync&&w.rbOrderSync.pendingCount())return true;
+ if(w.rbOrderSync&&w.rbOrderSync.pendingCount()&&(!safeQueue||!w.rbOrderSync.queue||JSON.stringify(w.rbOrderSync.queue())!==safeQueue))return true;
  for(var key of ['rb_generic_write_queue_v3']){try{if(JSON.parse(localStorage.getItem(key)||'[]').length)return true;}catch(e){return true;}}
  if(Array.from(document.querySelectorAll('dialog[open],#rb-order-modal,#rb-planner-modal,[role="dialog"],input[type="file"]')).some(function(el){return visible(el)&&(el.type!=='file'||el.files&&el.files.length);}))return true;
  return Array.from(dirty).some(function(el){return el.isConnected&&visible(el);});
@@ -21,7 +21,7 @@ function update(){
 }
 async function check(){
  if(busy||navigator.onLine===false||document.hidden)return;busy=true;
- try{var url=new URL('release.json',location.href);url.searchParams.set('_check',Date.now());var r=await fetch(url.toString(),{cache:'no-store'});if(!r.ok)return;var v=await r.json();if(newer(v.build,current)){latest=v.build;update();}}catch(e){}finally{busy=false;}
+ try{var url=new URL('release.json',location.href);url.searchParams.set('_check',Date.now());var r=await fetch(url.toString(),{cache:'no-store'});if(!r.ok)return;var v=await r.json();if(newer(v.build,current)){latest=v.build;var sync=w.rbOrderSync,q=sync&&sync.queue&&sync.queue();if(q&&q.length&&q.every(function(op){return op.conflict;})&&sync.checkpoint){var signature=JSON.stringify(q);if(await sync.checkpoint())safeQueue=signature;}update();}}catch(e){}finally{busy=false;}
 }
 function edited(e){if(e.target.matches('textarea,select,input:not([type="search"])')&&!e.target.matches('#ord-fst,#ord-type-filter,#ord-sort')&&!e.target.closest('[role="search"],.rb-ord-toolbar'))dirty.add(e.target);}
 document.addEventListener('input',edited,true);document.addEventListener('change',edited,true);

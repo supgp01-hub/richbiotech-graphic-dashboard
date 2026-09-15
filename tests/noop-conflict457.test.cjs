@@ -1,0 +1,8 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+function setup(quota=false){let saved=[];const store={};const w={localStorage:{getItem:k=>store[k]||null,setItem:(k,v)=>{if(quota)throw Error('QuotaExceededError');store[k]=v;}},rbDurableOrderQueue:{loadKey:async()=>saved,saveKey:async(k,v)=>{saved=v;return true;}}};const c={window:w,document:{addEventListener(){}},setInterval(){},setTimeout(){},Promise};vm.createContext(c);vm.runInContext(fs.readFileSync('snippets/online-consistency-v1.js','utf8'),c);return{api:w.rbOnlineConsistency,store,getSaved:()=>saved};}
+(async()=>{const a=setup(),op={token:'old',conflict:true,method:'PATCH',data:{updatedAt:1,_syncRevision:1},path:'/orders/work'},remote={id:'QA',status:'done',updatedAt:20};
+assert(a.api.retireNoop(op,remote));assert.equal(JSON.parse(a.store.rb_order_conflict_archive_v1)[0].operation.token,'old');assert.equal(remote.status,'done');
+assert(!a.api.retireNoop({...op,data:{status:'review',updatedAt:1}},remote),'actual submitted work must stay queued');assert(!a.api.retireNoop(op,null));
+assert(a.api.retireNoop({...op,token:'deleted'}, {...remote,_deleted:true}),'metadata cannot restore a deleted job');
+const b=setup(true);assert(!b.api.retireNoop(op,remote),'full local storage must not cause data loss');await b.api.waitForArchives();assert(b.api.retireNoop(op,remote));assert.equal(b.getSaved()[0].operation.token,'old');
+console.log('PASS obsolete metadata-only conflicts archived before removal, meaningful submissions preserved, IndexedDB quota fallback');})().catch(e=>{console.error(e);process.exitCode=1});

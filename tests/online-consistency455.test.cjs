@@ -25,4 +25,6 @@ let row=c.fbMergeRemoteSnapshot({one:{id:'ONE',status:'revision',assetsUpdatedAt
 row=c.fbMergeRemoteSnapshot({one:{id:'ONE',status:'revision',assetsUpdatedAt:2}})[0];assert.equal(row.images,undefined);
 assert(!html.slice(html.indexOf('function fbMigrateLocalOrders'),html.indexOf('function fbSyncStart')).includes('fbSet('));
 assert(html.includes('window.fbOrderQueueLoad=fbOrderQueueLoad'));
+let received;w.rbPersistence={readOnline:(path,cb)=>cb(null,{one:{id:'ONLINE'}})};Object.assign(c,{fbGet(){throw Error('a queued overlay is not an online receipt');},fbApplyRemoteOrders:d=>received=d,fbSetSyncState(){},localStorage:{setItem(){}}});
+vm.runInContext(html.slice(html.indexOf('function fbLoadOrders(cb){'),html.indexOf('function fbRefreshOrders(cb){')),c);c.fbLoadOrders();assert.equal(received.one.id,'ONLINE');
 console.log('PASS normalized diffs, monotonic server revisions, safe conflict retries, cleared fields and cache-only startup');
