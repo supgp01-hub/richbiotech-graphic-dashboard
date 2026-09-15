@@ -78,7 +78,9 @@ assert.ok(css.includes('.lvw-day-panel{display:none!important}'));
 assert.ok(source.includes("ribbons.className='lvw-special-ribbons'"));
 assert.ok(source.includes("div.className='lvw-special-ribbon lvw-special-ribbon-'+key"));
 assert.ok(source.includes("div.innerHTML='<b>'+specialRibbonLabel(x,cfg)+'</b>'"));
-assert.ok(source.includes("cell.insertBefore(ribbons,num||chips)"));
+// The approved layout now groups the date and activities in one heading.
+assert.ok(source.includes("heading.appendChild(num)"));
+assert.ok(source.includes("(heading||cell).appendChild(ribbons)"));
 assert.ok(!source.includes("cfg.label+' · '+esc(e?e.name"));
 assert.ok(html.includes("entries.length>=2&&entries.length<=4?' lv-chips-grid2'"));
 assert.ok(!source.includes("badges.innerHTML+='<span class=\"lv-job-badge\">Deadline "));
