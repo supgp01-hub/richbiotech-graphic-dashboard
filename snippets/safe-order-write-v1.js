@@ -22,6 +22,7 @@ async function write(url,options,request){
   var remote=await response.json(),etag=response.headers.get('ETag');
   if(!etag)throw new Error('ยังตรวจเวอร์ชันออนไลน์ไม่ได้ กรุณาลองซิงก์ใหม่');
   if(remote&&remote._lastWriteToken&&remote._lastWriteToken===options.rbWriteToken)return new Response('{}',{status:200,headers:{'X-RB-Updated-At':String(remote.updatedAt||0)}});
+  if(options.rbExpectedRecord&&!equal(remote,options.rbExpectedRecord))throw conflict('ข้อมูลออนไลน์เปลี่ยนระหว่างตรวจ กรุณาเปิดตัวอย่างใหม่');
   if(matches(remote,change,method))return new Response('{}',{status:200,headers:{'X-RB-Updated-At':String(remote.updatedAt||0)}});
   var next=method==='PATCH'?Object.assign({},remote||{},change||{}):change;
   // A newer record is safe to merge only if each field being edited still
