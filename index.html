@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix454">
+<meta name="rb-build" content="fix455">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2985,7 +2985,7 @@ function fbMergeRemoteSnapshot(data){
   if(!remote.length&&local.length)return fbMergePendingOrders(local);
   var merged=remote.map(function(row){
     var old=localByKey[row._fbKey]||localById[row.id],out={};
-    if(old)Object.keys(old).forEach(function(k){out[k]=old[k];});
+    if(old&&Number(old.assetsUpdatedAt||0)===Number(row.assetsUpdatedAt||0))FB_ORDER_ASSET_FIELDS.concat(['_assetsLoaded']).forEach(function(k){if(Object.prototype.hasOwnProperty.call(old,k))out[k]=old[k];});
     Object.keys(row).forEach(function(k){out[k]=row[k];});
     if(row.assetCounts&&!fbOrderHasAssetFields(row))FB_ORDER_ASSET_FIELDS.forEach(function(field){delete out[field];});
     return out;
@@ -3002,6 +3002,7 @@ function fbMergeRemoteSnapshot(data){
   return fbMergePendingOrders(merged);
 }
 function fbApplyRemoteOrders(data){
+  if(window.rbOnlineConsistency)data=window.rbOnlineConsistency.snapshot(data);
   if(data&&window.rbSafeOrderWrite){
     var pending=fbOrderQueueLoad(),remaining=pending.filter(function(op){
       var row=data[String(op.path||'').split('/').pop()];
@@ -3009,7 +3010,7 @@ function fbApplyRemoteOrders(data){
       if(confirmed)delete _fbRecentOrderWrites[String(op.path||'').split('/').pop()];
       return !confirmed;
     });
-    var recovered=false;if(window.rbOrderConflictReview&&window.rbOrderConflictReview.recoverMissingAudit)remaining=remaining.map(function(op){var next=window.rbOrderConflictReview.recoverMissingAudit(op,data[String(op.path||'').split('/').pop()]);if(next){recovered=true;return next;}return op;});
+    var recovered=false;if(window.rbOnlineConsistency)remaining=remaining.map(function(op){var row=data[String(op.path||'').split('/').pop()];if(!window.rbOnlineConsistency.canRetry(op,row))return op;recovered=true;var retry=Object.assign({},op,{conflict:false,attempts:0,nextAttemptAt:0});delete retry.conflictMessage;return retry;});if(window.rbOrderConflictReview&&window.rbOrderConflictReview.recoverMissingAudit)remaining=remaining.map(function(op){var next=window.rbOrderConflictReview.recoverMissingAudit(op,data[String(op.path||'').split('/').pop()]);if(next){recovered=true;return next;}return op;});
     if(recovered||remaining.length!==pending.length)fbOrderQueueSave(remaining);
     if(recovered)fbFlushOrderQueue(true);
     if(window.rbOrderConflictReview&&window.rbOrderConflictReview.report)window.rbOrderConflictReview.report(remaining,data);
@@ -3073,7 +3074,7 @@ function fbOrderHasAssetFields(row){return FB_ORDER_ASSET_FIELDS.some(function(f
 function fbOrderHasAssets(payload){return FB_ORDER_ASSET_FIELDS.some(function(field){return Array.isArray(payload&&payload[field])&&payload[field].length>0;});}
 function fbSetSafely(path,data){return window.rbDurableOrderQueue.accept(path,fbSet(path,data));}
 function fbOrderCloudRecord(row,withFreshAssets){
-  var clean={};Object.keys(row||{}).forEach(function(key){if(key!=='_fbKey'&&key!=='_assetsLoaded'&&key!=='_assetsChanged'&&FB_ORDER_ASSET_FIELDS.indexOf(key)<0)clean[key]=row[key];});
+  var clean={};Object.keys(row||{}).forEach(function(key){if(key!=='_fbKey'&&key!=='_assetsLoaded'&&key!=='_assetsChanged'&&!(window.rbOnlineConsistency&&window.rbOnlineConsistency.clientField(key))&&FB_ORDER_ASSET_FIELDS.indexOf(key)<0)clean[key]=row[key];});
   if(withFreshAssets){clean.assetCounts=fbOrderAssetCounts(row);clean.assetsUpdatedAt=Date.now();}
   return clean;
 }
@@ -3097,7 +3098,7 @@ function fbFlushOrderQueue(force){
   op=JSON.parse(JSON.stringify(op));
   var opts={method:op.method,rbBaseUpdatedAt:op.baseUpdatedAt,rbBaseValues:op.baseValues,rbWriteToken:op.token,headers:{'Content-Type':'application/json'}};if(op.method!=='DELETE')opts.body=JSON.stringify(op.data||{});
   _fbOrderFlushActive=true;fbSetSyncState('saving','กำลังบันทึก...','เหลือ '+q.length+' รายการ');
-  fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(response){var committedAt=response.headers&&response.headers.get('X-RB-Updated-At'),next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});next.forEach(function(x){if(x.path===op.path&&x.baseUpdatedAt===op.baseUpdatedAt)x.baseUpdatedAt=committedAt!==null&&committedAt!==undefined?Number(committedAt):Number(op.data&&op.data.updatedAt||0);});fbOrderQueueSave(next);_fbOrderFlushActive=false;refreshOrderViews();clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue(true);}).catch(function(e){var current=fbOrderQueueLoad(),failed=null;current.forEach(function(item){if(item&&item.token===op.token){if(e&&e.code==='RB_ORDER_CONFLICT'){item.conflict=true;item.conflictMessage=e.message;delete _fbRecentOrderWrites[op.path.split('/').pop()];}item.attempts=Number(item.attempts||0)+1;item.nextAttemptAt=Date.now()+Math.min(30000,3000*Math.pow(2,Math.min(3,item.attempts-1)));failed=item;}});if(failed)fbOrderQueueSave(current);_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(true);},failed?Math.max(250,Number(failed.nextAttemptAt||0)-Date.now()):3000);});
+  fbFetch(FB_DB+op.path+'.json',opts,FB_REQ_TIMEOUT).then(function(response){var committedAt=response.headers&&response.headers.get('X-RB-Updated-At'),next=fbOrderQueueLoad().filter(function(x){return x.token!==op.token;});next.forEach(function(x){if(x.path===op.path&&x.baseUpdatedAt===op.baseUpdatedAt){x.baseUpdatedAt=committedAt!==null&&committedAt!==undefined?Number(committedAt):Number(op.data&&op.data.updatedAt||0);if(window.rbOnlineConsistency)window.rbOnlineConsistency.rebaseAcknowledged(x,op);}});fbOrderQueueSave(next);_fbOrderFlushActive=false;refreshOrderViews();clearTimeout(_fbOrderRetryTimer);fbSetSyncState(next.length?'saving':'saved',next.length?'กำลังบันทึก...':'บันทึกแล้ว');fbFlushOrderQueue(true);}).catch(function(e){var current=fbOrderQueueLoad(),failed=null;current.forEach(function(item){if(item&&item.token===op.token){if(e&&e.code==='RB_ORDER_CONFLICT'){item.conflict=true;item.conflictMessage=e.message;delete _fbRecentOrderWrites[op.path.split('/').pop()];}item.attempts=Number(item.attempts||0)+1;item.nextAttemptAt=Date.now()+Math.min(30000,3000*Math.pow(2,Math.min(3,item.attempts-1)));failed=item;}});if(failed)fbOrderQueueSave(current);_fbOrderFlushActive=false;fbSetSyncState(navigator.onLine===false?'waiting':'error',navigator.onLine===false?'รออินเทอร์เน็ต':'รอซิงค์ใหม่',(e&&e.message)||'ซิงค์ไม่สำเร็จ');clearTimeout(_fbOrderRetryTimer);_fbOrderRetryTimer=setTimeout(function(){fbFlushOrderQueue(true);},failed?Math.max(250,Number(failed.nextAttemptAt||0)-Date.now()):3000);});
 }
 function fbScheduleStreamRefresh(){
   clearTimeout(_fbStreamRefreshTimer);
@@ -3126,14 +3127,7 @@ function fbStopFallback(){
   fbSetSyncState('online','ออนไลน์','เชื่อมต่อข้อมูลเรียลไทม์แล้ว');fbFlushOrderQueue();
 }
 function fbMigrateLocalOrders(rows){
-  rows=Array.isArray(rows)?rows:[];
-  rows.forEach(function(row){
-    if(!row||!row.id)return;
-    if(!row._fbKey)row._fbKey='order_'+String(row.id).replace(/[^a-zA-Z0-9_-]/g,'_');
-    var clean={};Object.keys(row).forEach(function(key){if(key!=='_fbKey')clean[key]=row[key];});
-    fbSet('/orders/'+row._fbKey,clean);
-  });
-  if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(rows,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(rows));}catch(error){}
+  fbSetSyncState('waiting','ยังไม่มีข้อมูลออนไลน์','เก็บรายการเดิมไว้ กรุณาตรวจข้อมูลออนไลน์ก่อนส่งงาน');
 }
 function fbSyncStart(){
   // Firebase Realtime Database uses named SSE events: put and patch.
@@ -3153,31 +3147,9 @@ function fbSyncStart(){
   _fbSse.onerror=fbStartFallback;
 }
 function fbLoadOrders(cb){
-  var SYNCED_KEY='rb_orders_synced_v1';
-  var isLeader=fbIsLeader();
-  if(!isLeader)fbSetSyncState('connecting','กำลังอัปเดต...','กำลังดึงงานล่าสุดสำหรับแท็บนี้');
   fbGet('/orders',function(err,data){
-    if(!err){
-      fbSetSyncState('online',isLeader?'ออนไลน์':'พร้อมใช้งาน',isLeader?(_fbFallbackTimer?'เชื่อมต่อด้วยโหมดสำรอง':'เชื่อมต่อข้อมูลแล้ว'):'อัปเดตข้อมูลแล้ว · เรียลไทม์ผ่านแท็บหลัก');
-      var everSynced=localStorage.getItem(SYNCED_KEY)==='1';
-      if(data){
-        var arr=fbMergeRemoteSnapshot(data);
-        if(arr.length>0){
-          if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(arr,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(arr));}catch(error){}
-        } else if(!everSynced&&!window.rbOrderDeletion.hasCloudMark(data)){
-          var local=lpORD();
-          if(local.length>0)fbMigrateLocalOrders(local);
-        } else {
-          if(window.rbStorageResilience)window.rbStorageResilience.storeOrders(arr,LS_ORD);else try{localStorage.setItem(LS_ORD,JSON.stringify(arr));}catch(error){}
-        }
-      } else if(!everSynced){
-        var local=lpORD();
-        if(local.length>0)fbMigrateLocalOrders(local);
-      } else {
-        fbSetSyncState('waiting','ใช้ข้อมูลในเครื่อง','ไม่พบข้อมูลออนไลน์ จึงไม่ล้างข้อมูลในเครื่อง');
-      }
-      try{localStorage.setItem(SYNCED_KEY,'1');}catch(syncStateError){}
-    }
+    if(!err&&data){fbApplyRemoteOrders(data);try{localStorage.setItem('rb_orders_synced_v1','1');}catch(e){}fbSetSyncState('online','ออนไลน์','ได้รับข้อมูลงานจากเซิร์ฟเวอร์แล้ว');}
+    else fbSetSyncState('waiting',err?'ยังอ่านข้อมูลออนไลน์ไม่ได้':'ยังไม่มีข้อมูลออนไลน์',err?String(err.message||err):'เก็บข้อมูลในเครื่องไว้ โดยไม่นำรายการเก่าขึ้นทับเซิร์ฟเวอร์');
     if(cb)cb();
   });
 }
@@ -3199,6 +3171,7 @@ function fbRefreshOrders(cb){
       try{localStorage.setItem(SYNCED_KEY,'1');}catch(syncStateError){}
       refreshOrderViews();
     }
+    if(err)fbSetSyncState('waiting','ยังอ่านข้อมูลออนไลน์ไม่ได้',String(err.message||err));
     _fbRefreshActive=false;
     var callbacks=_fbRefreshCallbacks.splice(0);callbacks.forEach(function(fn){try{fn(err||null);}catch(e){}});
     if(_fbRefreshAgain){_fbRefreshAgain=false;setTimeout(function(){fbRefreshOrders();},80);}
@@ -3346,6 +3319,7 @@ function spORD(d){
     if(!old){queueOps.push(fbQueueOrderOp('PUT',row._fbKey,clean));if(hasFreshAssets&&fbOrderHasAssets(fbOrderAssetPayload(row)))assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderAssetPayload(row)));return;}
     var allKeys={};Object.keys(old).concat(Object.keys(clean)).forEach(function(k){if(k!=='_fbKey')allKeys[k]=1;});
     Object.keys(allKeys).forEach(function(k){if(FB_ORDER_ASSET_FIELDS.indexOf(k)>=0||k==='_assetsLoaded')return;var nv=Object.prototype.hasOwnProperty.call(clean,k)?clean[k]:null;var ov=Object.prototype.hasOwnProperty.call(old,k)?old[k]:null;if(JSON.stringify(nv)!==JSON.stringify(ov))changes[k]=nv;});
+    if(window.rbOnlineConsistency)changes=window.rbOnlineConsistency.diff(old,clean);
     if(Object.keys(changes).length){changes.updatedAt=Math.max(Date.now(),Number(old.updatedAt||0)+1);row.updatedAt=changes.updatedAt;queueOps.push(fbQueueOrderOp('PATCH',row._fbKey,changes,Number(old.updatedAt||0),Object.fromEntries(Object.keys(changes).map(function(k){return [k,window.rbAuditSaveBase?window.rbAuditSaveBase(row,k,old[k]??null):old[k]??null];}))));}
     if(hasFreshAssets&&assetsChanged){var nextAssets=fbOrderAssetPayload(row);assetWrites.push(fbSetSafely('/order_assets/'+row._fbKey,fbOrderHasAssets(nextAssets)?nextAssets:null));}
   });
@@ -3947,7 +3921,7 @@ function hookLeaveBtns(){
 setTimeout(hookLeaveBtns,800);
 // Expose order functions globally for cross-IIFE access
 window.lpORD=lpORD;window.spORD=spORD;window.lpTL=lpTL;window.spTL=spTL;
-window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window.fbSetSyncState=fbSetSyncState;window.rbOrderSync={flush:function(){fbFlushOrderQueue(true);},pendingCount:function(){return fbOrderQueueLoad().length;},queue:function(){return fbOrderQueueLoad().slice();}};window._rbRefreshOrderViews=refreshOrderViews;
+window.fbOrderQueueLoad=fbOrderQueueLoad;window.fbOrderQueueSave=fbOrderQueueSave;window.fbLoadOrders=fbLoadOrders;window.fbRefreshOrders=fbRefreshOrders;window.fbSyncStart=fbSyncStart;window.fbStopNetwork=fbStopNetwork;window.fbFlushOrderQueue=function(){fbFlushOrderQueue(true);};window.fbSetSyncState=fbSetSyncState;window.rbOrderSync={flush:function(){fbFlushOrderQueue(true);},pendingCount:function(){return fbOrderQueueLoad().length;},queue:function(){return fbOrderQueueLoad().slice();}};window._rbRefreshOrderViews=refreshOrderViews;
 window.rbOrderAssetFields=FB_ORDER_ASSET_FIELDS;window.rbOrderHasAssetFields=fbOrderHasAssetFields;window.rbLoadOrderAssets=fbLoadOrderAssets;
 window.genId=genId;window.renderOrders=renderOrders;window.renderOrderStats=renderOrderStats;
 window.logTL=logTL;window._OF=_OF;
@@ -6272,10 +6246,10 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/facebook-pages-create-v1.js?v=fix438"></script>
 <script src="snippets/shared-business-sync-v1.js?v=fix432"></script>
 <link rel="stylesheet" href="snippets/system-health-v1.css?v=fix341">
-<script src="snippets/system-health-v1.js?v=fix441"></script>
+<script src="snippets/system-health-v1.js?v=fix455"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
-<script src="snippets/safe-order-write-v1.js?v=fix452"></script><script src="snippets/order-conflict-review-v1.js?v=fix446"></script>
+<script src="snippets/safe-order-write-v1.js?v=fix455"></script><script src="snippets/online-consistency-v1.js?v=fix455"></script><script src="snippets/release-update-v1.js?v=fix455"></script><script src="snippets/order-conflict-review-v1.js?v=fix455"></script>
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=fix436"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
 <script src="snippets/content-submissions-v1.js?v=fix444"></script>

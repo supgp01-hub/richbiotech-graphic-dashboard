@@ -1,0 +1,28 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const w={},c={window:w,setInterval(){},document:{addEventListener(){}},navigator:{},Response,console};vm.createContext(c);
+for(const name of ['safe-order-write-v1','online-consistency-v1'])vm.runInContext(fs.readFileSync('snippets/'+name+'.js','utf8'),c);
+const sync=w.rbOnlineConsistency;
+assert.deepEqual(JSON.parse(JSON.stringify(sync.diff({status:'review',submitLinks:{0:'a'},empty:null},{status:'review',submitLinks:['a'],empty:[],_assetsChanged:false,_rbCacheCompacted:true}))),{});
+assert.deepEqual(JSON.parse(JSON.stringify(sync.diff({status:'review',note:'old'},{status:'revision',note:''}))),{status:'revision',note:''});
+assert.equal(sync.snapshot({one:{status:'revision',_syncRevision:4}}).one.status,'revision');
+assert.equal(sync.snapshot({one:{status:'review',_syncRevision:3}}).one.status,'revision');
+assert.equal(sync.snapshot({one:{status:'done',_syncRevision:5}}).one.status,'done');
+const op={method:'PATCH',conflict:true,data:{status:'review',updatedAt:100},baseValues:{status:'revision'}};
+assert(sync.canRetry(op,{status:'revision',updatedAt:200}));
+assert(!sync.canRetry(op,{status:'done',updatedAt:200}));
+assert(!sync.canRetry({...op,baseValues:null},{status:'revision'}));
+assert(!sync.canRetry(op,{status:'revision',_deleted:true}));
+assert(w.rbSafeOrderWrite.matches({status:'revision'},{_assetsChanged:false,_rbCacheCompacted:true},'PATCH'),'cache-only legacy queue needs no cloud write');
+assert(!w.rbSafeOrderWrite.matches({status:'revision'},{_assetsChanged:false,status:'review'},'PATCH'),'real conflicting status must stay queued');
+const next={baseValues:{camp1:'original',note:'concurrent base'}},sent={data:{camp1:'first'},baseValues:{camp1:'original'}};
+sync.rebaseAcknowledged(next,sent);assert.equal(next.baseValues.camp1,'first');assert.equal(next.baseValues.note,'concurrent base');
+const html=fs.readFileSync('index.html','utf8');
+// Exercise real merge: a cleared online audit field must stay cleared.
+const start=html.indexOf('function fbMergeRemoteSnapshot(data){'),end=html.indexOf('function fbApplyRemoteOrders(data){');
+Object.assign(c,{lpORD:()=>[{id:'ONE',_fbKey:'one',fbName:'deleted remotely',status:'review',images:[{url:'asset'}],assetsUpdatedAt:1}],fbOrdersFromData:d=>Object.entries(d).map(([k,v])=>({...v,_fbKey:k})),fbMergePendingOrders:x=>x,fbOrderHasAssetFields:()=>false,FB_ORDER_ASSET_FIELDS:['images'],_fbRecentOrderWrites:{}});
+vm.runInContext(html.slice(start,end),c);
+let row=c.fbMergeRemoteSnapshot({one:{id:'ONE',status:'revision',assetsUpdatedAt:1}})[0];assert.equal(row.fbName,undefined);assert.equal(row.status,'revision');assert.equal(row.images[0].url,'asset');
+row=c.fbMergeRemoteSnapshot({one:{id:'ONE',status:'revision',assetsUpdatedAt:2}})[0];assert.equal(row.images,undefined);
+assert(!html.slice(html.indexOf('function fbMigrateLocalOrders'),html.indexOf('function fbSyncStart')).includes('fbSet('));
+assert(html.includes('window.fbOrderQueueLoad=fbOrderQueueLoad'));
+console.log('PASS normalized diffs, monotonic server revisions, safe conflict retries, cleared fields and cache-only startup');

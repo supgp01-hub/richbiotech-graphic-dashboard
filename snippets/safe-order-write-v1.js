@@ -8,9 +8,9 @@ function firebaseValue(v){if(v==null)return null;if(typeof v!=='object')return v
 function equal(a,b){return JSON.stringify(firebaseValue(a))===JSON.stringify(firebaseValue(b));}
 function matches(remote,change,method){
   if(!remote||!change||remote._deleted||change._deleted)return false;
-  var metadata=['updatedAt','_version','_updatedBy','_syncRevision','_lastWriteToken'];
+  var metadata=['updatedAt','_version','_updatedBy','_syncRevision','_lastWriteToken','_fbKey','_assetsLoaded','_assetsChanged','_rbCacheCompacted','_rbReviewSubmit'];
   var keys=Object.keys(change).filter(function(k){return metadata.indexOf(k)<0;});
-  if(!keys.length)return false;
+  if(!keys.length)return String(method).toUpperCase()==='PATCH'&&Object.keys(change).some(function(k){return ['_fbKey','_assetsLoaded','_assetsChanged','_rbCacheCompacted','_rbReviewSubmit'].indexOf(k)>=0;});
   if(String(method).toUpperCase()==='PUT')keys=Array.from(new Set(keys.concat(Object.keys(remote).filter(function(k){return metadata.indexOf(k)<0;}))));
   return keys.every(function(k){return equal(remote[k],change[k]);});
 }

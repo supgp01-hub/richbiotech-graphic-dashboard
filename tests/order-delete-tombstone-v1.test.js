@@ -9,7 +9,11 @@ assert(guard.includes("KEY='rb_order_delete_guard_v1'"),'deleted orders need a d
 assert(guard.includes("src._deleted===true||deleted[key]"),'cloud tombstones and local guards must be excluded from order lists');
 assert(guard.includes("op.method==='DELETE'||(op.data&&op.data._deleted===true)"),'queued tombstones must hide the order before the network confirms');
 assert(source.includes("fbQueueOrderOp('PUT',old._fbKey,window.rbOrderDeletion.mark(old,curUser()),Number(old.updatedAt||0))"),'deletion must create a server-side tombstone instead of an unsafe hard delete');
-assert(source.includes("!everSynced&&!window.rbOrderDeletion.hasCloudMark(data)"),'a new browser must never migrate stale local work over a cloud tombstone');
+const loader=source.slice(source.indexOf('function fbLoadOrders(cb){'),source.indexOf('function fbRefreshOrders(cb){'));
+assert(!loader.includes('fbMigrateLocalOrders('),'a new browser must never upload its stale cache during a cloud read');
+let applied;
+vm.runInNewContext(loader+";fbLoadOrders();",{fbGet:(p,cb)=>cb(null,{deleted:{_deleted:true}}),fbApplyRemoteOrders:d=>applied=d,localStorage:{setItem(){}},fbSetSyncState(){},window:{}});
+assert(applied.deleted._deleted,'the startup path must apply the cloud tombstone');
 assert(guard.includes("status('waiting','ลบแล้ว · รอซิงก์'"),'slow deletion must show an honest pending state');
 assert(guard.includes("status('saved','ลบงานแล้ว'"),'confirmed deletion must show a success state');
 

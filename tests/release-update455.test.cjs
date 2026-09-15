@@ -1,0 +1,10 @@
+const {JSDOM}=require('jsdom'),fs=require('fs'),assert=require('node:assert/strict');
+const dom=new JSDOM('<meta name="rb-build" content="fix455"><textarea></textarea>',{url:'https://example.test/dashboard/',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
+w.setTimeout=w.setInterval=()=>0;w.eval(fs.readFileSync('snippets/release-update-v1.js','utf8'));
+const r=w.rbReleaseUpdate;assert(r.newer('fix456','fix455'));assert(!r.newer('fix454','fix455'));assert(!r.newer('javascript:bad','fix455'));
+assert(!r.blocked());w.rbOrderSync={pendingCount:()=>1};assert(r.blocked());w.rbOrderSync.pendingCount=()=>0;
+w.localStorage.setItem('rb_generic_write_queue_v3','[{"pending":true}]');assert(r.blocked());w.localStorage.removeItem('rb_generic_write_queue_v3');
+const el=w.document.querySelector('textarea');el.getClientRects=()=>[{}];el.dispatchEvent(new w.Event('input',{bubbles:true}));assert(r.blocked());
+w.dispatchEvent(new w.CustomEvent('rb:sync-state',{detail:{state:'saved'}}));assert(r.blocked(),'another save must not erase dirty input');el.remove();assert(!r.blocked());
+assert.equal(JSON.parse(fs.readFileSync('release.json')).build,fs.readFileSync('index.html','utf8').match(/name="rb-build" content="([^"]+)"/)[1]);
+dom.window.close();console.log('PASS update validation, queued offline writes, dirty input and unrelated receipt protection');
