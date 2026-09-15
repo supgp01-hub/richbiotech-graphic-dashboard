@@ -1,0 +1,23 @@
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const {installSecureAuthMock}=require('./secure-auth-mock');
+(async()=>{const browser=await chromium.launch({headless:true,channel:process.env.RB_TEST_BROWSER_CHANNEL||'chrome'});try{
+const root=path.resolve(__dirname,'../..'),origin='http://127.0.0.1:8014',errors=[];
+const ctx=await browser.newContext({viewport:{width:1440,height:1050}});
+await ctx.route('**/*',route=>{const u=new URL(route.request().url()),file=path.resolve(root,'.'+u.pathname);return u.origin===origin&&file.startsWith(root+path.sep)&&fs.existsSync(file)?route.fulfill({path:file}):route.abort()});
+await installSecureAuthMock(ctx);await ctx.addInitScript(()=>localStorage.setItem('rb_theme','light'));
+const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(origin+'/index.html',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window._rbUser?.name&&window.rbThaiHolidays&&window._lvwTest);
+await page.locator('#sidebar button').filter({hasText:'ตารางวันหยุด'}).click();
+await page.evaluate(()=>{LV_CUR={y:2026,m:4};LV_DATA={'2026-4-13':[{uid:1,empId:'jam',type:'hol'},{uid:2,empId:'ter',type:'vac'},{uid:3,empId:'dom',type:'hol'}]};window.__rbSpecialRowsMemoryV1=[{id:'qa',empId:'wiw',cat:'wfh',dates:['2026-4-13']}];lvRender()});
+await page.locator('[data-lvw-date="2026-4-13"] .lvw-special-ribbon').waitFor();
+assert.equal(await page.locator('.lv-holiday-mark').count(),4);
+async function layout(){return page.evaluate(()=>{const failures=[];document.querySelectorAll('.lv-holiday-mark').forEach(mark=>{const mr=mark.getBoundingClientRect(),cell=mark.parentNode,cr=cell.getBoundingClientRect(),label=mark.querySelector('span');if(mr.left<cr.left||mr.right>cr.right+1||mr.bottom>cr.bottom+1)failures.push('outside cell');cell.querySelectorAll('.lv-emp-chip,.lv-day-num,.lvw-special-ribbons').forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom>mr.top+1)failures.push('overlap '+el.className)});if(label.scrollWidth>label.clientWidth+1)failures.push('label clipped')});return failures})}
+assert.deepEqual(await layout(),[]);await page.locator('.lv-cal').screenshot({path:path.resolve(root,'../thai-holidays465-desktop.png')});
+await page.locator('#lv-holiday-toggle').uncheck();assert.equal(await page.locator('.lv-holiday-mark').count(),0);assert.equal(await page.locator('[data-lvw-date="2026-4-13"] .lv-emp-chip').count(),3);
+await page.locator('#lv-holiday-toggle').check();await page.locator('[data-lvw-date="2026-4-13"]').click();await page.locator('#lv-modal.open').waitFor();await page.locator('#lv-modal .lv-mclose').click();await page.locator('#lv-modal.open').waitFor({state:'hidden'});
+await page.setViewportSize({width:390,height:844});assert.deepEqual(await layout(),[]);await page.locator('.lv-cal').screenshot({path:path.resolve(root,'../thai-holidays465-mobile.png')});
+await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));assert.deepEqual(await layout(),[]);
+await page.evaluate(()=>{LV_CUR={y:2026,m:10};lvRender()});assert.match(await page.locator('[data-holiday-date="2026-10-16"]').innerText(),/เฉพาะกรุงเทพ/);
+await page.evaluate(()=>{lvGoMonth(1)});assert.equal(await page.locator('.lv-holiday-mark').count(),0);
+await page.evaluate(()=>{LV_CUR={y:2027,m:4};lvRender()});assert.match(await page.locator('#lv-holiday-note').innerText(),/ยังไม่มี.*2570/);
+assert.deepEqual(errors,[]);console.log('PASS real calendar: verified holiday mapping, 3 staff + WFH, toggle, day dialog, mobile/dark layout, month/year navigation');
+}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});
