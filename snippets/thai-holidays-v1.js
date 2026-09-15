@@ -53,9 +53,9 @@
     if (document.getElementById('lv-holiday-controls')) return;
     var controls = document.createElement('div');
     controls.id = 'lv-holiday-controls';
-    controls.innerHTML = '<label><input type="checkbox" id="lv-holiday-toggle"> แสดงวันหยุดราชการ</label><label class="lv-holiday-year-label">ปี พ.ศ. <input type="number" id="lv-holiday-year" min="2143" max="10541" step="1" aria-label="ปีปฏิทิน พ.ศ."></label><span id="lv-holiday-note"></span>';
+    controls.innerHTML = '<label><input type="checkbox" id="lv-holiday-toggle"> แสดงวันหยุดราชการ</label><details class="lvw-holiday-info"><summary aria-label="ปีและข้อมูลวันหยุด" title="เลือกปีและดูข้อมูลวันหยุด">ⓘ</summary><div class="lvw-holiday-info-panel"><label class="lv-holiday-year-label">ปี พ.ศ. <input type="number" id="lv-holiday-year" min="2143" max="10541" step="1" aria-label="ปีปฏิทิน พ.ศ."></label><span id="lv-holiday-note"></span></div></details>';
     var cal = body.closest('.lv-cal') || body;
-    cal.parentNode.insertBefore(controls, cal);
+    var toolbar=document.getElementById('lvw-calendar-toolbar');if(toolbar)toolbar.appendChild(controls);else cal.parentNode.insertBefore(controls, cal);
     var toggle = controls.querySelector('input');
     toggle.checked = enabled;
     controls.querySelector('#lv-holiday-year').addEventListener('change',function(e){

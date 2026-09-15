@@ -353,3 +353,38 @@ html[data-theme="dark"] #tab-schedule .lvw-special-ribbon{box-shadow:inset 0 0 0
 #lv-modal .lv-mclose::before,#lv-modal .lv-mclose::after{content:none!important;display:none!important}
 #lv-modal .lv-mclose-icon{display:block!important;width:17px!important;height:17px!important;overflow:visible!important;pointer-events:none!important}
 #lv-modal .lv-mclose-icon path{fill:none!important;stroke:#ff737b!important;stroke-width:2.25!important;stroke-linecap:round!important}
+/* fix467 — approved compact summary; filters are a disclosure, alerts stay actionable. */
+#tab-schedule #lvw-topbar{padding:10px 14px;margin-bottom:10px;background:linear-gradient(110deg,#17523f,#086854);border-radius:11px}
+#tab-schedule #lvw-topbar .lvw-topbar-copy strong{font-size:15px}
+#tab-schedule #lvw-today-summary{display:flex;align-items:center;gap:18px;min-height:54px;padding:8px 14px;margin-bottom:10px;box-sizing:border-box;border-radius:11px}
+#tab-schedule .lvw-summary-date{display:flex;align-items:center;gap:10px;flex-shrink:0;padding-right:18px;border-right:1px solid #d5e4dd;color:#234a3d;font-size:13px;font-weight:700;white-space:nowrap}
+#tab-schedule #lvw-today-summary svg{width:17px;height:17px;flex:none}
+#tab-schedule #lvw-today-summary .lvw-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;flex:1;min-width:0}
+#tab-schedule #lvw-today-summary .lvw-summary-card{min-height:32px;padding:0 10px;gap:7px;font-size:11px;white-space:nowrap}
+#tab-schedule #lvw-today-summary .lvw-summary-card b{margin-left:auto;font-size:13px}
+#tab-schedule #lvw-today-summary .lvw-summary-card small{font:inherit;font-size:10px}
+#tab-schedule .lvw-summary-status{display:flex;align-items:center;justify-content:center;gap:7px;min-width:60px;color:#237149;font-size:11px;font-weight:700;white-space:nowrap}
+#tab-schedule .lvw-summary-status i{width:8px;height:8px;border-radius:50%;background:#22bd64}
+#tab-schedule .lvw-summary-status.is-short{color:#a26b0c}#tab-schedule .lvw-summary-status.is-short i{background:#dc9d26}
+#tab-schedule #lvw-filter-toggle{display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;font-size:11px;min-height:32px;background:#fff;color:#234a3d;border-color:#c9dcd2}
+#tab-schedule .lvw-filter-count{display:grid;place-items:center;min-width:17px;height:17px;border-radius:10px;background:#d9f4e5;color:#19754b;font-size:10px}
+#tab-schedule #lvw-filters[hidden],#tab-schedule #lvw-alerts[hidden]{display:none!important}
+#tab-schedule #lvw-filters{grid-template-columns:1.2fr 1fr 1fr auto auto;align-items:end;padding:10px 12px}
+#tab-schedule #lvw-filter-reset{min-height:33px;font-size:11px}
+#tab-schedule #lvw-calendar-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px;min-height:44px;margin:4px 0 8px}
+#tab-schedule #lvw-calendar-toolbar .lv-nav{margin:0;gap:15px}
+#tab-schedule #lvw-calendar-toolbar .lv-legend{margin:0;gap:6px 9px;font-size:9px}
+#tab-schedule #lvw-calendar-toolbar #lv-holiday-controls{justify-self:end;flex-wrap:nowrap;margin:0;gap:8px;font-size:10px}
+#tab-schedule #lvw-calendar-toolbar #lv-holiday-controls>label{padding:3px 0;border:0;background:transparent;white-space:nowrap;font-size:10px}
+#tab-schedule #lvw-calendar-toolbar #lv-holiday-toggle{order:0}
+#tab-schedule .lvw-holiday-info{position:relative;z-index:5}
+#tab-schedule .lvw-holiday-info>summary{list-style:none;cursor:pointer;color:#6c8a7c;font-size:17px;line-height:25px;padding:2px 4px}
+#tab-schedule .lvw-holiday-info>summary::-webkit-details-marker{display:none}
+#tab-schedule .lvw-holiday-info-panel{position:absolute;right:0;top:32px;width:270px;padding:12px;border:1px solid #c5ddcf;border-radius:10px;box-shadow:0 6px 22px #163d3120;background:#fff;color:#48695a}
+#tab-schedule .lvw-holiday-info-panel #lv-holiday-note{display:block;margin-top:8px;line-height:1.6;font-size:10px}
+#tab-schedule .lvw-holiday-info-panel .lv-holiday-year-label{padding:0;border:0;background:transparent}
+html[data-theme="dark"] #tab-schedule #lvw-today-summary,html[data-theme="dark"] #tab-schedule .lvw-holiday-info-panel,html[data-theme="dark"] #tab-schedule #lvw-filter-toggle{background:#10372f;color:#d9f5e8;border-color:#376759}
+html[data-theme="dark"] #tab-schedule .lvw-summary-date{color:#d9f5e8;border-color:#376759}
+html[data-theme="dark"] #tab-schedule .lvw-summary-status{color:#89dfb7}html[data-theme="dark"] #tab-schedule .lvw-summary-status.is-short{color:#ffd27d}
+@media(max-width:1100px){#tab-schedule #lvw-today-summary{gap:10px}#tab-schedule .lvw-summary-date{padding-right:10px;font-size:11px}#tab-schedule #lvw-today-summary .lvw-summary-card{padding:0 7px;gap:5px;font-size:10px}#tab-schedule #lvw-today-summary .lvw-summary-grid{gap:6px}#tab-schedule #lvw-today-summary .lvw-summary-card svg{display:none}#tab-schedule #lvw-calendar-toolbar{grid-template-columns:1fr auto}#tab-schedule #lvw-calendar-toolbar .lv-nav{grid-column:1/-1;grid-row:1}#tab-schedule #lvw-filters{grid-template-columns:1fr 1fr}#tab-schedule #lvw-filters .lvw-filter-checks{grid-column:auto}}
+@media(max-width:720px){#tab-schedule #lvw-today-summary{flex-wrap:wrap;gap:8px;padding:10px}#tab-schedule .lvw-summary-date{flex:1;border:0}#tab-schedule #lvw-today-summary .lvw-summary-grid{order:4;flex-basis:100%}#tab-schedule #lvw-today-summary .lvw-summary-card{gap:4px;padding:0 6px;font-size:9px}#tab-schedule #lvw-today-summary .lvw-summary-card b{font-size:11px}#tab-schedule #lvw-filter-toggle{padding:0 8px}#tab-schedule .lvw-summary-status{min-width:0;font-size:10px}#tab-schedule #lvw-calendar-toolbar{gap:8px}#tab-schedule #lvw-calendar-toolbar .lv-legend{font-size:8px}#tab-schedule #lvw-calendar-toolbar #lv-holiday-controls>label{font-size:9px}#tab-schedule #lvw-filters .lvw-filter-checks{justify-content:center;align-items:flex-start}#tab-schedule #lvw-topbar .lvw-topbar-copy strong{font-size:13px}}

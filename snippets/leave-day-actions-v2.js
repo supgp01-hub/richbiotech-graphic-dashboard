@@ -68,7 +68,7 @@ function ensureTodayAction(){
   var actions=document.querySelector('#lvw-topbar .lvw-topbar-actions'),summary=document.getElementById('lvw-today-summary');
   var button=document.querySelector('#tab-schedule .lvw-open-today');
   if(!button&&(actions||summary)){
-    button=document.createElement('button');button.type='button';button.className='lvw-open-today';button.innerHTML='<span>＋</span> ลงข้อมูลวันนี้';button.onclick=openToday;(actions||summary).appendChild(button);
+    button=document.createElement('button');button.type='button';button.className='lvw-open-today';button.title='เปิดรายละเอียดและลงข้อมูลวันนี้';button.innerHTML='<span aria-hidden="true">▦</span> วันนี้';button.onclick=openToday;(actions||summary).appendChild(button);
   }
   if(actions&&button.parentNode!==actions)actions.appendChild(button);
   document.querySelectorAll('#tab-schedule .lvw-today-action').forEach(function(hint){hint.remove();});
