@@ -241,6 +241,39 @@
           ".validate": false
         }
       }
+    },
+    "audit_deduction_adjustments_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      "$charge": {
+        "$operation": {
+          ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'audit') && !data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['kind','delta','reason','by','actorUid','at','snapshot'])",
+          "kind": {
+            ".validate": "newData.val() === 'add' || newData.val() === 'remove'"
+          },
+          "delta": {
+            ".validate": "newData.isNumber() && ((newData.parent().child('kind').val() === 'add' && newData.val() > 0 && newData.val() <= 1000000 && newData.val() % 1 === 0) || (newData.parent().child('kind').val() === 'remove' && newData.val() === 0))"
+          },
+          "reason": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+          },
+          "by": {
+            ".validate": "newData.val() === root.child('auth_users').child(auth.uid).child('name').val()"
+          },
+          "actorUid": {
+            ".validate": "newData.val() === auth.uid"
+          },
+          "at": {
+            ".validate": "newData.isNumber() && newData.val() === now"
+          },
+          "snapshot": {
+            ".validate": "newData.hasChildren(['id','employee','amount','detectedAt','ruleId']) && newData.child('id').isString() && newData.child('employee').isString() && newData.child('amount').isNumber() && newData.child('amount').val() >= 0 && newData.child('detectedAt').isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
   }
 }
