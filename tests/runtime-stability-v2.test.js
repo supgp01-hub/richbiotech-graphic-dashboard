@@ -24,7 +24,7 @@ assert.ok(cloud.includes('function cloudPause()'), 'inactive Content Tracker str
 assert.ok(performance.includes('function trackerActive()'), 'large background writes must be gated by the active tab');
 assert.ok(performance.includes('window.rbFirebaseAuth&&window.rbFirebaseAuth.fetch'), 'large Content Tracker payloads must use the authenticated long-timeout transport');
 assert.ok(performance.includes('},90000)'), 'large Content Tracker payloads must not inherit the 12-second global timeout');
-assert.ok(performance.includes("if(manual)try{localStorage.setItem(SYNC_PENDING"), 'manual sync failures must remain queued and visible');
+assert.ok(performance.includes("if(manual){memoryPending=true;try{localStorage.setItem(SYNC_PENDING")&&performance.includes("syncActive=false;memoryPending=true;syncAttempts++"), 'manual sync failures must remain queued and visible, including quota failures');
 assert.ok(!performance.includes('if(!trackerActive())return Promise.resolve(false)'), 'pending business data must keep syncing after the user leaves the Content Tracker tab');
 
 console.log('runtime-stability-v2: all tests passed');

@@ -15,5 +15,6 @@ The owner requires verification across the system before each delivery, not only
 - Never seed test records into real employee work or change work status merely to exercise buttons. Use isolated local fixtures for such scenarios. Preserve drafts and evidence.
 - Stage only intended release files. Private backups, credentials, local reports, and helper exports must not enter Git.
 - Run `node tests/manual/release-auto462.e2e.cjs` before deployment for automatic update discovery across devices, background tabs, unsaved edits, pending content saves, reconnect and delayed CDN HTML.
+- Run `node tests/manual/content-append463.e2e.cjs` for CSV append with exhausted browser storage: old and new records must remain in the current UI, online data, another browser and after reload.
 - Production is GitHub Pages at `https://supgp01-hub.github.io/richbiotech-graphic-dashboard/`. Confirm the remote before pushing. Keep the initial HTML below 640,000 bytes.
 - Record the build, tested scope, results, and any unverified scope in a release verification note. Passing tests reduce known risks; they do not establish that every future network/device condition is impossible.

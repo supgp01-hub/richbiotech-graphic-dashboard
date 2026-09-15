@@ -3,14 +3,14 @@
 var SYNC_PENDING='rb_ct_sync_pending_v1';
 var BACKUP_KEY='rb_ct_backup_v1';
 var DESTRUCTIVE_KEY='rb_ct_destructive_sync_v1';
-var allowDestructiveWrite=false;
+var memoryPending=false,localDurable=true,generation=0,pendingRows=null;
 var syncTimer=null,syncController=null,syncAttempts=0,syncActive=false;
 window._ctMainPage=window._ctMainPage||1;
 window._ctMainPageSize=window._ctMainPageSize||(window.rbPageSizeGet?window.rbPageSizeGet('links'):(parseInt(localStorage.getItem('rb_ct_page_size_v1'),10)||50));
 function cloudUrl(){var base=typeof FB_DB!=='undefined'?FB_DB:'https://richbiotech-c4e41-default-rtdb.firebaseio.com';return base+'/content_tracker_v2.json'}
 function trackerActive(){var team=document.getElementById('tab-team'),panel=document.querySelector('[data-sub="links"]');return !document.hidden&&!!team&&team.classList.contains('active')&&!!panel&&panel.classList.contains('gsp-active')&&!!panel.querySelector('#ct-tbody')}
 function status(type,text,title){var e=document.getElementById('ct-sync-status');if(!e){var host=document.querySelector('.ct-header .ct-actions')||document.querySelector('.ct-header');if(!host)return;e=document.createElement('span');e.id='ct-sync-status';e.className='ct-sync-status';e.onclick=function(){window.ctSyncNow(true)};host.insertBefore(e,host.firstChild)}e.className='ct-sync-status '+type;e.textContent=text;e.title=title||'คลิกเพื่อซิงก์อีกครั้ง'}
-function loadContentData(){try{return JSON.parse(localStorage.getItem('rb_olympplus_v1')||'[]')}catch(e){return []}}
+function loadContentData(){if(memoryPending&&pendingRows)return pendingRows;if(Array.isArray(window._ctCloudRows))return window._ctCloudRows;if(typeof _ctData!=='undefined'&&Array.isArray(_ctData))return _ctData;try{return JSON.parse(localStorage.getItem('rb_olympplus_v1')||'[]')}catch(e){return []}}
 function backupCurrentRows(next){try{var current=loadContentData();if(!current.length||JSON.stringify(current)===JSON.stringify(next))return;localStorage.setItem(BACKUP_KEY,JSON.stringify({items:current,createdAt:Date.now(),reason:'before_local_save'}))}catch(e){}}
 function compactRows(items){return (Array.isArray(items)?items:[]).map(function(row){if(!row||typeof row!=='object'||Array.isArray(row))return row;var out={};Object.keys(row).forEach(function(key){var value=row[key];if(value!==''&&value!==null&&typeof value!=='undefined')out[key]=value});return out})}
 function writeLocalRows(items){var rows=Array.isArray(items)?items:loadContentData();window._ctCloudRows=rows;try{localStorage.setItem('rb_olympplus_v1',JSON.stringify(rows));return true}catch(firstError){try{localStorage.setItem('rb_olympplus_v1',JSON.stringify(compactRows(rows)));return true}catch(secondError){return false}}}
@@ -21,13 +21,48 @@ function longCloudFetch(options){var ctl=typeof AbortController!=='undefined'?ne
 function cloudReadRows(){if(window.rbFirebaseAuth&&window.rbFirebaseAuth.fetch)return longCloudFetch({cache:'no-store'}).then(function(response){return response.json()}).then(unpackCloud);if(typeof window.fbGet!=='function')return Promise.resolve([]);return new Promise(function(resolve,reject){window.fbGet('/content_tracker_v2',function(error,data){if(error)reject(error);else resolve(unpackCloud(data))})})}
 function consumeDestructiveAuthorization(){try{var at=Number(localStorage.getItem(DESTRUCTIVE_KEY)||0);localStorage.removeItem(DESTRUCTIVE_KEY);return at>0&&Date.now()-at<120000}catch(e){return false}}
 function mergeById(remote,local){var result=(remote||[]).slice(),positions={};result.forEach(function(row,index){if(row&&row.id!=null)positions[String(row.id)]=index});(local||[]).forEach(function(row){var id=row&&row.id!=null?String(row.id):'';if(id&&Object.prototype.hasOwnProperty.call(positions,id)){var previous=result[positions[id]];result[positions[id]]=previous._productSplit449&&row.brand==='So Pink'?Object.assign({},row,{brand:previous.brand,_productSplit449:true}):row;}else result.push(row)});return result}
-function protectAgainstRollback(items){var local=Array.isArray(items)?items:[];allowDestructiveWrite=consumeDestructiveAuthorization();if(allowDestructiveWrite)return Promise.resolve(local);return cloudReadRows().then(function(remote){var suspicious=remote.some(function(r){return !local.some(function(x){return x&&r&&x.id===r.id})});if(!suspicious)return local;var merged=mergeById(remote,local);backupCurrentRows(merged);writeLocalRows(merged);if(typeof _ctData!=='undefined')_ctData=merged;signalContentUpdated();status('waiting','ป้องกันข้อมูลเก่าทับข้อมูล','พบข้อมูลในอุปกรณ์น้อยกว่าฐานข้อมูล ระบบรวมข้อมูลเดิมกลับให้อัตโนมัติ');return merged},function(){throw new Error('ตรวจฐานข้อมูลก่อนซิงก์ไม่สำเร็จ')})}
-function writeProtectedRows(rows){return longCloudFetch({cache:'no-store',headers:{'X-Firebase-ETag':'true'}}).then(async function(response){var etag=response.headers.get('ETag');if(!etag)throw new Error('Missing sync version');var remote=unpackCloud(await response.json()),merged=allowDestructiveWrite?rows:mergeById(remote,rows),payload={items:merged,updatedAt:Date.now(),source:'ct_reliable_'+Math.random().toString(36).slice(2,8)};await longCloudFetch({method:'PUT',headers:{'Content-Type':'application/json','if-match':etag},body:JSON.stringify(payload)});if(JSON.stringify(loadContentData())===JSON.stringify(rows)){writeLocalRows(merged);if(typeof _ctData!=='undefined')_ctData=merged;signalContentUpdated()}return true})}
+// Each write reads the authoritative collection with an ETag and preserves missing rows.
+// Destructive authorization belongs to this operation, never a later append.
+function writeProtectedRows(rows,destructive){return longCloudFetch({cache:'no-store',headers:{'X-Firebase-ETag':'true'}}).then(async function(response){var etag=response.headers.get('ETag');if(!etag)throw new Error('Missing sync version');var remote=unpackCloud(await response.json()),merged=destructive?rows:mergeById(remote,rows),payload={items:merged,updatedAt:Date.now(),source:'ct_reliable_'+Math.random().toString(36).slice(2,8)};await longCloudFetch({method:'PUT',headers:{'Content-Type':'application/json','if-match':etag},body:JSON.stringify(payload)});return merged})}
 
-function cloudWriteRows(items){if(typeof window.fbGet!=='function')return writeProtectedRows(Array.isArray(items)?items:[]);return protectAgainstRollback(items).then(writeProtectedRows)}
+function cloudWriteRows(items){return writeProtectedRows(Array.isArray(items)?items:[],consumeDestructiveAuthorization())}
 function schedule(delay){clearTimeout(syncTimer);syncTimer=setTimeout(function(){syncNow(false)},typeof delay==='number'?delay:450)}
-function syncNow(manual){if(!window.ctCanManage||!window.ctCanManage())return Promise.resolve(false);if(manual)try{localStorage.setItem(SYNC_PENDING,String(Date.now()))}catch(e){}if(window.rbMultiTab&&!window.rbMultiTab.isLeader()){status('local','บันทึกแล้ว','แท็บหลักจะซิงก์ข้อมูลให้อัตโนมัติ');return Promise.resolve(false)}if(syncActive){if(manual)schedule(300);return Promise.resolve(false)}if(typeof navigator!=='undefined'&&navigator.onLine===false){status('waiting','รออินเทอร์เน็ต');schedule(2500);return Promise.resolve(false)}syncActive=true;status('syncing','กำลังซิงก์...');var started=Date.now();return cloudWriteRows(loadContentData()).then(function(){syncActive=false;syncAttempts=0;localStorage.removeItem(SYNC_PENDING);status('synced','ซิงก์แล้ว '+Math.max(1,Math.round((Date.now()-started)/100)/10)+' วิ.','ข้อมูลในเครื่องและออนไลน์ตรงกันแล้ว');return true}).catch(function(){syncActive=false;syncAttempts++;status('waiting','รอซิงก์ใหม่','ซิงก์ไม่สำเร็จ ระบบจะลองใหม่อัตโนมัติ');schedule([1200,4000,12000][Math.min(syncAttempts-1,2)]);return false})}
-window.ctPersistContent=function(items){if(!window.ctCanManage||!window.ctCanManage())return Promise.resolve(false);var rows=Array.isArray(items)?items:(typeof _ctData!=='undefined'&&Array.isArray(_ctData)?_ctData:loadContentData());if(typeof _ctData!=='undefined')_ctData=rows;if(localSave(rows)){status('local','บันทึกแล้ว','บันทึกในเครื่องแล้ว กำลังซิงก์ออนไลน์ทันที');return syncNow(false).then(function(ok){return {local:true,queued:!ok,cloud:ok};})}status('syncing','กำลังบันทึกออนไลน์...','พื้นที่ในเครื่องไม่พอ กำลังใช้ฐานข้อมูลออนไลน์แทน');return cloudWriteRows(rows).then(function(){try{localStorage.removeItem(SYNC_PENDING);localStorage.removeItem('rb_olympplus_v1');writeLocalRows(rows)}catch(e){}signalContentUpdated();status('synced','ซิงก์แล้ว','บันทึกลงฐานข้อมูลออนไลน์เรียบร้อย');return {local:false,cloud:true}},function(error){status('waiting','บันทึกไม่สำเร็จ','พื้นที่ในเครื่องไม่พอและยังติดต่อฐานข้อมูลออนไลน์ไม่ได้');throw error})};
+function syncNow(manual){
+ if(!window.ctCanManage||!window.ctCanManage())return Promise.resolve(false);
+ if(manual){memoryPending=true;try{localStorage.setItem(SYNC_PENDING,String(Date.now()))}catch(e){}}
+ if(window.rbMultiTab&&!window.rbMultiTab.isLeader()&&localDurable){status('local','รอซิงก์','แท็บหลักจะซิงก์ข้อมูลให้อัตโนมัติ');return Promise.resolve(false)}
+ if(syncActive){schedule(300);return Promise.resolve(false)}
+ if(typeof navigator!=='undefined'&&navigator.onLine===false){status('waiting','รออินเทอร์เน็ต');schedule(2500);return Promise.resolve(false)}
+ syncActive=true;status('syncing','กำลังซิงก์...');var started=Date.now(),ticket=generation,rows=JSON.parse(JSON.stringify(loadContentData())),signature=JSON.stringify(rows);
+ return cloudWriteRows(rows).then(function(merged){
+  syncActive=false;syncAttempts=0;
+  if(ticket!==generation||JSON.stringify(loadContentData())!==signature){memoryPending=true;try{localStorage.setItem(SYNC_PENDING,String(Date.now()))}catch(e){}schedule(200);return false}
+  // Keep the acknowledged UNION, including old server rows, in both UI caches.
+  // Writing the original small input here previously hid the old collection.
+  if(typeof _ctData!=='undefined')_ctData=merged;
+  if(!writeLocalRows(merged))try{localStorage.removeItem('rb_olympplus_v1')}catch(e){}
+  memoryPending=false;pendingRows=null;localDurable=true;try{localStorage.removeItem(SYNC_PENDING)}catch(e){}
+  signalContentUpdated();if(trackerActive()&&typeof ctRender==='function')ctRender();
+  status('synced','ซิงก์แล้ว '+Math.max(1,Math.round((Date.now()-started)/100)/10)+' วิ.','ข้อมูลเดิมและข้อมูลใหม่รวมออนไลน์แล้ว '+merged.length+' รายการ');return true
+ }).catch(function(){syncActive=false;memoryPending=true;syncAttempts++;status('waiting','รอซิงก์ใหม่','ซิงก์ไม่สำเร็จ ข้อมูลยังอยู่ ระบบจะลองใหม่อัตโนมัติ');schedule([1200,4000,12000][Math.min(syncAttempts-1,2)]);return false})
+}
+window.ctPersistContent=function(items){
+ if(!window.ctCanManage||!window.ctCanManage())return Promise.resolve(false);
+ var rows=JSON.parse(JSON.stringify(Array.isArray(items)?items:(typeof _ctData!=='undefined'&&Array.isArray(_ctData)?_ctData:loadContentData())));
+ generation++;memoryPending=true;pendingRows=rows;if(typeof _ctData!=='undefined')_ctData=rows;
+ try{localStorage.setItem(SYNC_PENDING,String(Date.now()))}catch(e){}
+ localDurable=localSave(rows);var savedLocally=localDurable;
+ return syncNow(false).then(function(ok){if(!ok&&!savedLocally)throw Error('ยังไม่ยืนยันออนไลน์ ข้อมูลยังอยู่ในหน้านี้ กรุณารอซิงก์ก่อนปิด');return {local:savedLocally,queued:!ok,cloud:ok}})
+};
+window.ctPendingCount=function(){return memoryPending||syncActive||localStorage.getItem(SYNC_PENDING)?1:0};
+window.ctMemoryPending=function(){return memoryPending};
+window.addEventListener('storage',function(e){
+ if(e.key!==SYNC_PENDING||e.newValue||!memoryPending||!localDurable||syncActive)return;
+ try{var confirmed=JSON.parse(localStorage.getItem('rb_olympplus_v1')||'[]');if(!Array.isArray(confirmed)||!pendingRows||!pendingRows.every(function(row){return confirmed.some(function(saved){return saved.id===row.id&&JSON.stringify(saved)===JSON.stringify(row)})}))return;
+ memoryPending=false;pendingRows=null;window._ctCloudRows=confirmed;if(typeof _ctData!=='undefined')_ctData=confirmed;signalContentUpdated();if(trackerActive()&&typeof ctRender==='function')ctRender();
+ }catch(error){}
+});
+window.addEventListener('beforeunload',function(e){if(memoryPending&&!localDurable){e.preventDefault();e.returnValue='';}});
 window.ctSave=function(items){return window.ctPersistContent(items)};
 window.ctAuthorizeDestructiveSync=function(){try{localStorage.setItem(DESTRUCTIVE_KEY,String(Date.now()))}catch(e){}};
 window.ctSyncNow=function(){clearTimeout(syncTimer);return syncNow(true)};

@@ -1,0 +1,11 @@
+# fix463 — Preserve existing Content Tracker rows when appending
+
+The quota fallback wrote the old/new union to Firebase, then restored the smaller input array to the UI cache. A stale browser cache could therefore show only 13 rows (8 cached + 5 imported) while the shared collection still contained 2446. The signed-in production page was observed with 2446 total and THE LORD 299 before this release; no destructive database recovery was needed or performed.
+
+Content imports and sync now prefer the complete in-memory collection. Every normal save conditionally merges against the latest server collection using its ETag. The acknowledged union becomes the current UI/cache; a newer pending edit cannot be cleared by an earlier acknowledgement. Destructive authorization is consumed per operation and cannot carry over into a later append.
+
+Quota failures retain pending rows in memory and retry online. Cloud hydration waits while that memory draft is pending. The release updater and health panel include in-memory tracker work, and unload is guarded when the draft cannot be saved locally. A follower tab releases its pending guard only when the leader's shared acknowledgement contains its exact pending rows.
+
+Validation: 118 regression scripts and nine isolated browser suites. The added CSV flow recreates 8 stale cached rows and exhausted storage, imports 5 rows, and verifies 2441 original rows remain unchanged, 2446 rows appear online/current UI/another browser/after reload, and THE LORD has 299 rows. Additional checks cover offline retry, in-flight edits, per-operation destructive authorization and matching/nonmatching leader acknowledgements. Old source-pattern assertions were updated to the new conditional union implementation without removing their data-preservation guarantee.
+
+Deployment checks: GitHub regression and Pages jobs, public asset hashes, signed-in production count and build. No production test imports, job-status changes or database-rule changes are included. A browser crash cannot preserve an exclusively in-memory draft when both durable storage and connectivity are unavailable; the UI blocks automatic refresh and warns before normal unload in this condition.

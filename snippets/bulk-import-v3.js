@@ -15,7 +15,7 @@ function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'
 function norm(v){return String(v==null?'':v).replace(/^\uFEFF/,'').trim().toLowerCase().replace(/[\s_\-\/().]+/g,'')}
 function readJson(k,d){try{return JSON.parse(localStorage.getItem(k)||'')||d}catch(e){return d}}
 function writeJson(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-function loadContentData(){return typeof _ctData!=='undefined'&&Array.isArray(_ctData)?_ctData:readJson('rb_olympplus_v1',[])}
+function loadContentData(){if(Array.isArray(window._ctCloudRows))return window._ctCloudRows;return typeof _ctData!=='undefined'&&Array.isArray(_ctData)?_ctData:readJson('rb_olympplus_v1',[])}
 function svg(n){var d=n==='x'?'<path d="M18 6 6 18M6 6l12 12"></path>':'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>';return '<svg viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>'}
 function aliases(){return {brand:['สินค้า','แบรนด์','product','brand'],script:['สคริป','สคริปต์','script','scriptlink','ลิงก์สคริป','ลิงค์สคริป'],clipLink:['ลิงค์คลิป','ลิงก์คลิป','ลิงค์วิดีโอ','ลิงก์วิดีโอ','cliplink','videolink','vdo'],episode:['ชื่อคอนเท้นท์','ชื่อคอนเทนท์','ชื่อคอนเทนต์','ชื่อตอน','ชื่อตอนที่','contentname','episode','name'],ready:['ท่อนฮุก','ฮุก','hook','ท่อนสุก'],tabName:['ชื่อแท็บ','tab','tabname'],release:['ปล่อย','สถานะปล่อย','release'],shot:['ยิงแล้ว','สถานะยิง','shot'],shotDate:['วันที่ยิง','shotdate','date'],result:['ผลลัพธ์','หมายเหตุ','result','note']}}
 function guessField(h){var n=norm(h),a=aliases(),k,i;for(k in a)for(i=0;i<a[k].length;i++)if(n===norm(a[k][i]))return k;return ''}

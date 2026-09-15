@@ -7,7 +7,7 @@ function local(key){try{return localStorage.getItem(key);}catch(error){return nu
 function json(key,fallback){try{var value=JSON.parse(local(key)||'null');return value==null?fallback:value;}catch(error){return fallback;}}
 function countOrderQueue(){if(root.rbOrderSync&&root.rbOrderSync.pendingCount)return root.rbOrderSync.pendingCount();var q=json('rb_order_write_queue_v1',[]);return Array.isArray(q)?q.length:0;}
 function countGenericQueue(){if(root.rbPersistence&&typeof root.rbPersistence.pendingCount==='function')return root.rbPersistence.pendingCount();var q=json('rb_generic_write_queue_v3',[]);return Array.isArray(q)?q.length:0;}
-function contentPending(){return !!local('rb_ct_sync_pending_v1');}
+function contentPending(){return !!(root.ctPendingCount&&root.ctPendingCount())||!!local('rb_ct_sync_pending_v1');}
 function latestSuccess(){return n(local('rb_system_last_sync_ok_v1'));}
 function pendingRows(){
   var rows=[],order=root.rbOrderSync&&root.rbOrderSync.queue?root.rbOrderSync.queue():json('rb_order_write_queue_v1',[]),generic=json('rb_generic_write_queue_v3',[]);

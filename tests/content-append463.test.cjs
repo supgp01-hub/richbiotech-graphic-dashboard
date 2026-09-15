@@ -1,0 +1,20 @@
+const {JSDOM}=require('jsdom'),fs=require('fs'),assert=require('node:assert/strict');
+(async()=>{const dom=new JSDOM('',{url:'https://example.test',runScripts:'outside-only'}),w=dom.window;try{
+ w.ctCanManage=()=>true;w.AbortController=AbortController;w.setTimeout=()=>0;w.clearTimeout=()=>{};
+ let offline=false,hold=false,release,etag=1;let data={items:[{id:'old',episode:'preserve'}]};
+ const set=w.Storage.prototype.setItem;w.Storage.prototype.setItem=function(k,v){if(k==='rb_olympplus_v1')throw Error('quota');return set.call(this,k,v);};
+ w.rbFirebaseAuth={fetch:async(u,o={})=>{if(offline)throw Error('offline');if(o.method==='PUT'){assert.equal(o.headers['if-match'],String(etag));data=JSON.parse(o.body);etag++;if(hold){hold=false;await new Promise(r=>release=r);}}return{ok:true,headers:{get:()=>String(etag)},json:async()=>data};}};
+ w._ctData=[];w.eval(fs.readFileSync('snippets/performance-v4.js','utf8'));
+ await w.ctPersistContent([{id:'add-1'}]);assert.equal(w._ctData.length,2);assert(w._ctCloudRows.some(r=>r.id==='old'));assert.equal(w.ctPendingCount(),0);
+ offline=true;await assert.rejects(w.ctPersistContent(w._ctData.concat({id:'offline'})),/ยังไม่ยืนยัน/);assert.equal(w.ctPendingCount(),1);assert(w._ctCloudRows.some(r=>r.id==='offline'));
+ offline=false;await w.ctSyncNow();assert(data.items.some(r=>r.id==='offline'));assert.equal(w.ctPendingCount(),0);
+ hold=true;const first=w.ctPersistContent(w._ctData.concat({id:'slow'}));while(!release)await new Promise(r=>setImmediate(r));
+ await assert.rejects(w.ctPersistContent(w._ctData.concat({id:'newer'})),/ยังไม่ยืนยัน/);release();await assert.rejects(first,/ยังไม่ยืนยัน/);assert.equal(w.ctPendingCount(),1,'older acknowledgement must not clear newer pending work');
+ await w.ctSyncNow();assert(data.items.some(r=>r.id==='newer'));assert.equal(w.ctPendingCount(),0);assert.equal(new Set(data.items.map(r=>r.id)).size,data.items.length);
+ w.ctAuthorizeDestructiveSync();await w.ctPersistContent([{id:'retained'}]);assert.equal(data.items.length,1);
+ await w.ctPersistContent([{id:'after-delete'}]);assert.deepEqual(data.items.map(r=>r.id),['retained','after-delete'],'destructive authorization cannot leak to the next append');
+ w.Storage.prototype.setItem=set;w.rbMultiTab={isLeader:()=>false};await w.ctPersistContent(data.items.concat({id:'other-tab'}));assert.equal(w.ctPendingCount(),1);
+ w.localStorage.setItem('rb_olympplus_v1',JSON.stringify(data.items));w.localStorage.removeItem('rb_ct_sync_pending_v1');w.dispatchEvent(new w.StorageEvent('storage',{key:'rb_ct_sync_pending_v1',newValue:null}));assert.equal(w.ctPendingCount(),1,'unrelated tab receipt cannot release pending additions');
+ w.localStorage.setItem('rb_olympplus_v1',JSON.stringify(data.items.concat({id:'other-tab'})));w.dispatchEvent(new w.StorageEvent('storage',{key:'rb_ct_sync_pending_v1',newValue:null}));assert.equal(w.ctPendingCount(),0,'matching leader acknowledgement clears the follower memory guard');
+ console.log('PASS quota union, offline/retry, newer in-flight edits, pending acknowledgement and operation-scoped destructive authorization');
+}finally{dom.window.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

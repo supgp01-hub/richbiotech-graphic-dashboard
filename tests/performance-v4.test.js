@@ -49,7 +49,9 @@ assert.ok(fs.readFileSync('index.html','utf8').includes('id="ct-main-pager-top"'
   const fallback = await window.ctPersistContent(fallbackRows);
   assert.equal(fallback.cloud, true, 'พื้นที่ในเครื่องเต็มต้องสลับไปบันทึกออนไลน์โดยตรง');
   assert.equal(cloudCalls, 1, 'การบันทึกสำรองต้องส่งข้อมูลผ่านคิวออนไลน์ที่ลองใหม่ได้');
-  assert.equal(global._ctData[0].id, 'quota-row', 'ข้อมูลใหม่ต้องคงอยู่ในหน้าปัจจุบัน');
+  assert(global._ctData.some(r=>r.id==='quota-row'), 'ข้อมูลใหม่ต้องคงอยู่ในหน้าปัจจุบัน');
+  assert.equal(global._ctData.length,2136,'ข้อมูลเดิมต้องไม่ถูกซ่อนเมื่อเพิ่มข้อมูลผ่าน quota fallback');
+  assert.equal(global._ctCloudRows.length,2136,'cache ที่ ctLoad ใช้ต้องตรงกับผลรวมออนไลน์');
 
   forceQuota = false;
   cloudCalls = 0;
