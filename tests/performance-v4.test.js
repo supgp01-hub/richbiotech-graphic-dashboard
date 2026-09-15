@@ -25,6 +25,9 @@ global.fbSet = (path, payload) => { cloudCalls++; storage.set('cloud:' + path, J
 global.navigator = { onLine: true };
 global._ctData = Array.from({ length: 2135 }, (_, i) => ({ id: `row-${i}`, script: `script-${i}` }));
 global.ctLoad = () => global._ctData;
+global._rbUser={uid:'qa-sup',name:'VIEW',role:'sup'};
+document.querySelectorAll=()=>[];
+eval(fs.readFileSync('snippets/content-permissions-v1.js','utf8'));
 
 eval(fs.readFileSync('snippets/performance-v4.js', 'utf8'));
 assert.ok(fs.readFileSync('index.html','utf8').includes('id="ct-main-pager-top"'), 'ต้องมีตัวควบคุมหน้าเหนือรายการเพื่อให้เห็นทันทีว่าข้อมูลยังมีหน้าถัดไป');

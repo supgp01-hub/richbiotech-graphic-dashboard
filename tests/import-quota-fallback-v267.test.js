@@ -51,6 +51,8 @@ storage.set('rb_olympplus_v1', JSON.stringify(global._ctData));
 eval(fs.readFileSync('snippets/bulk-import-v2.js', 'utf8'));
 eval(fs.readFileSync('snippets/bulk-import-v3.js', 'utf8'));
 eval(fs.readFileSync('snippets/performance-v4.js', 'utf8'));
+global._rbUser={uid:'qa-sup',name:'VIEW',role:'sup'};
+eval(fs.readFileSync('snippets/content-permissions-v1.js','utf8'));
 
 const rows = window.ctParseCSV([
   'สคริป,ลิงค์คลิป,ชื่อคอนเท้นท์,ท่อนฮุก',

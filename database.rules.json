@@ -93,7 +93,7 @@
     },
     "content_tracker_v2": {
       ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
-      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true"
+      ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'spec' || root.child('auth_users').child(auth.uid).child('role').val() === 'audit')"
     },
     "leave_history": {
       ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
@@ -183,7 +183,7 @@
         ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && auth.uid === $uid",
         "$row": {
           ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && auth.uid === $uid && newData.exists()",
-          ".validate": "newData.hasChildren(['rowId','ownerUid','ownerName','text','updatedAt'])",
+          ".validate": "newData.hasChildren(['rowId','ownerUid','ownerName','text','updatedAt','revision']) && ((!data.exists() && newData.child('revision').val() === 1) || (data.exists() && newData.child('revision').val() === (data.child('revision').exists() ? data.child('revision').val() : 1) + 1 && newData.child('history').child('v_' + (data.child('revision').exists() ? data.child('revision').val() : 1)).child('text').val() === data.child('text').val() && newData.child('history').child('v_' + (data.child('revision').exists() ? data.child('revision').val() : 1)).child('updatedAt').val() === data.child('updatedAt').val())) && (!data.child('history').exists() || newData.child('history').exists())",
           "rowId": {
             ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 180 && (!data.exists() || newData.val() === data.val())"
           },
@@ -201,6 +201,24 @@
           },
           "$other": {
             ".validate": false
+          },
+          "revision": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() % 1 === 0"
+          },
+          "history": {
+            ".validate": "data.exists() || data.parent().exists()",
+            "$version": {
+              ".validate": "newData.hasChildren(['text','updatedAt']) && ((data.exists() && newData.child('text').val() === data.child('text').val() && newData.child('updatedAt').val() === data.child('updatedAt').val()) || (!data.exists() && $version === 'v_' + (data.parent().parent().child('revision').exists() ? data.parent().parent().child('revision').val() : 1) && newData.child('text').val() === data.parent().parent().child('text').val() && newData.child('updatedAt').val() === data.parent().parent().child('updatedAt').val()))",
+              "text": {
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 10000"
+              },
+              "updatedAt": {
+                ".validate": "newData.isNumber()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
           }
         }
       }

@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix459">
+<meta name="rb-build" content="fix460">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5341,7 +5341,7 @@ function ctModalHtml(r,isEdit){
   +'</div>';
 }
 
-window.ctModal=function(row){
+window.ctModal=function(row){if(!window.ctCanManage||!window.ctCanManage())return;
   var r=row||{};
   if(!row&&_ctBrand&&_ctBrand!=='ALL'){r={brand:_ctBrand};}
   var bg=document.createElement('div');
@@ -5370,7 +5370,7 @@ window.ctClearSel=function(){
   var a=document.getElementById('ct-chk-all');if(a){a.checked=false;a.indeterminate=false;}
   ctChkChange();
 };
-window.ctInlineUpdate=function(id,field,val){
+window.ctInlineUpdate=function(id,field,val){if(!window.ctCanManage||!window.ctCanManage())return;
   var r=(_ctData||[]).find(function(x){return x.id===id;});
   if(!r)return;
   r[field]=val;
@@ -5378,7 +5378,7 @@ window.ctInlineUpdate=function(id,field,val){
   ctSave();
   window.ctRender();
 };
-window.ctBulkSetBrand=function(){
+window.ctBulkSetBrand=function(){if(!window.ctCanManage||!window.ctCanManage())return;
   var sel=Array.from(document.querySelectorAll('.ct-row-sel:checked')).map(function(c){return c.getAttribute('data-id');});
   if(!sel.length)return;
   var brandEl=document.getElementById('ct-bulk-brand-sel');
@@ -5388,7 +5388,7 @@ window.ctBulkSetBrand=function(){
   ctSave();
   window.ctRender();
 };
-window.ctBulkDelete=function(){
+window.ctBulkDelete=function(){if(!window.ctCanManage||!window.ctCanManage())return;
   var sel=Array.from(document.querySelectorAll('.ct-row-sel:checked')).map(function(c){return c.getAttribute('data-id');});
   if(!sel.length)return;
   if(!confirm('ลบ '+sel.length+' รายการที่เลือก? ไม่สามารถกู้คืนได้'))return;
@@ -5397,13 +5397,13 @@ window.ctBulkDelete=function(){
   ctSave();
   window.ctRender();
 };
-window.ctSetManualDeadline=function(id,employee,value){
+window.ctSetManualDeadline=function(id,employee,value){if(!window.ctCanManage||!window.ctCanManage())return;
  if(!window.ctHookHistory||!window.ctHookHistory.allowed())return Promise.reject(new Error('เฉพาะผู้ดูแลระบบ'));
  var row=(_ctData||[]).find(function(r){return String(r.id)===String(id)});if(!row)return Promise.reject(new Error('ไม่พบรายการ'));
  row.manualDeadlines=row.manualDeadlines||{};row.manualDeadlines[employee]={date:value,updatedAt:Date.now(),by:(window._rbUser||{}).name||''};row.updatedAt=new Date().toISOString();return Promise.resolve(ctSave()).then(function(result){if(result===false||result&&(result.ok===false||result.cloud===false||result.queued===true))throw new Error('ยังซิงก์ไม่สำเร็จ');window.ctRender();return result});
 };
-window.ctSaveEmp=function(inp){var id=inp.dataset.id,idx=parseInt(inp.dataset.idx),val=inp.value.trim();var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){if(!row.empVals)row.empVals=[];row.empVals[idx]=val;row.updatedAt=new Date().toISOString();try{ctSave();}catch(e){}}}
-window.ctSaveUpdDate=function(inp){var id=inp.dataset.id,val=inp.value;var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){row.updDate=val;try{ctSave();}catch(e){}}};
+window.ctSaveEmp=function(inp){if(!window.ctCanManage||!window.ctCanManage())return;var id=inp.dataset.id,idx=parseInt(inp.dataset.idx),val=inp.value.trim();var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){if(!row.empVals)row.empVals=[];row.empVals[idx]=val;row.updatedAt=new Date().toISOString();try{ctSave();}catch(e){}}}
+window.ctSaveUpdDate=function(inp){if(!window.ctCanManage||!window.ctCanManage())return;var id=inp.dataset.id,val=inp.value;var row=(_ctData||[]).find(function(r){return String(r.id)===String(id);});if(row){row.updDate=val;try{ctSave();}catch(e){}}};
 window.ctSetBrand=function(b,btn){
   _ctBrand=b;
   document.querySelectorAll('.ct-bchip').forEach(function(el){el.classList.remove('ct-bchip-active');});
@@ -5412,9 +5412,9 @@ window.ctSetBrand=function(b,btn){
   Array.from(document.querySelectorAll('th.ct-emp-extra')).forEach(function(el){el.remove();});var eth=document.getElementById('ct-emp-th');if(eth){if(b!=='ALL'&&PROD_EMP[b]){var names=PROD_EMP[b].split(' ');eth.textContent=names[0];eth.style.cssText='min-width:70px;text-align:center;';var lastTh=eth;for(var i=1;i<names.length;i++){var nt=document.createElement('th');nt.className='ct-emp-extra';nt.style.cssText='min-width:70px;text-align:center;';nt.textContent=names[i];lastTh.insertAdjacentElement('afterend',nt);lastTh=nt;}}else{eth.textContent='พนักงาน';}}
 window.ctRender();
 };
-window.ctEdit=function(id){var r=(_ctData||[]).find(function(x){return x.id===id;});if(r)window.ctModal(r);};
-window.ctDel=function(id){var job=(_ctData||[]).find(function(x){return x.id===id;});var nm=job?job.name:id;var ov=document.getElementById('ct-del-ov');if(!ov){ov=document.createElement('div');ov.id='ct-del-ov';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';ov.innerHTML='<div style="background:var(--surface-card);border-radius:12px;padding:28px 32px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);"><div style="font-size:2em;margin-bottom:12px;">🗑️</div><p style="font-size:.9em;color:#666;margin-bottom:8px;">ᇽሱሕᇩሚላልሂላሚሊᇩሚላ</p><p id="ct-del-nm" style="font-weight:700;font-size:1.1em;color:var(--text-heading);margin-bottom:20px;word-break:break-all;"></p><div style="display:flex;gap:12px;justify-content:center;"><button id="ct-del-cancel" style="padding:8px 24px;border:1px solid #ccc;background:var(--surface-card);border-radius:8px;cursor:pointer;font-size:.95em;">ሊᇩረልሜᇩ</button><button id="ct-del-ok" style="padding:8px 24px;background:#DC2626;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.95em;">ልሂ</button></div></div>';document.body.appendChild(ov);}document.getElementById('ct-del-nm').textContent=nm;ov.style.display='flex';document.getElementById('ct-del-cancel').onclick=function(){ov.style.display='none';};document.getElementById('ct-del-ok').onclick=function(){ov.style.display='none';if(window.ctAuthorizeDestructiveSync)window.ctAuthorizeDestructiveSync();_ctData=(_ctData||[]).filter(function(x){return x.id!==id;});ctSave();window.ctRender();};};
-window.ctSaveMod=function(id){
+window.ctEdit=function(id){if(!window.ctCanManage||!window.ctCanManage())return;var r=(_ctData||[]).find(function(x){return x.id===id;});if(r)window.ctModal(r);};
+window.ctDel=function(id){if(!window.ctCanManage||!window.ctCanManage())return;var job=(_ctData||[]).find(function(x){return x.id===id;});var nm=job?job.name:id;var ov=document.getElementById('ct-del-ov');if(!ov){ov=document.createElement('div');ov.id='ct-del-ov';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';ov.innerHTML='<div style="background:var(--surface-card);border-radius:12px;padding:28px 32px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);"><div style="font-size:2em;margin-bottom:12px;">🗑️</div><p style="font-size:.9em;color:#666;margin-bottom:8px;">ᇽሱሕᇩሚላልሂላሚሊᇩሚላ</p><p id="ct-del-nm" style="font-weight:700;font-size:1.1em;color:var(--text-heading);margin-bottom:20px;word-break:break-all;"></p><div style="display:flex;gap:12px;justify-content:center;"><button id="ct-del-cancel" style="padding:8px 24px;border:1px solid #ccc;background:var(--surface-card);border-radius:8px;cursor:pointer;font-size:.95em;">ሊᇩረልሜᇩ</button><button id="ct-del-ok" style="padding:8px 24px;background:#DC2626;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.95em;">ልሂ</button></div></div>';document.body.appendChild(ov);}document.getElementById('ct-del-nm').textContent=nm;ov.style.display='flex';document.getElementById('ct-del-cancel').onclick=function(){ov.style.display='none';};document.getElementById('ct-del-ok').onclick=function(){if(!window.ctCanManage||!window.ctCanManage())return;ov.style.display='none';if(window.ctAuthorizeDestructiveSync)window.ctAuthorizeDestructiveSync();_ctData=(_ctData||[]).filter(function(x){return x.id!==id;});ctSave();window.ctRender();};};
+window.ctSaveMod=function(id){if(!window.ctCanManage||!window.ctCanManage())return;
   var script=(document.getElementById('ctm-script')||{}).value||'';script=script.trim();
   if(!script){alert('กรุณากรอกสคริป/หัวเรื่อง');return;}
   var entry={
@@ -5464,7 +5464,7 @@ function ctGuessReady(v){var lv=(v||'').toLowerCase();if(lv.indexOf('ready')>=0|
 function ctGuessRelease(v){var lv=(v||'').toLowerCase();if(lv.indexOf('released')>=0||lv.indexOf('ปล่อย')>=0&&lv.indexOf('ไม่')<0)return 'released';if(lv.indexOf('hold')>=0||lv.indexOf('ไม่')>=0)return 'hold';if(lv.indexOf('pending')>=0||lv.indexOf('รอ')>=0)return 'pending';return '';}
 function ctGuessShot(v){var lv=(v||'').toLowerCase();if(lv==='yes'||lv==='1'||lv==='y'||(lv.indexOf('ยิง')>=0&&lv.indexOf('ไม่')<0&&lv.indexOf('ยัง')<0))return 'yes';if(lv==='no'||lv==='0'||lv==='n'||lv.indexOf('ยัง')>=0)return 'no';return '';}
 
-window.ctImportModal=function(){
+window.ctImportModal=function(){if(!window.ctCanManage||!window.ctCanManage())return;
   var bg=document.createElement('div');bg.className='ct-modal-bg';bg.setAttribute('data-import-modal','1');
   bg.innerHTML='<div class="ct-modal">'
     +'<div class="ct-modal-title">&#128229; นำเข้าจาก Google Sheets</div>'
@@ -5481,7 +5481,7 @@ window.ctImportModal=function(){
   document.body.appendChild(bg);
   bg.addEventListener('click',function(e){if(e.target===bg)bg.remove();});
 };
-window.ctDoImport=function(){
+window.ctDoImport=function(){if(!window.ctCanManage||!window.ctCanManage())return;
   var csv=(document.getElementById('ct-csv-area')||{}).value||'';csv=csv.trim();
   if(!csv){alert('กรุณาวาง CSV ก่อน');return;}
   var doReplace=(document.getElementById('ct-import-replace')||{}).checked;
@@ -6185,7 +6185,7 @@ button>.rb-leading-icon{width:17px;height:17px}
     icRender();return true;
   }).finally(function(){window.__rbIcSaving=false;});
 };})();</script><script>window._fpKey='rb_fbpages_manual_v1';window._fpSyncKey='rb_fbpages_manual_synced_v1';window._fpManual=(function(){try{return JSON.parse(localStorage.getItem(window._fpKey)||'[]');}catch(e){return [];}})();window._fpSaveLocal=function(a){window._fpManual=a;try{localStorage.setItem(window._fpKey,JSON.stringify(a));}catch(e){console.warn('Page cache unavailable; online save remains available');}};window._fpSave=function(a){window._fpSaveLocal(a);window.fbSet&&window.fbSet('/fbpages_manual',a);};window._fpMerge=function(sheetArr){var m=(window._fpManual||[]).map(function(r){var c={};for(var k in r)c[k]=r[k];c.manual=true;return c;});return (sheetArr||[]).concat(m);};window._fpSyncFromCloud=function(){if(typeof window.fbGet!=='function')return;window.fbGet('/fbpages_manual',function(err,data){if(err)return;var everSynced=localStorage.getItem(window._fpSyncKey)==='1';if(data){var arr=Array.isArray(data)?data:(typeof data==='object'?Object.values(data):[]);arr=arr.filter(function(x){return x&&x.id;});window._fpSaveLocal(arr);}else if(!everSynced){if((window._fpManual||[]).length>0){window.fbSet&&window.fbSet('/fbpages_manual',window._fpManual);}}else{window._fpSaveLocal([]);}localStorage.setItem(window._fpSyncKey,'1');});};window._fpToggleForm=function(){var box=document.getElementById('fp-form-box');if(!box)return;if(box.style.display==='none'){box.style.display='block';window._fpRenderForm();}else{box.style.display='none';box.innerHTML='';}};window._fpRenderForm=function(){var box=document.getElementById('fp-form-box');if(!box)return;var prodOpts=(window._fpProdsCache||[]).map(function(p){return '<option value="'+p+'">';}).join('');var ownOpts=(window._fpOwnersCache||[]).map(function(o){return '<option value="'+o+'">';}).join('');box.innerHTML='<div style="background:#F0F7F2;border:1px dashed #40916C;border-radius:8px;padding:12px;">'+'<div style="font-size:13px;font-weight:700;color:#1B4332;margin-bottom:8px;">➕ เพิ่มข้อมูลเพจใหม่</div>'+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">ชื่อเพจ</div><input id="fp-in-name" placeholder="เช่น เพจ 201" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">สินค้า</div><input id="fp-in-prod" list="fp-dl-prod" placeholder="เช่น ขุนแผน" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><datalist id="fp-dl-prod">'+prodOpts+'</datalist></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">เจ้าของ</div><input id="fp-in-own" list="fp-dl-own" placeholder="เช่น BALL" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><datalist id="fp-dl-own">'+ownOpts+'</datalist></div>'+'<div><div style="font-size:11px;color:#555;margin-bottom:2px;">สถานะ</div><select id="fp-in-st" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;"><option value="ใช้งาน">ใช้งาน</option><option value="ว่าง">ว่าง</option><option value="โดนระงับถาวร">โดนระงับถาวร</option><option value="เพจโดนปิดใช้งาน">เพจโดนปิดใช้งาน</option></select></div>'+'</div>'+'<div id="fp-err" style="font-size:11px;color:#dc2626;min-height:14px;margin-bottom:4px;"></div>'+'<div style="display:flex;justify-content:flex-end;gap:8px;">'+'<button onclick="window._fpToggleForm()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid #d1d5db;background:#fff;color:#555;cursor:pointer;">ยกเลิก</button>'+'<button onclick="window._fpSaveEntry()" style="font-size:12px;padding:5px 12px;border-radius:6px;border:none;background:#1B4332;color:#fff;cursor:pointer;font-weight:600;">✓ บันทึก</button>'+'</div></div>';};window._fpSaveEntry=function(){var nameEl=document.getElementById('fp-in-name');var prodEl=document.getElementById('fp-in-prod');var ownEl=document.getElementById('fp-in-own');var stEl=document.getElementById('fp-in-st');var errEl=document.getElementById('fp-err');var name=(nameEl?nameEl.value:'').trim();if(!name){if(errEl)errEl.textContent='กรุณากรอกชื่อเพจ';return;}var entry={id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:name,prod:(prodEl?prodEl.value:'').trim(),own:(ownEl?ownEl.value:'').trim(),st:stEl?stEl.value:'ใช้งาน',manual:true,createdAt:Date.now()};var arr=(window._fpManual||[]).slice();arr.push(entry);window._fpSave(arr);window._fpToggleForm();window._fblDone=false;window._initFbList&&window._initFbList();};window._fpDeleteEntry=function(id){if(!confirm('ลบรายการนี้?'))return;var arr=(window._fpManual||[]).filter(function(x){return x.id!==id;});window._fpSave(arr);window._fblDone=false;window._initFbList&&window._initFbList();};window._fpSyncFromCloud();</script><link rel="stylesheet" href="snippets/content-grouped-v1.css?v=fix432">
-<script src="snippets/content-grouped-v1.js?v=fix432"></script>
+<script src="snippets/content-grouped-v1.js?v=fix460"></script>
 <script src="snippets/order-content-selection-v1.js?v=fix439"></script>
 <link rel="stylesheet" href="snippets/order-list-content-v1.css?v=fix444"><script src="snippets/order-list-content-v1.js?v=fix451"></script>
 <script src="snippets/employee-job-details-v1.js?v=fix447"></script>
@@ -6217,7 +6217,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/performance-v4.css?v=205">
 <script src="snippets/bulk-import-v2.js?v=fix406"></script>
 <script src="snippets/bulk-import-v3.js?v=fix432"></script>
-<script src="snippets/performance-v4.js?v=fix449"></script>
+<script src="snippets/performance-v4.js?v=fix460"></script>
 <script src="snippets/runtime-stability-v2.js?v=207"></script>
 <link rel="stylesheet" href="snippets/manual-refresh-v1.css?v=209">
 <link rel="stylesheet" href="snippets/facebook-status-catalog-v1.css?v=fix389">
@@ -6252,8 +6252,9 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
 <script src="snippets/safe-order-write-v1.js?v=fix458"></script><script src="snippets/online-consistency-v1.js?v=fix458"></script><script src="snippets/sync-watchdog-v1.js?v=fix459"></script><script src="snippets/order-conflict-recovery-v1.js?v=fix458"></script><script src="snippets/release-update-v1.js?v=fix457"></script><script src="snippets/order-conflict-review-v1.js?v=fix455"></script>
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=fix456"></script>
-<link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix407">
-<script src="snippets/content-submissions-v1.js?v=fix444"></script>
+<link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix460">
+<script src="snippets/content-permissions-v1.js?v=fix460"></script>
+<script src="snippets/content-submissions-v1.js?v=fix460"></script>
 <link rel="stylesheet" href="snippets/content-hook-history-v1.css?v=fix432">
 <script src="snippets/content-hook-history-v1.js?v=fix439"></script>
 </html>
