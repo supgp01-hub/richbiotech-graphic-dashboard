@@ -3,13 +3,13 @@ const dom=new JSDOM('<div class="ct-wrap"><div class="ct-actions"></div><div cla
 w._rbUser={uid:'dom',name:'DOM',role:'graphic'};w.AbortController=AbortController;w.confirm=()=>true;
 const rows=[{id:'hook1',brand:'So Pink',episode:'ทดสอบ',ready:'หนึ่ง'},{id:'hook2',brand:'So Pink',episode:'ทดสอบ',ready:'สอง'}];
 w.ctContentRows=()=>rows;w.ctProductOwners=()=>({'So Pink':'DOM JAM'});w.ctProductList=()=>[];
-const records={},versions={};let offline=false,putCount=0;
+const records={},versions={};let offline=false,putCount=0,holdPut=false,releasePut;
 w.rbFirebaseAuth={fetch:async(url,o={})=>{
  const path=new URL(url).pathname.replace(/^\//,'').replace(/\.json$/,'');
  if(path==='content_product_catalog_v1')return new Response('null');
  if(o.method==='PUT'){
   if(offline)throw Error('offline');if(o.headers['if-match']!=='v'+(versions[path]||0))return new Response('{}',{status:412});
-  const v=JSON.parse(o.body);v.updatedAt=1000+(++putCount);records[path]=v;versions[path]=(versions[path]||0)+1;return new Response(JSON.stringify(v));
+  const v=JSON.parse(o.body);v.updatedAt=1000+(++putCount);records[path]=v;versions[path]=(versions[path]||0)+1;if(holdPut){holdPut=false;await new Promise(resolve=>releasePut=resolve);}return new Response(JSON.stringify(v));
  }
  let value=records[path];if(path==='content_submissions_v1/dom')value=Object.fromEntries(Object.entries(records).filter(([k])=>k.startsWith(path+'/')).map(([k,v])=>[k.split('/').pop(),v]));
  if(path==='content_submissions_v1')value={dom:Object.fromEntries(Object.entries(records).filter(([k])=>k.startsWith(path+'/dom/')).map(([k,v])=>[k.split('/').pop(),v]))};
@@ -39,6 +39,10 @@ const tick=()=>new Promise(r=>setTimeout(r,20));
  await w.ctSubmissions.refresh();assert.strictEqual(w.document.querySelector('#cts-text'),area);assert.equal(area.value,'ร่างยังไม่บันทึก');assert.strictEqual(w.document.activeElement,area);
  offline=true;w.document.querySelector('.cts-save').click();await tick();assert.equal(area.value,'ร่างยังไม่บันทึก');assert(w.document.querySelector('.cts-status').textContent.includes('offline'));
  offline=false;w.document.querySelector('.cts-save').click();await tick();assert(w.document.querySelector('.cts-status').textContent.includes('บันทึกออนไลน์แล้ว'));assert.equal(w.ctSubmissions.entries('hook1')[0].history.v_2.text,'สอง');
+ const acknowledgements=[];w.rbReleaseUpdate={confirmSaved:(el,text)=>acknowledgements.push(text)};
+ area.value='ส่งก่อนพิมพ์ต่อ';area.dispatchEvent(new w.Event('input'));holdPut=true;w.document.querySelector('.cts-save').click();await tick();assert.equal(w.ctSubmissions.pendingCount(),1,'network save must block release');
+ area.value='พิมพ์ต่อระหว่างบันทึก';area.dispatchEvent(new w.Event('input'));releasePut();await tick();assert.equal(w.ctSubmissions.pendingCount(),0);assert.equal(area.value,'พิมพ์ต่อระหว่างบันทึก');assert.equal(area.closest('.cts-overlay').dataset.dirty,'1');assert.deepEqual(acknowledgements,[],'earlier save must not acknowledge newer text');
+ w.document.querySelector('.cts-save').click();await tick();assert.deepEqual(acknowledgements,['พิมพ์ต่อระหว่างบันทึก']);assert.equal(area.closest('.cts-overlay').dataset.dirty,undefined);
  const stale=await w.ctSubmissions.readOwn('hook1');await w.ctSubmissions.saveOwn('hook1','จากอีกหน้าต่าง',stale);
  area.value='ร่างชนกัน';area.dispatchEvent(new w.Event('input'));w.document.querySelector('.cts-save').click();await tick();assert.equal(area.value,'ร่างชนกัน');assert(w.document.querySelector('.cts-status').textContent.includes('อีกหน้า'));
  assert.equal(w.ctSubmissions.entries('hook2').length,0,'separate hook untouched');

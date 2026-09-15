@@ -6,5 +6,11 @@ assert(!r.blocked());w.rbOrderSync={pendingCount:()=>1};assert(r.blocked());w.rb
 w.localStorage.setItem('rb_generic_write_queue_v3','[{"pending":true}]');assert(r.blocked());w.localStorage.removeItem('rb_generic_write_queue_v3');
 const el=w.document.querySelector('textarea');el.getClientRects=()=>[{}];el.dispatchEvent(new w.Event('input',{bubbles:true}));assert(r.blocked());
 w.dispatchEvent(new w.CustomEvent('rb:sync-state',{detail:{state:'saved'}}));assert(r.blocked(),'another save must not erase dirty input');el.remove();assert(!r.blocked());
+w.localStorage.setItem('rb_ct_sync_pending_v1','123');assert(r.blocked(),'content master queue blocks update');w.localStorage.removeItem('rb_ct_sync_pending_v1');
+w.ctSubmissions={pendingCount:()=>1};assert(r.blocked(),'in-flight List Content save blocks update');w.ctSubmissions.pendingCount=()=>0;
+w.rbPersistence={pendingCount:()=>1};assert(r.blocked(),'in-memory general queue blocks update');w.rbPersistence.pendingCount=()=>0;
+const hidden=w.document.createElement('textarea');w.document.body.append(hidden);hidden.value='draft';hidden.dispatchEvent(new w.Event('input',{bubbles:true}));assert(r.blocked(),'hidden draft remains protected');r.confirmSaved(hidden,'older');assert(r.blocked(),'receipt for a different value cannot clear draft');r.confirmSaved(hidden,'draft');assert(!r.blocked(),'exact field acknowledgement releases guard');
+const search=w.document.createElement('input');search.id='ct-search';w.document.body.append(search);search.dispatchEvent(new w.Event('input',{bubbles:true}));assert(!r.blocked(),'search is not an unsaved business record');
+const form=w.document.createElement('div');form.id='rb-order-modal';form.getClientRects=()=>[{}];form.innerHTML='<textarea></textarea>';w.document.body.append(form);const field=form.querySelector('textarea');field.dispatchEvent(new w.Event('input',{bubbles:true}));assert(r.blocked(),'hidden field in an open form stays protected');form.getClientRects=()=>[];assert(!r.blocked(),'closed order form permits update after its queue drains');form.remove();
 assert.equal(JSON.parse(fs.readFileSync('release.json')).build,fs.readFileSync('index.html','utf8').match(/name="rb-build" content="([^"]+)"/)[1]);
 dom.window.close();console.log('PASS update validation, queued offline writes, dirty input and unrelated receipt protection');

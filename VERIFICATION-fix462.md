@@ -1,0 +1,11 @@
+# fix462 — Automatic safe release updates
+
+Every open client now polls release.json every 30 seconds, including background tabs, with checks on reconnection, focus and visibility restoration. After a three-second quiet period, the client verifies that the target HTML actually carries the announced build and rechecks local safety guards before replacing its URL. The update preserves existing query parameters and the hash. Failed probes time out and retry; stale CDN HTML and previous failed navigation attempts never cause a rapid reload loop.
+
+Updates wait for open dialogs, active inputs, file selections, order and general queues, the Content Tracker pending flag and active direct List Content saves. Hidden panel drafts remain protected; closing an order/planner form releases its fields after its queue drains. Existing conflict checkpoint recovery remains unchanged: a queue must be backed up online and remain byte-for-byte unchanged before it can survive a client update. This path never overwrites server jobs or deletes the queue.
+
+List Content acknowledges only the exact textarea value submitted. Typing again while the previous save is in flight retains the new draft and blocks an update until it is saved or explicitly discarded. An unrelated save acknowledgement cannot clear another field.
+
+Validation: 117 regression scripts and eight isolated browser suites, including the new automatic-update suite added to CI and AGENTS.md. Coverage includes independent devices/background polling, dirty-input deferral, exact-field acknowledgement, delayed HTML, content queues, offline/reconnect, edits during an in-flight probe and URL preservation. Existing Audit persistence, review rounds, cross-device sync, auth/conflict recovery, navigation and List Content suites remain required. HTML is 637248 bytes. Database rules and production work records are unchanged.
+
+Deployment verification requires successful GitHub regression and Pages jobs, public asset comparison and signed-in production inspection. Automatic updates require an online browser that is running; sleeping or suspended devices check when they resume. Already-open older versions first use their existing updater to receive this improvement. Unsubmitted forms are not automatically submitted to force an update, and no claim is made that every employee's physical device was observed.

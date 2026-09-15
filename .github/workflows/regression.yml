@@ -36,4 +36,5 @@ jobs:
       - run: node tests/manual/auth-recovery456.e2e.cjs
       - run: node tests/manual/conflict-recovery458.e2e.cjs
       - run: node tests/manual/content-inline460.e2e.cjs
+      - run: node tests/manual/release-auto462.e2e.cjs
       - run: node tests/manual/full-functional-smoke.e2e.js
