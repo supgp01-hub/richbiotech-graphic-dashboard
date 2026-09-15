@@ -11,6 +11,7 @@ await page.evaluate(()=>{LV_CUR={y:2026,m:4};LV_DATA={'2026-4-13':[{uid:1,empId:
 await page.locator('[data-lvw-date="2026-4-13"] .lvw-special-ribbon').waitFor();
 assert.equal(await page.locator('.lv-holiday-mark').count(),4);
 async function layout(){return page.evaluate(()=>{const failures=[];document.querySelectorAll('.lv-holiday-mark').forEach(mark=>{const mr=mark.getBoundingClientRect(),cell=mark.parentNode,cr=cell.getBoundingClientRect(),label=mark.querySelector('span');if(mr.left<cr.left||mr.right>cr.right+1||mr.bottom>cr.bottom+1)failures.push('outside cell');cell.querySelectorAll('.lv-emp-chip,.lv-day-num,.lvw-special-ribbons').forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom>mr.top+1)failures.push('overlap '+el.className)});if(label.scrollWidth>label.clientWidth+1)failures.push('label clipped')});return failures})}
+await page.evaluate(()=>{document.querySelector('#tab-schedule .lv-wrap').appendChild(document.getElementById('lv-holiday-controls'));window.rbThaiHolidays.render()});assert.equal(await page.locator('#lvw-calendar-toolbar #lv-holiday-controls').count(),1);
 assert.equal(await page.locator('#lvw-filters').isVisible(),false);
 assert.equal(await page.locator('#lvw-filter-toggle').getAttribute('aria-expanded'),'false');
 assert.ok((await page.locator('#lvw-today-summary').boundingBox()).height<75,'desktop summary stays one compact row');
