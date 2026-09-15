@@ -6,7 +6,7 @@
   function all(u){return u.role==='sup'||u.role==='audit';}
   function key(value){return 'k_'+btoa(unescape(encodeURIComponent(String(value)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function session(){var u=user(), sig=(u.uid||'')+':'+(u.role||'');if(sig!==identity){identity=sig;if(editor){editor.closed=true;editor.node.remove();editor=null;}cache={};loaded=false;pending=null;document.querySelectorAll('.cts-overlay').forEach(function(x){x.remove();});}return sig;}
+  function session(){var u=user(), sig=(u.uid||'')+':'+(u.role||'');if(sig!==identity){identity=sig;if(historyOpen){historyOpen.clear();textOpen.clear();}if(editor){editor.closed=true;editor.node.remove();editor=null;}cache={};loaded=false;pending=null;document.querySelectorAll('.cts-overlay').forEach(function(x){x.remove();});}return sig;}
   function render(){revision++;if(w.ctRender)w.ctRender();}
   async function request(path,options){
     if(!user().uid||!w.rbFirebaseAuth)throw new Error('กรุณาเข้าสู่ระบบใหม่');
@@ -29,11 +29,18 @@
   function dates(id,name){var rows=entries(id).filter(function(r){return !name||r.ownerName.toUpperCase()===name.toUpperCase();});return rows.length?rows.map(function(r){return '<span class="cts-date">'+(!name?esc(r.ownerName)+'<br>':'')+esc(date(r.updatedAt))+'</span>';}).join(''):'<span class="cts-muted">—</span>';}
   function overlay(title){var bg=document.createElement('div');bg.className='cts-overlay';bg.innerHTML='<section class="cts-dialog" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><header><h2>'+esc(title)+'</h2><button type="button" class="cts-close" aria-label="ปิด">×</button></header><div class="cts-body"></div></section>';document.body.appendChild(bg);bg.querySelector('.cts-close').onclick=function(){if(bg.dataset.busy)return;if(bg.dataset.dirty&&!confirm('ปิดโดยไม่บันทึกข้อความที่แก้ไขหรือไม่?'))return;bg.remove();};return bg;}
   var editor=null;
+  var historyOpen=new Set(),textOpen=new Set();
+  function recordKey(r){return key(r.rowId)+':'+key(r.ownerUid);}
+  function shortDate(n){return new Date(n).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
+  function past(record){return Object.values(record.history||{}).sort(function(a,b){return b.updatedAt-a.updatedAt;});}
   function history(record){
-    if(!record)return '';
-    var past=Object.values(record.history||{}).sort(function(a,b){return b.updatedAt-a.updatedAt;});
-    return '<div class="cts-cell-summary"><strong>ข้อความล่าสุด</strong><pre>'+esc(record.text)+'</pre><small>'+esc(record.ownerName)+' · '+esc(date(record.updatedAt))+'</small><details open><summary>ประวัติข้อความ · '+past.length+' ครั้งก่อนหน้า</summary>'+(past.length?past.map(function(r){return '<article><small>'+esc(date(r.updatedAt))+'</small><pre>'+esc(r.text)+'</pre></article>';}).join(''):'<p class="cts-muted">ยังไม่มีประวัติการแก้ไขที่บันทึกไว้</p>')+'</details></div>';
+    if(!record)return '<span class="cts-muted">—</span>';
+    var id=recordKey(record),versions=past(record),open=historyOpen.has(id),full=textOpen.has(id);
+    return '<div class="cts-cell-summary"><pre class="cts-latest-text'+(full?' is-expanded':'')+'" tabindex="0" role="button" aria-label="ขยายหรือย่อข้อความ" aria-expanded="'+full+'" data-cts-expand="'+esc(id)+'" title="'+esc(record.text)+'">'+esc(record.text)+'</pre>'+(versions.length?'<div id="cts-history-'+esc(id)+'" class="cts-history"'+(open?'':' hidden')+'>'+versions.map(function(r){return '<article><time>'+esc(shortDate(r.updatedAt))+'</time><pre>'+esc(r.text)+'</pre></article>';}).join('')+'</div>':'')+'</div>';
   }
+  function updated(record){if(!record)return '<span class="cts-muted">—</span>';var id=recordKey(record),versions=past(record);return '<time class="cts-updated">'+esc(shortDate(record.updatedAt))+'</time>'+(versions.length?'<button type="button" class="cts-history-toggle" data-cts-history="'+esc(id)+'" aria-controls="cts-history-'+esc(id)+'" aria-expanded="'+historyOpen.has(id)+'">ประวัติ '+versions.length+' ครั้ง <span aria-hidden="true">'+(historyOpen.has(id)?'▴':'▾')+'</span></button>':'');}
+  document.addEventListener('click',function(e){var b=e.target.closest('[data-cts-history],[data-cts-expand]');if(!b)return;var histories=b.hasAttribute('data-cts-history'),set=histories?historyOpen:textOpen,id=histories?b.dataset.ctsHistory:b.dataset.ctsExpand;set.has(id)?set.delete(id):set.add(id);b.setAttribute('aria-expanded',String(set.has(id)));if(histories){var panel=document.getElementById('cts-history-'+id);if(panel)panel.hidden=!set.has(id);b.querySelector('span').textContent=set.has(id)?'▴':'▾';}else b.classList.toggle('is-expanded',set.has(id));});
+  document.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-cts-expand]')){e.preventDefault();e.target.click();}});
   function anchor(id,uid){return Array.from(document.querySelectorAll('[data-cts-row]')).find(function(el){return el.dataset.ctsRow===String(id)&&el.dataset.ctsOwner===uid;});}
   function restoreEditor(){
     if(!editor||editor.closed)return;
@@ -54,11 +61,11 @@
       await load(true);if(session()!==sig||state.closed)return;
       if(uid!==u.uid){state.readOnly=true;var selected=entries(id).find(function(r){return r.ownerUid===uid;});body.innerHTML=selected?history(selected):'ไม่พบข้อความที่คุณมีสิทธิ์ดู';return;}
       var own=await readOwn(id);if(session()!==sig||state.closed)return;
-      body.innerHTML='<div class="cts-current">'+history(own.value)+'</div><label for="cts-text">ข้อความของ '+esc(u.name)+'</label><textarea id="cts-text" maxlength="10000" rows="5" placeholder="พิมพ์หรือวาง List Content ที่นี่"></textarea><p class="cts-status" role="status"></p><footer><button class="cts-save" type="button">บันทึกออนไลน์</button></footer>';
+      body.innerHTML='<label for="cts-text">ข้อความของ '+esc(u.name)+'</label><textarea id="cts-text" maxlength="10000" rows="5" placeholder="พิมพ์หรือวาง List Content ที่นี่"></textarea><p class="cts-status" role="status"></p><footer><button class="cts-save" type="button">บันทึกออนไลน์</button></footer>';
       var textarea=body.querySelector('textarea'),status=body.querySelector('.cts-status'),button=body.querySelector('.cts-save');textarea.value=own.value?own.value.text:'';textarea.oninput=function(){bg.dataset.dirty='1';};
       button.onclick=async function(){
         if(session()!==sig)return;button.disabled=true;bg.dataset.busy='1';status.textContent='กำลังบันทึกออนไลน์…';
-        try{own=await saveOwn(id,textarea.value,own);if(session()!==sig)return;delete bg.dataset.dirty;body.querySelector('.cts-current').innerHTML=history(own.value);status.textContent='บันทึกออนไลน์แล้ว · ประวัติและข้อความล่าสุดอัปเดตแล้ว';}
+        try{own=await saveOwn(id,textarea.value,own);if(session()!==sig)return;delete bg.dataset.dirty;status.textContent='บันทึกออนไลน์แล้ว · ประวัติและข้อความล่าสุดอัปเดตแล้ว';}
         catch(e){status.textContent=e.name==='AbortError'?'ยังยืนยันการบันทึกไม่ได้ ข้อความยังอยู่ กรุณาลองใหม่':e.message;}
         finally{button.disabled=false;delete bg.dataset.busy;}
       };
@@ -103,6 +110,6 @@
   w.addEventListener('rb:auth-ready',function(){session();catalogLoaded=false;mount();render();});
   w.addEventListener('rb:auth-cleared',function(){session();render();});
   w.addEventListener('beforeunload',function(e){if(editor&&!editor.closed&&(editor.node.dataset.dirty||editor.node.dataset.busy)){e.preventDefault();e.returnValue='';}});
-  w.ctSubmissions={history:history,readOwn:readOwn,saveOwn:saveOwn,refresh:function(){return load(true);},cell:cell,dates:dates,mount:mount,entries:entries,key:key,version:function(){session();return identity+':'+revision;}};
+  w.ctSubmissions={history:history,updated:updated,readOwn:readOwn,saveOwn:saveOwn,refresh:function(){return load(true);},cell:cell,dates:dates,mount:mount,entries:entries,key:key,version:function(){session();return identity+':'+revision;}};
   if(w.setInterval)w.setInterval(function(){var host=document.querySelector('.ct-wrap');if(!document.hidden&&user().uid&&host&&host.getClientRects().length)load(true).catch(function(){});},30000);
 })(window);
