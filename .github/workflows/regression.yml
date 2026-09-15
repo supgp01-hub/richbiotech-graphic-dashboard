@@ -33,4 +33,5 @@ jobs:
       - run: node tests/manual/audit-persistence452.e2e.cjs
       - run: node tests/manual/review-rounds453.e2e.cjs
       - run: node tests/manual/cross-device455.e2e.cjs
+      - run: node tests/manual/auth-recovery456.e2e.cjs
       - run: node tests/manual/full-functional-smoke.e2e.js

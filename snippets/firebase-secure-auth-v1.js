@@ -92,16 +92,26 @@ async function loadLoginDirectory(){
   loginNames.sort((a,b)=>displayName(a).localeCompare(displayName(b),'en'));
   refreshLoginSelect();
 }
+function authDeadline(task,controller){
+  let timer;
+  return Promise.race([task,new Promise((_,reject)=>{timer=setTimeout(()=>{if(controller)controller.abort();const error=new Error('เชื่อมต่อบัญชีออนไลน์นานเกินไป ระบบจะลองใหม่');error.code='auth/network-request-failed';reject(error);},12000);})]).finally(()=>clearTimeout(timer));
+}
 function makePinSession(data){
   const session={uid:data.localId||data.user_id||'',email:data.email||'',_idToken:data.idToken||data.id_token||'',_refreshToken:data.refreshToken||data.refresh_token||'',_expiresAt:Date.now()+Number(data.expiresIn||data.expires_in||3600)*1000};
+  let refreshing=null;
   session.getIdToken=async force=>{
     if(!force&&session._idToken&&Date.now()<session._expiresAt-60000)return session._idToken;
+    if(refreshing)return refreshing;
+    const controller=new AbortController();
+    refreshing=authDeadline((async()=>{
     const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:session._refreshToken});
-    const response=await nativeFetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+    const response=await nativeFetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(CONFIG.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body,signal:controller.signal});
     const refreshed=await response.json();
     if(!response.ok||!refreshed.id_token)throw new Error(refreshed?.error?.message||'TOKEN_REFRESH_FAILED');
     session.uid=refreshed.user_id||session.uid;session._idToken=refreshed.id_token;session._refreshToken=refreshed.refresh_token||session._refreshToken;session._expiresAt=Date.now()+Number(refreshed.expires_in||3600)*1000;
     savePinSession(session);return session._idToken;
+    })(),controller).finally(()=>{refreshing=null;});
+    return refreshing;
   };
   return session;
 }
@@ -210,10 +220,13 @@ async function secureFetch(url,options={}){
   return nativeFetch(url,options);
 }
 async function db(path,options={}){
-  const response=await secureFetch(pathUrl(path),options);
-  if(!response.ok){let detail='';try{detail=(await response.json()).error||'';}catch(_e){}throw new Error(detail||('HTTP '+response.status));}
-  if(response.status===204)return null;
-  const text=await response.text();return text?JSON.parse(text):null;
+  const controller=new AbortController();
+  return authDeadline((async()=>{
+    const response=await secureFetch(pathUrl(path),Object.assign({},options,{signal:controller.signal}));
+    if(!response.ok){let detail='';try{detail=(await response.json()).error||'';}catch(_e){}throw new Error(detail||('HTTP '+response.status));}
+    if(response.status===204)return null;
+    const text=await response.text();return text?JSON.parse(text):null;
+  })(),controller);
 }
 function json(method,data){return {method,headers:{'Content-Type':'application/json'},body:JSON.stringify(data)};}
 async function googleLogin(){

@@ -1,0 +1,14 @@
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),assert=require('node:assert/strict'),{installSecureAuthMock}=require('./secure-auth-mock');
+(async()=>{const browser=await chromium.launch({headless:true,channel:process.env.RB_TEST_BROWSER_CHANNEL||'chrome'});try{const ctx=await browser.newContext(),root=path.resolve(__dirname,'../..');
+ await ctx.route('**/*',r=>{const u=new URL(r.request().url());if(u.origin!=='http://127.0.0.1:8014')return r.abort();const f=path.resolve(root,'.'+u.pathname);return f.startsWith(root+path.sep)&&fs.existsSync(f)?r.fulfill({path:f}):r.fulfill({status:404,body:''});});
+ await installSecureAuthMock(ctx,{role:'graphic',name:'DOM',orders:[{id:'QA',status:'revision',assignee:'DOM'}]});
+ await ctx.route(/gstatic\.com.*firebase-auth\.js/,r=>r.fulfill({contentType:'text/javascript',headers:{'access-control-allow-origin':'*'},body:'export function getAuth(){return {currentUser:null}};export class GoogleAuthProvider{setCustomParameters(){}};export const browserLocalPersistence={};export async function setPersistence(){};export function onAuthStateChanged(a,cb){cb(null)};export async function signInWithPopup(){};export async function signInWithEmailAndPassword(){};export async function signOut(){};'}));
+ let calls=0,stalled;
+ await ctx.route(/securetoken\.googleapis\.com/,r=>{calls++;if(calls===1){stalled=r;return;}return r.fulfill({json:{user_id:'qa-secure-user',id_token:'qa-id-token',refresh_token:'qa-refresh-token',expires_in:3600}});});
+ await ctx.addInitScript(()=>localStorage.setItem('qa-unsent-draft','keep my notes'));
+ const page=await ctx.newPage();await page.goto('http://127.0.0.1:8014/index.html',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>document.querySelector('#rb-auth-status')?.textContent.includes('ระบบจะลองใหม่อัตโนมัติ'),{},{timeout:20000});
+ assert.equal(await page.evaluate(()=>localStorage.getItem('qa-unsent-draft')),'keep my notes');
+ await page.waitForFunction(()=>window._rbUser?.role==='graphic',{},{timeout:20000});assert(calls>=2);assert.equal(await page.evaluate(()=>localStorage.getItem('qa-unsent-draft')),'keep my notes');
+ if(stalled)await stalled.abort().catch(()=>{});console.log('PASS hanging token request recovers automatically without losing session or draft');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1});
