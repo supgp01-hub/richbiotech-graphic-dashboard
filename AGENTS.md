@@ -21,3 +21,5 @@ The owner requires verification across the system before each delivery, not only
 
 - Run `node tests/manual/audit-adjustments464.e2e.cjs` for deduction increases/removals, totals, concurrent devices, offline forms and idempotent retries. Run `node tests/audit-adjustments-rules.e2e.cjs` against the local port-19000 emulator for immutable history and Supervisor/Audit-only writes when adjustment permissions or schema changes.
 - Run `node tests/manual/thai-holidays465.e2e.cjs` for calendar holiday annotations, staff/ribbon preservation, date dialog, toggle, mobile/dark layout and month/year navigation. Update verified holiday dates from authoritative announcements; never treat a calendar annotation as employee leave or company closure.
+
+- Run `node tests/manual/audit-evidence470.e2e.cjs` before deployment for actual worksheet hyperlinks, date/employee mapping, legacy-ID preservation, link-only online repair, changed-link deduplication, separate employee contexts, offline/partial-write retries and append-only imports.
