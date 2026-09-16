@@ -1,6 +1,6 @@
 (function(w){
 'use strict';
-var BOOK='16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc', TAB='บันทึกออดิต', BASE='https://docs.google.com/spreadsheets/d/'+BOOK;
+var BOOK='16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc', TAB='บันทึกออดิต', BASE='https://docs.google.com/spreadsheets/d/'+BOOK, SOURCE=BASE+'/edit?gid=1752176564#gid=1752176564';
 var cache=null, pending=null, failed=false;
 function nodes(root,name){return Array.from(root.getElementsByTagNameNS('*',name))}
 function xml(text){var d=new DOMParser().parseFromString(text,'application/xml');if(nodes(d,'parsererror').length)throw Error('ข้อมูลชีทไม่สมบูรณ์');return d}
@@ -47,7 +47,7 @@ async function parse(buffer){
    row[col-1]=value;
    if(col===12){var formula=text(nodes(c,'f')[0]), match=formula.match(/^HYPERLINK\(\s*"((?:[^"]|"")*)"/i);row.evidenceUrl=links[ref]||http(match&&match[1].replace(/""/g,'"'))||http(value)}
   });
-  if(number>1&&row[0]&&row[2]&&row[3]){row.sourceRow=number;row.sourceUrl=BASE+'/edit#range='+encodeURIComponent("'"+TAB+"'!A"+number+':M'+number);rows.push(row)}
+  if(number>1&&row[0]&&row[2]&&row[3]){row.sourceRow=number;row.sourceUrl=SOURCE+'&range=A'+number+':M'+number;rows.push(row)}
  });
  if(!rows.length)throw Error('ไม่พบรายการในชีท · เก็บข้อมูลเดิมไว้');return rows;
 }
@@ -56,5 +56,5 @@ function read(force){
  var started=Date.now(), controller=new AbortController(), timer=setTimeout(function(){controller.abort()},20000);
  pending=fetch(BASE+'/export?format=xlsx&_='+started,{cache:'no-store',credentials:'omit',signal:controller.signal}).then(function(r){if(!r.ok)throw Error('อ่านชีทไม่ได้');return r.arrayBuffer()}).then(parse).then(function(rows){cache={at:started,rows:rows};failed=false;return rows}).catch(function(e){failed=true;throw e}).finally(function(){clearTimeout(timer);pending=null});return pending;
 }
-w.rbAuditSheetEvidence={read:read,parse:parse,http:http,source:BASE+'/edit#range='+encodeURIComponent("'"+TAB+"'!A:M"),status:function(){return {at:cache?cache.at:0,failed:failed}}};
+w.rbAuditSheetEvidence={read:read,parse:parse,http:http,source:SOURCE,status:function(){return {at:cache?cache.at:0,failed:failed}}};
 })(window);

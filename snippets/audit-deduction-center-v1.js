@@ -1,6 +1,6 @@
 (function(){
 'use strict';if(window._rbAuditDeductionLoaded)return;window._rbAuditDeductionLoaded=true;
-var VERSION='fix470',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415';
+var VERSION='fix471',KEY='rb_audit_deductions_v1',CHECK_KEY='rb_audit_last_check_v1',PATH='/workflow_audit/deductions_v1',SHEET='https://docs.google.com/spreadsheets/d/16tMMVcw0TueyypCgn9h7Trh9WNPAccXBZ6Et2qy0qzc/gviz/tq?tqx=out:csv&gid=345708415';
 var RULES=[
  
  {id:'revision_unfixed',name:'ไม่แก้ไขงานที่พบข้อผิดพลาด',amount:50,days:2,source:'งานสั่งงาน',detail:'ให้เวลาแก้ไข 2 วัน เริ่มหักวันที่ 3'},
@@ -40,6 +40,7 @@ function refreshSheetEvidence(importNew,force){if(!window.rbAuditSheetEvidence)r
    // Conditional creation makes retries and simultaneous imports idempotent.
    x.id='sheet_'+hash(sheetIdentity(x));x.ref=x.id;var response=await sheetRequest(PATH+'/sheetImports/'+x.id,{method:'PUT',headers:{'Content-Type':'application/json','if-match':'null_etag'},body:JSON.stringify(x)});if(response.status===412){var check=await cloudGetChecked(PATH+'/sheetImports/'+x.id);if(!check||sheetIdentity(check)!==sheetIdentity(x))throw Error('พบรหัสรายการซ้ำ กรุณาตรวจชีท');x=check}else if(!response.ok)throw Error('ยังนำเข้าออนไลน์ไม่สำเร็จ');else added++;online[x.id]=x;state.store.sheetImports[x.id]=x;
   }
+  if(importNew){var meta={at:Date.now(),period:state.period,added:added,updated:updated,skipped:matched,by:usr().name||''};var saved=await sheetRequest(PATH+'/syncMeta',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(meta)});if(!saved.ok)throw Error('ยังยืนยันเวลาซิงก์ออนไลน์ไม่ได้');state.store.syncMeta=meta}
   saveLocal();render();if(importNew)toast('ยืนยันออนไลน์แล้ว · เพิ่ม '+added+' · อัปเดตหลักฐาน '+updated+(ambiguous?' · '+ambiguous+' รายการซ้ำในชีท ต้องตรวจต้นทาง':''));return true;
  }catch(error){sheetVerified=false;render();if(importNew)toast('ยังซิงก์ไม่ครบ · '+(error.message||'กรุณาลองอีกครั้ง')+' · ข้อมูลเดิมยังอยู่');return false}finally{sheetBusy=null}})();return sheetBusy;
 }
