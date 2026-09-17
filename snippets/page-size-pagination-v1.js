@@ -27,13 +27,14 @@ function apply(key){
   if(!body){var stale=panel.querySelector('.rbps-pager[data-rbps-key="'+key+'"]');if(stale)stale.remove();return;}
   var rows=eligibleRows(body),pages=Math.max(1,Math.ceil(rows.length/size));state.page=Math.max(1,Math.min(state.page||1,pages));var from=(state.page-1)*size,to=from+size;
   rows.forEach(function(row,index){var hidden=index<from||index>=to;if(row.hidden!==hidden)row.hidden=hidden;});
+  Array.prototype.forEach.call(body.children,function(row){if(!row.hasAttribute('data-rbps-detail'))return;var owner=row.previousElementSibling;row.hidden=!owner||owner.hidden;});
   var anchor=body.closest('table')||body.parentElement,pager=ensurePager(panel,key,anchor);var pagerKey=[rows.length,state.page,size].join(':');if(pager._rbPageKey!==pagerKey){pager._rbPageKey=pagerKey;pager.innerHTML=markup(key,rows.length,state.page,size);}
 }
 function schedule(key,reset){if(reset&&(states[key]||(states[key]={page:1})).page!==1)states[key].page=1;clearTimeout(timers[key]);timers[key]=setTimeout(function(){apply(key);},40);}
 function bind(key){
   var cfg=configs[key],panel=document.querySelector(cfg.panel);if(!panel||panel.getAttribute('data-rbps-bound')===key)return;
   panel.setAttribute('data-rbps-bound',key);states[key]=states[key]||{page:1};
-  panel.addEventListener('click',function(event){var btn=event.target.closest('[data-rbps-page]');if(btn&&panel.contains(btn)){states[key].page=Math.max(1,parseInt(btn.getAttribute('data-rbps-page'),10)||1);apply(key);var table=panel.querySelector(cfg.body);if(table)(table.closest('table')||table).scrollIntoView({block:'start',behavior:'smooth'});return;}if(event.target.closest('button,[role="button"]'))schedule(key,true);});
+  panel.addEventListener('click',function(event){var btn=event.target.closest('[data-rbps-page]');if(btn&&panel.contains(btn)){states[key].page=Math.max(1,parseInt(btn.getAttribute('data-rbps-page'),10)||1);apply(key);var table=panel.querySelector(cfg.body);if(table)(table.closest('table')||table).scrollIntoView({block:'start',behavior:'smooth'});return;}if(event.target.closest('button,[role="button"]'))schedule(key,!event.target.closest('[data-rbps-preserve-page]'));});
   panel.addEventListener('change',function(event){if(event.target.matches('[data-rbps-size]')){setSize(key,event.target.value);states[key].page=1;apply(key);return;}if(!event.target.closest('.rbps-pager'))schedule(key,true);},true);
   panel.addEventListener('input',function(event){if(!event.target.closest('.rbps-pager'))schedule(key,true);},true);
   new MutationObserver(function(mutations){var changed=mutations.some(function(m){

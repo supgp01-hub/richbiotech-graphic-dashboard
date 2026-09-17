@@ -46,12 +46,12 @@ html[data-theme=dark] .adc-inline-editor{background:#10372f;border-color:#35685e
 #adc-app .adc-ledger-note{padding:12px 24px;background:#f8fbfa;color:#647c72;font-size:12px;border-bottom:1px solid var(--adc-line)}
 #adc-app .adc-ledger-table{width:100%;border-collapse:collapse;min-width:690px}
 #adc-app .adc-ledger-table th{text-align:left;background:#fafcfb;color:#6a7e76;font-size:11px;padding:12px 18px;white-space:nowrap}
-#adc-app .adc-ledger-table td{padding:15px 18px;border-top:1px solid #edf2ef;font-size:13px;vertical-align:middle}
-#adc-app .adc-ledger-table td:first-child{min-width:230px}
-#adc-app .adc-ledger-table td small{display:block;color:#82938c;font-size:11px;margin:3px 0}
-#adc-app .adc-ledger-table td b{display:block;font-size:13px;max-width:400px;overflow-wrap:anywhere}
+#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td{padding:15px 18px;border-top:1px solid #edf2ef;font-size:13px;vertical-align:middle}
+#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td:first-child{min-width:230px}
+#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td small{display:block;color:#82938c;font-size:11px;margin:3px 0}
+#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td b{display:block;font-size:13px;max-width:400px;overflow-wrap:anywhere}
 #adc-app .adc-actual{font-weight:700;color:#096346;white-space:nowrap}
-#adc-app .adc-ledger-table .adc-btn{font-size:11px;min-height:32px;padding:6px 10px}
+#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td .adc-btn{font-size:11px;min-height:32px;padding:6px 10px}
 #adc-app .adc-rule-drawer{margin-top:20px;padding:16px;border:1px solid var(--adc-line);border-radius:12px;background:#fff}
 #adc-app .adc-rule-drawer>summary{cursor:pointer;font-size:13px;font-weight:600}
 #adc-app .adc-rule-drawer .adc-rules{margin-top:16px;box-shadow:none}
@@ -64,6 +64,30 @@ html[data-theme=dark] .adc-inline-editor{background:#10372f;border-color:#35685e
 #adc-app .adc-person-ledger summary:focus-visible,#adc-app .adc-person-filter:focus-visible{outline:3px solid #80cbb2;outline-offset:2px}
 @media(max-width:760px){#adc-app .adc-person-ledger>summary{grid-template-columns:1fr 100px;gap:12px;padding:16px}#adc-app .adc-person-pending{display:none}#adc-app .adc-expand{grid-column:1/-1;justify-content:flex-end}#adc-app .adc-person-amount strong{font-size:23px}#adc-app .adc-ledger-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#adc-app .adc-ledger-heading{align-items:flex-start}#adc-app .adc-ledger-note{padding:12px 16px}}
 
+/* Keep a selected ledger detail immediately beneath its source row. */
+#adc-app .adc-ledger-mobile-status{display:none}
+#adc-app .adc-ledger-table>tbody>tr.is-expanded{background:#eaf7f1;box-shadow:inset 3px 0 #12866b}
+#adc-app .adc-ledger-table>tbody>tr.is-expanded [data-item]{background:#09664f;color:#fff;border-color:#09664f}
+#adc-app .adc-ledger-detail-row>td{padding:0 14px 14px;border-top:0;background:#eaf7f1;white-space:normal}
+#adc-app .adc-ledger-detail-row .adc-detail{margin:0;border-radius:0 0 10px 10px;min-width:0;box-shadow:none}
+#adc-app .adc-ledger-detail-row .adc-detail>header h3{color:#fff}
+#adc-app .adc-ledger-detail-row .adc-detail>header small{color:#d6eee4}
+#adc-app .adc-ledger-collapse{display:flex;justify-content:flex-end;padding:10px 0 0}
+html[data-theme=dark] #adc-app .adc-ledger-table>tbody>tr.is-expanded,html[data-theme=dark] #adc-app .adc-ledger-detail-row>td{background:#173d32}
+@media(max-width:760px){
+ #adc-app .adc-ledger-table{min-width:0;table-layout:fixed}
+ #adc-app .adc-ledger-table>thead>tr>th:nth-child(2),#adc-app .adc-ledger-table>thead>tr>th:nth-child(3),#adc-app .adc-ledger-table>thead>tr>th:nth-child(4),#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td:nth-child(2),#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td:nth-child(3),#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td:nth-child(4){display:none}
+ #adc-app .adc-ledger-table>thead>tr>th:first-child{width:47%}
+ #adc-app .adc-ledger-table>thead>tr>th:nth-child(5){width:19%}
+ #adc-app .adc-ledger-table>thead>tr>th:last-child{width:34%}
+ #adc-app .adc-ledger-table>thead>tr>th,#adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td{padding:12px 7px;white-space:normal}
+ #adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td:first-child{min-width:0}
+ #adc-app .adc-ledger-table>tbody>tr[data-ledger-item]>td .adc-btn{white-space:normal;min-height:40px}
+ #adc-app .adc-ledger-mobile-status{display:block;margin-top:4px}
+ #adc-app .adc-ledger-detail-row>td{padding:0 6px 10px}
+ #adc-app .adc-ledger-detail-row .adc-detail{padding:12px}
+ #adc-app .adc-ledger-detail-row .adc-inline-grid{grid-template-columns:minmax(0,1fr)}
+}
 /* Shared source link appears only on sheet-imported audit details. */
 #adc-app .adc-sheet-source{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px;border:1px solid #cee5f2;border-radius:9px}#adc-app .adc-sheet-source-copy small{display:block;margin-top:7px;color:#617e8d;font-size:12px}#adc-app .adc-sheet-source .adc-sheet-source-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:#176a50;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px}#adc-app .adc-sheet-source-link:hover{background:#11553f}#adc-app .adc-sheet-source-link:focus-visible{outline:3px solid #e4ac37;outline-offset:3px}html[data-theme=dark] #adc-app .adc-sheet-source{border-color:#315c72}html[data-theme=dark] #adc-app .adc-sheet-source-copy small{color:#b1cbd8}@media(max-width:760px){#adc-app .adc-sheet-source{align-items:stretch;flex-direction:column}#adc-app .adc-sheet-source-link{width:100%}}
 .adc-facebook-notice{display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:12px;border-radius:10px;background:#e8f6ff;color:#185386;font-size:12px}.adc-facebook-notice>.adc-icon{flex-shrink:0;color:#479ad4}.adc-facebook-notice span{flex:1}.adc-facebook-notice .adc-btn{font-size:11px;background:white}.adc-queue-row .adc-avatar{background:#e7f4ee}.adc-queue-row .adc-avatar .adc-icon{width:25px;height:25px}@media(max-width:760px){.adc-facebook-notice{flex-wrap:wrap}.adc-facebook-notice .adc-btn{width:100%;justify-content:center}}

@@ -61,6 +61,8 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
  await worker.evaluate(row=>window.rbStorageResilience.storeOrders([{...row,_fbKey:'qa_audit'}]),db.qa_audit);
  const countBefore=writes.length;
  await worker.locator('#om-primary-btn').click();
+ // The stale-state guard finishes after the asynchronous submission preflight.
+ await worker.locator('.rb-om-footer').getByText(/สถานะงานเปลี่ยนแล้ว/).waitFor();
  assert.match(await worker.locator('.rb-om-footer').innerText(),/สถานะงานเปลี่ยนแล้ว/);
  assert.equal(writes.length,countBefore);assert.equal(db.qa_audit.status,'revision');
  // Reopen with current audit details and deliberately submit a new revision.
