@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix472">
+<meta name="rb-build" content="fix473">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1945,7 +1945,7 @@ function lvRenderCal(){
       var emp=lvFindEmp(e.empId);
       var nm=emp?emp.name:'?';
       var ico=LV_TYPE_ICON[e.type]||'';
-      var noteStr=e.note?(' <span class="lv-chip-note">'+lvEscHtml(e.note.substring(0,10))+'</span>'):'';
+      var noteStr=e.note&&!/^ลงย้อนหลังตามตารางเดิมรอบ/.test(e.note)?(' <span class="lv-chip-note">'+lvEscHtml(e.note.substring(0,10))+'</span>'):'';
       var tip=lvEscHtml(nm+': '+LV_TYPE_LABEL[e.type]+(e.note?' — '+e.note:''));
       h+='<div class="lv-emp-chip" title="'+tip+'"><span class="lv-emp-avatar" style="background:'+(LV_COLOR[e.empId]||"#1B4332")+'">'+(EMP_INIT[e.empId]||"?")+'<span class="lv-emp-badge">'+ico+'</span></span><span class="lv-emp-name">'+lvEscHtml(nm)+noteStr+'</span></div>';
     }
@@ -6233,7 +6233,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=fix469">
 <link rel="stylesheet" href="snippets/leave-day-actions-v2.css?v=fix329">
 <script src="snippets/specialwork-persistence-v2.js?v=fix329"></script>
-<script src="snippets/leave-workforce-v1.js?v=fix469"></script>
+<script src="snippets/leave-workforce-v1.js?v=fix473"></script>
 <link rel="stylesheet" href="snippets/thai-holidays-v1.css?v=fix466">
 <script src="snippets/thai-holiday-calendar-v1.js?v=fix466"></script>
 <script src="snippets/thai-holidays-v1.js?v=fix468"></script>

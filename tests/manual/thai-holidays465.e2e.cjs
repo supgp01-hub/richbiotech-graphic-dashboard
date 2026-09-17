@@ -7,9 +7,10 @@ await ctx.route('**/*',route=>{const u=new URL(route.request().url()),file=path.
 await installSecureAuthMock(ctx);await ctx.addInitScript(()=>localStorage.setItem('rb_theme','light'));
 const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(origin+'/index.html',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window._rbUser?.name&&window.rbThaiHolidays&&window._lvwTest);
 await page.locator('#sidebar button').filter({hasText:'ตารางวันหยุด'}).click();
-await page.evaluate(()=>{LV_CUR={y:2026,m:4};LV_DATA={'2026-4-13':[{uid:1,empId:'jam',type:'hol'},{uid:2,empId:'ter',type:'vac'},{uid:3,empId:'dom',type:'hol'}]};window.__rbSpecialRowsMemoryV1=[{id:'qa',empId:'wiw',cat:'wfh',dates:['2026-4-13']}];lvRender()});
+await page.evaluate(()=>{LV_CUR={y:2026,m:4};LV_DATA={'2026-4-13':[{uid:1,empId:'jam',type:'hol'},{uid:2,empId:'ter',type:'vac',note:'ลงย้อนหลังตามตารางเดิมรอบ ม.ค.–ก.ค. 2569'},{uid:3,empId:'dom',type:'hol'}]};window.__rbSpecialRowsMemoryV1=[{id:'qa',empId:'wiw',cat:'wfh',dates:['2026-4-13']}];lvRender()});
 await page.locator('[data-lvw-date="2026-4-13"] .lvw-special-ribbon').waitFor();
 assert.equal(await page.locator('.lv-holiday-mark').count(),4);
+assert.equal(await page.locator('[data-lvw-date="2026-4-13"] [data-emp="ter"] .lv-chip-note').count(),0);assert.match(await page.locator('[data-lvw-date="2026-4-13"] [data-emp="ter"]').getAttribute('title'),/ลงย้อนหลัง/);
 // Activity labels remain beside the date, including decorated date badges and multiple categories.
 await page.evaluate(()=>{window.__rbSpecialRowsMemoryV1.push(...['wfh','office','training','outing'].map((cat,i)=>({id:'qa-stacked-'+i,empId:'wiw',cat,dates:['2026-4-16']})));lvRender()});
 await page.locator('[data-lvw-date="2026-4-16"] .lvw-day-heading').waitFor();
@@ -46,5 +47,8 @@ await page.locator('#lv-holiday-year').fill('2571');await page.locator('#lv-holi
 await page.locator('#lv-holiday-year').fill('2570');await page.locator('#lv-holiday-year').press('Tab');await page.evaluate(()=>{LV_CUR.m=2;lvRender()});assert.equal(await page.locator('[data-holiday-date="2027-02-21"]').innerText(),'วันมาฆบูชา');assert.equal(await page.locator('[data-holiday-date="2027-02-22"]').innerText(),'ชดเชยวันมาฆบูชา');
 await page.evaluate(()=>{const n=new Date(),key=n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate();LV_DATA[key]=[{uid:99,empId:'jam',type:'hol'}];window.lpORD=()=>[{id:'LOCAL-CONFLICT',assignee:'JAM',status:'doing',deadline:n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}];lvRender()});
 await page.locator('#lvw-alerts .danger').waitFor();assert.match(await page.locator('#lvw-alerts').innerText(),/LOCAL-CONFLICT/);assert.equal(await page.locator('#lvw-filters').isVisible(),false);
+await page.evaluate(()=>{LV_CUR={y:2026,m:4};LV_DATA={'2026-4-1':[{uid:201,empId:'ter',type:'hol'}],'2026-4-3':[{uid:202,empId:'ter',type:'hol'}],'2026-4-5':[{uid:203,empId:'ter',type:'hol'}]};lvRender()});
+await page.locator('[data-lvw-date="2026-4-8"]').click();await page.locator('#lv-f-emp').selectOption('ter');await page.locator('#lvw-cl-start-text').fill('08/04/2569');await page.locator('#lvw-cl-end-text').fill('08/04/2569');await page.locator('#lvw-cl-extra').fill('10/04/2569');await page.locator('#lv-f-note').fill('');
+let batchAlert='';page.once('dialog',async d=>{batchAlert=d.message();await d.accept()});await page.locator('#lv-f-save').click();assert.match(batchAlert,/วันหยุดรอบเต็ม/);assert.equal(await page.locator('#lv-modal').evaluate(el=>el.classList.contains('open')),true);assert.equal(await page.evaluate(()=>Object.values(LV_DATA).flat().length),3,'rejected batch saves no partial leave');await page.locator('#lv-modal .lv-mclose').click();
 assert.deepEqual(errors,[]);console.log('PASS real calendar: verified holiday mapping, 3 staff + WFH, toggle, day dialog, mobile/dark layout, month/year navigation');
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

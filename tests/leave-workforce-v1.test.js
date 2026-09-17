@@ -47,7 +47,7 @@ assert.ok(css.includes('Keep the monthly calendar in its original light palette'
 assert.ok(css.includes('restore the original light dashboard palette across'));
 assert.ok(source.includes('ปฏิทินกำลังคนและวันหยุดทีม'));
 assert.ok(source.includes('function renderTodaySummary()'));
-assert.ok(source.includes("var VERSION='2.8.1'"));
+assert.ok(source.includes("var VERSION='2.8.2'"));
 assert.ok(source.includes('function unlockCombinedWorkspace()'));
 assert.ok(source.includes('function patchCombinedCloseGuard()'));
 assert.ok(source.includes('function keepCombinedWorkspaceOpen()'));
