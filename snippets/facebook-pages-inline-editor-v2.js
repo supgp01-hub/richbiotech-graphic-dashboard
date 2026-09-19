@@ -82,7 +82,20 @@ function refreshLiveData(){
 
 function buildSelect(values,current,label){var list=unique([current].concat(values||[]));return'<select class="rb-fbp-edit-field" aria-label="'+esc(label)+'">'+list.map(function(value){return'<option value="'+esc(value)+'"'+(value===current?' selected':'')+'>'+esc(value)+'</option>';}).join('')+'</select>';}
 function notificationValue(name){var data=loadObject('rb_fb_notif');return data[name]||'';}
-function notificationMarkup(name){var value=notificationValue(name),label=value==='1'?'แจ้งรอบแรก (แชร์เพจ)':value==='2'?'แจ้งรอบ 2 (ยิงแอด)':'ยังไม่ได้แจ้ง',tone=value==='1'?' is-first':value==='2'?' is-second':' is-none';return'<span class="rb-fbp-notification'+tone+'" title="ข้อมูลจากระบบ ดูได้อย่างเดียว"><span aria-hidden="true">🔒</span>'+esc(label)+'</span>';}
+function notificationMarkup(record){
+  if(typeof record==='string')record={name:record};
+  var service=window.rbFacebookPageNotifications,state=service?service.state(record):{value:notificationValue(record.name)},value=state.value;
+  return '<select class="rb-fbp-notification" data-value="'+esc(value)+'" aria-label="สถานะการแจ้ง '+esc(record.name)+'" '+(!canEdit()||!service||state.pending?'disabled':'')+'>'+[['','ยังไม่ได้แจ้ง'],['1','แจ้งรอบแรก (แชร์เพจ)'],['2','แจ้งรอบ 2 (ยิงแอด)']].map(function(item){return '<option value="'+item[0]+'"'+(value===item[0]?' selected':'')+'>'+item[1]+'</option>';}).join('')+'</select><small class="rb-fbp-notice-feedback" role="status" data-busy="'+(state.pending?'1':'0')+'" data-dirty="'+(state.error?'1':'0')+'">'+(state.pending?'กำลังบันทึกออนไลน์…':state.error?'ยังบันทึกไม่ได้ กรุณาลองอีกครั้ง':'')+'</small>'+(state.error?'<button type="button" class="rb-fbp-notice-retry">ลองบันทึกอีกครั้ง</button>':'');
+}
+function decorateNotification(cell,record){
+  cell._fbpNoticeSignature=JSON.stringify(window.rbFacebookPageNotifications?window.rbFacebookPageNotifications.state(record):{})+'|'+canEdit();
+  cell.innerHTML=notificationMarkup(record);
+  var select=cell.querySelector('select'),retry=cell.querySelector('.rb-fbp-notice-retry');
+  function save(){if(!canEdit()||!window.rbFacebookPageNotifications)return;var chosen=select.value;window.rbFacebookPageNotifications.save(record,chosen).then(function(ok){if(ok&&cell.isConnected){var feedback=cell.querySelector('.rb-fbp-notice-feedback');if(feedback)feedback.textContent='บันทึกออนไลน์แล้ว';}});}
+  select.addEventListener('change',save);if(retry)retry.addEventListener('click',save);
+}
+function updateNotifications(){var root=document.getElementById('fbl-root');if(!root)return;root.querySelectorAll('#fbl-body tr[data-name]').forEach(function(row){var record=recordForRow(row);if(!record)return;var signature=JSON.stringify(window.rbFacebookPageNotifications?window.rbFacebookPageNotifications.state(record):{})+'|'+canEdit();if(row.cells[4]._fbpNoticeSignature!==signature)decorateNotification(row.cells[4],record);});}
+window.addEventListener&&window.addEventListener('rb:fbpage-notifications',updateNotifications);
 
 function recordForRow(row){var key=row.getAttribute('data-page-key'),name=row.getAttribute('data-name')||'',rows=window._fblSummaryData||[];for(var i=0;i<rows.length;i++){if(key?rowKey(rows[i])===key:rows[i].name===name)return rows[i];}return null;}
 function clearEditable(cell){if(!cell)return;cell.contentEditable='false';cell.removeAttribute('contenteditable');cell.removeAttribute('title');cell.style.cursor='';}
@@ -132,7 +145,7 @@ function professionalizeRoot(root){
   if(table){
     table.classList.add('rb-fbp-table');
     var oldGroup=table.querySelector('colgroup');if(oldGroup)oldGroup.remove();
-    var group=document.createElement('colgroup');[36,13,14,12,17,8].forEach(function(width){var col=document.createElement('col');col.style.width=width+'%';group.appendChild(col);});
+    var group=document.createElement('colgroup');[36,11,12,9,23,9].forEach(function(width){var col=document.createElement('col');col.style.width=width+'%';group.appendChild(col);});
     table.insertBefore(group,table.firstChild);
     var heads=table.querySelectorAll('thead th');if(heads[3])heads[3].textContent='พนักงาน';if(heads[5])heads[5].textContent='จัดการ';
   }
@@ -149,7 +162,8 @@ function decorateRow(row,record){
   var statusClass=record.st==='ใช้งาน'?' is-active':record.st==='ว่าง'?' is-idle':' is-closed';
   cells[2].innerHTML='<span class="rb-fbp-page-status'+statusClass+'">'+esc(record.st||'—')+'</span>';
   cells[3].innerHTML='<span class="rb-fbp-employee">'+esc(record.own||'—')+'</span>';
-  cells[4].innerHTML=notificationMarkup(record.name);
+  ['ชื่อเพจ','สินค้า','สถานะเพจ','พนักงาน','สถานะการแจ้ง','จัดการ'].forEach(function(label,i){cells[i].setAttribute('data-label',label);});
+  decorateNotification(cells[4],record);
   var deleteButton=cells[5].querySelector('[data-fpid]')||row._fbpDeleteButton||null;if(deleteButton)row._fbpDeleteButton=deleteButton;
   cells[5].innerHTML='';cells[5].classList.add('rb-fbp-actions-cell');
   if(canEdit()){var editButton=makeButton('rb-fbp-row-edit','✎ แก้ไข');editButton.addEventListener('click',function(){beginEdit(row,record);});cells[5].appendChild(editButton);}
@@ -164,7 +178,7 @@ function beginEdit(row,record){
   cells[1].innerHTML=buildSelect(window._fpProdsCache||[],record.prod,'สินค้า');
   cells[2].innerHTML=buildSelect(window._fpStatusCache||[],record.st,'สถานะ');
   cells[3].innerHTML=buildSelect(window._fpOwnersCache||[],record.own,'เจ้าของ');
-  cells[4].innerHTML=notificationMarkup(record.name);
+  decorateNotification(cells[4],record);
   cells[5].innerHTML='';
   var cancel=makeButton('rb-fbp-row-cancel','ยกเลิก'),save=makeButton('rb-fbp-row-save','✓ บันทึก');
   cancel.addEventListener('click',function(){decorateRow(row,record);});
@@ -224,7 +238,7 @@ function installRenderer(){
   window._renderFbList=wrapped;
 }
 
-function activate(){installRenderer();decorateHeader();function redraw(){var root=document.getElementById('fbl-root'),base=window._lfbData||lastRawData.filter(function(r){return !r.manual;});if(root&&base.length)window._renderFbList(root,window._fpMerge?window._fpMerge(base):base);}cloudLoaded=false;syncCloud(redraw);if(window._fpSyncFromCloud)window._fpSyncFromCloud(redraw);var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
+function activate(){installRenderer();decorateHeader();if(window.rbFacebookPageNotifications)window.rbFacebookPageNotifications.pull();function redraw(){var root=document.getElementById('fbl-root'),base=window._lfbData||lastRawData.filter(function(r){return !r.manual;});if(root&&base.length)window._renderFbList(root,window._fpMerge?window._fpMerge(base):base);}cloudLoaded=false;syncCloud(redraw);if(window._fpSyncFromCloud)window._fpSyncFromCloud(redraw);var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 

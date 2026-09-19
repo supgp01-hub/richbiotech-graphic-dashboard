@@ -11,6 +11,7 @@ function blocked(){
   if(w.rbPersistence&&w.rbPersistence.pendingCount&&w.rbPersistence.pendingCount())return true;
   if(JSON.parse(localStorage.getItem('rb_generic_write_queue_v3')||'[]').length||localStorage.getItem('rb_ct_sync_pending_v1'))return true;
   if(w.ctSubmissions&&w.ctSubmissions.pendingCount&&w.ctSubmissions.pendingCount())return true;
+  if(w.rbFacebookPageNotifications&&w.rbFacebookPageNotifications.pendingCount())return true;
   if(w.ctPendingCount&&w.ctPendingCount())return true;
  }catch(e){return true;}
  if(Array.from(document.querySelectorAll('dialog[open],#rb-order-modal,#rb-planner-modal,[role="dialog"],input[type="file"],[data-busy="1"],[data-dirty="1"]')).some(function(el){return visible(el)&&(el.type!=='file'||el.files&&el.files.length);}))return true;

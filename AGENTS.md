@@ -24,3 +24,4 @@ The owner requires verification across the system before each delivery, not only
 
 - Run `node tests/manual/audit-evidence470.e2e.cjs` before deployment for actual worksheet hyperlinks, date/employee mapping, legacy-ID preservation, link-only online repair, changed-link deduplication, separate employee contexts, offline/partial-write retries and append-only imports.
 - Run `node tests/manual/audit-inline474.e2e.cjs` for ledger details directly below their selected row, expansion/collapse, refresh/filter behavior, evidence, responsive layouts and employee permission boundaries.
+- Run `node tests/manual/facebook-pages475.e2e.cjs` for all-page display, full names, responsive layout, notification save acknowledgements, cross-browser reads, failure/retry and reload.

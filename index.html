@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix474">
+<meta name="rb-build" content="fix475">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2687,8 +2687,8 @@ window._renderFbList=function(root,data){
   ['ALL'].concat(prods).forEach(function(p){var cnt=p==='ALL'?data.length:data.filter(function(r){return r.prod===p;}).length;h+='<button class="fblpb" data-p="'+pageEsc(p)+'" style="padding:5px 12px;border:'+(p==='ALL'?'none':'1px solid #d1d5db')+';border-radius:20px;background:'+(p==='ALL'?'#1B4332':'#fff')+';color:'+(p==='ALL'?'#fff':'#374151')+';cursor:pointer;font-size:12px;font-weight:'+(p==='ALL'?'700':'400')+'">'+pageEsc(p)+'<span style="color:'+(p==='ALL'?'#a7f3d0':'#aaa')+';margin-left:4px;font-size:11px">('+cnt+')</span></button>';});
   h+='</div><div style="overflow-y:auto;max-height:400px;border-radius:10px;border:1px solid #e5e7eb"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead style="position:sticky;top:0;background:#1B4332;color:#fff"><tr><th style="padding:10px 12px;text-align:left">ชื่อเพจ</th><th style="padding:10px 8px;text-align:center;white-space:nowrap">สินค้า</th><th style="padding:10px 8px;text-align:center;white-space:nowrap">สถานะ</th><th style="padding:10px 8px;text-align:center;white-space:nowrap">เจ้าของ</th><th style="padding:10px 8px;text-align:center;white-space:nowrap">สถานะการแจ้ง</th><th style="padding:10px 8px;text-align:center;width:40px"></th></tr></thead><tbody id="fbl-body"></tbody></table></div><div id="fbl-cnt" style="font-size:11px;color:#888;text-align:right;margin-top:4px"></div><div id="fbl-pager" class="rbps-pager"></div>';
   root.innerHTML=h;
-  var fP='ALL',fO='ALL',fS='ALL',q='',fPage=1,fSize=window.rbPageSizeGet?window.rbPageSizeGet('fblist'):50;
-  if([50,100,200].indexOf(Number(fSize))<0)fSize=50;
+  var fP='ALL',fO='ALL',fS='ALL',q='',fPage=1,fSize='all';
+  // Facebook Pages opens with every page, regardless of older saved limits.
   function rdr(){
     var tbody=document.getElementById('fbl-body');if(!tbody)return;
     var qv=q.toLowerCase();
@@ -2702,9 +2702,10 @@ window._renderFbList=function(root,data){
       return true;
     });
     filtered.sort(function(a,b){if(a.prod<b.prod)return -1;if(a.prod>b.prod)return 1;var so={'ใช้งาน':0,'ว่าง':1};return(so[a.st]||2)-(so[b.st]||2);});
-    var html='',prevP='',fPages=Math.max(1,Math.ceil(filtered.length/fSize));
+    var fLimit=fSize==='all'?Math.max(1,filtered.length):fSize;
+    var html='',prevP='',fPages=Math.max(1,Math.ceil(filtered.length/fLimit));
     fPage=Math.max(1,Math.min(fPage,fPages));
-    var fStart=(fPage-1)*fSize,shown=filtered.slice(fStart,fStart+fSize);
+    var fStart=(fPage-1)*fLimit,shown=filtered.slice(fStart,fStart+fLimit);
     shown.forEach(function(r,i){
       var sc=SC[r.st]||'#9ca3af';var sb2=SB[r.st]||'#f9fafb';
       if(fP==='ALL'&&r.prod!==prevP){var pc=filtered.filter(function(x){return x.prod===r.prod;}).length;html+='<tr style="background:var(--auto-lc30)"><td colspan="6" style="padding:7px 12px;font-weight:700;color:var(--text-heading);font-size:12px">📦 '+pageEsc(r.prod)+' ('+pc+')</td></tr>';prevP=r.prod;}
@@ -2748,7 +2749,7 @@ window._fbOptSel=function(opt){
 };
 (function(){document.addEventListener('click',function(e){if(!e.target.closest||!e.target.closest('.fbl-sel'))[].forEach.call(document.querySelectorAll('.fbl-sel-menu'),function(m){m.style.display='none';});});})()
 
-    var cntEl=document.getElementById('fbl-cnt');if(cntEl)cntEl.textContent=filtered.length?'แสดง '+(fStart+1)+'–'+Math.min(fStart+fSize,filtered.length)+' จาก '+filtered.length+' รายการ · ทั้งหมด '+data.length+' เพจ':'0 รายการ · ทั้งหมด '+data.length+' เพจ';
+    var cntEl=document.getElementById('fbl-cnt');if(cntEl)cntEl.textContent=filtered.length?'แสดง '+(fStart+1)+'–'+Math.min(fStart+fLimit,filtered.length)+' จาก '+filtered.length+' รายการ · ทั้งหมด '+data.length+' เพจ':'0 รายการ · ทั้งหมด '+data.length+' เพจ';
     var pg=document.getElementById('fbl-pager');if(pg)pg.innerHTML=window.rbPageSizeMarkup?window.rbPageSizeMarkup('fblist',filtered.length,fPage,fSize):'';
   }
   rdr();
@@ -2757,7 +2758,7 @@ window._fbOptSel=function(opt){
     function bind(sel,attr){root.querySelectorAll(sel).forEach(function(b){b.addEventListener('click',function(){if(attr==='s')fS=b.getAttribute('data-s');if(attr==='o')fO=b.getAttribute('data-o');if(attr==='p')fP=b.getAttribute('data-p');fPage=1;root.querySelectorAll(sel).forEach(function(x){var act2=x===b;x.style.background=act2?'#1B4332':'#fff';x.style.color=act2?'#fff':'#374151';x.style.border=act2?'none':'1px solid #d1d5db';});rdr();});});}
     bind('.fblsb','s');bind('.fblob','o');bind('.fblpb','p');
     root.addEventListener('click',function(e){var b=e.target.closest('[data-rbps-page]');if(!b)return;fPage=Math.max(1,Number(b.getAttribute('data-rbps-page'))||1);rdr();});
-    root.addEventListener('change',function(e){if(!e.target.matches('[data-rbps-size]'))return;fSize=[50,100,200].indexOf(Number(e.target.value))>=0?Number(e.target.value):50;if(window.rbPageSizeSet)window.rbPageSizeSet('fblist',fSize);fPage=1;rdr();});
+    root.addEventListener('change',function(e){if(!e.target.matches('[data-rbps-size]'))return;fSize=e.target.value==='all'?'all':[50,100,200].indexOf(Number(e.target.value))>=0?Number(e.target.value):'all';if(window.rbPageSizeSet)window.rbPageSizeSet('fblist',fSize);fPage=1;rdr();});
   },50);
 };
 }
@@ -6243,11 +6244,12 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/list-facebook-followup.js?v=fix399"></script>
 <script src="snippets/navigation-state-v1.js?v=224"></script>
 <link rel="stylesheet" href="snippets/page-size-pagination-v1.css?v=277b">
-<script src="snippets/page-size-pagination-v1.js?v=fix474"></script>
+<script src="snippets/page-size-pagination-v1.js?v=fix475"></script>
 <script>window._lfbEditorBoot=window._lfbEditorTest&&window._lfbFollowupTest?'ready':'module-error';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);</script>
 <link id="rb-dark-theme-deep-teal-v1" rel="stylesheet" href="snippets/dark-theme-overrides-v442.css?v=fix442">
-<link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix438">
-<script src="snippets/facebook-pages-inline-editor-v2.js?v=fix438"></script>
+<link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix475">
+<script src="snippets/facebook-page-notifications-v1.js?v=fix475"></script>
+<script src="snippets/facebook-pages-inline-editor-v2.js?v=fix475"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>
 <script src="snippets/facebook-pages-create-v1.js?v=fix438"></script>
 <script src="snippets/shared-business-sync-v1.js?v=fix432"></script>
@@ -6255,7 +6257,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/system-health-v1.js?v=fix463"></script>
 <script src="snippets/app-shell-v1.js?v=fix341"></script>
 <link rel="stylesheet" href="snippets/firebase-secure-auth-v1.css?v=secure20">
-<script src="snippets/safe-order-write-v1.js?v=fix458"></script><script src="snippets/online-consistency-v1.js?v=fix458"></script><script src="snippets/sync-watchdog-v1.js?v=fix459"></script><script src="snippets/order-conflict-recovery-v1.js?v=fix458"></script><script src="snippets/release-update-v1.js?v=fix463"></script><script src="snippets/order-conflict-review-v1.js?v=fix455"></script>
+<script src="snippets/safe-order-write-v1.js?v=fix458"></script><script src="snippets/online-consistency-v1.js?v=fix458"></script><script src="snippets/sync-watchdog-v1.js?v=fix459"></script><script src="snippets/order-conflict-recovery-v1.js?v=fix458"></script><script src="snippets/release-update-v1.js?v=fix475"></script><script src="snippets/order-conflict-review-v1.js?v=fix455"></script>
 <script type="module" src="snippets/firebase-secure-auth-v1.js?v=fix456"></script>
 <link rel="stylesheet" href="snippets/content-submissions-v1.css?v=fix461">
 <script src="snippets/content-permissions-v1.js?v=fix460"></script>

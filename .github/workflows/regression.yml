@@ -41,5 +41,6 @@ jobs:
       - run: node tests/manual/audit-adjustments464.e2e.cjs
       - run: node tests/manual/audit-evidence470.e2e.cjs
       - run: node tests/manual/audit-inline474.e2e.cjs
+      - run: node tests/manual/facebook-pages475.e2e.cjs
       - run: node tests/manual/thai-holidays465.e2e.cjs
       - run: node tests/manual/full-functional-smoke.e2e.js

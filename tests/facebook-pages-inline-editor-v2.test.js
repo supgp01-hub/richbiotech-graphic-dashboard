@@ -28,7 +28,7 @@ assert.equal(rows[0].st,'ใช้งาน','the real source status must be pre
 assert.deepEqual(Array.from(api.unique(['ขุนแผน','ขุนแผน','เฮฟเว่นพลัส'])),['ขุนแผน','เฮฟเว่นพลัส']);
 assert.equal(api.rowKey(rows[0]),api.rowKey({...rows[0],name:'ชื่อใหม่'}),'Facebook ID must keep edit identity stable after renaming');
 assert.equal(api.mergeMaps({a:{st:'ว่าง',updatedAt:200}},{a:{st:'ใช้งาน',updatedAt:100}}).a.st,'ว่าง','newer edits must win');
-assert.ok(api.notificationMarkup('เพจ 160').includes('🔒'),'notification status must be rendered as locked');
+assert.ok(api.notificationMarkup('เพจ 160').includes('<select'),'notification status uses a native dropdown');
 assert.equal(api.cloudKey('row/a.b'),'row_a_b','Firebase child keys must be safe');
 context._rbUser={role:'graphic'};
 assert.equal(api.canEdit(),true,'every active Graphic team role must be able to edit Facebook Pages');
@@ -43,7 +43,7 @@ assert.ok(source.includes("LEGACY_CLOUD_PATH='/fbpages_edits_v2'"),'the previous
 assert.equal(source.includes("contentEditable='true'"),false,'the editor must not use unrestricted contentEditable cells');
 assert.ok(source.includes("window._lfbFetch=refreshLiveData"),'opening or refreshing Facebook Pages must use the live sheet loader');
 assert.ok(source.includes("fetch(SHEET_URL,{cache:'no-store'})"),'live status must bypass stale HTTP cache');
-assert.ok(css.includes('thead th:nth-child(5):after'),'notification column must show a lock');
+assert.ok(css.includes('select.rb-fbp-notification'),'notification dropdown has responsive styling');
 assert.ok(source.includes('professionalizeRoot(root)'),'the Facebook Pages renderer must install the professional layout');
 assert.ok(source.includes('if(grids[1])grids[1].remove()'),'the marked workflow summary row must be removed');
 assert.ok(source.includes("heads[3].textContent='พนักงาน'"),'the owner column must be labelled as employee');

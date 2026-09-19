@@ -10,14 +10,15 @@ var configs={
 };
 function read(){try{var v=JSON.parse(localStorage.getItem(STORE)||'{}');return v&&typeof v==='object'?v:{};}catch(e){return{};}}
 function normalize(v){v=parseInt(v,10);return ALLOWED.indexOf(v)>=0?v:50;}
-function getSize(key){return normalize(read()[key]);}
-function setSize(key,value){var all=read();all[key]=normalize(value);try{localStorage.setItem(STORE,JSON.stringify(all));}catch(e){}return all[key];}
+function getSize(key){var value=read()[key];return key==='fblist'&&(value==null||value==='all')?'all':normalize(value);}
+function setSize(key,value){var all=read();all[key]=key==='fblist'&&value==='all'?'all':normalize(value);try{localStorage.setItem(STORE,JSON.stringify(all));}catch(e){}return all[key];}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function numbers(page,pages){var out=[],from=Math.max(1,page-2),to=Math.min(pages,page+2);if(from>1)out.push(1);if(from>2)out.push('…');for(var i=from;i<=to;i++)out.push(i);if(to<pages-1)out.push('…');if(to<pages)out.push(pages);return out;}
 function markup(key,total,page,size){
+  if(key==='fblist'&&size==='all')return '<div class="rbps-summary">แสดงทั้งหมด '+total+' เพจ</div><div class="rbps-pages"><select class="rbps-size" data-rbps-size aria-label="จำนวนรายการต่อหน้า"><option value="all" selected>ทั้งหมด</option>'+ALLOWED.map(function(n){return '<option value="'+n+'">'+n+'/หน้า</option>';}).join('')+'</select></div>';
   var pages=Math.max(1,Math.ceil(total/size)),start=total?(page-1)*size+1:0,end=Math.min(page*size,total);
   var nums=numbers(page,pages).map(function(n){return n==='…'?'<span aria-hidden="true">…</span>':'<button type="button" class="rbps-btn '+(n===page?'is-active':'')+'" data-rbps-page="'+n+'" aria-label="หน้า '+n+'" '+(n===page?'aria-current="page"':'')+'>'+n+'</button>';}).join('');
-  return '<div class="rbps-summary">แสดง '+start+'–'+end+' จาก '+total+' รายการ</div><div class="rbps-pages"><button type="button" class="rbps-btn" data-rbps-page="'+(page-1)+'" '+(page<=1?'disabled':'')+' aria-label="หน้าก่อนหน้า">‹</button>'+nums+'<button type="button" class="rbps-btn" data-rbps-page="'+(page+1)+'" '+(page>=pages?'disabled':'')+' aria-label="หน้าถัดไป">›</button><select class="rbps-size" data-rbps-size aria-label="จำนวนรายการต่อหน้า">'+ALLOWED.map(function(n){return'<option value="'+n+'"'+(n===size?' selected':'')+'>'+n+'/หน้า</option>';}).join('')+'</select></div>';
+  return '<div class="rbps-summary">แสดง '+start+'–'+end+' จาก '+total+' รายการ</div><div class="rbps-pages"><button type="button" class="rbps-btn" data-rbps-page="'+(page-1)+'" '+(page<=1?'disabled':'')+' aria-label="หน้าก่อนหน้า">‹</button>'+nums+'<button type="button" class="rbps-btn" data-rbps-page="'+(page+1)+'" '+(page>=pages?'disabled':'')+' aria-label="หน้าถัดไป">›</button><select class="rbps-size" data-rbps-size aria-label="จำนวนรายการต่อหน้า">'+(key==='fblist'?'<option value="all">ทั้งหมด</option>':'')+ALLOWED.map(function(n){return'<option value="'+n+'"'+(n===size?' selected':'')+'>'+n+'/หน้า</option>';}).join('')+'</select></div>';
 }
 function eligibleRows(body){return Array.prototype.filter.call(body.children,function(row){return row.tagName==='TR'&&!row.classList.contains('rbps-empty')&&!row.hasAttribute('data-rbps-ignore');});}
 function ensurePager(panel,key,anchor){var pager=panel.querySelector('.rbps-pager[data-rbps-key="'+key+'"]');if(!pager){pager=document.createElement('div');pager.className='rbps-pager';pager.setAttribute('data-rbps-key',key);(anchor||panel).insertAdjacentElement('afterend',pager);}return pager;}

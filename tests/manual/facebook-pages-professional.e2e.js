@@ -48,7 +48,7 @@ const assert = require('node:assert/strict');
   assert.equal(await page.locator('.rb-fbp-table').evaluate(table => getComputedStyle(table).tableLayout), 'fixed');
   assert.deepEqual((await page.locator('.rb-fbp-employee').allTextContents()).sort(), ['DOM', 'JAM', 'MOS']);
   assert.equal(await page.locator('.rb-fbp-employee').locator('span').count(), 0, 'employee cells must contain names only');
-  assert.equal(await page.locator('.rb-fbp-notification select').count(), 0, 'notification status must remain read-only');
+  assert.equal(await page.locator('select.rb-fbp-notification').count(), 3, 'each page exposes the approved notification dropdown');
 
   await page.locator('.rb-fbp-filter-field').filter({ hasText: 'พนักงาน' }).locator('select').selectOption('JAM');
   assert.deepEqual(await page.locator('#fbl-body tr[data-name]:visible .rb-fbp-employee').allTextContents(), ['JAM']);

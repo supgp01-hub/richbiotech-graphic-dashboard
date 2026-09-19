@@ -25,7 +25,7 @@ assert.ok(editorSource.includes('lfb-advanced-filters'), 'detailed filters must 
 assert.ok(editorSource.includes('colspan="7"'), 'the minimal table must use the reduced seven-column layout');
 assert.equal(editorSource.includes('activateEditor();\nsetTimeout(activateEditor'), false, 'the large Facebook table must not initialize in the background');
 assert.equal(editorSource.includes('refreshData();window._listfbFetch();'), false, 'opening Graphic must not automatically download the Facebook sheet');
-assert.ok(indexSource.includes('shown=filtered.slice(fStart,fStart+fSize)'), 'Facebook Pages must render only the selected page size');
+assert.ok(indexSource.includes('shown=filtered.slice(fStart,fStart+fLimit)'), 'Facebook Pages must render only the selected page size');
 assert.ok(indexSource.includes("rbPageSizeMarkup('fblist'"), 'Facebook Pages must expose the shared page-size selector');
 assert.ok(editorSource.includes('window._lfbPage=function(delta)'), 'pagination controls must be interactive');
 assert.ok(editorSource.includes('baseRows=parseCsv(csv);markSourceSchema()'), 'one-time migration must replace the stale sheet snapshot instead of appending duplicate source rows');
