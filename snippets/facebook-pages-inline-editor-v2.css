@@ -52,3 +52,24 @@
  #fbl-root .rb-fbp-overview .rb-fbp-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media(pointer:coarse){#fbl-root select.rb-fbp-notification{min-height:44px;font-size:16px}}
+/* fix476: full real names, quiet alternating rows, aligned compact controls. */
+#fbl-root .rb-fbp-table{border-collapse:separate!important;border-spacing:0!important}
+#fbl-root .rb-fbp-table thead th{font-size:12px!important;font-weight:500!important;padding:12px 8px!important;background:var(--surface-tint,#eaf7ef)!important;color:var(--text-muted2,#547266)!important;border-color:var(--surface-card-border,#d5e8df)!important}
+#fbl-root .rb-fbp-table tbody tr[data-name]:nth-child(even){background:var(--surface-tint,#f7fbf9)!important}
+#fbl-root .rb-fbp-table tbody tr[data-name]:hover{background:var(--surface-tint,#edf8f2)!important}
+#fbl-root .rb-fbp-table td{padding:14px 8px!important;border-color:var(--surface-card-border,#d5e8df)!important}
+#fbl-root .rb-fbp-table td:first-child,#fbl-root .rb-fbp-table th:first-child{padding-left:18px!important;padding-right:18px!important;text-align:left!important}
+#fbl-root .rb-fbp-table tbody tr:last-child td{border-bottom:0!important}
+#fbl-root .rb-fbp-cell-main{font-size:15px;font-weight:600;line-height:1.6;word-break:normal;overflow-wrap:break-word}
+#fbl-root .rb-fbp-cell-meta{font-size:12px;line-height:1.5;margin-top:4px;color:var(--text-muted2,#627c74)}
+#fbl-root .rb-fbp-table td:nth-child(2),#fbl-root .rb-fbp-employee{font-size:12px;font-weight:500;color:var(--text-heading,#173d2f)!important}
+#fbl-root .rb-fbp-page-status{min-width:44px;font-size:12px;font-weight:500}
+#fbl-root select.rb-fbp-notification{max-width:220px;margin:0 auto;font-size:12px;font-weight:400;border-radius:6px}
+#fbl-root .rb-fbp-actions-cell>button{min-height:34px;font-size:12px;font-weight:500;padding:6px 10px;border-radius:6px}
+@media(min-width:761px){#fbl-root .rb-fbp-table th:not(:first-child),#fbl-root .rb-fbp-table td:not(:first-child){text-align:center!important}}
+@media(max-width:760px){
+ #fbl-root .rb-fbp-table tr[data-name]>td,#fbl-root .rb-fbp-table tr[data-name]>td:first-child{padding:7px 0!important}
+ #fbl-root .rb-fbp-table tr[data-name]>td:before{color:var(--text-muted2,#627c74)}
+ #fbl-root select.rb-fbp-notification{max-width:100%;margin:0}
+}
+@media(pointer:coarse){#fbl-root select.rb-fbp-notification,#fbl-root .rb-fbp-actions-cell>button{min-height:44px;font-size:16px}}

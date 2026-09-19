@@ -23,6 +23,10 @@ function mergeMaps(local,cloud){var result={};[cloud||{},local||{}].forEach(func
 
 function parseCsvLine(line){var cols=[],current='',quoted=false;for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'){if(quoted&&line[i+1]==='"'){current+='"';i++;}else quoted=!quoted;}else if(ch===','&&!quoted){cols.push(current.trim());current='';}else current+=ch;}cols.push(current.trim());return cols;}
 function parseSheet(csv){return window.rbFacebookPagesSource.parse(csv);}
+// Presentation only: keep numbered placeholders in the original source/cache.
+// Filter after applying edits so a placeholder with a corrected name reappears.
+function hasPageName(row){var name=String(row&&row.name||'').trim();return !!name&&!/^เพจ\s*[0-9๐-๙]+$/.test(name);}
+function metadataText(value){var text=String(value||'').trim();return /^(?:[-—–]|ยังไม่ระบุ|ไม่ระบุ)$/.test(text)?'':text;}
 
 function applyEdits(rows){return(rows||[]).map(function(row){var result=copy(row),key=rowKey(row),entry=edits[key];if(!entry){var legacy=edits['sheet_'+hash(row.shareFacebook||row.fbid||row.name)];if(legacy&&legacy.sourceName===row.name)entry=legacy;}result._fbpKey=key;result._fbpSourceName=row._fbpSourceName||row.name||'';if(entry){['name','prod','st','own','creatorFacebook'].forEach(function(field){if(Object.prototype.hasOwnProperty.call(entry,field)&&(field!=='name'||String(entry[field]||'').trim()))result[field]=entry[field];});result._fbpEditedAt=entry.updatedAt||0;}return result;});}
 function canEdit(){var role=window._rbUser&&window._rbUser.role||'';return['sup','spec','graphic','ads','audit'].indexOf(role)!==-1;}
@@ -145,7 +149,7 @@ function professionalizeRoot(root){
   if(table){
     table.classList.add('rb-fbp-table');
     var oldGroup=table.querySelector('colgroup');if(oldGroup)oldGroup.remove();
-    var group=document.createElement('colgroup');[36,11,12,9,23,9].forEach(function(width){var col=document.createElement('col');col.style.width=width+'%';group.appendChild(col);});
+    var group=document.createElement('colgroup');[40,9,9,9,23,10].forEach(function(width){var col=document.createElement('col');col.style.width=width+'%';group.appendChild(col);});
     table.insertBefore(group,table.firstChild);
     var heads=table.querySelectorAll('thead th');if(heads[3])heads[3].textContent='พนักงาน';if(heads[5])heads[5].textContent='จัดการ';
   }
@@ -157,7 +161,8 @@ function decorateRow(row,record){
   row.setAttribute('data-fbp-key',rowKey(record));
   row.classList.remove('rb-fbp-row-editing');
   [0,1,2,3].forEach(function(index){clearEditable(cells[index]);});
-  cells[0].innerHTML='<span class="rb-fbp-cell-main">'+esc(record.name)+'</span>'+(record.manual?'<span class="rb-fbp-manual">เพิ่มเอง</span>':'')+'<span class="rb-fbp-cell-meta">เฟสที่สร้าง: '+esc(record.creatorFacebook||'ยังไม่ระบุ')+'</span>'+(record.shareFacebook?'<span class="rb-fbp-cell-meta">เฟสที่แชร์ได้: '+esc(record.shareFacebook)+'</span>':'');
+  var creator=metadataText(record.creatorFacebook),share=metadataText(record.shareFacebook);
+  cells[0].innerHTML='<span class="rb-fbp-cell-main">'+esc(record.name)+'</span>'+(record.manual?'<span class="rb-fbp-manual">เพิ่มเอง</span>':'')+(creator?'<span class="rb-fbp-cell-meta">เฟสที่สร้าง: '+esc(creator)+'</span>':'')+(share?'<span class="rb-fbp-cell-meta">เฟสที่แชร์ได้: '+esc(share)+'</span>':'');
   cells[1].textContent=record.prod||'—';
   var statusClass=record.st==='ใช้งาน'?' is-active':record.st==='ว่าง'?' is-idle':' is-closed';
   cells[2].innerHTML='<span class="rb-fbp-page-status'+statusClass+'">'+esc(record.st||'—')+'</span>';
@@ -226,7 +231,7 @@ function installRenderer(){
   originalRender=window._renderFbList;
   var wrapped=function(root,data){
     lastRawData=window.rbFacebookPagesSource.normalize((data||[]).map(copy));
-    var effective=applyEdits(lastRawData);
+    var effective=applyEdits(lastRawData).filter(hasPageName);
     window._fpProdsCache=unique(effective.map(function(row){return row.prod;}));
     window._fpOwnersCache=unique(effective.map(function(row){return row.own;}));
     window._fpStatusCache=unique(effective.map(function(row){return row.st;}));
@@ -238,7 +243,7 @@ function installRenderer(){
   window._renderFbList=wrapped;
 }
 
-function activate(){installRenderer();decorateHeader();if(window.rbFacebookPageNotifications)window.rbFacebookPageNotifications.pull();function redraw(){var root=document.getElementById('fbl-root'),base=window._lfbData||lastRawData.filter(function(r){return !r.manual;});if(root&&base.length)window._renderFbList(root,window._fpMerge?window._fpMerge(base):base);}cloudLoaded=false;syncCloud(redraw);if(window._fpSyncFromCloud)window._fpSyncFromCloud(redraw);var current=window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
+function activate(){installRenderer();decorateHeader();if(window.rbFacebookPageNotifications)window.rbFacebookPageNotifications.pull();function redraw(){var root=document.getElementById('fbl-root'),base=window._lfbData||lastRawData.filter(function(r){return !r.manual;});if(root&&base.length)window._renderFbList(root,window._fpMerge?window._fpMerge(base):base);}cloudLoaded=false;syncCloud(redraw);if(window._fpSyncFromCloud)window._fpSyncFromCloud(redraw);var current=lastRawData.length?lastRawData:window._fblSummaryData||[];var root=document.getElementById('fbl-root');if(root&&current.length&&typeof window._renderFbList==='function')window._renderFbList(root,current);}
 function bindActivation(){if(activationBound)return;activationBound=true;document.addEventListener('click',function(event){var button=event.target&&event.target.closest?event.target.closest('.gsnav-btn'):null;if(!button||button.textContent.indexOf('Facebook Pages')===-1)return;setTimeout(activate,30);});}
 function install(){installRenderer();window._lfbFetch=refreshLiveData;bindActivation();decorateHeader();var panel=document.querySelector('[data-sub="fblist"].gsp-active');if(panel&&!panel.getAttribute('data-fbp-live-started')){panel.setAttribute('data-fbp-live-started','1');activate();}}
 
