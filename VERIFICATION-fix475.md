@@ -14,3 +14,7 @@ Verified 19 September 2026:
 - HTML and release.json agree on fix475; initial HTML is 637,961 bytes, below the 640,000-byte limit. Changed assets have versioned URLs.
 
 Production delivery requires successful Pages/CI, public asset comparison, and signed-in read-only UI inspection. Test mutations use isolated fixtures only, never real employee records. These checks do not claim every physical device or future network condition was tested.
+
+Post-deployment CI found a test-only reload timing race: the status assertion read `.value` during a transient table rebuild. The wait predicate now tolerates the absent element while retaining the same expected status. Production assets are unchanged by this follow-up.
+
+Follow-up verification: all 125 regression scripts and all 14 browser suites pass again. The signed-in production page reports fix475, renders 206 rows and 206 enabled notification selectors, defaults to all pages, retains actual page names and Facebook metadata, and fits the 741px viewport without horizontal document overflow. All 37 deployed asset hashes matched the release commit. Production inspection was read-only.
