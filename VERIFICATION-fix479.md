@@ -10,3 +10,5 @@ Verification on 20 September 2026:
 - No production account or notification data is created or changed for tests. Production verification reads the selected controls and opens/closes the menu only.
 
 Completion requires successful Pages deployment and CI, matching public assets, and signed-in production inspection. The tests cover these scenarios, not every physical employee device or future network condition.
+
+CI follow-up: the color/icon assertion originally read the face in separate browser calls; the asynchronous acknowledgement could replace the row between those reads. The test now snapshots the mounted face atomically and retains its label, color, icon-count and font-weight assertions. No production behavior changed in this follow-up.

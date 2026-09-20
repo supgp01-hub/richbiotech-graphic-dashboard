@@ -12,10 +12,19 @@ assert.equal(await p.locator('#fbl-body tr[data-name]').filter({hasText:/^เพ
 const first=p.locator('#fbl-body tr[data-name]').first();
 async function selectedColor(page,value,dark=false){
   const colors=dark?{'':'rgb(66, 31, 40)','1':'rgb(60, 47, 19)','2':'rgb(20, 58, 45)'}:{'':'rgb(255, 240, 241)','1':'rgb(255, 242, 204)','2':'rgb(226, 246, 233)'};
-  await page.waitForFunction(({value,color})=>{var el=document.querySelector('select.rb-fbp-notification'),face=el&&el.parentElement.querySelector('.rb-fbp-notice-face');return el&&el.value===value&&face&&getComputedStyle(face).backgroundColor===color&&face.querySelector('.rb-fbp-notice-label').textContent===el.selectedOptions[0].textContent;},{value,color:colors[value]});
-  const face=page.locator('.rb-fbp-notice-face').first();assert.equal(await face.locator('.rb-fbp-notice-icon svg').count(),1,'selected state shows its icon');
-  assert.equal(await face.locator('.rb-fbp-notice-icon').evaluate(e=>getComputedStyle(e).backgroundColor),{'':'rgb(220, 53, 69)','1':'rgb(217, 137, 0)','2':'rgb(22, 132, 81)'}[value]);
-  assert.equal(await face.locator('.rb-fbp-notice-label').evaluate(e=>getComputedStyle(e).fontWeight),'600','selected label matches bold menu style');
+  // Read one mounted face atomically: a save acknowledgement can replace the row
+  // between separate Playwright calls even after its selected color is ready.
+  const ready=await page.waitForFunction(({value,color})=>{
+    const el=document.querySelector('select.rb-fbp-notification'),face=el&&el.parentElement.querySelector('.rb-fbp-notice-face');
+    if(!el||el.value!==value||!face||getComputedStyle(face).backgroundColor!==color)return false;
+    const label=face.querySelector('.rb-fbp-notice-label'),icon=face.querySelector('.rb-fbp-notice-icon');
+    if(!label||label.textContent!==el.selectedOptions[0].textContent)return false;
+    return {iconCount:face.querySelectorAll('.rb-fbp-notice-icon svg').length,iconColor:icon?getComputedStyle(icon).backgroundColor:null,fontWeight:getComputedStyle(label).fontWeight};
+  },{value,color:colors[value]});
+  const visible=await ready.jsonValue();await ready.dispose();
+  assert.equal(visible.iconCount,1,'selected state shows its icon');
+  assert.equal(visible.iconColor,{'':'rgb(220, 53, 69)','1':'rgb(217, 137, 0)','2':'rgb(22, 132, 81)'}[value]);
+  assert.equal(visible.fontWeight,'600','selected label matches bold menu style');
 }
 await selectedColor(p,'');
 await first.locator('select.rb-fbp-notification').click();
