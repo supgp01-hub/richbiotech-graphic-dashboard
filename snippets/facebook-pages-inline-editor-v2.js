@@ -86,10 +86,15 @@ function refreshLiveData(){
 
 function buildSelect(values,current,label){var list=unique([current].concat(values||[]));return'<select class="rb-fbp-edit-field" aria-label="'+esc(label)+'">'+list.map(function(value){return'<option value="'+esc(value)+'"'+(value===current?' selected':'')+'>'+esc(value)+'</option>';}).join('')+'</select>';}
 function notificationValue(name){var data=loadObject('rb_fb_notif');return data[name]||'';}
+function notificationFace(value){
+  var labels={'':'ยังไม่ได้แจ้ง','1':'แจ้งรอบแรก (แชร์เพจ)','2':'แจ้งรอบ 2 (ยิงแอด)'};
+  var paths={'':'<path d="m21 19-8-15a1.2 1.2 0 0 0-2 0L3 19a1.2 1.2 0 0 0 1 2h16a1.2 1.2 0 0 0 1-2Z"/><path d="M12 9v4M12 17h.01"/>','1':'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>','2':'<path d="m5 12 4 4L19 6"/>'};
+  return '<span class="rb-fbp-notice-face" aria-hidden="true"><span class="rb-fbp-notice-icon"><svg viewBox="0 0 24 24">'+(paths[value]||paths[''])+'</svg></span><span class="rb-fbp-notice-label">'+esc(labels[value]||labels[''])+'</span><svg class="rb-fbp-notice-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>';
+}
 function notificationMarkup(record){
   if(typeof record==='string')record={name:record};
   var service=window.rbFacebookPageNotifications,state=service?service.state(record):{value:notificationValue(record.name)},value=state.value;
-  return '<select class="rb-fbp-notification" data-value="'+esc(value)+'" aria-label="สถานะการแจ้ง '+esc(record.name)+'" '+(!canEdit()||!service||state.pending?'disabled':'')+'>'+[['','ยังไม่ได้แจ้ง'],['1','แจ้งรอบแรก (แชร์เพจ)'],['2','แจ้งรอบ 2 (ยิงแอด)']].map(function(item){return '<option value="'+item[0]+'"'+(value===item[0]?' selected':'')+'>'+item[1]+'</option>';}).join('')+'</select><small class="rb-fbp-notice-feedback" role="status" data-busy="'+(state.pending?'1':'0')+'" data-dirty="'+(state.error?'1':'0')+'">'+(state.pending?'กำลังบันทึกออนไลน์…':state.error?'ยังบันทึกไม่ได้ กรุณาลองอีกครั้ง':'')+'</small>'+(state.error?'<button type="button" class="rb-fbp-notice-retry">ลองบันทึกอีกครั้ง</button>':'');
+  return '<span class="rb-fbp-notice-control" data-value="'+esc(value)+'" data-disabled="'+(!canEdit()||!service||state.pending?'1':'0')+'">'+notificationFace(value)+'<select class="rb-fbp-notification" data-value="'+esc(value)+'" aria-label="สถานะการแจ้ง '+esc(record.name)+'" '+(!canEdit()||!service||state.pending?'disabled':'')+'>'+[['','ยังไม่ได้แจ้ง'],['1','แจ้งรอบแรก (แชร์เพจ)'],['2','แจ้งรอบ 2 (ยิงแอด)']].map(function(item){return '<option value="'+item[0]+'"'+(value===item[0]?' selected':'')+'>'+item[1]+'</option>';}).join('')+'</select></span><small class="rb-fbp-notice-feedback" role="status" data-busy="'+(state.pending?'1':'0')+'" data-dirty="'+(state.error?'1':'0')+'">'+(state.pending?'กำลังบันทึกออนไลน์…':state.error?'ยังบันทึกไม่ได้ กรุณาลองอีกครั้ง':'')+'</small>'+(state.error?'<button type="button" class="rb-fbp-notice-retry">ลองบันทึกอีกครั้ง</button>':'');
 }
 function decorateNotification(cell,record){
   cell._fbpNoticeSignature=JSON.stringify(window.rbFacebookPageNotifications?window.rbFacebookPageNotifications.state(record):{})+'|'+canEdit();
