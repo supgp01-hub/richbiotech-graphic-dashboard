@@ -100,7 +100,7 @@ function decorateNotification(cell,record){
   cell._fbpNoticeSignature=JSON.stringify(window.rbFacebookPageNotifications?window.rbFacebookPageNotifications.state(record):{})+'|'+canEdit();
   cell.innerHTML=notificationMarkup(record);
   var select=cell.querySelector('select'),retry=cell.querySelector('.rb-fbp-notice-retry');
-  function save(){if(!canEdit()||!window.rbFacebookPageNotifications)return;var chosen=select.value;window.rbFacebookPageNotifications.save(record,chosen).then(function(ok){if(ok&&cell.isConnected){var feedback=cell.querySelector('.rb-fbp-notice-feedback');if(feedback)feedback.textContent='บันทึกออนไลน์แล้ว';}});}
+  function save(){if(!canEdit()||!window.rbFacebookPageNotifications)return;var chosen=select.value;window.rbFacebookPageNotifications.save(record,chosen);}
   select.addEventListener('change',save);if(retry)retry.addEventListener('click',save);
 }
 function updateNotifications(){var root=document.getElementById('fbl-root');if(!root)return;root.querySelectorAll('#fbl-body tr[data-name]').forEach(function(row){var record=recordForRow(row);if(!record)return;var signature=JSON.stringify(window.rbFacebookPageNotifications?window.rbFacebookPageNotifications.state(record):{})+'|'+canEdit();if(row.cells[4]._fbpNoticeSignature!==signature)decorateNotification(row.cells[4],record);});}
