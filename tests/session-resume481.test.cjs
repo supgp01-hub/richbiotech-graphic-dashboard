@@ -1,0 +1,19 @@
+const {JSDOM}=require('jsdom'),fs=require('fs'),assert=require('node:assert/strict');
+(async()=>{const dom=new JSDOM('<textarea>unsaved draft</textarea>',{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
+let calls=[],now=5000;w.Date.now=()=>now;w._rbUser={uid:'jam'};
+const queued=[{token:'one',data:{status:'review'},conflict:true}];
+w.localStorage.setItem('rb_order_write_queue_v1',JSON.stringify(queued));
+w.rbMultiTab={claim:()=>calls.push('claim')};w.rbOrderSync={flush:()=>{calls.push('orders');return Promise.reject(Error('offline'));}};
+w.rbPersistence={flush:()=>{calls.push('general');throw Error('quota');}};
+w.rbLeavePersistence={flush:()=>calls.push('leave')};w.rbSharedBusinessSync={pull:()=>calls.push('shared')};
+w.fbRefreshOrders=()=>calls.push('read');w.fbSyncStart=()=>calls.push('stream');w.rbSyncWatchdog={retry:()=>calls.push('retry')};w.rbFacebookPageNotifications={pull:()=>calls.push('pages')};
+w.eval(fs.readFileSync('snippets/session-resume-v1.js','utf8'));
+function show(persisted){w.dispatchEvent(new w.PageTransitionEvent('pageshow',{persisted}));}
+show(false);assert.equal(calls.length,0,'normal initial page load is already handled by authentication');
+show(true);await new Promise(setImmediate);assert.deepEqual(calls,['claim','orders','general','shared','leave','read','stream','retry','pages'],'one failed queue must not block other services');
+show(true);assert.equal(calls.length,9,'duplicate pageshow is coalesced');assert.deepEqual(JSON.parse(w.localStorage.getItem('rb_order_write_queue_v1')),queued);assert.equal(w.document.querySelector('textarea').value,'unsaved draft');
+now+=2000;Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});show(true);assert.equal(calls.length,9);
+Object.defineProperty(w.navigator,'onLine',{value:true,configurable:true});w._rbUser=null;show(true);assert.equal(calls.length,9,'signed-out users do not refresh authenticated data');
+w._rbUser={uid:'another'};show(true);await new Promise(setImmediate);assert.equal(calls.length,18,'restored current account may resume after throttle');
+dom.window.close();console.log('PASS bfcache lifecycle, independent queues, offline/auth guards, draft retention and duplicate events');
+})().catch(e=>{console.error(e);process.exit(1)});

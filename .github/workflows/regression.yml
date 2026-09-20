@@ -45,3 +45,7 @@ jobs:
       - run: node tests/manual/thai-holidays465.e2e.cjs
       - run: node tests/manual/full-functional-smoke.e2e.js
       - run: node tests/manual/list-facebook-dropdown477.e2e.cjs
+      - run: node tests/manual/mobile-workspace481.e2e.cjs
+      - run: node tests/manual/cross-device455.e2e.cjs
+        env:
+          RB_TEST_MOBILE: '1'

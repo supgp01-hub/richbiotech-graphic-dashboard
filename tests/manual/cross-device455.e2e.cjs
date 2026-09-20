@@ -6,7 +6,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
  const currentBuild=fs.readFileSync(path.join(root,'index.html'),'utf8').match(/name="rb-build" content="([^"]+)"/)[1];
  let etag=1,hold=false,release,releaseBuild=currentBuild;const writes=[],errors=[];
  const contexts=[];
- async function device(role,name){const ctx=await browser.newContext();contexts.push(ctx);
+ async function device(role,name){const ctx=await browser.newContext(process.env.RB_TEST_MOBILE?{viewport:{width:390,height:844},isMobile:true,hasTouch:true}:{});contexts.push(ctx);
   await ctx.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==origin)return route.abort();if(u.pathname==='/release.json')return route.fulfill({json:{build:releaseBuild}});if(u.pathname==='/index.html')return route.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(root,'index.html'),'utf8').replace('content="'+currentBuild+'"','content="'+releaseBuild+'"')});const f=path.resolve(root,'.'+u.pathname);return f.startsWith(root+path.sep)&&fs.existsSync(f)?route.fulfill({path:f}):route.fulfill({status:404,body:''});});
   await installSecureAuthMock(ctx,{role,name});
   if(role==='graphic')await ctx.addInitScript(()=>{if(!localStorage.getItem('qa-legacy-queue-loaded')){localStorage.setItem('qa-legacy-queue-loaded','1');localStorage.setItem('rb_order_write_queue_v1',JSON.stringify(Array.from({length:106},(_,i)=>({token:'legacy-'+i,path:'/orders/other'+i,method:'PATCH',data:{updatedAt:1,_syncRevision:0},conflict:true}))));}});
