@@ -1,0 +1,14 @@
+const fs=require('fs'),{JSDOM}=require('jsdom'),assert=require('node:assert/strict');
+const html=fs.readFileSync('index.html','utf8'),script=html.match(/<script id="rb-global-dropdown-v5-script">([\s\S]*?)<\/script>/)[1];
+const options='<option value="">ยังไม่ได้แจ้ง</option><option value="1">แจ้งรอบแรก (แชร์เพจ)</option><option value="2">แจ้งรอบ 2 (ยิงแอด)</option>';
+const dom=new JSDOM('<select class="rb-fbp-notification">'+options+'</select><select id="unrelated"><option value="1">รอตรวจ</option></select>',{runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
+w.HTMLElement.prototype.scrollIntoView=function(){};w.eval(script);w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+const select=w.document.querySelector('select');
+select.dispatchEvent(new w.MouseEvent('pointerdown',{bubbles:true,cancelable:true}));
+const buttons=[...w.document.querySelectorAll('.rb-dd-option')];
+assert.deepEqual(buttons.map(b=>b.style.getPropertyValue('--rb-dd-icon-bg')),['#DC3545','#D98900','#168451'],'notification options use red/amber/green independently of Thai substring heuristics');
+assert.equal(new Set(buttons.map(b=>b.style.getPropertyValue('--rb-dd-bg'))).size,3);
+let changes=0;select.addEventListener('change',()=>changes++);buttons[1].click();assert.equal(select.value,'1');assert.equal(changes,1);
+w.document.getElementById('unrelated').dispatchEvent(new w.MouseEvent('pointerdown',{bubbles:true,cancelable:true}));
+assert.equal(w.document.querySelector('.rb-dd-option').style.getPropertyValue('--rb-dd-icon-bg'),'#777F83','other status dropdown semantics remain unchanged');
+w.close();console.log('PASS distinct notification colors, selected value/change event and unrelated status isolation');

@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix477">
+<meta name="rb-build" content="fix478">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5898,7 +5898,11 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     };
     return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(paths[name]||paths.dot)+'</svg>';
   }
-  function semantic(value,label){
+  function semantic(value,label,select){
+    if(select&&select.matches('.rb-fbp-notification,.fbl-notif')){
+      var tones={'':{icon:statusIcon('alert'),color:'#9F2434',bg:'#FFF0F1',border:'#E89AA4',iconBg:'#DC3545'},'1':{icon:statusIcon('clock'),color:'#875100',bg:'#FFF2CC',border:'#D8A93E',iconBg:'#D98900'},'2':{icon:statusIcon('check'),color:'#176641',bg:'#E2F6E9',border:'#229D70',iconBg:'#168451'}};
+      if(Object.prototype.hasOwnProperty.call(tones,value))return tones[value];
+    }
     var rawValue=String(value==null?'':value).trim();var rawLabel=String(label==null?'':label).trim();var valueKey=rawValue.toLowerCase();var labelKey=rawLabel.toLowerCase();var text=(rawValue+' '+rawLabel).toLowerCase();
     var people={
       'วิว':'#fbbc04',view:'#fbbc04',wiw:'#fbbc04','มอส':'#191970',moss:'#191970',mos:'#191970','เตอร์':'#d96400',ter:'#d96400','บอล':'#00257d',ball:'#00257d',bol:'#00257d','นุ่น':'#FF64AD',nune:'#FF64AD',nun:'#FF64AD','แจ๋ม':'#5f6738',jam:'#5f6738','ดอม':'#000000',dom:'#000000','นุ้ย':'#ea4335',nui:'#ea4335','มายด์':'#c42b2b',mind:'#c42b2b',mnd:'#c42b2b',demo:'#94A3B8'
@@ -5957,7 +5961,7 @@ select.rb-dd-native:disabled{cursor:default!important;opacity:.72}
     list.innerHTML='';visibleButtons=[];focusIndex=-1;var useColorBar=usesRequestedColorBar(active);
     Array.prototype.forEach.call(active.options,function(option,index){
       if(option.hidden)return;
-      var look=semantic(option.value,option.textContent);var button=document.createElement('button');button.type='button';button.className='rb-dd-option'+(useColorBar?' rb-dd-color-bar':'')+(index===active.selectedIndex?' rb-dd-selected':'');button.setAttribute('role','option');button.setAttribute('aria-selected',index===active.selectedIndex?'true':'false');button.disabled=option.disabled;
+      var look=semantic(option.value,option.textContent,active);var button=document.createElement('button');button.type='button';button.className='rb-dd-option'+(useColorBar?' rb-dd-color-bar':'')+(index===active.selectedIndex?' rb-dd-selected':'');button.setAttribute('role','option');button.setAttribute('aria-selected',index===active.selectedIndex?'true':'false');button.disabled=option.disabled;
       button.style.setProperty('--rb-dd-bg',look.bg);button.style.setProperty('--rb-dd-border',look.border);button.style.setProperty('--rb-dd-color',look.color);button.style.setProperty('--rb-dd-icon-bg',look.iconBg);
       button.innerHTML='<span class="rb-dd-icon" style="color:#fff">'+look.icon+'</span><span class="rb-dd-label"></span><span class="rb-dd-check">'+(index===active.selectedIndex?'✓':'')+'</span>';
       button.querySelector('.rb-dd-label').textContent=option.textContent;
@@ -6247,7 +6251,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <script src="snippets/page-size-pagination-v1.js?v=fix475"></script>
 <script>window._lfbEditorBoot=window._lfbEditorTest&&window._lfbFollowupTest?'ready':'module-error';document.documentElement.setAttribute('data-lfb-boot',window._lfbEditorBoot);</script>
 <link id="rb-dark-theme-deep-teal-v1" rel="stylesheet" href="snippets/dark-theme-overrides-v442.css?v=fix442">
-<link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix476">
+<link rel="stylesheet" href="snippets/facebook-pages-inline-editor-v2.css?v=fix478">
 <script src="snippets/facebook-page-notifications-v1.js?v=fix475"></script>
 <script src="snippets/facebook-pages-inline-editor-v2.js?v=fix476"></script>
 <script src="snippets/collection-write-guard-v1.js?v=fix316"></script>

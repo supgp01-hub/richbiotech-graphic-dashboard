@@ -73,3 +73,11 @@
  #fbl-root select.rb-fbp-notification{max-width:100%;margin:0}
 }
 @media(pointer:coarse){#fbl-root select.rb-fbp-notification,#fbl-root .rb-fbp-actions-cell>button{min-height:44px;font-size:16px}}
+
+/* Keep notification state visible in both themes, including while saving/retrying. */
+#fbl-root select.rb-fbp-notification[data-value=""]{background-color:#fff0f1!important;color:#9f2434!important;border-color:#e89aa4!important}
+#fbl-root select.rb-fbp-notification[data-value="1"]{background-color:#fff2cc!important;color:#875100!important;border-color:#d8a93e!important}
+#fbl-root select.rb-fbp-notification[data-value="2"]{background-color:#e2f6e9!important;color:#176641!important;border-color:#229d70!important}
+html[data-theme="dark"] #fbl-root select.rb-fbp-notification[data-value=""]{background-color:#421f28!important;color:#ffb8c0!important;border-color:#b76472!important}
+html[data-theme="dark"] #fbl-root select.rb-fbp-notification[data-value="1"]{background-color:#3c2f13!important;color:#ffdc8a!important;border-color:#b58a39!important}
+html[data-theme="dark"] #fbl-root select.rb-fbp-notification[data-value="2"]{background-color:#143a2d!important;color:#9de5bd!important;border-color:#388766!important}
