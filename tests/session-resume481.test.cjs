@@ -15,5 +15,8 @@ show(true);assert.equal(calls.length,9,'duplicate pageshow is coalesced');assert
 now+=2000;Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});show(true);assert.equal(calls.length,9);
 Object.defineProperty(w.navigator,'onLine',{value:true,configurable:true});w._rbUser=null;show(true);assert.equal(calls.length,9,'signed-out users do not refresh authenticated data');
 w._rbUser={uid:'another'};show(true);await new Promise(setImmediate);assert.equal(calls.length,18,'restored current account may resume after throttle');
-dom.window.close();console.log('PASS bfcache lifecycle, independent queues, offline/auth guards, draft retention and duplicate events');
+now+=2000;Object.defineProperty(w.document,'hidden',{value:true,configurable:true});w.document.dispatchEvent(new w.Event('visibilitychange'));assert.equal(calls.length,18,'no background refresh');
+Object.defineProperty(w.document,'hidden',{value:false,configurable:true});w.document.dispatchEvent(new w.Event('visibilitychange'));await new Promise(setImmediate);assert.equal(calls.length,27,'returning from mobile app suspension resumes all services');
+w.document.dispatchEvent(new w.Event('visibilitychange'));assert.equal(calls.length,27,'visible-to-visible events do not trigger refresh');assert.equal(w.document.querySelector('textarea').value,'unsaved draft');assert.deepEqual(JSON.parse(w.localStorage.getItem('rb_order_write_queue_v1')),queued);
+dom.window.close();console.log('PASS bfcache and background return, independent queues, offline/auth guards, draft retention and duplicate events');
 })().catch(e=>{console.error(e);process.exit(1)});
