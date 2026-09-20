@@ -99,6 +99,7 @@ function accountDropdownValues(key,current,data){
   if(key==='emp')['VIEW','MOSS','DOM','TER','NUNE','JAM','BALL','NUI','MIND'].forEach(add);
   (Array.isArray(data)?data:[]).forEach(function(row){add(row&&row[key]);});
   if(key==='prod'&&Array.isArray(window._fpProdsCache))window._fpProdsCache.forEach(add);
+  if(key==='prod'&&typeof window.ctProductList==='function'){var products=window.ctProductList();if(Array.isArray(products))products.forEach(add);}
   var pinned=current&&values[0]===String(current).trim()?values.shift():null;
   values.sort(function(a,b){return a.localeCompare(b,'th',{sensitivity:'base'});});
   if(pinned)values.unshift(pinned);
@@ -413,6 +414,7 @@ window._lfbOpenAccountWorkspace=function(key){
   return new Promise(function(resolve){setTimeout(function(){if(selectAccountWorkspace(key)){resolve(true);return}if(typeof window._listfbRefreshFromCloud!=='function'){resolve(false);return}Promise.resolve(window._listfbRefreshFromCloud()).then(function(){resolve(selectAccountWorkspace(key))}).catch(function(){resolve(false)})},0)});
 };
 window._lfbRecommendedNextDate=recommendedNextDate;
+window._lfbAccountDropdownValues=accountDropdownValues;
 window._lfbFollowupTest={nextFollowupEntry:nextFollowupEntry,isMarked:isMarked,needsSystemFollowup:needsSystemFollowup,normalizeStage:normalizeStage,mergeFollowupMaps:mergeFollowupMaps,rowMeta:rowMeta,stageCounts:stageCounts,filteredRows:filteredRows,accountPage:accountPage,automaticNextDate:automaticNextDate,recommendedNextDate:recommendedNextDate,followupTiming:followupTiming,formatDateValue:formatDateValue,accountDropdownValues:accountDropdownValues};
 window._lfbReconcileFollowupStatus=reconcileFollowupStatus;
 window._lfbGetFollowups=function(){followups=mergeFollowupMaps(readLocal(),followups);return JSON.parse(JSON.stringify(followups));};
