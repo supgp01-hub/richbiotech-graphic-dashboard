@@ -35,10 +35,10 @@ function shell(){
  nav.hidden=!w._rbUser||!w._rbUser.uid;
  // Move the existing controls, preserving handlers and their authorization checks.
  var add=d.getElementById('ord-add-btn'),stats=d.getElementById('ord-stats');
- if(add&&stats&&allowed('planner')){
+ if(add&&stats&&allowed('order')){
   var toolbar=d.getElementById('rb-mobile-order-actions');
   if(!toolbar){toolbar=d.createElement('div');toolbar.id='rb-mobile-order-actions';stats.before(toolbar);}
-  [add,d.getElementById('ord-planner-btn')].filter(Boolean).forEach(function(button){if(button.parentElement!==toolbar){var anchor=d.createComment('mobile-action-home');button.before(anchor);moved.set(button,anchor);toolbar.appendChild(button);}});
+  [add,d.getElementById('ord-planner-btn'),d.getElementById('rb-personal-add')].filter(Boolean).forEach(function(button){if(button.parentElement!==toolbar){var anchor=d.createComment('mobile-action-home');button.before(anchor);moved.set(button,anchor);toolbar.appendChild(button);}});
  }
  moved.forEach(function(anchor,button){if(!button.isConnected){if(anchor.isConnected)anchor.remove();moved.delete(button);}});
  var type=d.getElementById('ord-type-filter');

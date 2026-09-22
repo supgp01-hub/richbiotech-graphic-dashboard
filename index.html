@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix482">
+<meta name="rb-build" content="fix483">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2904,7 +2904,7 @@ html[data-theme="dark"] #rb-order-modal .rb-revision-asset b{color:#effff7}html[
 #rb-order-modal[data-active-tab="links"] #om-audit-btns button{min-height:50px!important;flex:1!important;margin:0!important;font-size:13px!important}
 html[data-theme="dark"] #rb-order-modal .rb-om-tab.is-active{color:#8ad0ab!important}
 @media(max-width:680px){#rb-order-modal{padding:6px!important;align-items:flex-end!important}#rb-order-modal .rb-om-window{max-height:96vh!important;border-radius:15px 15px 0 0!important}#rb-order-modal .rb-om-header{padding:12px!important}#rb-order-modal .rb-om-subtitle,#rb-order-modal .rb-om-header-code{display:none!important}#rb-order-modal .rb-om-header-save{font-size:0!important;padding:0 10px!important}#rb-order-modal .rb-om-header-save:before{font-size:18px}#rb-order-modal .rb-om-tabs{padding:0 5px!important}#rb-order-modal .rb-om-tab{min-height:52px!important;font-size:11.5px!important;gap:5px!important}#rb-order-modal .rb-om-tab:after{right:8px;left:8px}#rb-order-modal .rb-om-panel{padding:14px 13px 16px!important}#rb-order-modal .rb-om-panel [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}#rb-order-modal .rb-om-audit-evidence{grid-template-columns:1fr!important}#rb-order-modal .rb-om-panel-heading small{display:none!important}#rb-order-modal .rb-om-footer{padding:10px 13px!important}#rb-order-modal .rb-om-footer-hint{display:none!important}#rb-order-modal .rb-om-primary-action{max-width:none!important;flex:1}#rb-order-modal #om-audit-btns{max-width:none}}
-</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix380"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix350"><link rel="stylesheet" href="snippets/order-review-rounds-v1.css?v=fix454"><script src="snippets/order-review-rounds-v1.js?v=fix453"></script><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix452"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix454"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix443"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
+</style><link rel="stylesheet" href="snippets/order-modal-graphite-teal-v1.css?v=fix249"><link rel="stylesheet" href="snippets/order-detail-all-users-v1.css?v=fix292"><link rel="stylesheet" href="snippets/order-detail-unified-v1.css?v=fix288"><link rel="stylesheet" href="snippets/order-audit-version-workflow-v1.css?v=fix380"><link rel="stylesheet" href="snippets/order-revision-experience-v1.css?v=fix350"><link rel="stylesheet" href="snippets/order-review-rounds-v1.css?v=fix454"><script src="snippets/order-review-rounds-v1.js?v=fix453"></script><script src="snippets/order-evidence-policy-v1.js?v=fix342"></script><script src="snippets/order-audit-persistence-v1.js?v=fix452"></script><script src="snippets/order-audit-version-workflow-v1.js?v=fix483"></script><script src="snippets/storage-resilience-v1.js?v=fix325"></script><script src="snippets/order-durable-queue-v1.js?v=fix443"></script><script src="snippets/order-delete-tombstone-v1.js?v=fix345"></script><script>
 (function(){
 
 var LS_ORD='rb_orders_v1',LS_TL='rb_timeline_v1';
@@ -4483,6 +4483,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     auditRow.appendChild(cBtn);auditRow.appendChild(rBtn);
     foot.appendChild(auditRow);
     _omUpdateFooter=function(tabKey){
+      if(window.rbPersonalWork&&window.rbPersonalWork.footer(tabKey))return;
       var isAuditTab=tabKey==='links',isImageTab=tabKey==='imgs';
       var role=window._rbUser&&window._rbUser.role||'',isAuditRole=role==='audit',canAudit=role==='sup'||isAuditRole;
       var saveBtn2=ge('om-save-btn');
@@ -4542,11 +4543,12 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     d.onclick=function(e){if(e.target===d)_rbSwClose();};
   }
 
-  function openOM2(id){
+  function openOM2(id,personal){
     buildOM2();
     _omIsNew=!id;
     var orders=typeof lpORD==='function'?lpORD():[];
     var orderRef=id||'',o=id?(typeof rbFindOrder==='function'?rbFindOrder(orders,orderRef):orders.find(function(x){return x.id===orderRef;})):null;
+    if(window.rbPersonalWork)window.rbPersonalWork.begin(o,personal);
     _omEditingKey=o&&o._fbKey||'';_omReservedId='';
     var _hasRemoteAssets=!!(o&&o.assetCounts&&FB_ORDER_ASSET_FIELDS.some(function(field){return Number(o.assetCounts[field]||0)>0;}));
     _omUploadPending=0;_omActionBusy=false;
@@ -4556,7 +4558,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     _omErrorImages=(o&&o.errorImages)?JSON.parse(JSON.stringify(o.errorImages)):[];
     _omFixImages=(o&&o.fixImages)?JSON.parse(JSON.stringify(o.fixImages)):[];
     _omAssetBaseline=omAssetSignature();
-    var _orderRole=window._rbUser&&window._rbUser.role||'';var _isView=!!id&&window._ordViewMode==='team';var _isAuditView=window._ordViewMode==='audit'||_orderRole==='audit';ge('om-hd').textContent=id?'รายละเอียดงาน':'เพิ่มงานใหม่';var _modeBadge=_OM2.querySelector('.rb-om-id-badge');if(_modeBadge)_modeBadge.textContent=id?'งานในระบบ':'งานใหม่';
+    var _orderRole=window._rbUser&&window._rbUser.role||'';var _isView=!!id&&window._ordViewMode==='team';if(id&&o&&o.personalTest&&_orderRole!=='sup'&&_orderRole!=='audit')_isView=true;var _isAuditView=window._ordViewMode==='audit'||_orderRole==='audit';ge('om-hd').textContent=id?'รายละเอียดงาน':'เพิ่มงานใหม่';var _modeBadge=_OM2.querySelector('.rb-om-id-badge');if(_modeBadge)_modeBadge.textContent=id?'งานในระบบ':'งานใหม่';
     _OM2.setAttribute('data-order-role',_orderRole||'guest');_OM2.setAttribute('data-order-view',id?'detail':'new');_OM2.setAttribute('data-order-key',_omEditingKey);var _subtitle=_OM2.querySelector('.rb-om-subtitle');if(_subtitle)_subtitle.textContent=id?(_orderRole==='audit'?'ตรวจหลักฐานและบันทึกผลออดิต':_orderRole==='graphic'?'ดูรายละเอียด เปิดลิงก์ และส่งผลงาน':'ตรวจสอบ แก้ไข และติดตามงานในหน้าต่างเดียว'):'กรอกทีละขั้น ลดข้อมูลตกหล่น';var _footerHintText=ge('om-footer-hint');if(_footerHintText){var _hintLabel=_footerHintText.querySelector('b');if(_hintLabel)_hintLabel.textContent=_orderRole==='audit'?'ข้อมูลพร้อมตรวจ':_orderRole==='graphic'?'ข้อมูลและลิงก์พร้อมใช้งาน':'บันทึกร่างอัตโนมัติแล้ว';}
     ge('om-id').textContent=o&&o.id||id||(typeof genId==='function'?genId():'GR'+(Date.now()%10000));var _headerCode=ge('om-header-code');if(_headerCode)_headerCode.textContent=ge('om-id').textContent;
     ge('om-name').value=o?(o.name||o.title||''):'';
@@ -4665,7 +4667,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
         var _nst=_cst==='inprogress'?'review':(_cst==='revision'?'review':'inprogress');
         _omSaveBtn.textContent=_cst==='inprogress'?'ส่งงาน':(_cst==='revision'?'ส่งตรวจอีกครั้ง':'กำลังดำเนินการ');
         _omSaveBtn.style.background='#d97706';
-        _omInfoAction=function(){
+        _omInfoAction=function(){if(window.rbPersonalWork&&!window.rbPersonalWork.canSubmit())return;
             if(_omActionBusy)return;
             var fresh=lpORD(),latest=fresh[modalOrderIndex(fresh,_cid)];if(window.rbGuardEmployeeOrderAction&&!window.rbGuardEmployeeOrderAction(latest,_cst)){setOMSubmitFeedback('สถานะงานเปลี่ยนแล้ว กรุณาเปิดงานใหม่เพื่อตรวจผลออดิตล่าสุด ข้อมูลที่กรอกยังอยู่ในหน้านี้','error');return;}
             if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอจนรูปพร้อมก่อนส่งงาน','error');return;}
@@ -4751,7 +4753,7 @@ if(_revisionSubmit){
   }
 }
 }var _p4el=document.getElementById('om2-p4-panel');if(_p4el){var _lockP4=_cr==='audit';Array.prototype.forEach.call(_p4el.children,function(ch){ch.style.pointerEvents=_lockP4?'none':'';ch.style.opacity=_lockP4?'0.55':'';var tag=ch.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON'){ch.disabled=!!_lockP4;}var fields=ch.querySelectorAll('input,textarea,select,button');for(var i=0;i<fields.length;i++){fields[i].disabled=!!_lockP4;}});}
-    if(window.rbEmployeeJobDetails){
+    if(window.rbEmployeeJobDetails&&!(o&&o.personalTest)){
       window.rbEmployeeJobDetails.mount(_OM2.querySelector('.rb-om-panel-info')||_omInfoPanel,o,{rows:orderContentRows,ready:_hookCloudRefresh,presets:BRIEF_PRESETS,onChange:syncEmployeeDetailFields,save:function(fields){
         var latest=lpORD(),at=modalOrderIndex(latest,_omEditingKey||ge('om-id').textContent);
         if(at<0||!window.rbEmployeeJobDetails.allowed(latest[at],window._rbUser))return Promise.reject(new Error('แก้ไขได้เฉพาะงานที่คุณรับผิดชอบ'));
@@ -4763,6 +4765,7 @@ if(_revisionSubmit){
       }});
     }
 
+    if(window.rbPersonalWork)window.rbPersonalWork.mount();
 }
 
   window.rbOpenOrderDestination=function(id,tabKey,version){
@@ -4823,7 +4826,7 @@ if(_revisionSubmit){
   }
 
   var OM_DRAFT_FIELDS=['om-name','om-prod','om-type','om-dl','om-st','om-mb','om-brief','om-sample-link','om-raw','om-sheet','om-footage','om-review','om-note','om-hook','om-hook2'];
-  function omDraftKey(){var who=(window._rbUser&&window._rbUser.name)||'guest';return 'rb_order_draft_v1_'+encodeURIComponent(who);}
+  function omDraftKey(){var who=(window._rbUser&&window._rbUser.name)||'guest';return 'rb_order_draft_v1_'+encodeURIComponent(who)+(window.rbPersonalWork&&window.rbPersonalWork.active()?'_personal':'');}
   function clearOMFieldError(id){
     var el=ge(id);if(!el)return;
     el.style.borderColor='#d1d5db';el.style.borderWidth='1px';el.removeAttribute('aria-invalid');
@@ -4839,7 +4842,7 @@ if(_revisionSubmit){
     var fields={};OM_DRAFT_FIELDS.forEach(function(id){var el=ge(id);if(el)fields[id]=el.value||'';});
     var clipCont=document.getElementById('om-clip-extra');
     var clips=clipCont?Array.prototype.slice.call(clipCont.querySelectorAll('.om-clip-row input[type="text"]')).map(function(el){return(el.value||'').trim();}).filter(Boolean):[];
-    return{version:2,savedAt:Date.now(),fields:fields,contentBindings:window.rbContentSelection?window.rbContentSelection.read():[],submitLinks:submitLinkValues(),imageSubmitLinks:imageSubmitLinkValues(),clipLinks:clips,hadImages:!!((_omImages&&_omImages.length)||(_omBriefImages&&_omBriefImages.length)||(_omErrorImages&&_omErrorImages.length)||(_omFixImages&&_omFixImages.length))};
+    return{personal:window.rbPersonalWork&&window.rbPersonalWork.snapshot(),version:2,savedAt:Date.now(),fields:fields,contentBindings:window.rbContentSelection?window.rbContentSelection.read():[],submitLinks:submitLinkValues(),imageSubmitLinks:imageSubmitLinkValues(),clipLinks:clips,hadImages:!!((_omImages&&_omImages.length)||(_omBriefImages&&_omBriefImages.length)||(_omErrorImages&&_omErrorImages.length)||(_omFixImages&&_omFixImages.length))};
   }
   function omDraftHasContent(d){
     if(!d||!d.fields)return false;
@@ -4864,10 +4867,10 @@ if(_revisionSubmit){
     var banner=document.createElement('div');banner.id='om-draft-banner';banner.style.cssText='display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid #a7d8ba;border-radius:10px;background:#edf9f1;color:#1B4332;font-size:11px;';
     var text=document.createElement('div');text.style.cssText='flex:1;min-width:0;';var when=new Date(draft.savedAt||Date.now());text.textContent='กู้คืนแบบร่างที่บันทึกไว้ '+when.toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'})+(draft.hadImages?' · กรุณาแนบรูปภาพใหม่':'');
     var discard=document.createElement('button');discard.type='button';discard.textContent='ไม่ใช้แบบร่าง';discard.style.cssText='border:1px solid #95D5B2;border-radius:7px;background:var(--surface-card);color:#1B4332;padding:5px 9px;font-size:10.5px;font-weight:700;cursor:pointer;white-space:nowrap;';
-    discard.onclick=function(){clearOMDraft();openOM2();};banner.appendChild(text);banner.appendChild(discard);panel.insertBefore(banner,panel.firstChild);
+    discard.onclick=function(){var personal=window.rbPersonalWork&&window.rbPersonalWork.active();clearOMDraft();openOM2(null,personal);};banner.appendChild(text);banner.appendChild(discard);panel.insertBefore(banner,panel.firstChild);
   }
   function applyOMDraft(draft){
-    if(!draft||!draft.fields)return;_omDraftHydrating=true;
+    if(!draft||!draft.fields)return;_omDraftHydrating=true;if(window.rbPersonalWork)window.rbPersonalWork.restore(draft.personal);
     var product=draft.fields['om-prod']||'';if(ge('om-prod'))ge('om-prod').value=product;refreshOrderContentList(product);
     if(ge('om-name')){ge('om-name').value=draft.fields['om-name']||'';ge('om-name').dispatchEvent(new Event('input',{bubbles:true}));}
     OM_DRAFT_FIELDS.forEach(function(id){var el=ge(id);if(el&&Object.prototype.hasOwnProperty.call(draft.fields,id))el.value=draft.fields[id]||'';});
@@ -4927,6 +4930,7 @@ if(_revisionSubmit){
     }else{
       order.submitLinks=currentSubmitLinks;order.submitLink=order.submitLinks[0]||'';order.imageSubmitLinks=currentImageSubmitLinks;
     }
+    if(window.rbPersonalWork)window.rbPersonalWork.persist(order);
     return order;
   }
 
@@ -4935,6 +4939,7 @@ if(_revisionSubmit){
     setOMSubmitFeedback('','');
     if(_omUploadPending){setOMSubmitFeedback('กำลังเตรียมรูป '+_omUploadPending+' ไฟล์ กรุณารอจนรูปพร้อมก่อนบันทึก','error');return;}
     if(!_omAssetsReady){setOMSubmitFeedback('ข้อมูลรูปของงานยังโหลดไม่ครบ จึงยังไม่บันทึกเพื่อป้องกันข้อมูลเดิมหาย','error');return;}
+    if(window.rbPersonalWork&&!window.rbPersonalWork.prepare())return;
     var id=ge('om-id').textContent;
     var title=(ge('om-name').value||'').trim();
     if(!title&&ge('om-prod').value)title='รอพนักงานระบุชื่องาน';
@@ -5025,12 +5030,13 @@ if(_revisionSubmit){
       updatedAt:now
     };
     if(idx>=0){Object.keys(orders[idx]).forEach(function(k){if(!(k in entry))entry[k]=orders[idx][k];});var employeeFields=window.rbEmployeeJobDetails&&window.rbEmployeeJobDetails.read(orders[idx]);if(employeeFields)Object.assign(entry,employeeFields);}
+    if(window.rbPersonalWork)window.rbPersonalWork.persist(entry);
     if(idx>=0){orders[idx]=entry;}else{orders.push(entry);}
     var wasNew=idx<0;
     persistOMAndFinish(orders,{message:wasNew?'กำลังสร้างและซิงก์งานใหม่...':'กำลังบันทึกการแก้ไขงาน...',successMessage:wasNew?'เพิ่มงานและบันทึกออนไลน์เรียบร้อยแล้ว':'บันทึกการแก้ไขออนไลน์เรียบร้อยแล้ว',onSuccess:function(state){
       if(typeof logTL==='function')logTL('\ud83d\udccb \u0e2a\u0e31\u0e48\u0e07\u0e07\u0e32\u0e19',wasNew?'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48':'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e07\u0e32\u0e19',id+' "'+title+'"',{jn:title,jt:typeVal,as:(ge('om-mb')&&ge('om-mb').value)||''});
       if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();
-      if(_omIsNew&&state&&state.ok){clearOMDraft();_omIsNew=false;_omEditingKey=entry._fbKey;_omReservedId='';}
+      if(_omIsNew&&state&&state.ok){clearOMDraft();_omIsNew=false;_omEditingKey=entry._fbKey;_omReservedId='';}if(window.rbPersonalWork)window.rbPersonalWork.committed(entry);
     }});
     }catch(saveError){console.error('บันทึกงานไม่สำเร็จ',saveError);setOMSubmitFeedback('บันทึกงานไม่สำเร็จ กรุณาลองอีกครั้ง: '+(saveError&&saveError.message?saveError.message:'ข้อผิดพลาดไม่ทราบสาเหตุ'),'error');}
   }
@@ -6197,7 +6203,7 @@ button>.rb-leading-icon{width:17px;height:17px}
 <link rel="stylesheet" href="snippets/order-list-content-v1.css?v=fix444"><script src="snippets/order-list-content-v1.js?v=fix451"></script>
 <script src="snippets/employee-job-details-v1.js?v=fix447"></script>
 <link rel="stylesheet" href="snippets/mobile-workspace-v1.css?v=fix482">
-<script src="snippets/mobile-workspace-v1.js?v=fix482"></script>
+<link rel="stylesheet" href="snippets/personal-test-work-v1.css?v=fix483"><script src="snippets/personal-test-work-v1.js?v=fix483"></script><script src="snippets/mobile-workspace-v1.js?v=fix483"></script>
 <script src="snippets/session-resume-v1.js?v=fix482"></script>
 </body>
 <style id="rb-unified-page-icons-css">

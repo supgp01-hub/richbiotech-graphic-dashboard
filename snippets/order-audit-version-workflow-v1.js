@@ -53,6 +53,7 @@
     if(Array.isArray(order.campExtra)&&order.campExtra.length>rows.length){
       order.campExtra.slice(rows.length).forEach(function(item,index){var offset=index+rows.length+2;values.push({name:String(item&&item.name||''),link:String(item&&item.link||''),workLink:workLinks[offset]||'',imageLink:imageLinks[offset]||''});});
     }
+    var personal=window.rbPersonalWork&&window.rbPersonalWork.sources(order);if(personal)values=personal;
     var saved=Array.isArray(savedOverride)?clone(savedOverride):Array.isArray(order.auditVersions)?clone(order.auditVersions):[];
     var savedByVersion={},savedLength=0;
     saved.forEach(function(item,index){
@@ -61,20 +62,21 @@
       if(!itemJob&&!itemKey)owned=sameSource(item,values[version-1]);
       if(owned){savedByVersion[version]=item||{};savedLength=Math.max(savedLength,version);}
     });
-    var length=Math.max(values.length,workLinks.length,imageLinks.length,savedLength,2),result=[];
+    var length=personal?Math.max(values.length,savedLength):Math.max(values.length,workLinks.length,imageLinks.length,savedLength,2),result=[];
     for(var index=0;index<length;index++){
       var version=index+1,old=savedByVersion[version]||{},source=values[index]||{};
       var workLink=String(source.workLink||old.workLink||''),imageLink=String(source.imageLink||old.imageLink||'');
       result.push({
         jobId:id,version:version,versionKey:versionKey(id,version),
         name:String(source.name||old.name||''),link:String(source.link||old.link||workLink||imageLink||''),
-        workLink:workLink,imageLink:imageLink,fixLink:String(old.fixLink||''),result:old.result||'pending',issueType:old.issueType||'',note:old.note||'',
+        fbName:source.fbName||old.fbName||'',pageName:source.pageName||old.pageName||'',workLink:workLink,imageLink:imageLink,fixLink:String(old.fixLink||''),result:old.result||'pending',issueType:old.issueType||'',note:old.note||'',
         auditImages:Array.isArray(old.auditImages)?old.auditImages:[],fixImages:Array.isArray(old.fixImages)?old.fixImages:[],fixNote:old.fixNote||'',
         employeeSubmittedAt:old.employeeSubmittedAt||0,employeeSubmittedBy:old.employeeSubmittedBy||'',correctionRequestedAt:old.correctionRequestedAt||0,correctionDraftUpdatedAt:old.correctionDraftUpdatedAt||0,updatedAt:old.updatedAt||0,updatedBy:old.updatedBy||''
       });
     }
     return result;
   }
+  function personalIdentity(card,state){if(!state.fbName&&!state.pageName)return;var identity=document.createElement('small');identity.className='rb-av-personal-source';identity.textContent=(state.fbName||'')+' · '+(state.pageName||'');card.querySelector('header').appendChild(identity);}
   function statusText(state){if(state.result==='pass')return'✓ ผ่าน';if(state.result==='issue'&&state.employeeSubmittedAt)return'○ ส่งแก้ไขแล้ว';if(state.result==='issue')return'✕ ต้องแก้ไข';return'○ รอตรวจ';}
   function statusClass(value){return value==='pass'?'is-pass':value==='issue'?'is-issue':'is-pending';}
   function optionHtml(current){return '<option value="">-- เลือกประเภทปัญหา --</option>'+ISSUE_TYPES.map(function(item){return '<option value="'+esc(item)+'"'+(item===current?' selected':'')+'>'+esc(item)+'</option>';}).join('');}
@@ -135,7 +137,7 @@
   }
   function teamVersionCard(state,index,mode,rerender){
     var card=document.createElement('article');card.className='rb-av-card rb-av-team-card '+statusClass(state.result);card.setAttribute('data-version-index',String(index));
-    card.innerHTML='<header class="rb-av-team-card-head"><div><div class="rb-av-version-line"><b>VER '+(index+1)+'</b><span class="rb-av-result '+statusClass(state.result)+'">'+statusText(state)+'</span></div><strong>'+esc(state.name||'ยังไม่ระบุชื่อแคมเปญ')+'</strong><small>แก้เฉพาะข้อมูลและหลักฐานของเวอร์ชันนี้</small></div></header><div class="rb-av-flow"></div>';
+    card.innerHTML='<header class="rb-av-team-card-head"><div><div class="rb-av-version-line"><b>VER '+(index+1)+'</b><span class="rb-av-result '+statusClass(state.result)+'">'+statusText(state)+'</span></div><strong>'+esc(state.name||'ยังไม่ระบุชื่อแคมเปญ')+'</strong><small>แก้เฉพาะข้อมูลและหลักฐานของเวอร์ชันนี้</small></div></header><div class="rb-av-flow"></div>';personalIdentity(card,state);
     var head=card.querySelector('.rb-av-team-card-head'),flow=card.querySelector('.rb-av-flow');
     var submitted=document.createElement('section');submitted.className='rb-av-stage rb-av-stage-source';submitted.innerHTML='<div class="rb-av-stage-title"><b><i>1</i> งานที่ส่ง</b><span>ข้อมูลเดียวกับแท็บส่งงาน</span></div><div class="rb-av-delivery-list"></div>';var links=submitted.querySelector('.rb-av-delivery-list');links.append(linkRow('ลิงก์แอด',state.workLink),linkRow('ลิงก์ภาพ',state.imageLink));head.appendChild(submitted);
     var audit=document.createElement('section');audit.className='rb-av-stage';audit.innerHTML='<div class="rb-av-stage-title"><b><i>2</i> สิ่งที่ Audit พบ</b><span>'+(state.auditImages.length?'มีรูปชี้จุดผิด '+state.auditImages.length+' รูป':'')+'</span></div>';
@@ -145,7 +147,7 @@
   }
   function auditVersionCard(state,index,mode,rerender){
     var card=document.createElement('article');card.className='rb-av-card '+statusClass(state.result);card.setAttribute('data-version-index',String(index));
-    card.innerHTML='<header class="rb-av-card-head"><div class="rb-av-audit-title-row"><b class="rb-av-version">VER '+(index+1)+'</b><span class="rb-av-campaign" title="'+esc(state.name||'')+'">'+esc(state.name||'ยังไม่ระบุชื่อแคมเปญ')+'</span><span class="rb-av-result '+statusClass(state.result)+'">'+statusText(state)+'</span></div><div class="rb-av-audit-source-row"><b>งานที่ส่ง</b><div class="rb-av-source-links"></div></div></header>';
+    card.innerHTML='<header class="rb-av-card-head"><div class="rb-av-audit-title-row"><b class="rb-av-version">VER '+(index+1)+'</b><span class="rb-av-campaign" title="'+esc(state.name||'')+'">'+esc(state.name||'ยังไม่ระบุชื่อแคมเปญ')+'</span><span class="rb-av-result '+statusClass(state.result)+'">'+statusText(state)+'</span></div><div class="rb-av-audit-source-row"><b>งานที่ส่ง</b><div class="rb-av-source-links"></div></div></header>';personalIdentity(card,state);
     var sourceLinks=card.querySelector('.rb-av-source-links');sourceLinks.append(linkRow('แอด',state.workLink||state.link),linkRow('ภาพ',state.imageLink));
     if(mode==='audit')card.appendChild(auditEditor(state,index,rerender));
     else if(state.result==='issue'){var issue=document.createElement('div');issue.className='rb-av-issue-summary';issue.innerHTML='<b>'+esc(state.issueType||'ต้องแก้ไข')+'</b><span>'+esc(state.note||'กรุณาตรวจรายละเอียดและแนบหลักฐานหลังแก้ไข')+'</span>';card.appendChild(issue);}

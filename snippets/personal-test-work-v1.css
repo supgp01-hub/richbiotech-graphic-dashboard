@@ -1,0 +1,15 @@
+#rb-personal-add{background:#17684f;color:#fff;border:0;border-radius:8px;padding:9px 15px;font:inherit;cursor:pointer;min-height:40px}
+#rb-personal-add[hidden]{display:none!important}
+#rb-order-modal.rb-personal-test #om2-p1-panel>:not(#rb-personal-work):not(#om-draft-banner){display:none!important}
+#rb-personal-work{color:var(--text-heading);pointer-events:auto!important;opacity:1!important}
+#rb-personal-work .rb-pt-meta,#rb-personal-work .rb-pt-row-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#rb-personal-work .rb-pt-meta>label{max-width:220px}
+#rb-personal-work .rb-pt-row{padding:12px 0;border-bottom:1px solid var(--border-color,#d4e3db)}
+#rb-personal-work .rb-pt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+#rb-personal-work label{display:block;margin:8px 0;font-size:12px}
+#rb-personal-work input,#rb-personal-work textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:9px 11px;border:1px solid var(--border-color,#c8d9d0);border-radius:7px;background:var(--surface-card);color:var(--text-heading);font:inherit}
+#rb-personal-work button{border:1px solid #8db9a1;border-radius:8px;background:var(--surface-card);color:var(--text-heading);padding:6px 12px;cursor:pointer;margin:8px 0;min-height:34px}
+#rb-personal-work>button{background:#1b644a;color:#fff}
+#rb-personal-work input:disabled,#rb-personal-work textarea:disabled{opacity:1}
+.rb-av-personal-source{display:block;color:var(--text-muted2);font-size:12px;margin:7px 0;overflow-wrap:anywhere}
+@media(max-width:600px){#rb-personal-work .rb-pt-grid{grid-template-columns:1fr}#rb-personal-work input,#rb-personal-work textarea{font-size:16px}#rb-personal-add{min-height:44px}}
