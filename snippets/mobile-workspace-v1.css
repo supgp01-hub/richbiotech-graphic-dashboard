@@ -4,8 +4,8 @@
 /* fix482: one mobile navigation, compact cards, and the original working controls. */
 @media(max-width:900px){
  .rb-mobile-ui-ready #rb-bottom-nav,.rb-mobile-ui-ready .graphic-subnav{display:none!important}
- #rb-mobile-app-nav:not([hidden]){position:fixed;display:flex;bottom:0;left:0;right:0;z-index:850;gap:4px;padding:7px 6px calc(8px + env(safe-area-inset-bottom,0px));background:var(--surface-card,#fff);border-top:1px solid var(--surface-card-border,#d4e7dc);box-shadow:0 -3px 14px #163d3210}
- #rb-mobile-app-nav button{flex:1;min-width:0;min-height:52px;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;background:transparent;border:0;border-radius:11px;color:var(--text-muted2,#64776e);font:inherit;font-size:11px;padding:5px 1px}
+ #rb-mobile-app-nav:not([hidden]){position:fixed;display:flex;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:12px;right:12px;z-index:850;gap:2px;padding:6px;background:var(--surface-card,#fff);background:color-mix(in srgb,var(--surface-card,#fff) 78%,transparent);border:1px solid var(--surface-card-border,#d4e7dc);border-radius:42px;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 8px 24px #163d3224,inset 0 1px 0 #ffffff40}
+ #rb-mobile-app-nav button{flex:1;min-width:0;min-height:58px;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;background:transparent;border:0;border-radius:32px;color:var(--text-muted2,#64776e);font:inherit;font-size:11px;padding:5px 1px}
  #rb-mobile-app-nav button[hidden]{display:none}
  #rb-mobile-app-nav button[aria-current=page]{background:var(--surface-tint,#e5f3ec);color:var(--text-heading,#163d32);font-weight:700}
  .rb-mobile-nav-symbol{font-size:21px;line-height:1.1;min-width:24px;text-align:center}
@@ -20,7 +20,12 @@
  .rb-mobile-menu-grid button{display:flex;align-items:center;gap:8px;text-align:left;padding:12px 9px;font-family:inherit;font-size:13px;overflow-wrap:anywhere}
  #sb-user-card.uc-open{left:10px!important;right:10px!important;bottom:calc(82px + env(safe-area-inset-bottom,0px))!important;top:auto!important;width:auto!important;max-width:420px}
  #rb-mobile-order-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
- body.rb-not-sup #rb-mobile-order-actions{display:none}
+ body.rb-not-sup #rb-mobile-order-actions{grid-template-columns:1fr}
+ body.rb-not-sup #rb-mobile-order-actions #ord-add-btn,body.rb-not-sup #rb-mobile-order-actions #ord-planner-btn{display:none!important}
+ #rb-mobile-order-actions:not(:has(button:not([hidden]))){display:none}
+ #rb-mobile-app-nav .rb-mobile-nav-symbol{display:flex;align-items:center;justify-content:center;width:25px;height:25px}
+ #rb-mobile-app-nav .rb-mobile-nav-symbol svg{display:block;width:25px;height:25px}
+ body:has(#rb-mobile-app-nav:not([hidden])) main{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
  #rb-mobile-order-actions button{min-width:0!important;min-height:46px;padding:10px 8px!important;font-size:14px!important;white-space:normal!important;border-radius:11px!important}
  #rb-mobile-order-actions #ord-add-btn{order:-1}
  .rb-mobile-order-filters{display:grid!important;grid-template-columns:minmax(0,1fr) 82px!important;padding:10px!important;gap:8px!important}

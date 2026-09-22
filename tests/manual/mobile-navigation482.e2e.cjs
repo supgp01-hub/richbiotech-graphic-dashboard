@@ -16,6 +16,10 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   await p.locator('[data-mobile-destination="order"]').click();
   await p.locator('.ord-table tbody tr').first().waitFor().catch(async error=>{console.log('navigation diagnostic',role,await p.evaluate(()=>({user:window._rbUser?.role,orders:window.lpORD?.().map(o=>({id:o.id,assignee:o.assignee})),panel:document.querySelector('.tab-panel.active')?.id,sub:document.querySelector('.gsp-active')?.dataset.sub,text:document.querySelector('#ord-tw')?.innerText})));throw error;});
   assert.equal(await p.locator('#ord-add-btn').isVisible(),role==='sup');
+  assert.equal(await p.locator('#rb-mobile-app-nav svg').count(),5,'all navigation icons render as vectors');
+  assert.equal(await p.locator('#rb-personal-add').isVisible(),['sup','graphic','spec'].includes(role));
+  if(['sup','graphic','spec'].includes(role)){await p.locator('#rb-personal-add').click();await p.locator('#rb-personal-work').waitFor();assert.equal(await p.locator('#rb-personal-work input:enabled').count(),6);await p.getByRole('button',{name:'ปิด',exact:true}).last().click();}
+  assert.ok(await p.locator('#rb-mobile-app-nav').evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=10&&r.right<=innerWidth-10&&parseFloat(getComputedStyle(e).borderRadius)>=30;}),'floating capsule fits viewport');
   assert.ok(await p.locator('.ord-table tbody tr').first().evaluate(e=>e.getBoundingClientRect().height<330),'order card should be compact');
   assert.ok(await p.locator('.ord-table tbody tr').first().evaluate(row=>{const a=row.querySelector('[data-label="เลขงาน"]').getBoundingClientRect(),b=row.querySelector('[data-label="สถานะ"]').getBoundingClientRect(),name=row.querySelector('[data-label="ชื่องาน"]').getBoundingClientRect();return a.right<=b.left+1&&name.width>row.clientWidth*.8;}),'ID and status must not overlap; name spans the card');
   if(role==='sup'){
