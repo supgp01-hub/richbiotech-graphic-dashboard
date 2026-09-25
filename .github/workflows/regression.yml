@@ -48,6 +48,7 @@ jobs:
       - run: node tests/manual/mobile-workspace481.e2e.cjs
       - run: node tests/manual/mobile-navigation482.e2e.cjs
       - run: node tests/manual/personal-tests483.e2e.cjs
+      - run: node tests/manual/specialist-create485.e2e.cjs
       - run: node tests/manual/cross-device455.e2e.cjs
         env:
           RB_TEST_MOBILE: '1'

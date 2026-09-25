@@ -1,3 +1,5 @@
+/* Specialist may create regular orders; planner stays supervisor-only. */
+body.rb-not-sup.rb-specialist #ord-add-btn{display:inline-flex!important}
 /* Mobile reading order follows the original DOM; no data or controls are duplicated. */
 .rb-mobile-calendar-switch{display:none}
 #rb-mobile-app-nav,#rb-mobile-order-actions,.rb-mobile-filter-toggle{display:none}
@@ -21,7 +23,7 @@
  #sb-user-card.uc-open{left:10px!important;right:10px!important;bottom:calc(82px + env(safe-area-inset-bottom,0px))!important;top:auto!important;width:auto!important;max-width:420px}
  #rb-mobile-order-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
  body.rb-not-sup #rb-mobile-order-actions{grid-template-columns:1fr}
- body.rb-not-sup #rb-mobile-order-actions #ord-add-btn,body.rb-not-sup #rb-mobile-order-actions #ord-planner-btn{display:none!important}
+ body.rb-not-sup:not(.rb-specialist) #rb-mobile-order-actions #ord-add-btn,body.rb-not-sup #rb-mobile-order-actions #ord-planner-btn{display:none!important}
  #rb-mobile-order-actions:not(:has(button:not([hidden]))){display:none}
  #rb-mobile-app-nav .rb-mobile-nav-symbol{display:flex;align-items:center;justify-content:center;width:25px;height:25px}
  #rb-mobile-app-nav .rb-mobile-nav-symbol svg{display:block;width:25px;height:25px}

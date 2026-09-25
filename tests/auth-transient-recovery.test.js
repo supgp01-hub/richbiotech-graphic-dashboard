@@ -6,7 +6,7 @@ let cleared=0,retried=0;
 const ctx={authRetryTimer:null,clearTimeout(){},setupAdmin(){},setGate(){},pinSession:{uid:'staff'},
   async ensureProfile(){throw new TypeError('Failed to fetch');},
   clearPinSession(){cleared++;ctx.pinSession=null;},retryAuthState(){retried++;},
-  authUser:null,profile:null,window:{},lastPinError:''};
+  document:{body:{classList:{remove(name){assert.equal(name,'rb-specialist');}}}},authUser:null,profile:null,window:{},lastPinError:''};
 vm.createContext(ctx);vm.runInContext(classifier+handler,ctx);
 (async()=>{
   await ctx.handleAuthState(null);

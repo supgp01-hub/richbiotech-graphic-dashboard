@@ -133,7 +133,7 @@ async function pinRestLogin(email,pin){
   if(!response.ok||!data.idToken){const error=new Error(data?.error?.message||'INVALID_LOGIN_CREDENTIALS');error.code=data?.error?.message||'INVALID_LOGIN_CREDENTIALS';throw error;}
   pinSession=makePinSession(data);savePinSession(pinSession);return pinSession;
 }
-async function logout(){clearPinSession();clearTimeout(authRetryTimer);try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;window.dispatchEvent(new CustomEvent('rb:auth-cleared'));setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
+async function logout(){clearPinSession();clearTimeout(authRetryTimer);try{await signOut(auth);}finally{authUser=null;profile=null;window._rbUser=null;document.body.classList.remove('rb-specialist');window.dispatchEvent(new CustomEvent('rb:auth-cleared'));setGate('เข้าสู่ระบบทีมงาน','',{login:true});}}
 function gate(){
   let el=document.getElementById('rb-auth-gate');
   if(el)return el;
@@ -286,6 +286,7 @@ function applyProfile(user,p){
   window._rbUser={uid:user.uid,email:user.email||p.email||'',name:p.name,role:p.role,active:true};
   try{localStorage.removeItem('rb_users');sessionStorage.removeItem('rb_session');}catch(_e){}
   document.body.classList.toggle('rb-not-sup',p.role!=='sup');
+  document.body.classList.toggle('rb-specialist',p.role==='spec');
   document.body.classList.toggle('rb-ads-only',p.role==='ads');
   ['rb-cu-name','sb-foot-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=p.name;});
   ['rb-cu-role','sb-foot-role'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ROLES.find(x=>x[0]===p.role)?.[1]||p.role;});
@@ -498,7 +499,7 @@ async function handleAuthState(user){
       setGate('กำลังตรวจสอบสิทธิ์','กำลังเรียกคืนการเข้าสู่ระบบ',{login:false,logout:true});
       try{const p=await ensureProfile(pinSession);if(p)applyProfile(pinSession,p);return;}catch(error){if(isExpiredSession(error)){clearPinSession();}else{retryAuthState(pinSession,error);return;}}
     }
-    if(!user){authUser=null;profile=null;window._rbUser=null;setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
+    if(!user){authUser=null;profile=null;window._rbUser=null;document.body.classList.remove('rb-specialist');setGate('เข้าสู่ระบบทีมงาน','',{login:true,error:lastPinError});return;}
     const email=(user.email||'').toLowerCase();
     const isPinAccount=isPinEmail(email);
     if(isPinAccount&&!pinSession){
