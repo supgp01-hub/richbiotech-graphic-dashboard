@@ -1,6 +1,12 @@
 const fs=require('fs');const assert=require('assert');
 const index=fs.readFileSync('index.html','utf8');
-assert.ok(index.includes("var _isView=!!id&&window._ordViewMode==='team'"),'team view mode must only lock an existing order, never a new order');
+const viewExpression=index.match(/var _isView=([^;]+);/)[1];
+const evaluateView=(id,mode,role,own)=>require('vm').runInNewContext(viewExpression,{id,_orderRole:role,o:{},rbOrderMatchesAssignee:()=>own,window:{_ordViewMode:mode,_rbUser:{name:'QA'}}});
+for(const role of ['sup','spec','graphic','audit'])for(const mode of ['all','team'])assert.equal(evaluateView(null,mode,role,true),false,'new orders must never enter employee submission mode');
+assert.equal(evaluateView('existing','team','graphic',true),true);
+assert.equal(evaluateView('existing','all','sup',true),false);
+assert.equal(evaluateView('existing','all','spec',true),true,'Specialist submits own orders from all-work');
+assert.equal(evaluateView('existing','all','spec',false),false,'Specialist retains assignment editing for other employees');
 assert.ok(index.includes("_omSaveBtn.textContent=_omIsNew?'▤ สั่งงาน':'▤ บันทึกงาน'"),'editable Supervisor forms must expose the correct new/edit action');
 assert.ok(index.includes("_omSaveBtn.onclick=saveOM2"),'the order action must save through the normal order workflow');
 assert.ok(index.includes("ab.id='ord-add-btn'")&&index.includes('window.openOM(null)'),'Add new order must open a genuinely new order');

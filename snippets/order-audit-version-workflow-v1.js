@@ -10,7 +10,7 @@
   function actor(){return window._rbUser&&window._rbUser.name||'';}
   function canonicalName(value){
     var raw=String(value||'').trim().toLowerCase().replace(/\s+/g,'');
-    var aliases={view:'view','วิว':'view',moss:'moss','มอส':'moss',dom:'dom','ดอม':'dom',ter:'ter','เตอร์':'ter',nune:'nune','นุ่น':'nune',jam:'jam','แจ๋ม':'jam',ball:'ball','บอล':'ball',nui:'nui','นุ้ย':'nui',mind:'mind','มายด์':'mind'};
+    var aliases={view:'view','วิว':'view',mos:'moss',moss:'moss','มอส':'moss',dom:'dom','ดอม':'dom',ter:'ter','เตอร์':'ter',nune:'nune','นุ่น':'nune',jam:'jam','แจ๋ม':'jam',ball:'ball','บอล':'ball',nui:'nui','นุ้ย':'nui',mind:'mind','มายด์':'mind'};
     return aliases[raw]||raw;
   }
   function canSubmitCorrection(order){
