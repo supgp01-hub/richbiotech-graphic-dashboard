@@ -72,7 +72,7 @@ new Promise(resolve=>setImmediate(resolve)).then(() => {
   assert.equal(cloudPayload.items.length, 2343, 'ข้อมูลเดิมและข้อมูลใหม่ต้องขึ้นออนไลน์ครบ');
   assert.equal(global._ctData.length, 2343, 'ข้อมูลในหน้าปัจจุบันต้องไม่หาย');
   assert.equal(ui['cti-bar'].style.width, '100%');
-  assert.match(ui['cti-progress-text'].textContent, /บันทึกออนไลน์โดยตรง/);
+  assert.match(ui['cti-progress-text'].textContent, /ยืนยันบันทึกออนไลน์แล้ว 4 รายการ/);
   assert.equal(ui['cti-commit'].disabled, true, 'ห้ามกดยืนยันซ้ำระหว่างบันทึก');
   console.log('import-quota-fallback-v267: all tests passed');
 }).catch(error => { console.error(error); process.exitCode = 1; });
