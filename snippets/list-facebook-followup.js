@@ -306,7 +306,10 @@ function deleteAccount(){
   var key=accountKey,name=row.name||'-';if(button)button.disabled=true;if(state)state.textContent='กำลังลบบัญชี...';
   window._lfbDeleteAccountRecord(key).then(function(result){delete followups[key];saveLocal();var followupWrite=typeof window.fbSet==='function'?window.fbSet(FOLLOW_CLOUD_PATH+'/'+key,null):Promise.resolve(false);return Promise.resolve(followupWrite).catch(function(){return false}).then(function(followupOk){return result.online&&followupOk!==false;});}).then(function(online){selectedKey='';credentialsOpen=false;credentialsEditing=false;renderAll();var status=document.getElementById('lfb2-ts');if(status)status.textContent=online?'ลบบัญชี “'+name+'” เรียบร้อย':'ลบบัญชีในเครื่องแล้ว · ระบบจะซิงก์ให้อัตโนมัติ';}).catch(function(error){if(button)button.disabled=false;if(state)state.textContent=error&&error.message?error.message:'ลบบัญชีไม่สำเร็จ';});
 }
+function fitDesktopWorkspace(){var app=document.querySelector('#lfb-root .lfb-hybrid-app');if(!app)return;if(window.innerWidth<=900){app.style.removeProperty('--lfb-desktop-height');return;}var rect=app.getBoundingClientRect();if(!rect.width)return;var scale=rect.width/app.offsetWidth||1;app.style.setProperty('--lfb-desktop-height',Math.max(480,(window.innerHeight-rect.top-window.scrollY-16)/scale)+'px');}
+window.addEventListener('resize',fitDesktopWorkspace);
 function renderAll(){
+  if(window.requestAnimationFrame)window.requestAnimationFrame(fitDesktopWorkspace);
   var data=window._listfbData||[];
   if(!window._lfbFilter)window._lfbFilter={};
   var filter=window._lfbFilter;if(!filter.stage)filter.stage='new';if(!filter.followView)filter.followView='all';if(!filter.fE)filter.fE='ALL';if(!filter.page)filter.page=1;if(!filter.pageSize)filter.pageSize=listPageSize();

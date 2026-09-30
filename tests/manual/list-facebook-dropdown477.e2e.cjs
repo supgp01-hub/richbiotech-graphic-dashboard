@@ -7,7 +7,7 @@ async function device(){
  const ctx=await browser.newContext({viewport:{width:1280,height:1000}});
  await ctx.route('**/*',route=>{const u=new URL(route.request().url()),file=path.resolve(root,'.'+u.pathname);return u.origin===origin&&file.startsWith(root+path.sep)&&fs.existsSync(file)?route.fulfill({path:file}):route.abort()});
  await installSecureAuthMock(ctx,{role:'sup',name:'View'});
- await ctx.route(/docs\.google\.com.*tq=select/,route=>route.fulfill({contentType:'text/csv',body:'ชื่อบัญชี,พนักงาน,📌 แชร์บัญชีไหน\nLegacy fixture,Legacy Owner,Shared fixture'}));
+ await ctx.route(/docs\.google\.com.*export/,route=>{const col=new URL(route.request().url()).searchParams.get('range');return route.fulfill({contentType:'text/csv',body:{'G:G':'ชื่อบัญชี\nLegacy fixture','C:C':'พนักงาน\nLegacy Owner','V:V':'📌 แชร์บัญชีไหน\nShared fixture'}[col]});});
  await ctx.route(/firebaseio\.com\/listfacebook_base_snapshot\.json/,route=>route.fulfill({json:{items:rows,schemaVersion:5,updatedAt:Date.now()}}));
  await ctx.route(/firebaseio\.com\/listfacebook_manual(?:\/[^?]+)?\.json/,route=>{const req=route.request(),key=new URL(req.url()).pathname.split('/').pop().replace('.json','');if(req.method()!=='GET'){manual[key]=req.postDataJSON();return route.fulfill({json:manual[key]});}return route.fulfill({json:manual});});
  const p=await ctx.newPage();p.on('pageerror',e=>errors.push(e.message));
@@ -18,6 +18,7 @@ async function device(){
 }
 const p=await device();await p.locator('.lfb-shared-account').waitFor();assert.equal(await p.locator('.lfb-shared-account').innerText(),'แชร์บัญชีไหน: Shared fixture');
 await p.locator('#lfb-q').fill('Shared fixture');assert.equal(await p.locator('#lfb-body .lfb-name-btn').innerText(),'Legacy fixture');await p.locator('#lfb-q').fill('');
+for(const height of [850,1100]){await p.setViewportSize({width:1600,height});await p.waitForTimeout(100);const bounds=await p.locator('.lfb-hybrid-app').boundingBox();assert.ok(Math.abs(bounds.y+bounds.height-(height-16))<8,'workspace fills desktop height');const table=await p.locator('.lfb-hybrid-table-wrap').boundingBox();assert.ok(table.y+table.height>height-100 && table.y+table.height<height,'table uses spare vertical space');}
 await p.setViewportSize({width:390,height:900});assert.equal(await p.locator('.lfb-shared-account').evaluate(e=>e.getBoundingClientRect().right<=innerWidth),true);await p.setViewportSize({width:1280,height:1000});await p.locator('#lfb-add').click();
 const overlay=p.locator('#lfb-editor-overlay');await overlay.waitFor({state:'visible'});
 for(const key of ['emp','prod']){assert.equal(await p.locator('#lfbe-'+key).evaluate(e=>e.tagName),'SELECT');assert.equal(await p.locator('#lfbe-'+key).inputValue(),'');}
