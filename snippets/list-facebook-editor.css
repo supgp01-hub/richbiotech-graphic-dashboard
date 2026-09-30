@@ -77,3 +77,5 @@
 #lfb-root .lfb-editor-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--surface-card-border);background:var(--surface-tint)}
 #lfb-root .lfb-editor-save-state{font-size:12px;color:#17603F;margin-right:auto;align-self:center}
 @media(max-width:620px){#lfb-root .lfb-editor-toolbar{align-items:flex-start}#lfb-root .lfb-min-title{width:100%}#lfb-root #lfb2-ts{margin-right:auto}#lfb-root .lfb-min-stats{gap:6px}#lfb-root .lfb-min-stat{padding:9px 6px}#lfb-root .lfb-min-stat strong{font-size:18px}#lfb-root .lfb-filter-group>span{width:100%;min-width:0}#lfb-root .lfb-editor-overlay{padding:8px;align-items:flex-start}#lfb-root .lfb-editor-modal{width:100%;max-height:96vh}#lfb-root .lfb-editor-grid{grid-template-columns:1fr}#lfb-root .lfb-editor-field-full{grid-column:auto}#lfb-root .lfb-editor-body{padding:14px}#lfb-root .lfb-editor-foot{padding:10px 14px}}
+
+.lfb-shared-account{font-size:12px;line-height:1.5;color:var(--text-muted,#637b70);margin-top:4px;white-space:normal;overflow-wrap:anywhere}

@@ -7,6 +7,7 @@ async function device(){
  const ctx=await browser.newContext({viewport:{width:1280,height:1000}});
  await ctx.route('**/*',route=>{const u=new URL(route.request().url()),file=path.resolve(root,'.'+u.pathname);return u.origin===origin&&file.startsWith(root+path.sep)&&fs.existsSync(file)?route.fulfill({path:file}):route.abort()});
  await installSecureAuthMock(ctx,{role:'sup',name:'View'});
+ await ctx.route(/docs\.google\.com.*tq=select/,route=>route.fulfill({contentType:'text/csv',body:'ชื่อบัญชี,พนักงาน,📌 แชร์บัญชีไหน\nLegacy fixture,Legacy Owner,Shared fixture'}));
  await ctx.route(/firebaseio\.com\/listfacebook_base_snapshot\.json/,route=>route.fulfill({json:{items:rows,schemaVersion:5,updatedAt:Date.now()}}));
  await ctx.route(/firebaseio\.com\/listfacebook_manual(?:\/[^?]+)?\.json/,route=>{const req=route.request(),key=new URL(req.url()).pathname.split('/').pop().replace('.json','');if(req.method()!=='GET'){manual[key]=req.postDataJSON();return route.fulfill({json:manual[key]});}return route.fulfill({json:manual});});
  const p=await ctx.newPage();p.on('pageerror',e=>errors.push(e.message));
@@ -15,7 +16,9 @@ async function device(){
  await p.waitForFunction(()=>window._listfbData?.some(r=>r.name==='Legacy fixture'));
  return p;
 }
-const p=await device();await p.locator('#lfb-add').click();
+const p=await device();await p.locator('.lfb-shared-account').waitFor();assert.equal(await p.locator('.lfb-shared-account').innerText(),'แชร์บัญชีไหน: Shared fixture');
+await p.locator('#lfb-q').fill('Shared fixture');assert.equal(await p.locator('#lfb-body .lfb-name-btn').innerText(),'Legacy fixture');await p.locator('#lfb-q').fill('');
+await p.setViewportSize({width:390,height:900});assert.equal(await p.locator('.lfb-shared-account').evaluate(e=>e.getBoundingClientRect().right<=innerWidth),true);await p.setViewportSize({width:1280,height:1000});await p.locator('#lfb-add').click();
 const overlay=p.locator('#lfb-editor-overlay');await overlay.waitFor({state:'visible'});
 for(const key of ['emp','prod']){assert.equal(await p.locator('#lfbe-'+key).evaluate(e=>e.tagName),'SELECT');assert.equal(await p.locator('#lfbe-'+key).inputValue(),'');}
 assert.ok(await p.locator('#lfbe-prod option[value="SYNBIOME"]').count());assert.ok(await p.locator('#lfbe-prod option[value="Blink Blink"]').count());
