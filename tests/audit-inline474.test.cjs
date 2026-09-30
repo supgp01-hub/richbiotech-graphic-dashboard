@@ -3,7 +3,9 @@ const assert=require('node:assert/strict'),fs=require('fs'),{JSDOM}=require('jsd
 const dom=new JSDOM('<section data-sub="audit" class="gsp-active"></section>',{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,d=w.document;
 const observers=[],Observer=w.MutationObserver;w.MutationObserver=class extends Observer{constructor(fn){super(fn);observers.push(this)}};
 w._rbUser={name:'JAM',role:'graphic'};w.lpORD=()=>[];w.setTimeout=()=>0;w.clearTimeout=()=>{};w.scrollBy=()=>{};w.fetch=()=>Promise.reject(Error('isolated test'));
-const now=new Date(),period=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+// Fix the fixture clock before cutoff; avoid generating unrelated monthly deductions.
+const RealDate=w.Date,fixtureNow=new RealDate(2026,8,20,12).getTime();w.Date=class extends RealDate{constructor(...args){super(...(args.length?args:[fixtureNow]));}static now(){return fixtureNow;}};
+const now=new w.Date(),period=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
 const manual={};for(let i=1;i<=3;i++)manual['qa'+i]={id:'qa'+i,ref:'qa'+i,ruleId:'sheet_import',employee:'JAM',period,title:'รายการ '+i,detectedAt:now.getTime()-i*86400000,dueAt:now.getTime()-i*86400000,amount:50,sourceStatus:'หักเงินแล้ว',evidence:'https://example.test/proof/'+i};
 manual.other={...manual.qa1,id:'other',employee:'DOM'};
 w.localStorage.setItem('rb_audit_deductions_v1',JSON.stringify({manual}));

@@ -43,10 +43,10 @@ let resolveReady;
 const ready=new Promise(resolve=>{resolveReady=resolve;});
 
 function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-function displayName(value){return ENGLISH_NAMES[value]||String(value||'User');}
+function displayName(value){return /^(mos|moss|มอส)$/i.test(String(value||'').trim())?'MOSS':ENGLISH_NAMES[value]||String(value||'User');}
 function canonicalLoginName(value){
   const raw=String(value||'').trim(),key=raw.toLowerCase();
-  return EMPLOYEES.find(name=>name.toLowerCase()===key||displayName(name).toLowerCase()===key)||raw;
+  return /^(mos|moss|มอส)$/.test(key)?'มอส':EMPLOYEES.find(name=>name.toLowerCase()===key||displayName(name).toLowerCase()===key)||raw;
 }
 function avatarLetter(value){const found=displayName(value).match(/[A-Za-z]/);return found?found[0].toUpperCase():'U';}
 function roleLabel(value){return ROLES.find(x=>x[0]===value)?.[1]||value||'ไม่ระบุสิทธิ์';}
