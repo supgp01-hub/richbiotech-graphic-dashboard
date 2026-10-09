@@ -13,8 +13,8 @@ function matches(row,orders,rows){
   var id=o._fbKey||o.id;if(!id||seen[id])return false;
   if(norm(o.product)!==brand)return false;
   var linked=Array.isArray(o.contentBindings)?o.contentBindings:[];if(linked.length){if(!linked.some(function(b){return String(b.id)===String(row.id);}))return false;seen[id]=true;return true;}
-  if(![o.hook,o.hook2].concat(o.hookExtra||[]).map(norm).includes(hook))return false;
-  var exact=norm(o.name||o.title)===name;
+  var job=[o].concat(o.jobExtra||[]).find(function(j){return [j.hook,j.hook2].concat(j.hookExtra||[]).map(norm).includes(hook)&&norm(j.name||j.title)===name;});if(!job){if(![o.hook,o.hook2].concat(o.hookExtra||[]).map(norm).includes(hook))return false;job=o;}
+  var exact=norm(job.name||job.title)===name;
   if(exact&&peers.filter(function(r){return norm(r.episode||r.name)===name;}).length>1)return false;
   if(!exact&&peers.length!==1)return false;
   seen[id]=true;return true;
@@ -34,5 +34,5 @@ function warning(e){if(!ownerView())return;var target=e.target;if(!target.matche
  function value(field,id){var el=planner?planner.querySelector('[data-field="'+field+'"]'):document.getElementById(id);return el?el.value:'';}
  var product=value('product','om-prod'),name=value('name','om-name'),hooks=[value('hook','om-hook'),value('hook2','om-hook2')].concat(!planner&&w.rbContentSelection?w.rbContentSelection.extra():[]),found=[],seen={};hooks.filter(Boolean).forEach(function(h){var r={brand:product,episode:name,ready:h};matches(r,orders(),rows()).forEach(function(o){var id=o._fbKey||o.id;if(!seen[id]){seen[id]=true;found.push(o);}});});var box=host.querySelector('.cth-warning');if(!box){box=document.createElement('div');box.className='cth-warning';host.appendChild(box);}box.hidden=!found.length;box.textContent=found.length?'HOOK ที่เลือกเคยสั่งแล้ว '+found.length+' งาน · ยังสั่งซ้ำได้ตามต้องการ ':'';if(found.length){var b=document.createElement('button');b.textContent='ดูประวัติ';b.onclick=function(){open('',{product:product,name:name,ids:found.map(function(o){return o._fbKey||o.id})});};box.appendChild(b);}}
 document.addEventListener('change',warning);w.addEventListener('rb:auth-ready',function(){mount();if(w.ctRender)w.ctRender();});w.addEventListener('rb:auth-cleared',function(){close();mount();});
-w.ctHookHistory={allowed:allowed,matches:matches,cell:cell,mount:mount,signature:function(){return allowed()?JSON.stringify(orders().map(function(o){return [o._fbKey,o.id,o.product,o.name,o.title,o.hook,o.hook2,o.hookExtra,o.contentBindings,o.assignee,o.createdAt,o.deadline,o._deleted,o.deletedAt];})):'hidden';}};
+w.ctHookHistory={allowed:allowed,matches:matches,cell:cell,mount:mount,signature:function(){return allowed()?JSON.stringify(orders().map(function(o){return [o._fbKey,o.id,o.product,o.name,o.title,o.hook,o.hook2,o.hookExtra,o.jobExtra,o.contentBindings,o.assignee,o.createdAt,o.deadline,o._deleted,o.deletedAt];})):'hidden';}};
 })(window);

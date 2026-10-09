@@ -1,0 +1,17 @@
+.rb-hook-field{position:relative;min-width:0;margin-bottom:8px}
+.rb-hook-field select{box-sizing:border-box!important;width:100%!important;min-width:0!important;height:38px!important;padding:0 70px 0 10px!important;appearance:none!important;margin:0!important;border:1px solid var(--border-soft,#bfd4d9)!important;border-radius:8px!important;background:var(--surface-card,#fbfcfd)!important;color:var(--text-heading,#23434b)!important}
+.rb-hook-chevron{position:absolute;right:45px;top:8px;pointer-events:none;color:var(--text-heading,#23434b)}
+.rb-hook-remove{position:absolute;right:4px;top:4px;width:30px;height:30px;border:0;border-radius:5px;background:transparent;color:var(--text-heading,#23434b);cursor:pointer}
+.rb-hook-remove:hover{background:var(--surface-muted,#e6eeee)}
+.rb-job-groups{grid-column:1/-1}
+.rb-job-group,.rb-primary-job{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start;grid-column:1/-1}
+.rb-job-group{padding-top:18px;margin-top:18px;border-top:1px solid var(--border-soft,#cbd9df)}
+.rb-job-column,.rb-job-column label{display:grid;gap:6px;min-width:0;font-size:12px}
+.rb-job-column input,.rb-job-column>label>select{width:100%;height:38px;box-sizing:border-box;min-width:0;border:1px solid var(--border-soft,#bfd4d9);border-radius:8px;padding:0 10px;background:var(--surface-card,#fbfcfd);color:var(--text-heading,#23434b);font:inherit}
+.rb-job-add{grid-column:1/-1;justify-self:start;padding:8px 12px;margin-top:6px;border:1px solid var(--border-soft,#95bdb0);border-radius:8px;background:var(--surface-card,#fbfcfd);color:var(--text-heading,#23434b);font:inherit;cursor:pointer}
+.rb-job-delete{justify-self:start;border:0;background:transparent;color:var(--text-heading,#23434b);padding:6px 0;font:inherit;cursor:pointer}
+.rb-job-extra-host{grid-column:1/-1;min-width:0}
+.rb-primary-job .rb-primary-hooks{min-width:0}
+@media(max-width:600px){.rb-job-group,.rb-primary-job{grid-template-columns:minmax(0,1fr)}}
+@media(pointer:coarse){.rb-hook-field select,.rb-job-column input,.rb-job-column>label>select{height:46px!important;font-size:16px!important}.rb-hook-remove{height:42px;width:42px;top:2px;right:2px}.rb-hook-chevron{top:12px;right:49px}.rb-job-add,.rb-job-delete{min-height:44px}}
+.rb-supervisor-job{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px!important}.rb-supervisor-job>div{min-width:0}.rb-supervisor-job input{box-sizing:border-box;width:100%}@media(max-width:600px){.rb-supervisor-job{grid-template-columns:minmax(0,1fr)}}

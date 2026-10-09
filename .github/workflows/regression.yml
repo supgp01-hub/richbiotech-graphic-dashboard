@@ -51,6 +51,7 @@ jobs:
       - run: node tests/manual/specialist-create485.e2e.cjs
       - run: node tests/manual/specialist-submit486.e2e.cjs
       - run: node tests/manual/hook-history493.e2e.cjs
+      - run: node tests/manual/multiple-jobs494.e2e.cjs
       - run: node tests/manual/cross-device455.e2e.cjs
         env:
           RB_TEST_MOBILE: '1'
