@@ -11,7 +11,7 @@ function aligned(select,index,remove){
  if(remove&&!row.querySelector('button')){var del=document.createElement('button');del.type='button';del.className='rb-hook-remove';del.textContent='×';del.setAttribute('aria-label','ลบ HOOK');del.onclick=remove;row.appendChild(del);}return row;
 }
 function mount(host,initial,options){
- var list=document.createElement('div');list.className='rb-job-groups';host.appendChild(list);var add=document.createElement('button');add.type='button';add.className='rb-job-add';add.textContent='＋ เพิ่มชื่องาน';host.appendChild(add);var editors=[];
+ var list=document.createElement('div');list.className='rb-job-groups';host.appendChild(list);var add=document.createElement('button');add.type='button';add.className='rb-job-add rb-add-job-trigger';if(options.addId)add.id=options.addId;add.textContent='＋ เพิ่มชื่องาน';(options.addHost||host).appendChild(add);var editors=[];
  function changed(){if(options.changed)options.changed();host.dispatchEvent(new Event('change',{bubbles:true}));}
  function number(){editors.forEach(function(e,i){e.label.textContent='ชื่องาน '+(i+2)+' (พนักงานกรอกภายหลังได้)';e.title.textContent='HOOK ของชื่องาน '+(i+2);e.name.setAttribute('aria-label','ชื่องาน '+(i+2));e.del.setAttribute('aria-label','ลบชื่องาน '+(i+2));});}
  function addGroup(saved){
