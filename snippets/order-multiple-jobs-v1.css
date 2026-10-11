@@ -30,8 +30,6 @@
 .rb-campaign-grid>div,#om-camp-extra .om-camp-row>div{min-width:0}
 .rb-campaign-grid input,.rb-campaign-grid select,#om-camp-extra input{height:40px!important;box-sizing:border-box!important;min-width:0}
 #om-camp-extra .om-camp-row{position:relative}
-#om-camp-extra .om-camp-row>button{position:absolute;right:38px;top:auto!important;bottom:17px!important;margin:0!important;width:28px!important;height:28px!important}
-#om-camp-extra .om-camp-row input[id^="om-link"]{padding-right:36px!important}
 @media(max-width:600px){.rb-campaign-grid,#om-camp-extra .om-camp-row{grid-template-columns:minmax(0,1fr)!important}}
 @media(pointer:coarse){.rb-supervisor-job #om-name,.rb-primary-name select,.rb-hook-field select,.rb-job-column input,.rb-job-column>label>select,.rb-campaign-grid input,.rb-campaign-grid select,#om-camp-extra input{height:46px!important}}
 
@@ -39,4 +37,16 @@
 .rb-campaign-grid div:has(>button[data-link-btn])>input,#om-camp-extra div:has(>button[data-link-btn])>input{height:100%!important}
 @media(pointer:coarse){.rb-campaign-grid div:has(>button[data-link-btn]),#om-camp-extra div:has(>button[data-link-btn]){height:46px}}
 
-@media(pointer:coarse){#om-camp-extra .om-camp-row>button{bottom:20px!important}}
+
+
+/* Inline campaign actions: remove on the left, open at the far right. */
+#rb-order-modal #om2-p2-panel .rb-campaign-link{align-items:center!important;padding-right:4px;gap:0}
+#rb-order-modal #om2-p2-panel .rb-campaign-link input{padding-right:10px!important;width:0!important;flex:1 1 0!important}
+#rb-order-modal #om2-p2-panel .rb-campaign-link button{position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;width:34px!important;min-width:34px!important;max-width:34px!important;height:32px!important;min-height:32px!important;flex:0 0 34px!important;padding:0!important;margin:0!important;border:0!important;border-radius:6px!important;background:transparent!important;box-shadow:none!important;font-size:0!important;line-height:0!important}
+#rb-order-modal #om2-p2-panel .rb-campaign-link .rb-campaign-remove{border-right:1px solid var(--border-soft,#cbdadf)!important;border-radius:0!important;margin-right:3px!important;color:var(--ra-color,#dc4959)!important}
+#rb-order-modal #om2-p2-panel .rb-campaign-open{color:var(--text-heading,#087f73)!important}
+#rb-order-modal #om2-p2-panel .rb-campaign-open:before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:17px;height:17px;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5'/%3E%3C/svg%3E") center/contain no-repeat}
+#rb-order-modal #om2-p2-panel .rb-campaign-open>*{display:none!important}
+#rb-order-modal #om2-p2-panel .rb-campaign-slot{width:37px;flex:0 0 37px}
+#rb-order-modal #om2-p2-panel .rb-campaign-link button:hover{background:var(--surface-muted,#edf7f3)!important}
+@media(pointer:coarse){#rb-order-modal #om2-p2-panel .rb-campaign-link button{width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important;min-height:44px!important;flex-basis:44px!important}#rb-order-modal #om2-p2-panel .rb-campaign-slot{width:47px;flex-basis:47px}}

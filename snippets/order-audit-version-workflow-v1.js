@@ -48,6 +48,13 @@
     ['om-fbname','om-fbuplist','om-camp1','om-camp2'].forEach(function(id){var field=document.getElementById(id);if(field)rowFor(field).classList.add('rb-campaign-grid');});
     var row=rowFor(second);row.hidden=count<2;row.classList.add('rb-campaign-second');
     var extras=document.getElementById('om-camp-extra'),add=extras&&extras.nextElementSibling;
+    panel.querySelectorAll('#om-uplink,#om-ad,#om-camp-extra input[id^="om-link"]').forEach(function(input){
+      var group=input.parentElement,open=group.querySelector('[data-link-btn]');if(!open)return;
+      group.classList.add('rb-campaign-link');open.classList.add('rb-campaign-open');open.setAttribute('aria-label','เปิดลิงก์แคมเปญ');open.title='เปิดลิงก์';
+      var extra=input.closest('.om-camp-row'),remove=extra&&extra.querySelector(':scope > button');
+      if(remove){remove.classList.add('rb-campaign-remove');remove.setAttribute('aria-label','ลบแคมเปญ');remove.title='ลบแคมเปญ';group.insertBefore(remove,open);}
+      if(!extra&&!group.querySelector('.rb-campaign-slot')){var slot=document.createElement('span');slot.className='rb-campaign-slot';slot.setAttribute('aria-hidden','true');group.insertBefore(slot,open);}
+    });
     if(add&&add.tagName==='BUTTON'&&!add.dataset.singleVersion){add.dataset.singleVersion='1';add.onclick=function(){if(row.hidden){row.dataset.expanded='1';row.hidden=false;}else if(window._addCampRow)window._addCampRow();schedule(true);};}
   }
   function initialVersions(order,savedOverride){
