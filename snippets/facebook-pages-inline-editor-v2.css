@@ -109,3 +109,18 @@ html[data-theme="dark"] #fbl-root .rb-fbp-notice-control[data-value="2"]{--notic
 #fbl-root .rb-fbp-row-actions .rb-fbp-row-delete:hover{background:#fff1f2!important}
 #fbl-root .rb-fbp-row-actions>button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 @media(pointer:coarse){#fbl-root .rb-fbp-row-actions>button{height:44px!important;min-height:44px!important}}
+
+/* fix501: equal compact notification controls and centered action columns. */
+#fbl-root .rb-fbp-notice-control{width:174px;max-width:100%;margin:0 auto}
+#fbl-root .rb-fbp-notice-face{height:32px;min-height:32px;grid-template-columns:14px minmax(0,1fr) 10px;gap:6px;padding:0 8px;border-radius:7px}
+#fbl-root .rb-fbp-notice-icon{width:14px;height:14px;background:transparent;color:var(--notice-text)}
+#fbl-root .rb-fbp-notice-icon svg{width:14px;height:14px}
+#fbl-root .rb-fbp-notice-label{font-size:11px;font-weight:400;white-space:nowrap;overflow-wrap:normal}
+#fbl-root .rb-fbp-notice-chevron{width:10px;height:10px}
+#fbl-root .rb-fbp-notice-feedback:empty{display:none}
+#fbl-root .rb-fbp-table td{vertical-align:middle!important}
+#fbl-root .rb-fbp-row-actions{flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-width:70px}
+:is(#rb-action-icons,html) body #fbl-root button.rb-action-standard.rb-action-compact{width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;flex-basis:32px!important;border-radius:7px!important}
+#fbl-root .rb-fbp-delete-unavailable{opacity:.4!important;cursor:not-allowed!important}
+@media(pointer:coarse){#fbl-root .rb-fbp-notice-face{height:44px;min-height:44px}:is(#rb-action-icons,html) body #fbl-root button.rb-action-standard.rb-action-compact{width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important;min-height:44px!important;flex-basis:44px!important}}
+#fbl-root .rb-fbp-row-actions button.rb-fbp-delete-unavailable{color:var(--text-muted,#718078)!important;border-color:var(--surface-card-border,#d5e8df)!important;background:var(--surface-card,#fff)!important}
