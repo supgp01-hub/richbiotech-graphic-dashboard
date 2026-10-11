@@ -1,13 +1,13 @@
 (function(){
 'use strict';
-var d=document,link=d.createElement('link');link.rel='stylesheet';link.href='snippets/action-icons-v1.css?v=fix499';d.head.appendChild(link);
+var d=document,link=d.createElement('link');link.rel='stylesheet';link.href='snippets/action-icons-v1.css?v=fix500';d.head.appendChild(link);
 var edit='.rb-order-edit-btn,.rb-fbp-row-edit,[data-pc-edit],[data-sw-edit],[data-leave-edit],[data-combined-edit],[data-report-edit]';
 var del='.rb-order-delete-btn,.rb-fbp-row-delete,[data-fpid],.ct-del,.ic-del-btn,.lv-edel,.rb-hook-remove,.rb-job-delete,[data-pc-delete],[data-sw-delete],[data-leave-delete],[data-combined-delete],[data-report-delete],[data-action="delete"],[data-action="remove-brief-image"]';
 var owned=new WeakMap(),frame=0;
 function kind(b){
  var text=(b.textContent||'').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu,'').trim(),label=b.getAttribute('aria-label')||b.title||'',action=b.getAttribute('onclick')||'';
  if(/^(?:บันทึก|กำลัง|ยกเลิก|เสร็จ|ต้องแก้ไข|ส่ง|กลับไป)/.test(text))return null;
- var k=b.matches(del)||/^ลบ(?:\s|$|งาน|บัญชี|เพจ|รูป|ไฟล์|รายการ|ชื่องาน|ที่เลือก|แถว|ลิงก์|หลักฐาน)/.test(text)||/^ลบ(?:\s|$|งาน|บัญชี|เพจ|รูป|ไฟล์|แถว|ลิงก์|หลักฐาน)/.test(label)||/\b(?:ctDel|icDel|lvDelEntry)\s*\(/.test(action)?'delete':b.matches(edit)||/^แก้ไข(?:\s|$|งาน|ข้อมูล|บัญชี|คู่มือ|ข้อความ)/.test(text)||/^(?:Edit(?:\s|$)|แก้ไข(?:\s|$|งาน|ข้อมูล|บัญชี|คู่มือ|ข้อความ))/i.test(label)?'edit':null;
+ var k=b.matches(del)||/^ลบ/.test(text)||/^ลบ/.test(label)||/\b(?:ctDel|icDel|lvDelEntry)\s*\(/.test(action)?'delete':b.matches(edit)||/^แก้ไข/.test(text)||/^(?:Edit(?:\s|$)|แก้ไข)/i.test(label)?'edit':null;
  if(!k)return null;
  var labeled=/ลบที่เลือก|ลบรายการที่เลือก|ยืนยัน|confirm-delete|confirm-history-delete/.test(text+' '+b.id+' '+(b.getAttribute('data-action')||''));
  return {kind:k,labeled:labeled,label:label||text||(k==='edit'?'แก้ไข':'ลบ')};
