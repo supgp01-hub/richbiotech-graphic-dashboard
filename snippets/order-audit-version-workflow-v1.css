@@ -89,7 +89,8 @@ html[data-theme=dark] #rb-order-modal .surface-audit .rb-av-campaign{color:#e1f7
 #rb-order-modal .rb-av-delivery-link b{padding:7px 8px;color:#176f58!important;font-size:9.5px!important;font-weight:800!important;white-space:nowrap}
 #rb-order-modal .rb-av-delivery-link span{min-width:0;padding:7px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#49675d;font-size:10px}
 #rb-order-modal .rb-av-delivery-link button,#rb-order-modal .rb-av-delivery-link a{display:grid;height:100%;min-height:32px;place-items:center;border:0;border-left:1px solid #c8ddd3;background:#e4f6ef;color:#087f6f;text-decoration:none;cursor:pointer}
-#rb-order-modal .rb-av-delivery-link.is-empty{grid-template-columns:54px minmax(0,1fr);opacity:.72}
+#rb-order-modal .rb-av-delivery-link.is-empty{opacity:.72}
+#rb-order-modal .rb-av-delivery-link button:disabled{opacity:.4;cursor:default}
 #rb-order-modal .rb-av-team-card{padding:0!important;overflow:hidden}
 #rb-order-modal .rb-av-team-card-head{display:grid;gap:10px;padding:11px 13px;background:#edf7f2;border-bottom:1px solid #c9ddd4}
 #rb-order-modal .rb-av-team-card.is-issue .rb-av-team-card-head{background:#fff0f2;border-bottom-color:#f5c6cd}

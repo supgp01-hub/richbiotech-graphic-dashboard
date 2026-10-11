@@ -104,9 +104,14 @@
     var temp=document.createElement('textarea');temp.value=value;temp.style.position='fixed';temp.style.opacity='0';document.body.appendChild(temp);temp.select();try{document.execCommand('copy');done();}catch(error){}temp.remove();
   }
   function linkRow(label,value){
+    var matches=String(value||'').match(/https?:\/\/[^\s<>"']+/gi)||[],url='';
+    if(matches.length===1){try{var parsed=new URL(matches[0]);if(parsed.hostname)url=parsed.href;}catch(error){}}
     var row=document.createElement('div');row.className='rb-av-delivery-link'+(value?'':' is-empty');
     var name=document.createElement('b');name.textContent=label;var text=document.createElement('span');text.textContent=value||'ยังไม่มีลิงก์';text.title=value||'';row.append(name,text);
-    if(validUrl(value)){var copy=document.createElement('button');copy.type='button';copy.setAttribute('aria-label','คัดลอก '+label);copy.textContent='▣';copy.onclick=function(){copyText(value,copy);};var open=document.createElement('a');open.href=value;open.target='_blank';open.rel='noopener';open.setAttribute('aria-label','เปิด '+label);open.textContent='↗';row.append(copy,open);}
+    var copy=document.createElement('button');copy.type='button';copy.setAttribute('aria-label','คัดลอก '+label);copy.textContent='▣';copy.disabled=!value;copy.onclick=function(){copyText(url||value,copy);};
+    var open=document.createElement(url?'a':'button');open.setAttribute('aria-label','เปิด '+label);open.textContent='↗';
+    if(url){open.href=url;open.target='_blank';open.rel='noopener noreferrer';}else{open.type='button';open.disabled=true;open.title=value?'ไม่พบลิงก์เดียวที่เปิดได้':'ยังไม่มีลิงก์';}
+    row.append(copy,open);
     return row;
   }
   function compress(file,done){
