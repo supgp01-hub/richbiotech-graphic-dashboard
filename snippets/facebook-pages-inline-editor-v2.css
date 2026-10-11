@@ -101,3 +101,11 @@ html[data-theme="dark"] #fbl-root .rb-fbp-notice-control[data-value="1"]{--notic
 html[data-theme="dark"] #fbl-root .rb-fbp-notice-control[data-value="2"]{--notice-bg:#143a2d;--notice-text:#9de5bd;--notice-border:#388766}
 @media(max-width:760px){#fbl-root .rb-fbp-notice-control{max-width:100%;margin:0}}
 @media(pointer:coarse){#fbl-root .rb-fbp-notice-face{min-height:44px}}
+/* Explicit row-action labels replace ambiguous legacy emoji glyphs. */
+#fbl-root .rb-fbp-row-actions{display:flex;flex-direction:column;align-items:center;gap:6px}
+#fbl-root .rb-fbp-row-actions>button{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;box-sizing:border-box!important;width:88px!important;height:36px!important;min-height:36px!important;margin:0!important;padding:0 8px!important;border-radius:8px!important;font-family:inherit!important;font-size:12px!important;font-weight:600;line-height:1.2;cursor:pointer}
+#fbl-root .rb-fbp-row-actions svg{width:16px!important;height:16px!important;flex:none;pointer-events:none}
+#fbl-root .rb-fbp-row-actions .rb-fbp-row-delete{border:1px solid #efbdc2!important;background:var(--surface-card,#fff)!important;color:#c63142!important}
+#fbl-root .rb-fbp-row-actions .rb-fbp-row-delete:hover{background:#fff1f2!important}
+#fbl-root .rb-fbp-row-actions>button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+@media(pointer:coarse){#fbl-root .rb-fbp-row-actions>button{height:44px!important;min-height:44px!important}}

@@ -176,8 +176,10 @@ function decorateRow(row,record){
   decorateNotification(cells[4],record);
   var deleteButton=cells[5].querySelector('[data-fpid]')||row._fbpDeleteButton||null;if(deleteButton)row._fbpDeleteButton=deleteButton;
   cells[5].innerHTML='';cells[5].classList.add('rb-fbp-actions-cell');
-  if(canEdit()){var editButton=makeButton('rb-fbp-row-edit','✎ แก้ไข');editButton.addEventListener('click',function(){beginEdit(row,record);});cells[5].appendChild(editButton);}
-  if(deleteButton)cells[5].appendChild(deleteButton);
+  var actions=document.createElement('div');actions.className='rb-fbp-row-actions';cells[5].appendChild(actions);
+  function actionFace(button,label,path){button.innerHTML='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg><span>'+label+'</span>';button.setAttribute('aria-label',label+' '+record.name);button.title=label;}
+  if(canEdit()){var editButton=makeButton('rb-fbp-row-edit','แก้ไข');actionFace(editButton,'แก้ไข','<path d="m16 3 5 5-12 12H4v-5Z"/><path d="m13 6 5 5"/>');editButton.addEventListener('click',function(){beginEdit(row,record);});actions.appendChild(editButton);}
+  if(deleteButton){deleteButton.classList.add('rb-fbp-row-delete');actionFace(deleteButton,'ลบเพจ','<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/>');actions.appendChild(deleteButton);}
 }
 
 function beginEdit(row,record){
