@@ -19,3 +19,24 @@
 #om-add-hook,.rb-job-add{box-sizing:border-box!important;width:112px!important;height:36px!important;padding:0 12px!important;font-size:13px!important;line-height:1.2!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;border-radius:8px!important}
 .rb-add-job-trigger{margin-top:16px!important}.rb-primary-name{min-width:0}.rb-job-extra-host{margin-bottom:28px}
 @media(pointer:coarse){#om-add-hook,.rb-job-add{height:44px!important;min-height:44px!important}}
+
+/* Equal columns and control heights for job details and campaign versions. */
+.rb-hook-field[hidden],.rb-campaign-second[hidden]{display:none!important}
+.rb-supervisor-job{gap:20px!important;align-items:start}
+.rb-supervisor-job #om-name,.rb-primary-name select,.rb-hook-field select,.rb-job-column input,.rb-job-column>label>select{height:40px!important;box-sizing:border-box!important}
+.rb-primary-hooks>div:first-child{font-size:14px;margin-bottom:6px}
+.rb-primary-job,.rb-job-group{column-gap:20px}
+.rb-campaign-grid,#om-camp-extra .om-camp-row{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:0 20px!important;align-items:start!important}
+.rb-campaign-grid>div,#om-camp-extra .om-camp-row>div{min-width:0}
+.rb-campaign-grid input,.rb-campaign-grid select,#om-camp-extra input{height:40px!important;box-sizing:border-box!important;min-width:0}
+#om-camp-extra .om-camp-row{position:relative}
+#om-camp-extra .om-camp-row>button{position:absolute;right:38px;top:auto!important;bottom:17px!important;margin:0!important;width:28px!important;height:28px!important}
+#om-camp-extra .om-camp-row input[id^="om-link"]{padding-right:36px!important}
+@media(max-width:600px){.rb-campaign-grid,#om-camp-extra .om-camp-row{grid-template-columns:minmax(0,1fr)!important}}
+@media(pointer:coarse){.rb-supervisor-job #om-name,.rb-primary-name select,.rb-hook-field select,.rb-job-column input,.rb-job-column>label>select,.rb-campaign-grid input,.rb-campaign-grid select,#om-camp-extra input{height:46px!important}}
+
+.rb-campaign-grid div:has(>button[data-link-btn]),#om-camp-extra div:has(>button[data-link-btn]){height:40px;box-sizing:border-box}
+.rb-campaign-grid div:has(>button[data-link-btn])>input,#om-camp-extra div:has(>button[data-link-btn])>input{height:100%!important}
+@media(pointer:coarse){.rb-campaign-grid div:has(>button[data-link-btn]),#om-camp-extra div:has(>button[data-link-btn]){height:46px}}
+
+@media(pointer:coarse){#om-camp-extra .om-camp-row>button{bottom:20px!important}}

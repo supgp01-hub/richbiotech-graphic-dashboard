@@ -41,6 +41,15 @@
     if(!savedName&&!savedLink)return false;
     return(!savedName||savedName===sourceName)&&(!savedLink||savedLink===sourceLink);
   }
+  // Keep legacy field IDs and version numbers so saved evidence and links retain their identity.
+  function campaignLayout(count){
+    var panel=document.getElementById('om2-p2-panel'),second=document.getElementById('om-camp2');if(!panel||!second||!panel.contains(second))return;
+    function rowFor(input){return input.parentElement.parentElement;}
+    ['om-fbname','om-fbuplist','om-camp1','om-camp2'].forEach(function(id){var field=document.getElementById(id);if(field)rowFor(field).classList.add('rb-campaign-grid');});
+    var row=rowFor(second);row.hidden=count<2;row.classList.add('rb-campaign-second');
+    var extras=document.getElementById('om-camp-extra'),add=extras&&extras.nextElementSibling;
+    if(add&&add.tagName==='BUTTON'&&!add.dataset.singleVersion){add.dataset.singleVersion='1';add.onclick=function(){if(row.hidden){row.dataset.expanded='1';row.hidden=false;}else if(window._addCampRow)window._addCampRow();schedule(true);};}
+  }
   function initialVersions(order,savedOverride){
     order=order||{};
     var id=jobId(order),workLinks=deliveryValues(order,'work'),imageLinks=deliveryValues(order,'image');
@@ -53,6 +62,8 @@
     if(Array.isArray(order.campExtra)&&order.campExtra.length>rows.length){
       order.campExtra.slice(rows.length).forEach(function(item,index){var offset=index+rows.length+2;values.push({name:String(item&&item.name||''),link:String(item&&item.link||''),workLink:workLinks[offset]||'',imageLink:imageLinks[offset]||''});});
     }
+    var secondField=document.getElementById('om-camp2'),secondRow=secondField&&secondField.parentElement.parentElement;
+    if(values.length===2&&!Object.values(values[1]).some(Boolean)&&!(secondRow&&secondRow.dataset.expanded==='1'))values.pop();
     var personal=window.rbPersonalWork&&window.rbPersonalWork.sources(order);if(personal)values=personal;
     var saved=Array.isArray(savedOverride)?clone(savedOverride):Array.isArray(order.auditVersions)?clone(order.auditVersions):[];
     var savedByVersion={},savedLength=0;
@@ -62,7 +73,7 @@
       if(!itemJob&&!itemKey)owned=sameSource(item,values[version-1]);
       if(owned){savedByVersion[version]=item||{};savedLength=Math.max(savedLength,version);}
     });
-    var length=personal?Math.max(values.length,savedLength):Math.max(values.length,workLinks.length,imageLinks.length,savedLength,2),result=[];
+    var length=personal?Math.max(values.length,savedLength):Math.max(values.length,workLinks.reduce(function(n,v,i){return v?i+1:n;},0),imageLinks.reduce(function(n,v,i){return v?i+1:n;},0),savedLength,1),result=[];
     for(var index=0;index<length;index++){
       var version=index+1,old=savedByVersion[version]||{},source=values[index]||{};
       var workLink=String(source.workLink||old.workLink||''),imageLink=String(source.imageLink||old.imageLink||'');
@@ -200,8 +211,10 @@
   window.rbRenderAuditVersionWorkflow=function(order,force){
     var auditPanel=document.getElementById('om2-p2-panel'),teamPanel=document.getElementById('om2-p4-panel'),id=document.getElementById('om-id');if(!auditPanel||!teamPanel||!id)return;
     order=order||currentOrder()||{};var currentJobId=jobId(order),oldAudit=document.getElementById('rb-audit-version-workflow'),oldTeam=document.getElementById('rb-team-version-workflow');
+    if(auditPanel.dataset.campaignJob!==currentJobId){var second=document.getElementById('om-camp2');if(second)delete second.parentElement.parentElement.dataset.expanded;auditPanel.dataset.campaignJob=currentJobId;}
     var carried=null;[oldAudit,oldTeam].some(function(section){if(section&&section.getAttribute('data-job-id')===currentJobId&&Array.isArray(section._rbState)){carried=collect(section);return true;}return false;});
     var states=initialVersions(order,carried),auditMode=canAudit()?'audit':'readonly',teamMode=canSubmitCorrection(order)?'employee':'readonly',rendering=false;
+    campaignLayout(states.length);
     // Delayed source refreshes must not replace a select while its menu is open.
     // Rebuild only for changed values, permissions or workflow status.
     if(oldAudit&&oldTeam&&oldAudit.classList.contains('mode-'+auditMode)&&oldTeam.classList.contains('mode-'+teamMode)&&[oldAudit,oldTeam].every(function(section){return section.getAttribute('data-job-id')===currentJobId&&section._rbRenderRole===role()&&section._rbRenderStatus===order.status&&JSON.stringify(collect(section))===JSON.stringify(states);}))return;
