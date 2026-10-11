@@ -1,0 +1,17 @@
+/* One visual language; existing button nodes, handlers and visibility rules stay intact. */
+html body button.rb-action-standard{box-sizing:border-box!important;border-radius:7px!important;border:1px solid var(--ra-border)!important;background:var(--ra-bg)!important;color:var(--ra-color)!important;box-shadow:none!important;vertical-align:middle;position:relative}
+html body button.rb-action-edit{--ra-color:#278265;--ra-bg:#f0fdf5;--ra-border:#c8edd8;--ra-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m16 3 5 5-12 12H4v-5Z M13 6l5 5'/%3E%3C/svg%3E")}
+html body button.rb-action-delete{--ra-color:#dc4959;--ra-bg:#fff3f4;--ra-border:#f3ccd0;--ra-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7'/%3E%3C/svg%3E")}
+html body button.rb-action-standard:before{content:'';display:inline-block;width:16px;height:16px;background:currentColor;mask:var(--ra-icon) center/contain no-repeat;-webkit-mask:var(--ra-icon) center/contain no-repeat;pointer-events:none;flex:none}
+html body button.rb-action-compact{width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;font-size:0!important;line-height:0!important;flex:0 0 34px!important;text-indent:0!important}
+html body button.rb-action-compact:before{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+html body button.rb-action-compact>*{display:none!important}
+html body button.rb-action-labeled{min-height:34px!important;padding:6px 12px!important;gap:6px}
+html body button.rb-action-labeled:before{margin-right:6px;vertical-align:middle}
+html body button.rb-action-labeled>svg,html body button.rb-action-labeled>.rb-leading-icon{display:none!important}
+html body button.rb-action-standard:focus-visible{outline:2px solid var(--ra-color)!important;outline-offset:2px}
+html body button.rb-action-standard:disabled{opacity:.45!important;cursor:not-allowed}
+html[data-theme="dark"] body button.rb-action-edit{--ra-color:#87d6b9;--ra-bg:#1a4034;--ra-border:#396957}
+html[data-theme="dark"] body button.rb-action-delete{--ra-color:#ff9eaa;--ra-bg:#42292f;--ra-border:#754851}
+#fbl-root .rb-fbp-row-actions{flex-direction:row!important;justify-content:center;gap:6px!important}
+@media(pointer:coarse){html body button.rb-action-compact{width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important;min-height:44px!important;flex-basis:44px!important}html body button.rb-action-labeled{min-height:44px!important}}
