@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix496">
+<meta name="rb-build" content="fix497">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3392,7 +3392,7 @@ function initOrderPanel(){
     chipRow.appendChild(chip);
   });
   wrap.appendChild(tabNav);wrap.appendChild(chipRow);
-  var fb=document.createElement('div');fb.style.cssText='background:var(--surface-card);border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
+  var fb=document.createElement('div');fb.id='ord-filter-bar';fb.style.cssText='background:var(--surface-card);border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
   var si=document.createElement('input');si.id='ord-search';si.type='search';si.placeholder='ค้นหาเลขงาน / ชื่อ / สินค้า / ผู้รับผิดชอบ...';si.style.cssText='flex:1;min-width:220px;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;';si.oninput=function(){_OF.search=this.value;renderOrders();};
   var sts=document.createElement('div');sts.style.cssText='display:flex;align-items:center;gap:6px;border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;background:var(--surface-card);';
   var dtLbl=document.createElement('span');dtLbl.className='rb-inline-calendar';dtLbl.style.cssText='font-size:14px;line-height:1;';
@@ -6015,7 +6015,7 @@ button>.rb-leading-icon{width:17px;height:17px}
 <script src="snippets/order-content-selection-v1.js?v=fix495"></script>
 <link rel="stylesheet" href="snippets/order-list-content-v1.css?v=fix444"><script src="snippets/order-list-content-v1.js?v=fix494"></script>
 <script src="snippets/employee-job-details-v1.js?v=fix495"></script>
-<link rel="stylesheet" href="snippets/mobile-workspace-v1.css?v=fix494">
+<link rel="stylesheet" href="snippets/mobile-workspace-v1.css?v=fix497">
 <link rel="stylesheet" href="snippets/personal-test-work-v1.css?v=fix494"><script src="snippets/personal-test-work-v1.js?v=fix494"></script><script src="snippets/mobile-workspace-v1.js?v=fix494"></script>
 <script src="snippets/session-resume-v1.js?v=fix482"></script>
 <script src="snippets/employee-display-name-v1.js?v=fix494"></script>
