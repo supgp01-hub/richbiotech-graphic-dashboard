@@ -235,7 +235,7 @@ function installCloudReader(){
   root.fbGet=sharedGet;
 }
 
-function teamRole(){var role=root._rbUser&&root._rbUser.role||'';return role==='ads'||role==='audit';}
+function teamRole(){var role=root._rbUser&&root._rbUser.role||'';return role==='ads';}
 function installTeamPermissions(){
   if(!root._rbUser||!teamRole())return;
   ['_icInit','_icEditField','_icUploadOne','_icRemovePhoto','_icBulkUpload','_icShowAddForm','_icRenderAddForm','_icSaveAllDrafts'].forEach(function(name){
