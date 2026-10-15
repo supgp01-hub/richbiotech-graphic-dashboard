@@ -1,10 +1,16 @@
 (function(){
 'use strict';
-var d=document,link=d.createElement('link');link.rel='stylesheet';link.href='snippets/action-icons-v1.css?v=fix500';d.head.appendChild(link);
+var d=document,link=d.createElement('link');link.rel='stylesheet';link.href='snippets/action-icons-v1.css?v=fix508';d.head.appendChild(link);
 var edit='.rb-order-edit-btn,.rb-fbp-row-edit,[data-pc-edit],[data-sw-edit],[data-leave-edit],[data-combined-edit],[data-report-edit]';
 var del='.rb-order-delete-btn,.rb-fbp-row-delete,[data-fpid],.ct-del,.ic-del-btn,.lv-edel,.rb-hook-remove,.rb-job-delete,[data-pc-delete],[data-sw-delete],[data-leave-delete],[data-combined-delete],[data-report-delete],[data-action="delete"],[data-action="remove-brief-image"]';
 var owned=new WeakMap(),frame=0;
 function kind(b){
+ if(b.matches('.rb-av-thumb > button,#ic-tbody button[onclick*="_icRemovePhoto"]')){
+  b.classList.add('rb-photo-remove');
+  if(b.textContent!=='×')b.textContent='×';
+  if(!b.hasAttribute('aria-label'))b.setAttribute('aria-label',b.title||'ลบรูป');
+  return null;
+ }
  var text=(b.textContent||'').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu,'').trim(),label=b.getAttribute('aria-label')||b.title||'',action=b.getAttribute('onclick')||'';
  if(/^(?:บันทึก|กำลัง|ยกเลิก|เสร็จ|ต้องแก้ไข|ส่ง|กลับไป)/.test(text))return null;
  var k=b.matches(del)||/^ลบ/.test(text)||/^ลบ/.test(label)||/\b(?:ctDel|icDel|lvDelEntry)\s*\(/.test(action)?'delete':b.matches(edit)||/^แก้ไข/.test(text)||/^(?:Edit(?:\s|$)|แก้ไข)/i.test(label)?'edit':null;
