@@ -7,6 +7,12 @@ await ctx.route('**/*',route=>{const u=new URL(route.request().url()),file=path.
 await installSecureAuthMock(ctx);await ctx.addInitScript(()=>localStorage.setItem('rb_theme','light'));
 const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(origin+'/index.html',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window._rbUser?.name&&window.rbThaiHolidays&&window._lvwTest);
 await page.locator('#sidebar button').filter({hasText:'ตารางวันหยุด'}).click();
+const roster=await page.evaluate(()=>LV_EMPS.map(e=>({id:e.id,max:e.max,group:e.group})));
+for(const id of ['nui','mnd','top'])assert.equal(roster.find(e=>e.id===id).max,4,id+' quota');
+assert.equal(roster.filter(e=>e.id==='top').length,1);
+assert.ok(roster.filter(e=>e.group!=='ao').every(e=>e.max===6));
+await page.waitForFunction(()=>document.querySelector('#lv-sum-inner')?.textContent.includes('Top'));
+assert.equal(await page.locator('#lvw-f-emp option[value="top"]').count(),1,'Top in employee filter');
 await page.evaluate(()=>{LV_CUR={y:2026,m:4};LV_DATA={'2026-4-13':[{uid:1,empId:'jam',type:'hol'},{uid:2,empId:'ter',type:'vac',note:'ลงย้อนหลังตามตารางเดิมรอบ ม.ค.–ก.ค. 2569'},{uid:3,empId:'dom',type:'hol'}]};window.__rbSpecialRowsMemoryV1=[{id:'qa',empId:'wiw',cat:'wfh',dates:['2026-4-13']}];lvRender()});
 await page.locator('[data-lvw-date="2026-4-13"] .lvw-special-ribbon').waitFor();
 assert.equal(await page.locator('.lv-holiday-mark').count(),4);

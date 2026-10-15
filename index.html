@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix508">
+<meta name="rb-build" content="fix509">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1678,23 +1678,13 @@ window._swSave=function(){
 /* ════════════════════════════════════════
    LEAVE CALENDAR v4
 ════════════════════════════════════════ */
-var LV_EMPS=[
-  {id:'wiw',name:'วิว',   pos:'Supervisor',   group:'sup',max:6},
-  {id:'mos',name:'มอส',   pos:'Specialist',   group:'spec',max:6},
-  {id:'ter',name:'เตอร์', pos:'Graphic & Ads',group:'ga', max:6},
-  {id:'nun',name:'นุ่น',  pos:'Graphic & Ads',group:'ga', max:6},
-  {id:'jam',name:'แจ๋ม',  pos:'Graphic & Ads',group:'ga', max:6},
-  {id:'dom',name:'ดอม',   pos:'Graphic & Ads',group:'ga', max:6},
-  {id:'bol',name:'บอล',   pos:'Graphic & Ads',group:'ga', max:6},
-  {id:'nui',name:'นุ้ย',  pos:'Ads Optimizer',group:'ao', max:6},
-  {id:'mnd',name:'มายด์', pos:'Ads Optimizer',group:'ao', max:6}
-];
+var LV_EMPS=[{id:'wiw',name:'วิว',pos:'Supervisor',group:'sup',max:6},{id:'mos',name:'มอส',pos:'Specialist',group:'spec',max:6},{id:'ter',name:'เตอร์',pos:'Graphic & Ads',group:'ga',max:6},{id:'nun',name:'นุ่น',pos:'Graphic & Ads',group:'ga',max:6},{id:'jam',name:'แจ๋ม',pos:'Graphic & Ads',group:'ga',max:6},{id:'dom',name:'ดอม',pos:'Graphic & Ads',group:'ga',max:6},{id:'bol',name:'บอล',pos:'Graphic & Ads',group:'ga',max:6},{id:'nui',name:'นุ้ย',pos:'Ads Optimizer',group:'ao',max:4},{id:'mnd',name:'มายด์',pos:'Ads Optimizer',group:'ao',max:4},{id:'top',name:'Top',pos:'Ads Optimizer',group:'ao',max:4}];
 var LV_ANNUAL=6;
 var LV_TH_M=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 var LV_TYPE_LABEL={hol:'🌴 วันหยุดรอบ',vac:'☀️ พักร้อน',sick:'🤒 ลาป่วย',per:'📋 ลากิจ'};
 var LV_TYPE_ICON={hol:'🌴',vac:'☀️',sick:'🤒',per:'📋'};
-var LV_COLOR={wiw:'#fbbc04',mos:'#191970',ter:'#d96400',bol:'#00257d',nun:'#FF64AD',jam:'#5f6738',dom:'#000000',nui:'#ea4335',mnd:'#c42b2b'};
-var EMP_INIT={wiw:'V',mos:'M',ter:'T',nun:'N',jam:'J',dom:'D',bol:'B',nui:'N',mnd:'M'};
+var LV_COLOR={wiw:'#fbbc04',mos:'#191970',ter:'#d96400',bol:'#00257d',nun:'#FF64AD',jam:'#5f6738',dom:'#000000',nui:'#ea4335',mnd:'#c42b2b',top:'#387e87'};
+var EMP_INIT={wiw:'V',mos:'M',ter:'T',nun:'N',jam:'J',dom:'D',bol:'B',nui:'N',mnd:'M',top:'T'};
 var LV_LS='lv_dash_v5';
 var LV_DATA={};
 var LV_UID=1;
@@ -6062,7 +6052,7 @@ var q=false,pending=[];function schedule(ms){if(ms)ms.forEach(function(m){[].for
 <link rel="stylesheet" href="snippets/leave-workforce-v1.css?v=fix469">
 <link rel="stylesheet" href="snippets/leave-day-actions-v2.css?v=fix329">
 <script src="snippets/specialwork-persistence-v2.js?v=fix329"></script>
-<script src="snippets/leave-workforce-v1.js?v=fix473"></script>
+<script src="snippets/leave-workforce-v1.js?v=fix509"></script>
 <link rel="stylesheet" href="snippets/thai-holidays-v1.css?v=fix466">
 <script src="snippets/thai-holiday-calendar-v1.js?v=fix466"></script>
 <script src="snippets/thai-holidays-v1.js?v=fix468"></script>

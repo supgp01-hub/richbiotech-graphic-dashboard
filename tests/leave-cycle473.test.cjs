@@ -37,10 +37,21 @@ const chips=w.document.querySelectorAll('.lv-emp-chip');
 assert.equal(chips[0].querySelector('.lv-chip-note'),null);assert.match(chips[0].title,/ลงย้อนหลัง/);
 assert.ok(chips[1].querySelector('.lv-chip-note'));assert.match(w.LV_DATA['2026-4-7'][0].note,/ลงย้อนหลัง/);
 for(const employee of w.LV_EMPS){
- assert.equal(employee.max,6,employee.id+' monthly entitlement');w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5','2026-4-7','2026-4-9'],'hol',employee.id);
- assert.equal(w.lvQuotaErr(employee.id,2026,4,11,'hol'),null,'sixth day allowed '+employee.id);
- seed(['2026-4-11'],'hol',employee.id);assert.match(w.lvQuotaErr(employee.id,2026,4,13,'hol'),/6\/6/,'seventh day exceeds quota '+employee.id);
+ const max=employee.group==='ao'?4:6;
+ assert.equal(employee.max,max,employee.id+' monthly entitlement');w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5','2026-4-7','2026-4-9'].slice(0,max-1),'hol',employee.id);
+ assert.equal(w.lvQuotaErr(employee.id,2026,4,11,'hol'),null,'last entitled day allowed '+employee.id);
+ seed(['2026-4-11'],'hol',employee.id);assert.ok(w.lvQuotaErr(employee.id,2026,4,13,'hol').includes(max+'/'+max),'next day exceeds quota '+employee.id);
  assert.equal(w.lvQuotaErr(employee.id,2026,4,26,'hol'),null,'new monthly cycle '+employee.id);
 }
 assert.equal(w.LV_ANNUAL,6,'annual vacation remains separate');
+assert.equal(w.LV_EMPS.filter(e=>e.id==='top').length,1);
+assert.equal(w.lvFindEmp('top').name,'Top');assert.equal(w.lvFindEmp('top').group,'ao');
+w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5'],'hol','top');
+assert.ok(w.checkLeaveBatch('top','hol',dates(8,10),'',null).some(x=>x.includes('วันหยุดรอบเต็ม')));
+w.LV_DATA={};seed(['2026-4-10'],'hol','nui');
+assert.ok(w.lvRuleErr('top',2026,4,10,'hol').includes('Ads Optimizer'),'Top shares optimizer staffing rule');
+w.eval(source.slice(0,source.indexOf('  function emp(id)'))+'})();');
+w._rbUser={name:'Top',role:'ao'};
+assert.equal(w._lvwCanEditEmp('top'),true);assert.equal(w._lvwCanEditEmp('nui'),false);
+w._rbUser={name:'TOP',role:'ao'};assert.equal(w._lvwCanEditEmp('top'),true);
 dom.window.close();console.log('PASS cycle boundaries, projected batch quota/consecutive rules, edit accounting, note preservation');

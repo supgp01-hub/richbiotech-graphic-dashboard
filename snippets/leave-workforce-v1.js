@@ -4,7 +4,7 @@
   var FILTER={emp:'',type:'',group:'',mine:false};
   var selectedDate='',key='',filtersOpen=false;
   var SPECIAL={training:{label:'อบรม',icon:'📚',color:'#8067d8',bg:'#eee9ff'},office:{label:'เข้าออฟฟิศ',icon:'🏢',color:'#e88935',bg:'#ffead6'},wfh:{label:'WFH',icon:'🏠',color:'#d5a500',bg:'#fff5c7'},outing:{label:'OUTING',icon:'🚗',color:'#d85b91',bg:'#ffe3ef'}};
-  var NAME_ALIAS={view:'wiw','วิว':'wiw',moss:'mos','มอส':'mos',ter:'ter','เตอร์':'ter',nune:'nun','นุ่น':'nun',jam:'jam','แจ๋ม':'jam',dom:'dom','ดอม':'dom',ball:'bol','บอล':'bol',nui:'nui','นุ้ย':'nui',mind:'mnd','มายด์':'mnd'};
+  var NAME_ALIAS={top:'top',view:'wiw','วิว':'wiw',moss:'mos','มอส':'mos',ter:'ter','เตอร์':'ter',nune:'nun','นุ่น':'nun',jam:'jam','แจ๋ม':'jam',dom:'dom','ดอม':'dom',ball:'bol','บอล':'bol',nui:'nui','นุ้ย':'nui',mind:'mnd','มายด์':'mnd'};
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function pad(n){return n<10?'0'+n:String(n)}
   function dk(y,m,d){return y+'-'+m+'-'+d}

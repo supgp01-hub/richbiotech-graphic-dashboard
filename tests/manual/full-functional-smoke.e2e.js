@@ -55,7 +55,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   for(const [label,target] of sidebarCases){
     await page.locator('#sidebar button').filter({hasText:label}).click();
     await page.locator(target).waitFor({state:'visible'});
-    if(target==='#tab-schedule'){const quota=await page.evaluate(()=>({limits:LV_EMPS.map(e=>e.max),rows:[...document.querySelectorAll('#lv-sum-inner .lv-srow')].filter(e=>e.textContent.includes('วันหยุดรอบ')).map(e=>e.textContent)}));assert(quota.limits.length>0&&quota.limits.every(n=>n===6));assert.equal(quota.rows.length,quota.limits.length);assert(quota.rows.every(text=>/\/6$/.test(text.trim())),JSON.stringify(quota));}
+    if(target==='#tab-schedule'){const quota=await page.evaluate(()=>({staff:LV_EMPS.map(e=>({id:e.id,group:e.group,max:e.max})),rows:[...document.querySelectorAll('#lv-sum-inner .lv-srow')].filter(e=>e.textContent.includes('วันหยุดรอบ')).map(e=>e.textContent)}));assert(quota.staff.length>0&&quota.staff.every(e=>e.max===(e.group==='ao'?4:6)));assert.equal(quota.staff.filter(e=>e.id==='top').length,1);assert.equal(quota.rows.length,quota.staff.length);assert.equal(quota.rows.filter(text=>/\/4$/.test(text.trim())).length,3);assert.equal(quota.rows.filter(text=>/\/6$/.test(text.trim())).length,quota.staff.length-3);}
   }
 
   await page.locator('#sidebar button').filter({hasText:'Graphic'}).click();
