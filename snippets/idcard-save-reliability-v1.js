@@ -212,6 +212,7 @@ function installCloudReader(){
     originalGet(SHARED_PATH,function(sharedError,sharedData){
       var sharedRows=sharedData&&(Array.isArray(sharedData)?sharedData:Object.values(sharedData)).filter(function(row){return row&&row.id;});
       if(sharedError){callback(sharedError,localRows());return;}
+      knownRows={};(sharedRows||[]).forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=rowFingerprint(row);});
       var isSupervisor=!!(root._rbUser&&root._rbUser.role==='sup');
       if(!isSupervisor){
         sharedRows=mergeChangedLocal(sharedRows||[],readVersion);knownRows={};sharedRows.forEach(function(row){knownRows[String(row.id).replace(/[.#$\[\]\/]/g,'_')]=rowFingerprint(row);});
@@ -293,10 +294,20 @@ function enhanceAddForm(){
   }
 }
 
+function enhancePhotoActions(){
+  document.querySelectorAll('#ic-tbody button[onclick*="_icRemovePhoto"]').forEach(function(button){
+    if(button.closest('.ic-photo-actions'))return;
+    var card=button.parentElement,actions=card&&card.querySelector('div');
+    if(!actions)return;
+    card.classList.add('ic-photo-preview');actions.classList.add('ic-photo-actions');
+    button.setAttribute('aria-label','ลบรูปบัตร');actions.appendChild(button);
+    var img=card.querySelector('img');if(img){img.loading='lazy';img.decoding='async';}
+  });
+}
 var observerTimer=null;
-function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();enhanceFilters();applyFilters();},80);}
+function scheduleEnhance(){if(observerTimer)return;observerTimer=setTimeout(function(){observerTimer=null;installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();enhancePhotoActions();sortStatusRows();enhanceFilters();applyFilters();},80);}
 var observer=new MutationObserver(function(mutations){for(var i=0;i<mutations.length;i++){for(var j=0;j<mutations[i].addedNodes.length;j++){var node=mutations[i].addedNodes[j];if(node.nodeType===1&&(node.id==='ic-root'||node.id==='ic-add-panel'||node.matches&&node.matches('[data-sub="idcard"],#ic-tbody tr')||node.querySelector&&node.querySelector('#ic-root,#ic-add-panel,[data-sub="idcard"],#ic-tbody tr'))){scheduleEnhance();return;}}}});
-function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();sortStatusRows();enhanceFilters();applyFilters();observer.observe(document.documentElement,{childList:true,subtree:true});}
+function start(){installCloudTracker();installCloudReader();installTeamPermissions();enhanceSave();enhanceAddForm();enhancePhotoActions();sortStatusRows();enhanceFilters();applyFilters();observer.observe(document.documentElement,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 
 /* Authentication can change without reloading the page. Rebuild this view so
