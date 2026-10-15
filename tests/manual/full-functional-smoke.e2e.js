@@ -55,6 +55,7 @@ const {installSecureAuthMock}=require('./secure-auth-mock');
   for(const [label,target] of sidebarCases){
     await page.locator('#sidebar button').filter({hasText:label}).click();
     await page.locator(target).waitFor({state:'visible'});
+    if(target==='#tab-schedule'){const quota=await page.evaluate(()=>({limits:LV_EMPS.map(e=>e.max),rows:[...document.querySelectorAll('#lv-sum-inner .lv-srow')].filter(e=>e.textContent.includes('วันหยุดรอบ')).map(e=>e.textContent)}));assert(quota.limits.length>0&&quota.limits.every(n=>n===6));assert.equal(quota.rows.length,quota.limits.length);assert(quota.rows.every(text=>/\/6$/.test(text.trim())),JSON.stringify(quota));}
   }
 
   await page.locator('#sidebar button').filter({hasText:'Graphic'}).click();

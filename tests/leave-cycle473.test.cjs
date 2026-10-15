@@ -17,14 +17,14 @@ assert.equal(w.lvCountVacYear('ter',2026),1);
 w.LV_DATA={};seed(['2028-2-25','2028-2-26','2028-2-29','2028-3-25','2028-3-26']);
 assert.equal(w.lvCountHolCycle('ter',2028,3),3);
 const dates=(...days)=>days.map(d=>({y:2026,m:4,d}));
-w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5']);
+w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5','2026-4-15','2026-4-17']);
 const live=w.LV_DATA,before=JSON.stringify(live);
 assert.ok(w.checkLeaveBatch('ter','hol',dates(8,10),'',null).some(x=>x.includes('วันหยุดรอบเต็ม')),'whole batch must count both proposed days');
 assert.equal(w.LV_DATA,live);assert.equal(JSON.stringify(live),before,'preflight has no persistence side effects');
 assert.equal(w.checkLeaveBatch('ter','hol',dates(8,26),'',null).length,0,'26th starts the next quota');
 assert.equal(w.checkLeaveBatch('ter','hol',dates(8,10),'approved historical exception',null).length,0,'existing documented exception policy retained');
 assert.ok(w.checkLeaveBatch('ter','hol',dates(5),'exception',null).some(x=>x.includes('มีรายการ')),'notes cannot bypass duplicates');
-w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5','2026-4-7']);
+w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5','2026-4-7','2026-4-15','2026-4-17']);
 assert.equal(w.checkLeaveBatch('ter','hol',dates(9),'',{dateKey:'2026-4-7',entry:w.LV_DATA['2026-4-7'][0]}).length,0,'moving existing leave must not double count');
 w.LV_DATA={};assert.ok(w.checkLeaveBatch('ter','hol',dates(10,11,12,13),'',null).some(x=>x.includes('ต่อกัน')),'consecutive checks see the whole batch');
 w.LV_DATA={};seed(['2026-1-1','2026-2-1','2026-3-1','2026-4-1','2026-5-1'],'vac');
@@ -36,4 +36,11 @@ w.LV_CUR={y:2026,m:4};w.lvRenderCal();
 const chips=w.document.querySelectorAll('.lv-emp-chip');
 assert.equal(chips[0].querySelector('.lv-chip-note'),null);assert.match(chips[0].title,/ลงย้อนหลัง/);
 assert.ok(chips[1].querySelector('.lv-chip-note'));assert.match(w.LV_DATA['2026-4-7'][0].note,/ลงย้อนหลัง/);
+for(const employee of w.LV_EMPS){
+ assert.equal(employee.max,6,employee.id+' monthly entitlement');w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5','2026-4-7','2026-4-9'],'hol',employee.id);
+ assert.equal(w.lvQuotaErr(employee.id,2026,4,11,'hol'),null,'sixth day allowed '+employee.id);
+ seed(['2026-4-11'],'hol',employee.id);assert.match(w.lvQuotaErr(employee.id,2026,4,13,'hol'),/6\/6/,'seventh day exceeds quota '+employee.id);
+ assert.equal(w.lvQuotaErr(employee.id,2026,4,26,'hol'),null,'new monthly cycle '+employee.id);
+}
+assert.equal(w.LV_ANNUAL,6,'annual vacation remains separate');
 dom.window.close();console.log('PASS cycle boundaries, projected batch quota/consecutive rules, edit accounting, note preservation');
