@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix509">
+<meta name="rb-build" content="fix510">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1753,23 +1753,7 @@ function lvConsecRun(empId,y,m,d,types,excUid){
   return run;
 }
 /* ── Validation ── */
-function lvRuleErr(empId,y,m,d,type,excUid){
-  var emp=lvFindEmp(empId);if(!emp)return null;
-  if(emp.group==='sup'||emp.group==='spec')return null;
-  var es=lvGetDay(y,m,d),gaSet={},aoSet={};
-  for(var i=0;i<es.length;i++){
-    if(es[i].uid===excUid)continue;
-    if(es[i].empId===empId)continue;
-    if(es[i].type!==type)continue;
-    var ee=lvFindEmp(es[i].empId);
-    if(ee&&ee.group==='ga')gaSet[es[i].empId]=1;
-    if(ee&&ee.group==='ao')aoSet[es[i].empId]=1;
-  }
-  var gaC=Object.keys(gaSet).length,aoC=Object.keys(aoSet).length;
-  if(emp.group==='ga'&&gaC>=2)return 'Graphic & Ads ลา '+(LV_TYPE_LABEL[type]||type)+' ครบ 2 คนแล้วในวันนี้';
-  if(emp.group==='ao'&&aoC>=1)return 'Ads Optimizer มีคนลา '+(LV_TYPE_LABEL[type]||type)+' อยู่แล้ว ลาซ้ำไม่ได้';
-  return null;
-}
+function lvRuleErr(empId,y,m,d,type,excUid){return null;}
 function lvQuotaErr(empId,y,m,d,type,excUid){
   var emp=lvFindEmp(empId);if(!emp)return null;
   if(type==='hol'){

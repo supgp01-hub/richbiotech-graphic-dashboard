@@ -30,7 +30,7 @@ w.LV_DATA={};assert.ok(w.checkLeaveBatch('ter','hol',dates(10,11,12,13),'',null)
 w.LV_DATA={};seed(['2026-1-1','2026-2-1','2026-3-1','2026-4-1','2026-5-1'],'vac');
 assert.ok(w.checkLeaveBatch('ter','vac',dates(10,12),'',null).some(x=>x.includes('พักร้อนครบ')));
 w.LV_DATA={};seed(['2026-4-10'],'hol','jam');seed(['2026-4-10'],'hol','dom');
-assert.ok(w.checkLeaveBatch('ter','hol',dates(10),'exception',null).some(x=>x.includes('ครบ 2 คน')),'notes cannot bypass staffing rules');
+assert.equal(w.checkLeaveBatch('ter','hol',dates(10),'',null).length,0,'same-day Graphic leave has no headcount limit');
 w.LV_DATA={'2026-4-7':[{uid:99,empId:'ter',type:'hol',note:'ลงย้อนหลังตามตารางเดิมรอบ ม.ค.–ก.ค. 2569'},{uid:100,empId:'dom',type:'hol',note:'หมายเหตุปกติ'}]};
 w.LV_CUR={y:2026,m:4};w.lvRenderCal();
 const chips=w.document.querySelectorAll('.lv-emp-chip');
@@ -49,7 +49,8 @@ assert.equal(w.lvFindEmp('top').name,'Top');assert.equal(w.lvFindEmp('top').grou
 w.LV_DATA={};seed(['2026-4-1','2026-4-3','2026-4-5'],'hol','top');
 assert.ok(w.checkLeaveBatch('top','hol',dates(8,10),'',null).some(x=>x.includes('วันหยุดรอบเต็ม')));
 w.LV_DATA={};seed(['2026-4-10'],'hol','nui');
-assert.ok(w.lvRuleErr('top',2026,4,10,'hol').includes('Ads Optimizer'),'Top shares optimizer staffing rule');
+assert.equal(w.lvValidate('top',2026,4,10,'hol'),null,'optimizer can share a leave day');
+for(const type of ['hol','vac','sick','per']){w.LV_DATA={};for(const employee of w.LV_EMPS){assert.equal(w.checkLeaveBatch(employee.id,type,dates(10),'',null).length,0,employee.id+' concurrent '+type);seed(['2026-4-10'],type,employee.id);}assert.equal(w.LV_DATA['2026-4-10'].length,w.LV_EMPS.length);assert.ok(w.checkLeaveBatch('top',type,dates(10),'',null).some(x=>x.includes('มีรายการ')),'same employee duplicate still rejected');}
 w.eval(source.slice(0,source.indexOf('  function emp(id)'))+'})();');
 w._rbUser={name:'Top',role:'ao'};
 assert.equal(w._lvwCanEditEmp('top'),true);assert.equal(w._lvwCanEditEmp('nui'),false);
