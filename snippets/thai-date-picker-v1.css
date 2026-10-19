@@ -1,6 +1,5 @@
 input.rb-date-input{font-family:"Segoe UI",Tahoma,Arial,sans-serif!important;font-size:13px!important;color:transparent!important;caret-color:transparent!important;background-image:var(--rb-date-text)!important;background-repeat:no-repeat!important;background-position:left center!important;background-size:240px 32px!important;cursor:pointer}
 #rb-date-picker .rb-range-hint{font-size:12px;margin:0 4px 8px;color:inherit}
-#rb-date-picker button.rb-range-cycle{display:block;padding:6px 10px;border:1px solid #a9d3c8;border-radius:6px;margin:0 4px 8px;color:inherit}
 #rb-date-picker button.in-range{background:#e3f3ee;border-radius:0}
 html[data-theme=dark] #rb-date-picker button.in-range{background:#365c50}
 input.rb-date-input::-webkit-datetime-edit{opacity:0}input.rb-date-input::-webkit-calendar-picker-indicator{opacity:.55;cursor:pointer}input.rb-date-input:disabled{cursor:default}
