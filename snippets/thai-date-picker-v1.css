@@ -10,3 +10,19 @@ html[data-theme=dark] #rb-date-picker{background:#203932;color:#edf5f3;border-co
 @media(pointer:coarse){#rb-date-picker{width:304px}#rb-date-picker .rb-date-grid button{width:38px;height:38px}#rb-date-picker .rb-date-head button,#rb-date-picker .rb-date-foot button{min-height:40px}}
 #rb-date-picker .rb-date-grid button{min-width:28px!important;min-height:28px!important;width:28px!important;height:28px!important;margin:0!important;padding:0!important;box-shadow:none!important}@media(max-width:600px),(pointer:coarse){#rb-date-picker{width:304px}#rb-date-picker .rb-date-grid button{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}}
 #ord-fst.rb-date-input::-webkit-calendar-picker-indicator{display:none}
+
+#rb-date-picker.rb-date-range{width:440px;padding:0;overflow:hidden}
+#rb-date-picker .rb-range-body{display:grid;grid-template-columns:112px minmax(0,1fr)}
+#rb-date-picker .rb-range-shortcuts{padding:12px 8px;border-right:1px solid #e5e7eb}
+#rb-date-picker .rb-range-shortcuts button{display:block;width:100%;text-align:left;padding:10px 8px;border-radius:6px;white-space:nowrap}
+#rb-date-picker .rb-range-calendar{padding:10px 10px 8px;min-width:0}
+#rb-date-picker .rb-range-summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;background:#e4f3ef;border-top:1px solid #dce6e4;font-size:12px}
+#rb-date-picker .rb-range-count{white-space:nowrap;color:#087f70}
+#rb-date-picker.rb-date-range .rb-date-foot{margin:0;padding:6px}
+#rb-date-picker.rb-date-range .rb-date-grid button.in-range{background:#e3f3ee;border-radius:0}
+#rb-date-picker.rb-date-range .rb-date-grid button.selected{background:#138b77;color:#fff;border-radius:6px}
+html[data-theme=dark] #rb-date-picker .rb-range-shortcuts{border-color:#456158}
+html[data-theme=dark] #rb-date-picker .rb-range-summary{background:#254c40;border-color:#456158}
+html[data-theme=dark] #rb-date-picker .rb-range-count{color:#85d5bc}
+html[data-theme=dark] #rb-date-picker.rb-date-range .rb-date-grid button.in-range{background:#365c50}
+@media(max-width:480px){#rb-date-picker.rb-date-range{width:320px}#rb-date-picker .rb-range-body{grid-template-columns:1fr}#rb-date-picker .rb-range-shortcuts{display:flex;padding:6px;border-right:0;border-bottom:1px solid #e5e7eb}#rb-date-picker .rb-range-shortcuts button{text-align:center;padding:10px 4px;font-size:12px}#rb-date-picker .rb-range-summary{flex-wrap:wrap}}
