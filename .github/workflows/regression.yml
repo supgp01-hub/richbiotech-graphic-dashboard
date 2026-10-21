@@ -38,6 +38,7 @@ jobs:
       - run: node tests/manual/content-inline460.e2e.cjs
       - run: node tests/manual/release-auto462.e2e.cjs
       - run: node tests/manual/content-append463.e2e.cjs
+      - run: node tests/manual/audit-rule-switches515.e2e.cjs
       - run: node tests/manual/audit-adjustments464.e2e.cjs
       - run: node tests/manual/audit-evidence470.e2e.cjs
       - run: node tests/manual/audit-inline474.e2e.cjs

@@ -274,6 +274,31 @@
           }
         }
       }
+    },
+    "audit_rule_switches_v1": {
+      ".read": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true",
+      "$rule": {
+        ".validate": "$rule === 'revision_unfixed' || $rule === 'personal_test_missing' || $rule === 'ads_table_uncleared' || $rule === 'listfb_red' || $rule === 'no_backup_page' || $rule === 'order_not_submitted'",
+        "$event": {
+          ".write": "auth != null && root.child('auth_users').child(auth.uid).child('active').val() === true && (root.child('auth_users').child(auth.uid).child('role').val() === 'sup' || root.child('auth_users').child(auth.uid).child('role').val() === 'audit') && !data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['enabled','by','actorUid','at'])",
+          "enabled": {
+            ".validate": "newData.isBoolean()"
+          },
+          "by": {
+            ".validate": "newData.val() === root.child('auth_users').child(auth.uid).child('name').val()"
+          },
+          "actorUid": {
+            ".validate": "newData.val() === auth.uid"
+          },
+          "at": {
+            ".validate": "newData.isNumber() && newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
   }
 }
