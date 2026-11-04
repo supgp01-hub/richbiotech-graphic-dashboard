@@ -5,7 +5,7 @@ var RULES=[
  
  {id:'revision_unfixed',name:'ไม่แก้ไขงานที่พบข้อผิดพลาด',amount:50,days:2,source:'งานสั่งงาน',detail:'ให้เวลาแก้ไข 2 วัน เริ่มหักวันที่ 3'},
  {id:'personal_test_missing',name:'เทสส่วนตัวไม่ครบ 15 คอนเทนต์ต่อรอบเดือน',amount:100,days:0,source:'งานสั่งงาน',detail:'ตรวจเมื่อจบรอบเดือน'},
- {id:'ads_table_uncleared',name:'ไม่เคลียร์ตารางสรุปแอด',amount:50,days:0,repeat:true,source:'Audit',detail:'หักต่อรายการที่ยังไม่เคลียร์'},
+ {id:'ads_table_uncleared',name:'ไม่เคลียร์ตารางสรุปแอด',amount:10,days:0,repeat:true,source:'Audit',detail:'หักต่อรายการที่ยังไม่เคลียร์'},
  {id:'listfb_red',name:'ไม่แก้ไขสถานะติดตามในชีท List Facebook',amount:50,days:0,repeat:true,source:'List Facebook',detail:'ตรวจซ้ำและสะสมจนกว่าจะแก้'},
  {id:'no_backup_page',name:'ไม่มีเพจสำรองสำหรับยิงแอด',amount:50,days:0,repeat:true,source:'Facebook Pages',detail:'หักทันทีเมื่อตรวจพบ'},
  {id:'order_not_submitted',name:'ไม่กดส่งงานในระบบสั่งงาน',amount:10,days:0,repeat:false,source:'งานสั่งงาน',detail:'พ้นวัน Deadline แล้วยังไม่กดส่งงาน หักอัตโนมัติ 10 บาทต่องานครั้งเดียว หากเป็นวันหยุด ให้ถึงสิ้นสุดวันแรกที่กลับมาทำงาน'},
