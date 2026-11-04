@@ -84,7 +84,7 @@ function stageOptions(current){
 }
 function accountField(label,key,type,wide){
   type=type||'input';
-  var control=type==='select'?'<select id="lfbi-'+key+'">'+(key==='idVerification'?'<option value="">ยังไม่ระบุ</option><option value="unverified">ยังไม่ยืนยัน</option><option value="verified">ยืนยันแล้ว</option>':'')+'</select>':type==='textarea'?'<textarea id="lfbi-'+key+'"></textarea>':'<input id="lfbi-'+key+'" type="text" autocomplete="off">';
+  var control=type==='select'?'<select id="lfbi-'+key+'">'+(key==='idVerification'?'<option value="">ยังไม่ระบุ</option><option value="unverified">ยังไม่ยืนยัน</option><option value="verified">ยืนยันแล้ว</option><option value="rejected">ยังยืนยันไม่ผ่าน</option>':'')+'</select>':type==='textarea'?'<textarea id="lfbi-'+key+'"></textarea>':'<input id="lfbi-'+key+'" type="text" autocomplete="off">';
   return'<div class="lfb-account-field '+(wide==='full'?'lfb-account-field-full':'')+'"><label for="lfbi-'+key+'">'+label+'</label>'+control+'</div>';
 }
 function accountDropdownValues(key,current,data){
