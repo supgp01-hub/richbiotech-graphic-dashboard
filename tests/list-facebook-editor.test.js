@@ -14,7 +14,7 @@ assert.ok(editorSource.includes('visible=filtered.slice(start,start+size)'), 'on
 assert.ok(indexSource.includes("list-facebook-editor.js?v=fix494"), 'the deployed page must cache-bust the current Facebook editor');
 assert.ok(indexSource.includes('list-facebook-editor.css?v=fix494'), 'the deployed page must cache-bust the Facebook editor layout');
 assert.ok(indexSource.includes('list-facebook-followup.css?v=fix'), 'the deployed page must load the follow-up workspace layout');
-assert.ok(indexSource.includes("list-facebook-followup.js?v=fix494"), 'the deployed page must load the follow-up workflow');
+assert.ok(indexSource.includes("list-facebook-followup.js?v=fix518"), 'the deployed page must load the follow-up workflow');
 assert.ok(/<meta name="rb-build" content="fix\d+">/.test(indexSource), 'the deployed page must expose its current build for cache diagnosis');
 assert.ok(editorSource.includes('window._lfbSaveAccountRecord=function'), 'the permanent account editor must save through the existing account data store');
 assert.ok(editorSource.includes("window._lfbReconcileFollowupStatus(key,entry.st,previousStatus,values.followupNextDate,{note:entry.note})"), 'account status saves must synchronize the follow-up state and selected date');
