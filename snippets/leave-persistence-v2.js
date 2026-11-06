@@ -40,12 +40,12 @@ function savePending(envelope){var copy=clone(envelope);if(writeJson(PENDING_KEY
 function clearPending(){memoryPending=null;try{localStorage.removeItem(PENDING_KEY);}catch(error){}}
 function currentUser(){return root._rbUser&&root._rbUser.name?String(root._rbUser.name):'';}
 function unique(values){var seen={};return(values||[]).filter(function(value){value=String(value||'');if(!value||seen[value])return false;seen[value]=1;return true;});}
-function render(){try{if(typeof root.lvRender==='function')root.lvRender();if(typeof root.lvRestorePhotos==='function')root.lvRestorePhotos();if(typeof root.rbRefreshOrderLeaveGuard==='function')root.rbRefreshOrderLeaveGuard();}catch(error){}}
+function refreshPlannerLeave(){if(root.rbOrderPlanner&&root.rbOrderPlanner.refreshLeave)root.rbOrderPlanner.refreshLeave();}function render(){try{if(typeof root.lvRender==='function')root.lvRender();if(typeof root.lvRestorePhotos==='function')root.lvRestorePhotos();if(typeof root.rbRefreshOrderLeaveGuard==='function')root.rbRefreshOrderLeaveGuard();}catch(error){}refreshPlannerLeave();}
 function queueSnapshot(dirty,operations){
   var previous=readPending(),revision=nextRevision(),keys=unique((previous?previous.dirty:[]).concat(dirty||[])),ops=clone(previous&&previous.ops||{});
   Object.keys(object(operations)).forEach(function(path){ops[path]=clone(operations[path]);});
   var envelope={d:normalizeData(root.LV_DATA),u:number(root.LV_UID)||1,t:revision,updatedBy:currentUser(),dirty:keys,ops:ops};
-  saveLocal(envelope);savePending(envelope);flush();return envelope;
+  saveLocal(envelope);savePending(envelope);flush();refreshPlannerLeave();return envelope;
 }
 function keyPath(key){return CLOUD_PATH+'/d/'+String(key).replace(/[.#$\[\]\/]/g,'_');}
 function scheduleRetry(){clearTimeout(retryTimer);retryTimer=setTimeout(flush,5000);}
@@ -94,7 +94,7 @@ function fetchRemote(){
   remoteLoading=true;
   root.fbGet(CLOUD_PATH,function(error,remote){remoteLoading=false;if(error||!remote){flush();return;}acceptRemote(remote);});
 }
-function leavePageActive(){var panel=root.document&&root.document.getElementById&&root.document.getElementById('tab-schedule');return !!panel&&panel.classList.contains('active')&&!root.document.hidden;}
+function leavePageActive(){var panel=root.document&&root.document.getElementById&&root.document.getElementById('tab-schedule');var planner=root.document&&root.document.querySelector&&root.document.querySelector('#rb-order-planner.is-open [data-view="plan"].is-active');return !!(planner||panel&&panel.classList.contains('active'))&&!root.document.hidden;}
 function saveAll(){var keys=Object.keys(object(root.LV_DATA));if(!keys.length)keys=['__empty__'];return queueSnapshot(keys);}
 function saveDay(y,m,d,rows){
   var key=typeof root.lvDK==='function'?root.lvDK(y,m,d):(y+'-'+m+'-'+d),data=normalizeData(root.LV_DATA),before=normalizeRows(data[key]),next=[],keep={},ops={};
@@ -121,7 +121,7 @@ root.addEventListener&&root.addEventListener('online',flush);
 root.document&&root.document.addEventListener&&root.document.addEventListener('click',function(event){var button=event.target&&event.target.closest&&event.target.closest('#sidebar button,#rb-bottom-nav button');if(button&&String(button.textContent||'').indexOf('วันหยุด')>=0)setTimeout(fetchRemote,0);});
 root.document&&root.document.addEventListener&&root.document.addEventListener('visibilitychange',function(){if(leavePageActive())fetchRemote();});
 root.addEventListener&&root.addEventListener('storage',function(event){if(event.key===PENDING_KEY)flush();if(event.key===LOCAL_KEY&&!readPending()){var next=readLocal();if(next.t>lastRevision){lastRevision=next.t;applyEnvelope(next);}}});
-root.rbLeavePersistence={version:VERSION,waitForSync:waitForSync,flush:flush,pending:function(){return!!readPending();}};
+root.rbLeavePersistence={version:VERSION,waitForSync:waitForSync,refresh:fetchRemote,flush:flush,pending:function(){return!!readPending();}};
 root._rbLeavePersistenceTest={normalize:normalize,normalizeData:normalizeData,mergePending:mergePending,acceptRemote:acceptRemote,readPending:readPending,flush:flush,waitForSync:waitForSync,version:VERSION};
 install();
 })(window);
