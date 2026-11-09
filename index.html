@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix529">
+<meta name="rb-build" content="fix530">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4314,8 +4314,8 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
       if(isAuditRole){_omSaveBtn.style.display='none';return;}
       if(isImageTab){
         _omSaveBtn.style.display='';
-        if(_omViewMode){
-          _omSaveBtn.textContent=workerLabel;
+        if(_omViewMode||(role==='sup'&&_omInfoAction!==saveOM2&&_omInfoAction)){
+          _omSaveBtn.textContent=_omViewMode?workerLabel:(isRev?'ส่งตรวจอีกครั้ง':'ส่งงาน');
           _omSaveBtn.onclick=function(){
             var workflow=document.getElementById('rb-team-version-workflow'),states=workflow&&Array.isArray(workflow._rbState)?workflow._rbState:[];
             var versionEvidence=states.some(function(state){return state&&state.result==='issue'&&(String(state.fixLink||'').trim()||(Array.isArray(state.fixImages)&&state.fixImages.length));});
@@ -4471,13 +4471,13 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
     if(_omInfoPanel){_omInfoPanel.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=_isView;el.style.opacity=_isView?'0.7':'';el.style.cursor=_isView?'default':'';el.style.background=_isView&&el.tagName!=='TEXTAREA'?'#f9fafb':'';});_omInfoPanel.querySelectorAll('button').forEach(function(b){if(b.getAttribute('data-link-btn')||b.classList.contains('rb-revision-edit-toggle')){b.disabled=false;b.style.opacity='';b.style.cursor='pointer';}else{b.disabled=_isView;b.style.opacity=_isView?'0.4':'';b.style.cursor=_isView?'not-allowed':'';}});}
     if(_omSaveBtn){
       _omSaveBtn.parentElement.style.display='';
-      if(_isView){
+      if(_isView||(_orderRole==='sup'&&o&&['pending','inprogress','revision'].includes(o.status))){
         _omSaveBtn.disabled=false;_omSaveBtn.style.opacity='1';_omSaveBtn.style.pointerEvents='auto';_omSaveBtn.style.cursor='pointer';
         var _cid=ge('om-id').textContent;
         var _ords=typeof lpORD==='function'?lpORD():[];
         var _cjobIndex=modalOrderIndex(_ords,_cid),_cjob=_cjobIndex>=0?_ords[_cjobIndex]:null;
         var _cst=_cjob?_cjob.status:'';
-        var _nst=_cst==='inprogress'?'review':(_cst==='revision'?'review':'inprogress');
+        var _nst=(_orderRole==='sup'||_cst==='inprogress')?'review':(_cst==='revision'?'review':'inprogress');
         _omSaveBtn.textContent=_cst==='inprogress'?'ส่งงาน':(_cst==='revision'?'ส่งตรวจอีกครั้ง':'กำลังดำเนินการ');
         _omSaveBtn.style.background='#d97706';
         _omInfoAction=function(){if(window.rbPersonalWork&&!window.rbPersonalWork.canSubmit())return;
@@ -4511,7 +4511,7 @@ p1.appendChild(clipExDiv);window._addClipRow=function(){var cont=document.getEle
             if(typeof renderOrderStats==='function')renderOrderStats();if(typeof renderOrders==='function')renderOrders();
           }});
         };
-        _omSaveBtn.onclick=_omInfoAction;
+        _omSaveBtn.onclick=_isView?_omInfoAction:saveOM2; if(!_isView)_omSaveBtn.textContent='▤ บันทึกงาน';
       } else if(_isAuditView) {
         _omInfoAction=null;
         _omSaveBtn.textContent='ตรวจออดิต';
