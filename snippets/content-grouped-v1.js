@@ -71,7 +71,7 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
       }
     });
     const [start, end] = period.split('/');
-    const inPeriod = value => end ? value >= start && value <= end : value.startsWith(start);
+    const inPeriod = value => !!value && (!start || (end ? value >= start && value <= end : value === start));
     return rows.flatMap(row => {
       const key = hookKey(row.brand, row.ready || row.hook);
       const candidates = [...(linked.get(String(row.id)) || []), ...(legacy.get(key) || [])];
@@ -99,11 +99,10 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
     const panel = document.createElement('section');
     panel.className = 'gsp';
     panel.dataset.sub = 'content-person';
-    panel.innerHTML = '<div class="ct-wrap"><div class="ct-header"><h2 class="ct-title">คอนเทนต์รายคน</h2><label>เดือน <input type="month" aria-label="เดือน"></label><label>วันที่ <input type="date" aria-label="วันที่" data-date-range=""></label><button type="button" class="ct-btn ct-btn-secondary" data-refresh>อัปเดตข้อมูล</button></div><div class="ct-actions" data-people aria-label="พนักงาน"></div><p role="status"></p><div class="ct-table-container" data-results></div></div>';
+    panel.innerHTML = '<div class="ct-wrap"><div class="ct-header"><h2 class="ct-title">คอนเทนต์รายคน</h2><label>สินค้า <select aria-label="สินค้า"></select></label><label>วันที่ <input type="date" aria-label="วันที่" data-date-range=""></label><button type="button" class="ct-btn ct-btn-secondary" data-refresh>อัปเดตข้อมูล</button></div><div class="ct-actions" data-people aria-label="พนักงาน"></div><p role="status"></p><div class="ct-table-container" data-results></div></div>';
     links.after(panel);
-    const month = panel.querySelector('input[type=month]');
+    const product = panel.querySelector('select');
     const date = panel.querySelector('input[type=date]');
-    month.value = day(Date.now()).slice(0, 7);
     const people = panel.querySelector('[data-people]');
     const status = panel.querySelector('[role="status"]');
     const results = panel.querySelector('[data-results]');
@@ -111,28 +110,44 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
     function render() {
       if (!panel.classList.contains('gsp-active')) return;
       if (!w.ctHookHistory?.allowed()) {
+        product.replaceChildren();
         people.replaceChildren();
         results.replaceChildren();
         status.textContent = 'กรุณาเข้าสู่ระบบเพื่อดูรายการ';
         return;
       }
       const user = w._rbUser;
-      const rows = w.ctContentRows();
+      const allRows = w.ctContentRows();
+      const brand = product.value;
+      const brands = [...new Set([...w.ctProductList(), ...allRows.map(row => row.brand)].filter(Boolean))];
+      const options = ['<option value="">เลือกสินค้า</option>', ...brands.map(name =>
+        '<option value="'+escape(name)+'">'+escape(name)+'</option>'
+      )].join('');
+      if (product.dataset.options !== options) {
+        product.innerHTML = options;
+        product.dataset.options = options;
+        product.value = brands.includes(brand) ? brand : '';
+      }
+      const rows = allRows.filter(row => product.value && row.brand === product.value);
       const orders = w.lpORD?.() || [];
       const own = code(user.name);
       const teamView = ['sup','audit'].includes(user.role);
       const names = teamView ? [...new Set([
         ...(w.MB_GR || []),
-        ...Object.values(w.ctProductOwners?.() || {}).flatMap(value => String(value || '').split(/[\s,]+/)),
+        ...String(w.ctProductOwners?.()[product.value] || '').split(/[\s,]+/),
         ...orders.map(order => order?.assignee),
         ...rows.flatMap(row => [...Object.keys(row.manualDeadlines || {}), ...(w.ctSubmissions?.entries(row.id) || []).map(entry => entry.ownerName)])
       ].map(code).filter(Boolean))].sort() : [own].filter(Boolean);
-      if (!names.includes(selected)) selected = names.includes(own) ? own : names[0] || '';
-      people.innerHTML = names.map(name => '<button type="button" class="ct-btn '+(name === selected ? 'ct-btn-primary' : 'ct-btn-secondary')+'" data-person="'+escape(name)+'" aria-pressed="'+(name === selected)+'">'+escape(name)+'</button>').join('');
-      const period = date.dataset.dateRange || date.value || month.value;
-      const list = selected && period ? reportRows(rows, orders, selected, period) : [];
+      const available = names.filter(name => rows.length && reportRows(rows, orders, name, '').length);
+      if (!available.includes(selected)) selected = '';
+      people.innerHTML = available.map(name => '<button type="button" class="ct-btn '+(name === selected ? 'ct-btn-primary' : 'ct-btn-secondary')+'" data-person="'+escape(name)+'" aria-pressed="'+(name === selected)+'">'+escape(name)+'</button>').join('');
+      const period = date.dataset.dateRange || date.value;
+      const list = selected ? reportRows(rows, orders, selected, period) : [];
       status.textContent = (loading ? 'กำลังอัปเดตข้อมูล · ' : error ? 'อัปเดตไม่สำเร็จ · แสดงข้อมูลที่มีอยู่ · ' : '') +
-        (list.length ? selected + ' · ' + list.length + ' รายการ' : (date.value ? 'ไม่พบคอนเทนต์ในวันที่เลือก' : 'ไม่พบคอนเทนต์ในเดือนที่เลือก'));
+        (!product.value ? 'เลือกสินค้าก่อน' :
+          !available.length ? 'ยังไม่มีรายการของสินค้านี้' :
+          !selected ? 'เลือกพนักงาน' :
+          selected + ' · ' + (list.length ? list.length + ' รายการ' : 'ไม่พบคอนเทนต์ในวันที่เลือก'));
       results.innerHTML = list.length ? '<table class="ct-table" style="min-width:620px"><thead><tr><th>สินค้า</th><th>ชื่อตอน</th><th>HOOK</th><th>วันที่ในตาราง</th><th>ส่ง List Content</th><th>คลิป</th></tr></thead><tbody>'+list.map(({row,dates,submitted}) =>
         '<tr><td>'+escape(row.brand)+'</td><td>'+escape(row.episode || row.name || '—')+'</td><td>'+escape(row.ready || row.hook || '—')+'</td><td>'+dates.map(display).join('<br>')+(dates.length ? '' : '—')+'</td><td>'+display(submitted)+'</td><td>'+(/^https?:\/\//i.test(row.clipLink || '') ? '<a target="_blank" rel="noopener noreferrer" href="'+escape(row.clipLink)+'">เปิดคลิป</a>' : '—')+'</td></tr>'
       ).join('')+'</tbody></table>' : '';
@@ -165,10 +180,9 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
         people.querySelector('[aria-pressed="true"]')?.focus();
       }
     };
-    month.onchange = function () { date.value = ''; date.dataset.dateRange = ''; render(); };
+    product.onchange = function () { selected = ''; render(); };
     date.onchange = function () {
-      if (date.value) month.value = date.value.slice(0, 7);
-      else date.dataset.dateRange = '';
+      if (!date.value) date.dataset.dateRange = '';
       render();
     };
     panel.querySelector('[data-refresh]').onclick = refresh;
