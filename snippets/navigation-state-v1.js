@@ -5,7 +5,7 @@
   var GRAPHIC_SUB_KEY = 'rb_graphic_sub_v1';
   var DEFAULT_MAIN = 'overview';
   var DEFAULT_SUB = 'team';
-  var GRAPHIC_SUBS = ['team', 'order', 'links', 'commission', 'audit', 'fblist', 'listfb', 'idcard'];
+  var GRAPHIC_SUBS = ['team', 'order', 'links', 'content-person', 'commission', 'audit', 'fblist', 'listfb', 'idcard'];
 
   function storageGet(storage, key) {
     try { return storage && storage.getItem(key); } catch (e) { return null; }

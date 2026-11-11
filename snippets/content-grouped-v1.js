@@ -26,3 +26,152 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-ctg-
 document.addEventListener('click',function(e){var b=e.target.closest('[data-date-row]');if(!b||!w.ctHookHistory||!w.ctHookHistory.allowed())return;var id=b.dataset.dateRow,n=b.dataset.dateEmployee,r=(w.ctContentRows()||[]).find(x=>String(x.id)===id);if(!r)return;var dlg=document.createElement('dialog');dlg.className='ctg-date-dialog';dlg.innerHTML='<h3>แก้ไขวันที่ · '+esc(n)+'</h3><p>วันที่ย้อนหลังจากชีท ใช้แสดงใน Content Tracker เท่านั้น<br>ไม่เปลี่ยน Deadline งานจริงหรือยอดหัก</p><input type="date" aria-label="วันที่ย้อนหลัง"><p class="date-message" aria-live="polite"></p><button data-cancel>ยกเลิก</button> <button data-save>บันทึกวันที่</button>';document.body.appendChild(dlg);var input=dlg.querySelector('input');input.value=r.manualDeadlines&&r.manualDeadlines[n]&&r.manualDeadlines[n].date||'';dlg.querySelector('[data-cancel]').onclick=()=>dlg.close();dlg.addEventListener('close',()=>dlg.remove());dlg.querySelector('[data-save]').onclick=async function(){if(!input.value||!input.checkValidity()){dlg.querySelector('.date-message').textContent='กรุณาเลือกวันที่';return;}this.disabled=true;try{await w.ctSetManualDeadline(id,n,input.value);dlg.close();}catch(err){dlg.querySelector('.date-message').textContent='บันทึกยังไม่สำเร็จ กรุณาลองอีกครั้ง';this.disabled=false;}};dlg.showModal();});
 w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,mount:mount,people:people,columns:columns,version:()=>String(manage())+':'+Array.from(expanded).join('|')};
 })(window);
+
+(function (w) {
+  'use strict';
+  const monthFormat = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit'
+  });
+  const thaiDate = new Intl.DateTimeFormat('th-TH', {
+    timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit'
+  });
+  const code = name => w.rbOrderAssigneeCode(name);
+  const norm = value => String(value || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+  const hookKey = (brand, hook) => JSON.stringify([norm(brand), norm(hook)]);
+  const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  })[c]);
+  function day(value) {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    if (!value) return '';
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return '';
+    const parts = Object.fromEntries(monthFormat.formatToParts(date).map(part => [part.type, part.value]));
+    return parts.year + '-' + parts.month + '-' + parts.day;
+  }
+  function display(value) {
+    return value ? thaiDate.format(new Date(value + 'T00:00:00+07:00')) : '—';
+  }
+  function index(map, key, value) {
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(value);
+  }
+  function monthlyRows(rows, orders, employee, month) {
+    const peers = new Map(), linked = new Map(), legacy = new Map();
+    rows.forEach(row => index(peers, hookKey(row.brand, row.ready || row.hook), row));
+    orders.filter(order => order && code(order.assignee) === employee).forEach(order => {
+      const bindings = order.contentBindings || [];
+      if (bindings.length) {
+        new Set(bindings.map(binding => String(binding.id))).forEach(id => index(linked, id, order));
+      } else {
+        const keys = new Set([order, ...(order.jobExtra || [])].flatMap(job =>
+          [job.hook, job.hook2, ...(job.hookExtra || [])].filter(Boolean).map(hook => hookKey(order.product, hook))
+        ));
+        keys.forEach(key => index(legacy, key, order));
+      }
+    });
+    const inMonth = value => value.slice(0, 7) === month;
+    return rows.flatMap(row => {
+      const key = hookKey(row.brand, row.ready || row.hook);
+      const candidates = [...(linked.get(String(row.id)) || []), ...(legacy.get(key) || [])];
+      const matched = candidates.length ? w.ctHookHistory.matches(row, candidates, peers.get(key)) : [];
+      const manual = day(row.manualDeadlines?.[employee]?.date);
+      const dates = [...new Set((manual ? [manual] : matched.map(order => day(order.deadline))).filter(inMonth))].sort().reverse();
+      const submitted = (w.ctSubmissions?.entries(row.id) || []).filter(entry => code(entry.ownerName) === employee)
+        .flatMap(entry => [entry.updatedAt, ...Object.values(entry.history || {}).map(version => version?.updatedAt)])
+        .map(day).filter(inMonth).sort().pop();
+      return dates.length || submitted ? [{row, dates, submitted, latest: [dates[0] || '', submitted || ''].sort().pop()}] : [];
+    }).sort((a, b) => b.latest.localeCompare(a.latest));
+  }
+
+  function mount() {
+    const team = document.getElementById('tab-team');
+    const links = team?.querySelector('[data-sub="links"]');
+    const nav = team?.querySelector('.graphic-subnav');
+    if (!links || !nav) return false;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'gsnav-btn';
+    button.dataset.rbSub = 'content-person';
+    button.textContent = 'คอนเทนต์รายคน';
+    nav.children[2].after(button);
+    const panel = document.createElement('section');
+    panel.className = 'gsp';
+    panel.dataset.sub = 'content-person';
+    panel.innerHTML = '<div class="ct-wrap"><div class="ct-header"><h2 class="ct-title">คอนเทนต์รายคน</h2><label>เดือน <input type="month" aria-label="เดือน"></label><button type="button" class="ct-btn ct-btn-secondary" data-refresh>อัปเดตข้อมูล</button></div><div class="ct-actions" data-people aria-label="พนักงาน"></div><p role="status"></p><div class="ct-table-container" data-results></div></div>';
+    links.after(panel);
+    const month = panel.querySelector('input');
+    month.value = day(Date.now()).slice(0, 7);
+    const people = panel.querySelector('[data-people]');
+    const status = panel.querySelector('[role="status"]');
+    const results = panel.querySelector('[data-results]');
+    let selected = '', loading = false, error = false;
+    function render() {
+      if (!panel.classList.contains('gsp-active')) return;
+      if (!w.ctHookHistory?.allowed()) {
+        people.replaceChildren();
+        results.replaceChildren();
+        status.textContent = 'กรุณาเข้าสู่ระบบเพื่อดูรายการ';
+        return;
+      }
+      const user = w._rbUser;
+      const rows = w.ctContentRows();
+      const orders = w.lpORD?.() || [];
+      const own = code(user.name);
+      const teamView = ['sup','audit'].includes(user.role);
+      const names = teamView ? [...new Set([
+        ...(w.MB_GR || []),
+        ...Object.values(w.ctProductOwners?.() || {}).flatMap(value => String(value || '').split(/[\s,]+/)),
+        ...orders.map(order => order?.assignee),
+        ...rows.flatMap(row => [...Object.keys(row.manualDeadlines || {}), ...(w.ctSubmissions?.entries(row.id) || []).map(entry => entry.ownerName)])
+      ].map(code).filter(Boolean))].sort() : [own].filter(Boolean);
+      if (!names.includes(selected)) selected = names.includes(own) ? own : names[0] || '';
+      people.innerHTML = names.map(name => '<button type="button" class="ct-btn '+(name === selected ? 'ct-btn-primary' : 'ct-btn-secondary')+'" data-person="'+escape(name)+'" aria-pressed="'+(name === selected)+'">'+escape(name)+'</button>').join('');
+      const list = selected && month.value ? monthlyRows(rows, orders, selected, month.value) : [];
+      status.textContent = (loading ? 'กำลังอัปเดตข้อมูล · ' : error ? 'อัปเดตไม่สำเร็จ · แสดงข้อมูลที่มีอยู่ · ' : '') +
+        (list.length ? selected + ' · ' + list.length + ' รายการ' : 'ไม่พบคอนเทนต์ในเดือนที่เลือก');
+      results.innerHTML = list.length ? '<table class="ct-table" style="min-width:620px"><thead><tr><th>สินค้า</th><th>ชื่อตอน</th><th>HOOK</th><th>วันที่ในตาราง</th><th>ส่ง List Content</th><th>คลิป</th></tr></thead><tbody>'+list.map(({row,dates,submitted}) =>
+        '<tr><td>'+escape(row.brand)+'</td><td>'+escape(row.episode || row.name || '—')+'</td><td>'+escape(row.ready || row.hook || '—')+'</td><td>'+dates.map(display).join('<br>')+(dates.length ? '' : '—')+'</td><td>'+display(submitted)+'</td><td>'+(/^https?:\/\//i.test(row.clipLink || '') ? '<a target="_blank" rel="noopener noreferrer" href="'+escape(row.clipLink)+'">เปิดคลิป</a>' : '—')+'</td></tr>'
+      ).join('')+'</tbody></table>' : '';
+    }
+    async function refresh() {
+      if (loading || !w.ctHookHistory?.allowed()) return;
+      loading = true;
+      error = false;
+      render();
+      const responses = await Promise.allSettled([
+        Promise.resolve().then(() => w.refreshOrderContentFromCloud?.('', true)),
+        Promise.resolve().then(() => w.ctSubmissions?.refresh())
+      ]);
+      error = responses.some(response => response.status === 'rejected');
+      loading = false;
+      render();
+    }
+    button.onclick = function () {
+      team.querySelectorAll('.gsnav-active,.gsp-active').forEach(el => el.classList.remove('gsnav-active','gsp-active'));
+      button.classList.add('gsnav-active');
+      panel.classList.add('gsp-active');
+      render();
+      refresh();
+    };
+    people.onclick = function (event) {
+      const choice = event.target.closest('[data-person]');
+      if (choice) {
+        selected = choice.dataset.person;
+        render();
+        people.querySelector('[aria-pressed="true"]')?.focus();
+      }
+    };
+    month.onchange = render;
+    panel.querySelector('[data-refresh]').onclick = refresh;
+    w.addEventListener('rb:content-updated', render);
+    w.addEventListener('rb:auth-cleared', function () { selected = ''; people.replaceChildren(); results.replaceChildren(); status.textContent = ''; });
+    w.addEventListener('rb:auth-ready', function () { render(); if (panel.classList.contains('gsp-active')) refresh(); });
+    return true;
+  }
+  if (!mount() && typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver(() => { if (mount()) observer.disconnect(); });
+    observer.observe(document.documentElement, {childList:true,subtree:true});
+  }
+})(window);
+
