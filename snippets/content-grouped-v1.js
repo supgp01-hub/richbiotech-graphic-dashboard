@@ -56,7 +56,7 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(value);
   }
-  function monthlyRows(rows, orders, employee, month) {
+  function reportRows(rows, orders, employee, period) {
     const peers = new Map(), linked = new Map(), legacy = new Map();
     rows.forEach(row => index(peers, hookKey(row.brand, row.ready || row.hook), row));
     orders.filter(order => order && code(order.assignee) === employee).forEach(order => {
@@ -70,16 +70,17 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
         keys.forEach(key => index(legacy, key, order));
       }
     });
-    const inMonth = value => value.slice(0, 7) === month;
+    const [start, end] = period.split('/');
+    const inPeriod = value => end ? value >= start && value <= end : value.startsWith(start);
     return rows.flatMap(row => {
       const key = hookKey(row.brand, row.ready || row.hook);
       const candidates = [...(linked.get(String(row.id)) || []), ...(legacy.get(key) || [])];
       const matched = candidates.length ? w.ctHookHistory.matches(row, candidates, peers.get(key)) : [];
       const manual = day(row.manualDeadlines?.[employee]?.date);
-      const dates = [...new Set((manual ? [manual] : matched.map(order => day(order.deadline))).filter(inMonth))].sort().reverse();
+      const dates = [...new Set((manual ? [manual] : matched.map(order => day(order.deadline))).filter(inPeriod))].sort().reverse();
       const submitted = (w.ctSubmissions?.entries(row.id) || []).filter(entry => code(entry.ownerName) === employee)
         .flatMap(entry => [entry.updatedAt, ...Object.values(entry.history || {}).map(version => version?.updatedAt)])
-        .map(day).filter(inMonth).sort().pop();
+        .map(day).filter(inPeriod).sort().pop();
       return dates.length || submitted ? [{row, dates, submitted, latest: [dates[0] || '', submitted || ''].sort().pop()}] : [];
     }).sort((a, b) => b.latest.localeCompare(a.latest));
   }
@@ -98,9 +99,10 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
     const panel = document.createElement('section');
     panel.className = 'gsp';
     panel.dataset.sub = 'content-person';
-    panel.innerHTML = '<div class="ct-wrap"><div class="ct-header"><h2 class="ct-title">คอนเทนต์รายคน</h2><label>เดือน <input type="month" aria-label="เดือน"></label><button type="button" class="ct-btn ct-btn-secondary" data-refresh>อัปเดตข้อมูล</button></div><div class="ct-actions" data-people aria-label="พนักงาน"></div><p role="status"></p><div class="ct-table-container" data-results></div></div>';
+    panel.innerHTML = '<div class="ct-wrap"><div class="ct-header"><h2 class="ct-title">คอนเทนต์รายคน</h2><label>เดือน <input type="month" aria-label="เดือน"></label><label>วันที่ <input type="date" aria-label="วันที่" data-date-range=""></label><button type="button" class="ct-btn ct-btn-secondary" data-refresh>อัปเดตข้อมูล</button></div><div class="ct-actions" data-people aria-label="พนักงาน"></div><p role="status"></p><div class="ct-table-container" data-results></div></div>';
     links.after(panel);
-    const month = panel.querySelector('input');
+    const month = panel.querySelector('input[type=month]');
+    const date = panel.querySelector('input[type=date]');
     month.value = day(Date.now()).slice(0, 7);
     const people = panel.querySelector('[data-people]');
     const status = panel.querySelector('[role="status"]');
@@ -127,9 +129,10 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
       ].map(code).filter(Boolean))].sort() : [own].filter(Boolean);
       if (!names.includes(selected)) selected = names.includes(own) ? own : names[0] || '';
       people.innerHTML = names.map(name => '<button type="button" class="ct-btn '+(name === selected ? 'ct-btn-primary' : 'ct-btn-secondary')+'" data-person="'+escape(name)+'" aria-pressed="'+(name === selected)+'">'+escape(name)+'</button>').join('');
-      const list = selected && month.value ? monthlyRows(rows, orders, selected, month.value) : [];
+      const period = date.dataset.dateRange || date.value || month.value;
+      const list = selected && period ? reportRows(rows, orders, selected, period) : [];
       status.textContent = (loading ? 'กำลังอัปเดตข้อมูล · ' : error ? 'อัปเดตไม่สำเร็จ · แสดงข้อมูลที่มีอยู่ · ' : '') +
-        (list.length ? selected + ' · ' + list.length + ' รายการ' : 'ไม่พบคอนเทนต์ในเดือนที่เลือก');
+        (list.length ? selected + ' · ' + list.length + ' รายการ' : (date.value ? 'ไม่พบคอนเทนต์ในวันที่เลือก' : 'ไม่พบคอนเทนต์ในเดือนที่เลือก'));
       results.innerHTML = list.length ? '<table class="ct-table" style="min-width:620px"><thead><tr><th>สินค้า</th><th>ชื่อตอน</th><th>HOOK</th><th>วันที่ในตาราง</th><th>ส่ง List Content</th><th>คลิป</th></tr></thead><tbody>'+list.map(({row,dates,submitted}) =>
         '<tr><td>'+escape(row.brand)+'</td><td>'+escape(row.episode || row.name || '—')+'</td><td>'+escape(row.ready || row.hook || '—')+'</td><td>'+dates.map(display).join('<br>')+(dates.length ? '' : '—')+'</td><td>'+display(submitted)+'</td><td>'+(/^https?:\/\//i.test(row.clipLink || '') ? '<a target="_blank" rel="noopener noreferrer" href="'+escape(row.clipLink)+'">เปิดคลิป</a>' : '—')+'</td></tr>'
       ).join('')+'</tbody></table>' : '';
@@ -162,7 +165,12 @@ w.addEventListener('rb:auth-cleared',()=>expanded.clear());w.ctGrouped={row:row,
         people.querySelector('[aria-pressed="true"]')?.focus();
       }
     };
-    month.onchange = render;
+    month.onchange = function () { date.value = ''; date.dataset.dateRange = ''; render(); };
+    date.onchange = function () {
+      if (date.value) month.value = date.value.slice(0, 7);
+      else date.dataset.dateRange = '';
+      render();
+    };
     panel.querySelector('[data-refresh]').onclick = refresh;
     w.addEventListener('rb:content-updated', render);
     w.addEventListener('rb:auth-cleared', function () { selected = ''; people.replaceChildren(); results.replaceChildren(); status.textContent = ''; });
