@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix535">
+<meta name="rb-build" content="fix536">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3458,7 +3458,7 @@ function renderOrders(){
   // Preserve live controls when synchronization has not changed displayed data.
   // Include permissions, filters and day boundaries; omit image payloads.
   var pendingPaths={};fbOrderQueueLoad().forEach(function(op){if(op)pendingPaths[op.path]=true;});
-  var renderKey=JSON.stringify([new Date().toDateString(),_OF,window._ordViewMode,window._rbUser&&[window._rbUser.name,window._rbUser.role],viewerContext.isGraphic,orders.length,f.map(function(o){return[o._fbKey,o.id,o.name,o.title,o.product,o.note,o.type,o.deadline,o.status,o.assignee,window.rbReviewRounds?window.rbReviewRounds.signature(o):null,!!pendingPaths['/orders/'+o._fbKey]]})]);
+  var renderKey=JSON.stringify([new Date().toDateString(),_OF,window._ordViewMode,window._rbUser&&[window._rbUser.name,window._rbUser.role],viewerContext.isGraphic,orders.length,f.map(function(o){return[o._fbKey,o.id,o.name,o.title,o.product,o.note,o.type,o.deadline,o.status,o.assignee,o.personalCampaigns,window.rbReviewRounds?window.rbReviewRounds.signature(o):null,!!pendingPaths['/orders/'+o._fbKey]]})]);
   if(wrap._rbRenderKey===renderKey&&wrap.firstElementChild)return;
   wrap._rbRenderKey=renderKey;
   var sum=document.getElementById('ord-result-summary');
@@ -3481,7 +3481,7 @@ function renderOrders(){
     var dlc=ds==='over'?'#dc2626':ds==='soon'?'#d97706':'#374151';
     var dlbadge=ds==='over'?'<span style="font-size:10px;background:var(--auto-lc21);color:#dc2626;padding:1px 5px;border-radius:4px;margin-left:4px;">เกิน</span>':ds==='soon'?'<span style="font-size:10px;background:var(--auto-lc25);color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">ใกล้</span>':'';
     [{html:'<span style="font-family:monospace;font-weight:700;color:var(--text-heading);">'+esc(o.id)+'</span>'},
-     {html:'<div style="font-weight:600;color:var(--text-heading);">'+esc(window.rbMultipleJobs?window.rbMultipleJobs.names(o):o.name||o.title||'')+'</div>'+(o.product?'<span class="ord-product">'+esc(o.product)+'</span>':'')+(o.note?'<div style="font-size:11px;color:var(--text-muted2);margin-top:3px;">'+esc(o.note)+'</div>':'')},
+     {html:'<div style="font-weight:600;color:var(--text-heading);">'+(o.personalTest&&window.rbPersonalWork?rbPersonalWork.listNames(o):esc(window.rbMultipleJobs?window.rbMultipleJobs.names(o):o.name||o.title||''))+'</div>'+(o.product?'<span class="ord-product">'+esc(o.product)+'</span>':'')+(o.note?'<div style="font-size:11px;color:var(--text-muted2);margin-top:3px;">'+esc(o.note)+'</div>':'')},
      {html:'<span style="background:var(--auto-lc24);padding:2px 8px;border-radius:6px;font-size:11px;">'+esc(rbOrderTypeLabel(o.type)||'—')+'</span>'},
      {html:'<span style="color:'+dlc+';font-weight:600;">'+fmtD(o.deadline)+'</span>'+dlbadge}
     ].forEach(function(c,ci){var td=document.createElement('td');td.setAttribute('data-label',['เลขงาน','ชื่องาน','ประเภท','DEADLINE'][ci]);td.style.cssText='padding:10px 14px;vertical-align:middle;';td.innerHTML=c.html;tr.appendChild(td);});
@@ -5991,7 +5991,7 @@ button>.rb-leading-icon{width:17px;height:17px}
 <link rel="stylesheet" href="snippets/order-list-content-v1.css?v=fix444"><script src="snippets/order-list-content-v1.js?v=fix525"></script>
 <script src="snippets/employee-job-details-v1.js?v=fix525"></script>
 <link rel="stylesheet" href="snippets/mobile-workspace-v1.css?v=fix497">
-<link rel="stylesheet" href="snippets/personal-test-work-v1.css?v=fix494"><script src="snippets/personal-test-work-v1.js?v=fix494"></script><script src="snippets/mobile-workspace-v1.js?v=fix494"></script>
+<link rel="stylesheet" href="snippets/personal-test-work-v1.css?v=fix494"><script src="snippets/personal-test-work-v1.js?v=fix536"></script><script src="snippets/mobile-workspace-v1.js?v=fix494"></script>
 <script src="snippets/session-resume-v1.js?v=fix482"></script>
 <script src="snippets/employee-display-name-v1.js?v=fix494"></script>
 <script src="snippets/import-history-v1.js?v=fix494"></script>
