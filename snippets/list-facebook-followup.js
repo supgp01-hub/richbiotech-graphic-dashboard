@@ -96,7 +96,7 @@ function accountDropdownValues(key,current,data){
     seen[normalized]=true;values.push(value);
   }
   add(current);
-  if(key==='emp')['VIEW','MOSS','DOM','TER','NUNE','JAM','BALL','NUI','MIND'].forEach(add);
+  if(key==='emp')['VIEW','MOSS','DOM','TER','NUNE','JAM','BALL','NUI','MIND','บัญชีใหม่'].forEach(add);
   (Array.isArray(data)?data:[]).forEach(function(row){add(row&&row[key]);});
   if(key==='prod'&&Array.isArray(window._fpProdsCache))window._fpProdsCache.forEach(add);
   if(key==='prod'&&typeof window.ctProductList==='function'){var products=window.ctProductList();if(Array.isArray(products))products.forEach(add);}
@@ -189,7 +189,7 @@ function hybridHtml(overlay){
 }
 function employeeOptions(data){
   var select=document.getElementById('lfb-hybrid-employee');if(!select)return;
-  var seen={},items=[];data.forEach(function(row){var value=String(row.emp||'').trim();if(!value)return;var key=value.toUpperCase();if(seen[key])return;seen[key]=true;items.push(value);});items.sort(function(a,b){return a.localeCompare(b,'en',{sensitivity:'base'});});
+  var seen={'บัญชีใหม่':true},items=['บัญชีใหม่'];data.forEach(function(row){var value=String(row.emp||'').trim();if(!value)return;var key=value.toUpperCase();if(seen[key])return;seen[key]=true;items.push(value);});items.sort(function(a,b){return a.localeCompare(b,'en',{sensitivity:'base'});});
   var current=window._lfbFilter&&window._lfbFilter.fE||'ALL';
   select.innerHTML='<option value="ALL">พนักงานทั้งหมด</option>'+items.map(function(value){return'<option value="'+esc(value)+'">'+esc(value)+'</option>';}).join('')+'<option value="__EMPTY__">ไม่ระบุพนักงาน</option>';
   select.value=current;
