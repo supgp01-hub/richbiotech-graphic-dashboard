@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="rb-build" content="fix539">
+<meta name="rb-build" content="fix540">
 <title>RICHBIOTECH — Graphic & Ads Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4596,7 +4596,7 @@ if(_revisionSubmit){
       }setTimeout(revealVersion,120);
     },80);
   };
-  function closeOM2(force){if(_omActionBusy&&!force)return;if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
+  function closeOM2(event){if(_omActionBusy||!event||!_OM2||event.currentTarget!==_OM2.querySelector('.rb-om-header-close'))return;if(_omIsNew)saveOMDraftNow();if(_OM2)_OM2.style.display='none';document.body.style.overflow='';}
   function submitLinkValues(){var rows=document.querySelectorAll('#om-submitlinks-rows .om-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
   function imageSubmitLinkValues(){var rows=document.querySelectorAll('#om-image-submitlinks-rows .om-image-submitlink-row input');return Array.prototype.slice.call(rows).map(function(el){return(el.value||'').trim();});}
   function setOMSubmitFeedback(message,kind){var box=ge('om-submit-feedback');if(!box)return;box.textContent=message||'';box.style.display=message?'block':'none';box.style.background=kind==='error'?'#fef2f2':'#ecfdf5';box.style.border='1px solid '+(kind==='error'?'#fecaca':'#a7f3d0');box.style.color=kind==='error'?'#991b1b':'#176f4f';}
