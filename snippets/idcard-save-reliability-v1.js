@@ -198,11 +198,11 @@ function installCloudTracker(){
   root.fbSet=trackedSet;
 }
 
-function installCloudReader(){
+function loadStatus(message){  var host=document.getElementById('ic-root');if(!host)return;  var state=document.getElementById('ic-load-state');  if(!state){state=document.createElement('div');state.id='ic-load-state';state.setAttribute('role','status');state.style.cssText='padding:10px;color:var(--text-muted2);';host.prepend(state);}  state.textContent=message;state.hidden=!message;}function installCloudReader(){
   if(typeof root.fbGet!=='function'||root.fbGet.__rbIdcardShared)return;
   var originalGet=root.fbGet;
   function sharedGet(path,callback){
-    if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);
+    if(path!==LEGACY_PATH)return originalGet.apply(this,arguments);    var receive=callback;callback=function(error,rows){receive(error,rows);loadStatus(error?'โหลดข้อมูลไม่สำเร็จ กรุณาเปิดหน้านี้อีกครั้ง':'');};    loadStatus('กำลังโหลดข้อมูลบัตรประชาชน...');
     if(pendingSync){
       var waiting=pendingSync;
       Promise.resolve(waiting).then(function(){sharedGet(path,callback);},function(){callback(null,localRows());});
@@ -224,7 +224,7 @@ function installCloudReader(){
         var mergedById={};(sharedRows||[]).concat(legacyRows||[]).forEach(function(row){var id=String(row.id);var old=mergedById[id];if(!old||Number(row.updatedAt||0)>=Number(old.updatedAt||0))mergedById[id]=row;});
         var mergedRows=mergeChangedLocal(Object.values(mergedById),readVersion);
         if(mergedRows.length&&typeof root.fbSet==='function'){
-          Promise.resolve(root.fbSet(LEGACY_PATH,mergedRows)).then(function(){callback(null,mergedRows);},function(){callback(null,mergedRows);});
+          callback(null,mergedRows);          Promise.resolve(root.fbSet(LEGACY_PATH,mergedRows)).catch(function(){});
           return;
         }
         callback(sharedError||legacyError,mergedRows);
