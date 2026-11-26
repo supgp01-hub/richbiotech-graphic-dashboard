@@ -107,7 +107,7 @@ function sortStatusRows(){
   if(changed&&root.rbPageSizePagination&&typeof root.rbPageSizePagination.apply==='function')root.rbPageSizePagination.apply('idcard');
 }
 
-var filterState={employee:'',status:'all'};
+var filterState={employee:'',status:'all',query:''};
 function matchesFilters(employee,status,employeeFilter,statusFilter){
   return (!employeeFilter||String(employee||'')===String(employeeFilter))&&(statusFilter==='all'||String(status||'')===String(statusFilter));
 }
@@ -129,25 +129,25 @@ function enhanceFilters(){
   var panel=document.getElementById('ic-list-filters');
   if(!panel){
     panel=document.createElement('div');panel.id='ic-list-filters';panel.className='ic-list-filters';
-    panel.innerHTML='<label><span>พนักงาน</span><select id="ic-filter-employee" aria-label="กรองตามพนักงาน"></select></label><label><span>สถานะ</span><select id="ic-filter-status" aria-label="กรองตามสถานะ"><option value="all">สถานะทั้งหมด</option><option value="vacant">ว่าง</option><option value="">รอตรวจสอบ</option><option value="has">ผ่าน</option><option value="missing">ไม่ผ่าน</option><option value="expired">บัตรหมดอายุ</option></select></label><button type="button" id="ic-filter-clear">ล้างตัวกรอง</button>';
+    panel.innerHTML='<label class="ic-search-label"><span>ค้นหาชื่อ</span><input id="ic-filter-search" type="search" aria-label="ค้นหาชื่อพนักงานหรือชื่อเฟสที่ใช้" placeholder="ค้นหาชื่อพนักงาน / ชื่อเฟสที่ใช้..." autocomplete="off"></label><label><span>พนักงาน</span><select id="ic-filter-employee" aria-label="กรองตามพนักงาน"></select></label><label><span>สถานะ</span><select id="ic-filter-status" aria-label="กรองตามสถานะ"><option value="all">สถานะทั้งหมด</option><option value="vacant">ว่าง</option><option value="">รอตรวจสอบ</option><option value="has">ผ่าน</option><option value="missing">ไม่ผ่าน</option><option value="expired">บัตรหมดอายุ</option></select></label><button type="button" id="ic-filter-clear">ล้างตัวกรอง</button>';
     var table=tbody.closest('table'),host=table&&table.parentElement;if(host)host.insertAdjacentElement('beforebegin',panel);else rootNode.insertBefore(panel,tbody);
-    panel.querySelector('#ic-filter-employee').addEventListener('change',function(){filterState.employee=this.value;applyFilters();});
+    panel.querySelector('#ic-filter-search').addEventListener('input',function(){filterState.query=this.value;applyFilters();});    panel.querySelector('#ic-filter-employee').addEventListener('change',function(){filterState.employee=this.value;applyFilters();});
     panel.querySelector('#ic-filter-status').addEventListener('change',function(){filterState.status=this.value;applyFilters();});
-    panel.querySelector('#ic-filter-clear').addEventListener('click',function(){filterState={employee:'',status:'all'};panel.querySelector('#ic-filter-employee').value='';panel.querySelector('#ic-filter-status').value='all';applyFilters();});
+    panel.querySelector('#ic-filter-clear').addEventListener('click',function(){filterState={employee:'',status:'all',query:''};panel.querySelector('#ic-filter-employee').value='';panel.querySelector('#ic-filter-status').value='all';panel.querySelector('#ic-filter-search').value='';applyFilters();});
   }
-  syncEmployeeFilter(panel.querySelector('#ic-filter-employee'));panel.querySelector('#ic-filter-status').value=filterState.status;
+  panel.querySelector('#ic-filter-search').value=filterState.query;syncEmployeeFilter(panel.querySelector('#ic-filter-employee'));panel.querySelector('#ic-filter-status').value=filterState.status;
 }
 function applyFilters(){
   var tbody=document.getElementById('ic-tbody');if(!tbody)return;
   var rows=Array.prototype.filter.call(tbody.children,function(row){return row.tagName==='TR'&&row.querySelector('select[data-icf="status"]');}),shown=0;
   rows.forEach(function(row){
     var employee=row.querySelector('select[data-icf="employee"]'),status=row.querySelector('select[data-icf="status"]');
-    var matches=matchesFilters(employee&&employee.value,status&&status.value,filterState.employee,filterState.status);row.hidden=!matches;
+    var phase=row.querySelector('[data-icf="phase"]'),option=employee&&employee.options[employee.selectedIndex];    var names=[employee&&employee.value,option&&option.textContent,phase&&phase.value].join(' ').toLocaleLowerCase();    var matches=matchesFilters(employee&&employee.value,status&&status.value,filterState.employee,filterState.status)&&names.indexOf(filterState.query.trim().toLocaleLowerCase())!==-1;row.hidden=!matches;
     if(matches){row.removeAttribute('data-rbps-ignore');shown++;}else row.setAttribute('data-rbps-ignore','filter');
   });
   var empty=document.getElementById('ic-filter-empty');
   if(!shown&&rows.length){if(!empty){empty=document.createElement('tr');empty.id='ic-filter-empty';empty.setAttribute('data-rbps-ignore','filter');empty.innerHTML='<td colspan="8">ไม่พบรายการที่ตรงกับตัวกรอง</td>';tbody.appendChild(empty);}empty.hidden=false;}else if(empty)empty.remove();
-  var clear=document.getElementById('ic-filter-clear');if(clear)clear.hidden=!filterState.employee&&filterState.status==='all';
+  var clear=document.getElementById('ic-filter-clear');if(clear)clear.hidden=!filterState.employee&&filterState.status==='all'&&!filterState.query;
   if(root.rbPageSizePagination&&typeof root.rbPageSizePagination.apply==='function')root.rbPageSizePagination.apply('idcard');
 }
 
